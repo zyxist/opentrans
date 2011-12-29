@@ -18,7 +18,7 @@
 package org.invenzzia.visitons.network;
 
 /**
- * The class description.
+ * Represents an edge that connects two vertices on a network.
  *
  * @author zyxist
  */

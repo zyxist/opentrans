@@ -18,6 +18,7 @@
 package org.invenzzia.visitons.network;
 import java.util.List;
 import java.util.Arrays;
+import org.invenzzia.utils.Args;
 import org.invenzzia.visitons.exception.GraphException;
 import org.invenzzia.utils.geometry.IMutablePoint;
 
@@ -56,23 +57,33 @@ public class Vertex implements IMutablePoint, ITransit
 		this.y = y;
 	} // end Vertex();
 	
+	/**
+	 * Binds an edge to the vertex under the given index.
+	 * The index must not exceed the vertex degree.
+	 * 
+	 * @param edgeId The edge index.
+	 * @param edge The edge to bind.
+	 * @return Fluent interface.
+	 */
 	public Vertex setEdge(int edgeId, Edge edge)
 	{
-		if(edgeId < 0 || edgeId > this.edges.length)
-		{
-			throw new IllegalArgumentException("The edge ID exceeds the available value.");
-		}
-		this.edges[edgeId] = edge;
+		this.edges[
+			Args.checkIndex(edgeId, this.edges, "The edge ID exceeds the available value.")
+		] = edge;
 		return this;
 	} // end setEdge();
 	
+	/**
+	 * Returns the given edge connected to this vertex.
+	 * 
+	 * @param edgeId The edge number [0, vertex degree)
+	 * @return The edge object
+	 */
 	public Edge getEdge(int edgeId)
 	{
-		if(edgeId < 0 || edgeId > this.edges.length)
-		{
-			throw new IllegalArgumentException("The edge ID exceeds the available value.");
-		}
-		return this.edges[edgeId];
+		return this.edges[
+			Args.checkIndex(edgeId, this.edges, "The edge ID exceeds the available value.")
+		];
 	} // end getEdge();
 	
 	/**

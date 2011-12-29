@@ -1,8 +1,9 @@
 /*
  * Visitons - transportation network simulation and visualization library.
+ * Copyright (c) 2011-2012 Invenzzia Group
  * 
  * Visitons is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+ * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *

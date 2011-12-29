@@ -14,25 +14,23 @@
  * You should have received a copy of the GNU General Public License
  * along with Visitons. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.invenzzia.visitons.network;
-import java.util.List;
+package org.invenzzia.visitons.visualization;
+
+import java.awt.Graphics;
 
 /**
- * This interface handles vehicle transition between the edges entering
- * the node.
+ * This interface allows to implement custom renderers for the camera
+ * using the Strategy pattern.
  * 
  * @author zyxist
  */
-public interface TransitInterface
+public interface IPainter
 {
 	/**
-	 * The track objects can use this method to ask, what edges are reachable
-	 * through this vertex from the given edge. It is the implementor responsibility
-	 * to generate choices that make sense (i.e. not to return an edge that is
-	 * unreachable on a junction).
+	 * Draws various background stuff on the canvas.
 	 * 
-	 * @param edge The edge we come from
-	 * @return The array of edges we can go to
+	 * @param camera
+	 * @param g 
 	 */
-	public List<Edge> whereCanWeGoFrom(Edge edge);
-} // end TransitInterface;
+	public void drawBackground(Camera camera, Graphics g);
+} // end IPainter;

@@ -18,7 +18,7 @@ package org.invenzzia.visitons.network;
 import java.util.List;
 import java.util.Arrays;
 import org.invenzzia.visitons.exception.GraphException;
-import org.invenzzia.visitons.geometry.MutablePointInterface;
+import org.invenzzia.utils.geometry.IMutablePoint;
 
 /**
  * This class represents a free vertex which can be moved
@@ -26,7 +26,7 @@ import org.invenzzia.visitons.geometry.MutablePointInterface;
  *
  * @author zyxist
  */
-public class Vertex implements MutablePointInterface, TransitInterface
+public class Vertex implements IMutablePoint, ITransit
 {
 	/**
 	 * Contains the references to edges coming out from this vertex.
@@ -82,10 +82,7 @@ public class Vertex implements MutablePointInterface, TransitInterface
 	public Vertex expandVertex()
 	{
 		Edge newEdges[] = new Edge[this.edges.length + 1];
-		for(int i = 0; i < this.edges.length; i++)
-		{
-			newEdges[i] = this.edges[i];
-		}
+		System.arraycopy(this.edges, 0, newEdges, 0, this.edges.length);
 		this.edges = newEdges;
 		return this;
 	} // end expandVertex();
@@ -103,10 +100,7 @@ public class Vertex implements MutablePointInterface, TransitInterface
 			throw new GraphException("Cannot degrade a vertex of degree 1.");
 		}
 		Edge newEdges[] = new Edge[this.edges.length - 1];
-		for(int i = 0; i < newEdges.length; i++)
-		{
-			newEdges[i] = this.edges[i];
-		}
+		System.arraycopy(this.edges, 0, newEdges, 0, newEdges.length);
 		this.edges = newEdges;
 		return this;
 	} // end degradeVertex();
@@ -127,31 +121,36 @@ public class Vertex implements MutablePointInterface, TransitInterface
 		return Arrays.asList(this.edges);
 	} // end getEdges();
 
-	public MutablePointInterface setX(double x)
+	@Override
+	public IMutablePoint setX(double x)
 	{
 		this.x = x;
 		return this;
 	} // end setX();
 
-	public MutablePointInterface setY(double y)
+	@Override
+	public IMutablePoint setY(double y)
 	{
 		this.y = y;
 		return this;
 	} // end setY();
 
+	@Override
 	public double getX()
 	{
 		return this.x;
 	} // end getX();
 
+	@Override
 	public double getY()
 	{
 		return this.y;
 	} // end getY();
 
 	/**
-	 * @see TransitInterface
+	 * @see ITransit
 	 */
+	@Override
 	public List<Edge> whereCanWeGoFrom(Edge edge)
 	{
 		throw new UnsupportedOperationException("Not supported yet.");

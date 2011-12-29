@@ -38,7 +38,7 @@ public class Camera extends Canvas
 	/**
 	 * A reference for the painting strategy.
 	 */
-	protected PainterInterface painterInterface;
+	protected IPainter painterInterface;
 	/**
 	 * Camera top-left corner position in metres.
 	 */
@@ -113,7 +113,7 @@ public class Camera extends Canvas
 	 * @param painterInterface
 	 * @return Fluent interface.
 	 */
-	public Camera setPainterInterface(PainterInterface painterInterface)
+	public Camera setPainterInterface(IPainter painterInterface)
 	{
 		this.painterInterface = painterInterface;
 		return this;
@@ -124,7 +124,7 @@ public class Camera extends Canvas
 	 * 
 	 * @return The rendering strategy. 
 	 */
-	public PainterInterface getPainterInterface()
+	public IPainter getPainterInterface()
 	{
 		return this.painterInterface;
 	} // end getPainterInterface();

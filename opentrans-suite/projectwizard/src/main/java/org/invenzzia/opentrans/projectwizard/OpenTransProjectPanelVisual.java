@@ -24,6 +24,8 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.Document;
 
+import org.invenzzia.utils.Validation;
+import org.invenzzia.utils.exception.ValidationException;
 import org.netbeans.spi.project.ui.support.ProjectChooser;
 import org.openide.WizardDescriptor;
 import org.openide.WizardValidationException;
@@ -277,8 +279,19 @@ public class OpenTransProjectPanelVisual extends JPanel implements DocumentListe
 				"Project Folder already exists and is not empty.");
 			return false;
 		}
-		wizardDescriptor.putProperty("WizardPanel_errorMessage", "");
-		return true;
+		// Now normal code.
+		try
+		{
+			Validation.checkLength("Author", this.authorTextField.getText(), 2, 30, "The author name must be between 2 and 30 characters long.");
+			Validation.isValidUrl("Website", this.websiteTextField.getText(), "The website address is not a valid URL.");
+			wizardDescriptor.putProperty("WizardPanel_errorMessage", "");
+			return true;
+		}
+		catch(ValidationException exception)
+		{
+			wizardDescriptor.putProperty("WizardPanel_errorMessage", exception.getMessage());
+			return false;
+		}
 	} // end valid();
 
 	void store(WizardDescriptor d)

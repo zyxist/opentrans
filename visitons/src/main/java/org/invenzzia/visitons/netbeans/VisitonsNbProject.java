@@ -20,6 +20,7 @@ package org.invenzzia.visitons.netbeans;
 import java.beans.PropertyChangeListener;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+
 import org.invenzzia.visitons.project.VisitonsProject;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectInformation;

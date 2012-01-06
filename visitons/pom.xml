@@ -45,6 +45,21 @@
             <artifactId>utils</artifactId>
             <version>0.1</version>
         </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-nodes</artifactId>
+            <version>RELEASE701</version>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-netbeans-modules-projectapi</artifactId>
+            <version>RELEASE701</version>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-netbeans-modules-projectuiapi</artifactId>
+            <version>RELEASE701</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -54,6 +69,15 @@
                 <artifactId>nbm-maven-plugin</artifactId>
                 <version>3.5</version>
                 <extensions>true</extensions>
+                <configuration>
+                    <publicPackages>
+                        <publicPackage>org.invenzzia.visitons.exception</publicPackage>
+                        <publicPackage>org.invenzzia.visitons.netbeans</publicPackage>
+                        <publicPackage>org.invenzzia.visitons.network</publicPackage>
+                        <publicPackage>org.invenzzia.visitons.project</publicPackage>
+                        <publicPackage>org.invenzzia.visitons.visualization</publicPackage>
+                    </publicPackages>
+                </configuration>
             </plugin>
 
             <plugin>
@@ -62,8 +86,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>2.3.2</version>
                 <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
+                    <source>1.7</source>
+                    <target>1.7</target>
                 </configuration>
             </plugin>
 
@@ -78,4 +102,15 @@
             </plugin>
         </plugins>
     </build>
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <configuration>
+                    <configLocation>checkstyle.xml</configLocation>
+                </configuration>
+            </plugin>
+        </plugins>
+    </reporting>
 </project>

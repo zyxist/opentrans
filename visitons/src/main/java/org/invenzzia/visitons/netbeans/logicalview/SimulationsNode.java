@@ -26,7 +26,7 @@ import org.openide.util.Lookup;
 import org.openide.util.lookup.Lookups;
 
 /**
- * Description here.
+ * A presentation node for the simulation. It uses the NetBeans Nodes API.
  * 
  * @author Tomasz Jędrzejewski
  */

@@ -26,9 +26,8 @@ import org.openide.util.Lookup;
 import org.openide.util.lookup.Lookups;
 
 /**
- * Description here.
+ * A presentation node for the situation. It uses the NetBeans Nodes API.
  * 
- * @copyright Invenzzia Group <http://www.invenzzia.org/>
  * @author Tomasz Jędrzejewski
  */
 public class SituationsNode extends AbstractNode

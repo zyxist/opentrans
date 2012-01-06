@@ -25,7 +25,7 @@ import org.openide.nodes.Children;
 import org.openide.util.Lookup;
 
 /**
- * Description here.
+ *  * A presentation node for the map. It uses the NetBeans Nodes API.
  * 
  * @author Tomasz Jędrzejewski
  */

@@ -70,6 +70,7 @@
         <module>application</module>
     <module>visitons</module>
     <module>opentrans-suite</module>
+    <module>appstructure</module>
   </modules>
 
     <properties>

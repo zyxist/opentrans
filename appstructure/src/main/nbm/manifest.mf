@@ -1,0 +1,3 @@
+Manifest-Version: 1.0
+OpenIDE-Module-Localizing-Bundle: org/invenzzia/opentrans/appstructure/Bundle.properties
+OpenIDE-Module-Layer: org/invenzzia/opentrans/appstructure/layer.xml

@@ -69,6 +69,7 @@
         <module>branding</module>
         <module>application</module>
     <module>visitons</module>
+    <module>opentrans-suite</module>
   </modules>
 
     <properties>

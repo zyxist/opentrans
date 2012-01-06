@@ -17,6 +17,7 @@
  */
 package org.invenzzia.visitons.netbeans;
 
+import org.invenzzia.visitons.netbeans.logicalview.ProjectNode;
 import org.netbeans.spi.project.ui.LogicalViewProvider;
 import org.openide.nodes.Node;
 
@@ -27,8 +28,16 @@ import org.openide.nodes.Node;
  */
 public class VisitonsNbProjectLogicalView implements LogicalViewProvider
 {
+	/**
+	 * The project we want to display in a logical way.
+	 */
 	private final VisitonsNbProject project;
 	
+	/**
+	 * Constructs a new logical view for the given project.
+	 * 
+	 * @param project 
+	 */
 	public VisitonsNbProjectLogicalView(VisitonsNbProject project)
 	{
 		this.project = project;
@@ -37,7 +46,7 @@ public class VisitonsNbProjectLogicalView implements LogicalViewProvider
 	@Override
 	public Node createLogicalView()
 	{
-		return null;
+		return new ProjectNode(this.project);
 	} // end createLogicalView();
 	
 	@Override

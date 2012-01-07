@@ -21,6 +21,7 @@ import java.beans.PropertyChangeListener;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
+import org.invenzzia.utils.Args;
 import org.invenzzia.visitons.project.VisitonsProject;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectInformation;
@@ -129,14 +130,14 @@ public class VisitonsNbProject extends VisitonsProject implements Project
 		@Override
 		public String getName()
 		{
-			return VisitonsNbProject.this.getProjectDirectory().getName();
+			return Args.checkNotNull(VisitonsNbProject.this.getProjectDirectory().getName());
 		} // end getName();
 
 		@Override
 		public String getDisplayName()
 		{
-			return VisitonsNbProject.this.getName();
-		}
+			return Args.checkNotNull(VisitonsNbProject.this.getName());
+		} // end getDisplayName();
 
 		@Override
 		public void addPropertyChangeListener(PropertyChangeListener pcl)

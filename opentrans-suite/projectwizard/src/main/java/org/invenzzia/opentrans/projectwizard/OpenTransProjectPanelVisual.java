@@ -31,6 +31,11 @@ import org.openide.WizardDescriptor;
 import org.openide.WizardValidationException;
 import org.openide.filesystems.FileUtil;
 
+/**
+ * The only window of the new project wizard.
+ * 
+ * @author Tomasz Jędrzejewski
+ */
 public class OpenTransProjectPanelVisual extends JPanel implements DocumentListener
 {
 	public static final String PROP_PROJECT_NAME = "projectName";
@@ -42,6 +47,9 @@ public class OpenTransProjectPanelVisual extends JPanel implements DocumentListe
 		this.panel = panel;
 		// Register listener on the textFields to make the automatic updates
 		this.projectNameTextField.getDocument().addDocumentListener(this);
+		this.authorTextField.getDocument().addDocumentListener(this);
+		this.websiteTextField.getDocument().addDocumentListener(this);
+		this.notesArea.getDocument().addDocumentListener(this);
 		this.projectLocationTextField.getDocument().addDocumentListener(this);
 	} // end OpenTransProjectPanelVisual();
 
@@ -233,6 +241,12 @@ public class OpenTransProjectPanelVisual extends JPanel implements DocumentListe
 		this.projectNameTextField.requestFocus();
 	} // end addNotify();
 
+	/**
+	 * Checks if the form data are valid.
+	 * 
+	 * @param wizardDescriptor
+	 * @return 
+	 */
 	boolean valid(WizardDescriptor wizardDescriptor)
 	{
 
@@ -294,6 +308,10 @@ public class OpenTransProjectPanelVisual extends JPanel implements DocumentListe
 		}
 	} // end valid();
 
+	/**
+	 * Exports the data to the wizard descriptor, so that they are available
+	 * to the project wizard iterator.
+	 */
 	void store(WizardDescriptor d)
 	{
 		String name = this.projectNameTextField.getText().trim();
@@ -301,8 +319,16 @@ public class OpenTransProjectPanelVisual extends JPanel implements DocumentListe
 
 		d.putProperty("projdir", new File(folder));
 		d.putProperty("name", name);
+		d.putProperty("author", this.authorTextField.getText().trim());
+		d.putProperty("website", this.websiteTextField.getText().trim());
+		d.putProperty("notes", this.notesArea.getText().trim());
 	} // end store();
 
+	/**
+	 * Reads the data from the wizard descriptor and populates the form.
+	 * 
+	 * @param settings 
+	 */
 	void read(WizardDescriptor settings)
 	{
 		File projectLocation = (File) settings.getProperty("projdir");
@@ -316,13 +342,33 @@ public class OpenTransProjectPanelVisual extends JPanel implements DocumentListe
 		}
 		this.projectLocationTextField.setText(projectLocation.getAbsolutePath());
 
+		// Read the project name.
 		String projectName = (String) settings.getProperty("name");
-		if(projectName == null)
+		if(null == projectName)
 		{
 			projectName = "OpenTransProject";
 		}
 		this.projectNameTextField.setText(projectName);
 		this.projectNameTextField.selectAll();
+		
+		// Read the author.
+		String author = (String) settings.getProperty("author");
+		if(null != author)
+		{
+			this.authorTextField.setText(author);
+		}
+		// Read the website
+		String website = (String) settings.getProperty("website");
+		if(null != website)
+		{
+			this.websiteTextField.setText(website);
+		}
+		// Read the notes
+		String notes = (String) settings.getProperty("notes");
+		if(null != notes)
+		{
+			this.notesArea.setText(notes);
+		}
 	} // end read();
 
 	void validate(WizardDescriptor d) throws WizardValidationException
@@ -358,7 +404,9 @@ public class OpenTransProjectPanelVisual extends JPanel implements DocumentListe
 		}
 	} // end removeUpdate();
 
-	/** Handles changes in the Project name and project directory, */
+	/**
+	 * Handles changes in the Project name and project directory.
+	 */
 	private void updateTexts(DocumentEvent e)
 	{
 

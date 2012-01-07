@@ -33,6 +33,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import javax.swing.JComponent;
 import javax.swing.event.ChangeListener;
+
+import org.invenzzia.utils.XmlUtil;
 import org.netbeans.api.project.ProjectManager;
 import org.netbeans.spi.project.ui.support.ProjectChooser;
 import org.netbeans.spi.project.ui.templates.support.Templates;
@@ -44,50 +46,84 @@ import org.openide.util.NbBundle;
 import org.openide.xml.XMLUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
+/**
+ * The object of the wizard iterator creates and scans the wizard panels, imports the
+ * data from it and finally, creates the project from a predefined ZIP
+ * archive.
+ * 
+ * @author Tomasz Jędrzejewski
+ */
 public class OpenTransProjectWizardIterator implements WizardDescriptor./*Progress*/InstantiatingIterator
 {
-
+	/**
+	 * The index of the panel.
+	 */
 	private int index;
+	/**
+	 * The wizard panels.
+	 */
 	private WizardDescriptor.Panel[] panels;
+	/**
+	 * The wizard descriptor.
+	 */
 	private WizardDescriptor wiz;
 
 	public OpenTransProjectWizardIterator()
 	{
-	}
+	} // end OpenTransProjectWizardIterator();
 
+	/**
+	 * A factory method that creates a new project wizard
+	 * iterator.
+	 * 
+	 * @return The new project wizard iterator.
+	 */
 	public static OpenTransProjectWizardIterator createIterator()
 	{
 		return new OpenTransProjectWizardIterator();
-	}
+	} // end createIterator();
 
+	/**
+	 * Produces the panels that form the wizard.
+	 * 
+	 * @return The array of wizard panels.
+	 */
 	private WizardDescriptor.Panel[] createPanels()
 	{
 		return new WizardDescriptor.Panel[]
 			{
 				new OpenTransProjectWizardPanel(),
 			};
-	}
+	} // end createPanels();
 
+	/**
+	 * @return The list of wizard step names.
+	 */
 	private String[] createSteps()
 	{
 		return new String[]
 			{
 				NbBundle.getMessage(OpenTransProjectWizardIterator.class, "LBL_CreateProjectStep")
 			};
-	}
+	} // end createSteps();
 
+	/**
+	 * Instantiates the project once the wizard is finished.
+	 * 
+	 * @return The list of projects to open.
+	 * @throws IOException 
+	 */
 	public Set/*<FileObject>*/ instantiate(/*ProgressHandle handle*/) throws IOException
 	{
-		Set<FileObject> resultSet = new LinkedHashSet<FileObject>();
-		File dirF = FileUtil.normalizeFile((File) wiz.getProperty("projdir"));
+		Set<FileObject> resultSet = new LinkedHashSet<>();
+		File dirF = FileUtil.normalizeFile((File) this.wiz.getProperty("projdir"));
 		dirF.mkdirs();
 
-		FileObject template = Templates.getTemplate(wiz);
+		FileObject template = Templates.getTemplate(this.wiz);
 		FileObject dir = FileUtil.toFileObject(dirF);
-		unZipFile(template.getInputStream(), dir);
+		unZipFile(template.getInputStream(), dir, this.wiz);
 
 		// Always open top dir as a project:
 		resultSet.add(dir);
@@ -109,18 +145,18 @@ public class OpenTransProjectWizardIterator implements WizardDescriptor./*Progre
 		}
 
 		return resultSet;
-	}
+	} // end instantiate();
 
 	public void initialize(WizardDescriptor wiz)
 	{
 		this.wiz = wiz;
-		index = 0;
-		panels = createPanels();
+		this.index = 0;
+		this.panels = createPanels();
 		// Make sure list of steps is accurate.
 		String[] steps = createSteps();
-		for(int i = 0; i < panels.length; i++)
+		for(int i = 0; i < this.panels.length; i++)
 		{
-			Component c = panels[i].getComponent();
+			Component c = this.panels[i].getComponent();
 			if(steps[i] == null)
 			{
 				// Default step name to component name of panel.
@@ -138,34 +174,42 @@ public class OpenTransProjectWizardIterator implements WizardDescriptor./*Progre
 				jc.putClientProperty("WizardPanel_contentData", steps);
 			}
 		}
-	}
+	} // end initialize();
 
+	/**
+	 * Uninitializes the given wizard descriptor.
+	 * 
+	 * @param wiz The wizard descriptor to uninitialize.
+	 */
 	public void uninitialize(WizardDescriptor wiz)
 	{
 		this.wiz.putProperty("projdir", null);
 		this.wiz.putProperty("name", null);
+		this.wiz.putProperty("author", null);
+		this.wiz.putProperty("website", null);
+		this.wiz.putProperty("notes", null);
 		this.wiz = null;
 		panels = null;
-	}
+	} // end uninitialize();
 
 	public String name()
 	{
 		return MessageFormat.format("{0} of {1}",
 			new Object[]
 			{
-				new Integer(index + 1), new Integer(panels.length)
+				new Integer(this.index + 1), new Integer(this.panels.length)
 			});
-	}
+	} // end name();
 
 	public boolean hasNext()
 	{
-		return index < panels.length - 1;
-	}
+		return this.index < panels.length - 1;
+	} // end hasNext();
 
 	public boolean hasPrevious()
 	{
-		return index > 0;
-	}
+		return this.index > 0;
+	} // end hasPrevious();
 
 	public void nextPanel()
 	{
@@ -173,8 +217,8 @@ public class OpenTransProjectWizardIterator implements WizardDescriptor./*Progre
 		{
 			throw new NoSuchElementException();
 		}
-		index++;
-	}
+		this.index++;
+	} // end nextPanel();
 
 	public void previousPanel()
 	{
@@ -182,24 +226,33 @@ public class OpenTransProjectWizardIterator implements WizardDescriptor./*Progre
 		{
 			throw new NoSuchElementException();
 		}
-		index--;
-	}
+		this.index--;
+	} // end previousPanel();
 
 	public WizardDescriptor.Panel current()
 	{
-		return panels[index];
-	}
+		return this.panels[this.index];
+	} // end current();
 
 	// If nothing unusual changes in the middle of the wizard, simply:
 	public final void addChangeListener(ChangeListener l)
 	{
-	}
+	} // end addChangeListener();
 
 	public final void removeChangeListener(ChangeListener l)
 	{
-	}
+	} // end removeChangeListener();
 
-	private static void unZipFile(InputStream source, FileObject projectRoot) throws IOException
+	/**
+	 * Unzips the project template and copies the files to the new location.
+	 * In addition, it configures the main project file using the data from
+	 * the wizard.
+	 * 
+	 * @param source
+	 * @param projectRoot
+	 * @throws IOException 
+	 */
+	private static void unZipFile(InputStream source, FileObject projectRoot, WizardDescriptor descriptor) throws IOException
 	{
 		try
 		{
@@ -214,10 +267,10 @@ public class OpenTransProjectWizardIterator implements WizardDescriptor./*Progre
 				else
 				{
 					FileObject fo = FileUtil.createData(projectRoot, entry.getName());
-					if("nbproject/project.xml".equals(entry.getName()))
+					if("project.xml".equals(entry.getName()))
 					{
 						// Special handling for setting name of Ant-based projects; customize as needed:
-						filterProjectXML(fo, str, projectRoot.getName());
+						filterProjectXML(fo, str, descriptor);
 					}
 					else
 					{
@@ -230,8 +283,15 @@ public class OpenTransProjectWizardIterator implements WizardDescriptor./*Progre
 		{
 			source.close();
 		}
-	}
+	} // end unZipFile();
 
+	/**
+	 * Attempts to save the file.
+	 * 
+	 * @param str
+	 * @param fo
+	 * @throws IOException 
+	 */
 	private static void writeFile(ZipInputStream str, FileObject fo) throws IOException
 	{
 		OutputStream out = fo.getOutputStream();
@@ -243,32 +303,29 @@ public class OpenTransProjectWizardIterator implements WizardDescriptor./*Progre
 		{
 			out.close();
 		}
-	}
+	} // end writeFile();
 
-	private static void filterProjectXML(FileObject fo, ZipInputStream str, String name) throws IOException
+	/**
+	 * Filters the main project XML file and puts the wizard data into it.
+	 * 
+	 * @param fo The file object
+	 * @param str
+	 * @param name
+	 * @throws IOException 
+	 */
+	private static void filterProjectXML(FileObject fo, ZipInputStream str, WizardDescriptor descriptor) throws IOException
 	{
 		try
 		{
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			FileUtil.copy(str, baos);
 			Document doc = XMLUtil.parse(new InputSource(new ByteArrayInputStream(baos.toByteArray())), false, false, null, null);
-			NodeList nl = doc.getDocumentElement().getElementsByTagName("name");
-			if(nl != null)
-			{
-				for(int i = 0; i < nl.getLength(); i++)
-				{
-					Element el = (Element) nl.item(i);
-					if(el.getParentNode() != null && "data".equals(el.getParentNode().getNodeName()))
-					{
-						NodeList nl2 = el.getChildNodes();
-						if(nl2.getLength() > 0)
-						{
-							nl2.item(0).setNodeValue(name);
-						}
-						break;
-					}
-				}
-			}
+			Element rootElement = doc.getDocumentElement();
+			XmlUtil.quickPropertyWrite(rootElement, "name", (String) descriptor.getProperty("name"));
+			XmlUtil.quickPropertyWrite(rootElement, "author", (String) descriptor.getProperty("author"));
+			XmlUtil.quickPropertyWrite(rootElement, "website", (String) descriptor.getProperty("website"));
+			XmlUtil.quickPropertyWrite(rootElement, "notes", (String) descriptor.getProperty("notes"));
+			
 			OutputStream out = fo.getOutputStream();
 			try
 			{

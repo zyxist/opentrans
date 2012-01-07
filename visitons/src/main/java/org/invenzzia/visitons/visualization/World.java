@@ -17,6 +17,7 @@
  */
 package org.invenzzia.visitons.visualization;
 
+import org.invenzzia.utils.Args;
 import org.invenzzia.visitons.network.Vertex;
 
 /**
@@ -57,6 +58,14 @@ public class World
 	 * Segment database.
 	 */
 	protected Segment segments[][];
+	/**
+	 * The iterator for creating unique vertex names.
+	 */
+	protected long vertexIterator;
+	/**
+	 * The iterator for creating unique edge names.
+	 */
+	protected long edgeIterator;
 	
 	/**
 	 * Initializes an empty world with the dimensions 1x1.
@@ -66,6 +75,7 @@ public class World
 		this.dimX = 1;
 		this.dimY = 1;
 		this.createWorld();
+		this.setIterators(0, 0);
 	} // end World();
 	
 	/**
@@ -87,22 +97,33 @@ public class World
 	} // end getY();
 	
 	/**
+	 * Populates the iterators that are used to give the vertices and edges the
+	 * unique names.
+	 * 
+	 * @param vertexIterator The value of the vertex iterator.
+	 * @param edgeIterator The value of the edge iterator.
+	 */
+	public void setIterators(long vertexIterator, long edgeIterator)
+	{
+		this.vertexIterator = vertexIterator;
+		this.edgeIterator = edgeIterator;
+	} // end setIterators();
+	
+	/**
 	 * Initializes an empty world with the dimensions provided
-	 * in the arguments.
+	 * in the arguments. The old data is lost.
 	 * 
 	 * @param x
 	 * @param y 
 	 */
-	public World(int x, int y)
+	public void construct(int x, int y)
 	{
-		if(x < 1 || y < 1)
-		{
-			throw new IllegalArgumentException("The world size must not be negative.");
-		}
+		x = Args.checkNotNegative(x);
+		y = Args.checkNotNegative(y);
 		this.dimX = x;
 		this.dimY = y;
 		this.createWorld();
-	} // end World();
+	} // end construct();
 	
 	/**
 	 * Performs the actual world initialization.

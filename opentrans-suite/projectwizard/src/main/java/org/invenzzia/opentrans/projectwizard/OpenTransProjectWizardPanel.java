@@ -36,83 +36,84 @@ public class OpenTransProjectWizardPanel implements WizardDescriptor.Panel,
 
 	private WizardDescriptor wizardDescriptor;
 	private OpenTransProjectPanelVisual component;
+	private final Set<ChangeListener> listeners = new HashSet<>(1); // or can use ChangeSupport in NB 6.0
 
 	public OpenTransProjectWizardPanel()
 	{
-	}
+	} // end OpenTransProjectWizardPanel();
 
 	public Component getComponent()
 	{
-		if(component == null)
+		if(null == this.component)
 		{
-			component = new OpenTransProjectPanelVisual(this);
-			component.setName(NbBundle.getMessage(OpenTransProjectWizardPanel.class, "LBL_CreateProjectStep"));
+			this.component = new OpenTransProjectPanelVisual(this);
+			this.component.setName(NbBundle.getMessage(OpenTransProjectWizardPanel.class, "LBL_CreateProjectStep"));
 		}
-		return component;
-	}
+		return this.component;
+	} // end getComponent();
 
 	public HelpCtx getHelp()
 	{
 		return new HelpCtx(OpenTransProjectWizardPanel.class);
-	}
+	} // end getHelp();
 
 	public boolean isValid()
 	{
-		getComponent();
-		return component.valid(wizardDescriptor);
-	}
-	private final Set<ChangeListener> listeners = new HashSet<ChangeListener>(1); // or can use ChangeSupport in NB 6.0
+		this.getComponent();
+		return this.component.valid(this.wizardDescriptor);
+	} // end isValid();
+	
 
 	public final void addChangeListener(ChangeListener l)
 	{
-		synchronized(listeners)
+		synchronized(this.listeners)
 		{
-			listeners.add(l);
+			this.listeners.add(l);
 		}
-	}
+	} // end addChangeListener();
 
 	public final void removeChangeListener(ChangeListener l)
 	{
-		synchronized(listeners)
+		synchronized(this.listeners)
 		{
-			listeners.remove(l);
+			this.listeners.remove(l);
 		}
-	}
+	} // end removeChangeListener();
 
 	protected final void fireChangeEvent()
 	{
 		Set<ChangeListener> ls;
-		synchronized(listeners)
+		synchronized(this.listeners)
 		{
-			ls = new HashSet<ChangeListener>(listeners);
+			ls = new HashSet<>(this.listeners);
 		}
 		ChangeEvent ev = new ChangeEvent(this);
 		for(ChangeListener l : ls)
 		{
 			l.stateChanged(ev);
 		}
-	}
+	} // end fireChangeEvent();
 
 	public void readSettings(Object settings)
 	{
-		wizardDescriptor = (WizardDescriptor) settings;
-		component.read(wizardDescriptor);
-	}
+		this.wizardDescriptor = (WizardDescriptor) settings;
+		this.component.read(this.wizardDescriptor);
+	} // end readSettings();
 
 	public void storeSettings(Object settings)
 	{
 		WizardDescriptor d = (WizardDescriptor) settings;
-		component.store(d);
-	}
+		this.component.store(d);
+	} // end storeSettings();
 
 	public boolean isFinishPanel()
 	{
 		return true;
-	}
+	} // end isFinishPanel();
 
 	public void validate() throws WizardValidationException
 	{
-		getComponent();
-		component.validate(wizardDescriptor);
-	}
-}
+		this.getComponent();
+		this.component.validate(this.wizardDescriptor);
+	} // end validate();
+} // end OpenTransProjectWizardPanel;

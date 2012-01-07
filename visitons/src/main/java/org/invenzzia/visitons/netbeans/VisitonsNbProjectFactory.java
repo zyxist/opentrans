@@ -19,11 +19,16 @@ package org.invenzzia.visitons.netbeans;
 
 import java.io.IOException;
 
+import javax.swing.JOptionPane;
+import org.invenzzia.utils.exception.ApplicationException;
+import org.invenzzia.utils.exception.ParseException;
+import org.invenzzia.visitons.exception.io.IProjectReader;
 import org.invenzzia.visitons.project.VisitonsProject;
 import org.netbeans.api.project.Project;
 import org.netbeans.spi.project.ProjectFactory;
 import org.netbeans.spi.project.ProjectState;
 import org.openide.filesystems.FileObject;
+import org.openide.util.Lookup;
 
 /**
  * A factory for creating, opening and saving Simulation NetBeans
@@ -50,7 +55,27 @@ public class VisitonsNbProjectFactory implements ProjectFactory
 	@Override
 	public Project loadProject(FileObject projectDirectory, ProjectState projectState) throws IOException
 	{
-		return this.isProject(projectDirectory) ? new VisitonsNbProject(projectDirectory, projectState) : null;
+		if(!this.isProject(projectDirectory))
+		{
+			return null;
+		}
+		try
+		{
+			VisitonsNbProject theProject = new VisitonsNbProject(projectDirectory, projectState);
+
+			IProjectReader reader = Lookup.getDefault().lookup(IProjectReader.class);
+			reader.readProject(theProject, projectDirectory);
+			return theProject;
+		}
+		catch(ParseException parseException)
+		{
+			JOptionPane.showMessageDialog(null, parseException.getMessage()+" in file "+parseException.getFileName(), "Parsing error", JOptionPane.ERROR_MESSAGE);
+		}
+		catch(ApplicationException exception)
+		{
+			JOptionPane.showMessageDialog(null, exception.getMessage(), "Read error", JOptionPane.ERROR_MESSAGE);
+		}
+		return null;
 	} // end loadProject();
 
 	@Override
@@ -61,7 +86,6 @@ public class VisitonsNbProjectFactory implements ProjectFactory
 		{
 			throw new IOException("The project directory " + projectRoot.getPath() + " has been deleted.");
 		}
-		
 	} // end saveProject();
 	
 } // end VisitonsNbProjectFactory;

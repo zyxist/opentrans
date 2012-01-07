@@ -54,7 +54,19 @@ public class VisitonsProject
 	/**
 	 * Project name.
 	 */
-	private String name;
+	private String name = "Project name";
+	/**
+	 * The project author.
+	 */
+	private String author = "";
+	/**
+	 * The project website.
+	 */
+	private String website = "";
+	/**
+	 * The project notes.
+	 */
+	private String notes = "";
 	/**
 	 * The world object.
 	 */
@@ -68,6 +80,10 @@ public class VisitonsProject
 	 */
 	protected DefaultPersistableManager<String, Simulation> simulationManager;
 	
+	/**
+	 * Constructs the project object. At the start, all the internal data structures
+	 * are correctly initialized.
+	 */
 	public VisitonsProject()
 	{
 		this.world = new World();
@@ -95,6 +111,69 @@ public class VisitonsProject
 		return this;
 	} // end setName();
 	
+	/**
+	 * @return The project author.
+	 */
+	public String getAuthor()
+	{
+		return this.author;
+	} // end getAuthor();
+	
+	/**
+	 * Sets the project author.
+	 * 
+	 * @param author New author for the project
+	 * @return Fluent interface.
+	 */
+	public VisitonsProject setAuthor(String author)
+	{
+		this.author = author;
+		return this;
+	} // end setAuthor();
+	
+	/**
+	 * @return The project website.
+	 */
+	public String getWebsite()
+	{
+		return this.name;
+	} // end getWebsite();
+	
+	/**
+	 * Sets the project website.
+	 * 
+	 * @param website New website address for the project
+	 * @return Fluent interface.
+	 */
+	public VisitonsProject setWebsite(String website)
+	{
+		this.website = website;
+		return this;
+	} // end setWebsite();
+	
+	/**
+	 * @return The project notes.
+	 */
+	public String getNotes()
+	{
+		return this.notes;
+	} // end getNotes();
+	
+	/**
+	 * Sets the project notes.
+	 * 
+	 * @param name New notes for the project
+	 * @return Fluent interface.
+	 */
+	public VisitonsProject setNotes(String notes)
+	{
+		this.notes = notes;
+		return this;
+	} // end setNotes();
+	
+	/**
+	 * @return The world object containing the geographical network structure
+	 */
 	public World getWorld()
 	{
 		return this.world;

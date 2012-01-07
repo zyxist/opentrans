@@ -15,13 +15,14 @@
  * You should have received a copy of the GNU General Public License
  * along with Visitons. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.invenzzia.visitons.project.nodes;
+package org.invenzzia.visitons.netbeans;
 
 import java.awt.Image;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import javax.imageio.ImageIO;
+
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.lookup.ServiceProvider;

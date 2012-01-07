@@ -20,7 +20,7 @@ package org.invenzzia.visitons.netbeans.logicalview;
 import java.awt.Image;
 
 import org.invenzzia.visitons.project.VisitonsProject;
-import org.invenzzia.visitons.project.nodes.IconManager;
+import org.invenzzia.visitons.netbeans.IconManager;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Node;
 import org.openide.util.Lookup;

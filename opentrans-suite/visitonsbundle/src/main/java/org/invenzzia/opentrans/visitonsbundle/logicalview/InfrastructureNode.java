@@ -15,36 +15,33 @@
  * You should have received a copy of the GNU General Public License
  * along with Visitons. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.invenzzia.visitons.netbeans.logicalview;
+package org.invenzzia.opentrans.visitonsbundle.logicalview;
 
 import java.awt.Image;
 
+import org.invenzzia.opentrans.visitonsbundle.IconManager;
 import org.invenzzia.visitons.project.VisitonsProject;
-import org.invenzzia.visitons.netbeans.IconManager;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.util.Lookup;
-import org.openide.util.lookup.Lookups;
 
 /**
- * A presentation node for the situation. It uses the NetBeans Nodes API.
+ *  * A presentation node for the infrastructure. It uses the NetBeans Nodes API.
  * 
  * @author Tomasz Jędrzejewski
  */
-public class SituationsNode extends AbstractNode
+public class InfrastructureNode extends AbstractNode
 {
-	protected Image openedIcon;
-	protected Image closedIcon;
+	protected Image icon;
 	
-	public SituationsNode(VisitonsProject project)
+	public InfrastructureNode(VisitonsProject project)
 	{
-		super(Children.create(new SituationsChildFactory(project.getSituationManager()), true), Lookups.singleton(project));
-		this.setDisplayName("Situations");
+		super(Children.LEAF);
+		this.setDisplayName("Infrastructure");
 		
 		IconManager iconManager = Lookup.getDefault().lookup(IconManager.class);
-		this.openedIcon = iconManager.getIconFor("package-opened");
-		this.closedIcon = iconManager.getIconFor("package");
-	} // end SituationsNode();
+		this.icon = iconManager.getIconFor("lightbulb");
+	} // end ProjectNode();
 	
 	@Override
 	public boolean canCut()
@@ -55,13 +52,13 @@ public class SituationsNode extends AbstractNode
 	@Override
 	public boolean canDestroy()
 	{
-		return true;
+		return false;
 	} // end canDestroy();
 	
 	@Override
 	public boolean canRename()
 	{
-		return true;
+		return false;
 	} // end canRename();
 	
 	@Override
@@ -73,13 +70,7 @@ public class SituationsNode extends AbstractNode
 	@Override
 	public Image getIcon(int type)
 	{
-		return this.closedIcon;
+		return this.icon;
 	} // end getIcon();
-	
-	@Override
-	public Image getOpenedIcon(int type)
-	{
-		return this.openedIcon;
-	} // end getIcon();
-} // end SituationsNode;
+} // end InfrastructureNode;
 

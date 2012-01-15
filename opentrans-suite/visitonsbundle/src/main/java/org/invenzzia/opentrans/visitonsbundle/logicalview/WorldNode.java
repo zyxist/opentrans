@@ -15,39 +15,37 @@
  * You should have received a copy of the GNU General Public License
  * along with Visitons. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.invenzzia.visitons.netbeans.logicalview;
+package org.invenzzia.opentrans.visitonsbundle.logicalview;
 
 import java.awt.Image;
 
 import org.invenzzia.visitons.project.VisitonsProject;
-import org.invenzzia.visitons.netbeans.IconManager;
+import org.invenzzia.opentrans.visitonsbundle.IconManager;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Node;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.Lookups;
 
 /**
- * A presentation node for the Transportation project. It uses the NetBeans Nodes
+ * A presentation node for the world. It uses the NetBeans Nodes
  * API.
  * 
- * @copyright Invenzzia Group <http://www.invenzzia.org/>
  * @author Tomasz Jędrzejewski
  */
-public class ProjectNode extends AbstractNode
+public class WorldNode extends AbstractNode
 {
-	protected Image projectIcon;
+	protected Image icon;
 	
-	public ProjectNode(VisitonsProject project)
-	{
+	public WorldNode(VisitonsProject project)
+	{	
 		super(new StaticChildrenCollection(new Node[]{
-			new WorldNode(project),
-			new SituationsNode(project),
-			new SimulationsNode(project)
+			new MapNode(project),
+			new InfrastructureNode(project)
 		}), Lookups.singleton(project));
-		this.setDisplayName(project.getName());
+		this.setDisplayName("World");
 		
 		IconManager iconManager = Lookup.getDefault().lookup(IconManager.class);
-		this.projectIcon = iconManager.getIconFor("project");
+		this.icon = iconManager.getIconFor("world");
 	} // end ProjectNode();
 	
 	@Override
@@ -59,13 +57,13 @@ public class ProjectNode extends AbstractNode
 	@Override
 	public boolean canDestroy()
 	{
-		return true;
+		return false;
 	} // end canDestroy();
 	
 	@Override
 	public boolean canRename()
 	{
-		return true;
+		return false;
 	} // end canRename();
 	
 	@Override
@@ -77,12 +75,13 @@ public class ProjectNode extends AbstractNode
 	@Override
 	public Image getIcon(int type)
 	{
-		return this.projectIcon;
+		return this.icon;
 	} // end getIcon();
 	
 	@Override
 	public Image getOpenedIcon(int type)
 	{
-		return this.projectIcon;
-	} // end getIcon();
-} // end ProjectNode;
+		return this.icon;
+	} // end getOpenedIcon();
+} // end WorldNode;
+

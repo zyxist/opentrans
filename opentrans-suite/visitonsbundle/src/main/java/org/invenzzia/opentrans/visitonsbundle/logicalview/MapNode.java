@@ -15,36 +15,41 @@
  * You should have received a copy of the GNU General Public License
  * along with Visitons. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.invenzzia.visitons.netbeans.logicalview;
+package org.invenzzia.opentrans.visitonsbundle.logicalview;
 
 import java.awt.Image;
 
+import java.awt.event.ActionEvent;
+import java.beans.PropertyChangeListener;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import org.invenzzia.visitons.project.VisitonsProject;
-import org.invenzzia.visitons.netbeans.IconManager;
+import org.invenzzia.opentrans.visitonsbundle.IconManager;
+import org.invenzzia.opentrans.visitonsbundle.listeners.IMapNodeListener;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.util.Lookup;
-import org.openide.util.lookup.Lookups;
 
 /**
- * A presentation node for the simulation. It uses the NetBeans Nodes API.
+ *  * A presentation node for the map. It uses the NetBeans Nodes API.
  * 
  * @author Tomasz Jędrzejewski
  */
-public class SimulationsNode extends AbstractNode
+public class MapNode extends AbstractNode
 {
-	protected Image openedIcon;
-	protected Image closedIcon;
+	protected Image icon;
+	protected VisitonsProject project;
 	
-	public SimulationsNode(VisitonsProject project)
+	public MapNode(VisitonsProject project)
 	{
-		super(Children.create(new SimulationsChildFactory(project.getSimulationManager()), true), Lookups.singleton(project));
-		this.setDisplayName("Simulations");
+		super(Children.LEAF);
+		
+		this.project = project;
+		this.setDisplayName("Map");
 		
 		IconManager iconManager = Lookup.getDefault().lookup(IconManager.class);
-		this.openedIcon = iconManager.getIconFor("package-opened");
-		this.closedIcon = iconManager.getIconFor("package");
-	} // end SimulationsNode();
+		this.icon = iconManager.getIconFor("map");
+	} // end ProjectNode();
 	
 	@Override
 	public boolean canCut()
@@ -55,13 +60,13 @@ public class SimulationsNode extends AbstractNode
 	@Override
 	public boolean canDestroy()
 	{
-		return true;
+		return false;
 	} // end canDestroy();
 	
 	@Override
 	public boolean canRename()
 	{
-		return true;
+		return false;
 	} // end canRename();
 	
 	@Override
@@ -73,13 +78,31 @@ public class SimulationsNode extends AbstractNode
 	@Override
 	public Image getIcon(int type)
 	{
-		return this.closedIcon;
+		return this.icon;
 	} // end getIcon();
 	
 	@Override
-	public Image getOpenedIcon(int type)
+	public Action[] getActions(boolean popup)
 	{
-		return this.openedIcon;
-	} // end getIcon();
-} // end SimulationsNode;
-
+		return new Action[] {
+			new AbstractAction()
+			{
+				@Override
+				public void actionPerformed(ActionEvent ae)
+				{
+					IMapNodeListener cookie = Lookup.getDefault().lookup(IMapNodeListener.class);
+					if(null != cookie)
+					{
+						cookie.openWorld(MapNode.this.project.getWorld());
+					}
+				} // end actionPerformed();		
+			} // end Action;
+		};
+	} // end getActions();
+	
+	@Override
+	public Action getPreferredAction()
+	{
+		return this.getActions(false)[0];
+	} // end getPreferredAction();
+} // end MapNode;

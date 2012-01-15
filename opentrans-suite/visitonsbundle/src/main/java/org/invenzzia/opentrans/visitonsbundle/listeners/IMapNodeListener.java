@@ -15,29 +15,24 @@
  * You should have received a copy of the GNU General Public License
  * along with Visitons. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.invenzzia.visitons.netbeans.logicalview;
-
-import java.util.List;
+package org.invenzzia.opentrans.visitonsbundle.listeners;
 
 import org.invenzzia.visitons.visualization.World;
-import org.openide.nodes.ChildFactory;
+import org.openide.nodes.Node;
 
 /**
- * A factory for the World nodes.
+ * By implementing this cookie you can decide, what the application
+ * should do once we click on the "Map" node in the project.
  * 
  * @author Tomasz Jędrzejewski
  */
-class WorldChildFactory extends ChildFactory<Object>
+public interface IMapNodeListener extends Node.Cookie
 {
-
-	public WorldChildFactory(World world)
-	{
-	} // end WorldChildFactory();
-
-	@Override
-	protected boolean createKeys(List<Object> list)
-	{
-		return true;
-	} // end createKeys();
-} // end WorldChildFactory;
+	/**
+	 * The user clicked on the map node.
+	 * 
+	 * @param world The world represented by this node.
+	 */
+	public void openWorld(World world);
+} // end IMapNodeListener;
 

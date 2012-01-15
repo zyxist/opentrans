@@ -15,32 +15,39 @@
  * You should have received a copy of the GNU General Public License
  * along with Visitons. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.invenzzia.visitons.netbeans.logicalview;
+package org.invenzzia.opentrans.visitonsbundle.logicalview;
 
 import java.awt.Image;
 
-import org.invenzzia.visitons.netbeans.IconManager;
 import org.invenzzia.visitons.project.VisitonsProject;
+import org.invenzzia.opentrans.visitonsbundle.IconManager;
 import org.openide.nodes.AbstractNode;
-import org.openide.nodes.Children;
+import org.openide.nodes.Node;
 import org.openide.util.Lookup;
+import org.openide.util.lookup.Lookups;
 
 /**
- *  * A presentation node for the infrastructure. It uses the NetBeans Nodes API.
+ * A presentation node for the Transportation project. It uses the NetBeans Nodes
+ * API.
  * 
+ * @copyright Invenzzia Group <http://www.invenzzia.org/>
  * @author Tomasz Jędrzejewski
  */
-public class InfrastructureNode extends AbstractNode
+public class ProjectNode extends AbstractNode
 {
-	protected Image icon;
+	protected Image projectIcon;
 	
-	public InfrastructureNode(VisitonsProject project)
+	public ProjectNode(VisitonsProject project)
 	{
-		super(Children.LEAF);
-		this.setDisplayName("Infrastructure");
+		super(new StaticChildrenCollection(new Node[]{
+			new WorldNode(project),
+			new SituationsNode(project),
+			new SimulationsNode(project)
+		}), Lookups.singleton(project));
+		this.setDisplayName(project.getName());
 		
 		IconManager iconManager = Lookup.getDefault().lookup(IconManager.class);
-		this.icon = iconManager.getIconFor("lightbulb");
+		this.projectIcon = iconManager.getIconFor("project");
 	} // end ProjectNode();
 	
 	@Override
@@ -52,13 +59,13 @@ public class InfrastructureNode extends AbstractNode
 	@Override
 	public boolean canDestroy()
 	{
-		return false;
+		return true;
 	} // end canDestroy();
 	
 	@Override
 	public boolean canRename()
 	{
-		return false;
+		return true;
 	} // end canRename();
 	
 	@Override
@@ -70,7 +77,12 @@ public class InfrastructureNode extends AbstractNode
 	@Override
 	public Image getIcon(int type)
 	{
-		return this.icon;
+		return this.projectIcon;
 	} // end getIcon();
-} // end InfrastructureNode;
-
+	
+	@Override
+	public Image getOpenedIcon(int type)
+	{
+		return this.projectIcon;
+	} // end getIcon();
+} // end ProjectNode;

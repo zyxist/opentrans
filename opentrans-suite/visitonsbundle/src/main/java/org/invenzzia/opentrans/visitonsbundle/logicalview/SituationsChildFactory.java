@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with Visitons. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.invenzzia.visitons.netbeans.logicalview;
+package org.invenzzia.opentrans.visitonsbundle.logicalview;
 
 import java.util.List;
 import org.invenzzia.utils.persistence.IPersistableManager;

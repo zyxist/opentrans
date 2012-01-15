@@ -15,38 +15,36 @@
  * You should have received a copy of the GNU General Public License
  * along with Visitons. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.invenzzia.visitons.netbeans.logicalview;
+package org.invenzzia.opentrans.visitonsbundle.logicalview;
 
 import java.awt.Image;
 
 import org.invenzzia.visitons.project.VisitonsProject;
-import org.invenzzia.visitons.netbeans.IconManager;
+import org.invenzzia.opentrans.visitonsbundle.IconManager;
 import org.openide.nodes.AbstractNode;
-import org.openide.nodes.Node;
+import org.openide.nodes.Children;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.Lookups;
 
 /**
- * A presentation node for the world. It uses the NetBeans Nodes
- * API.
+ * A presentation node for the situation. It uses the NetBeans Nodes API.
  * 
  * @author Tomasz Jędrzejewski
  */
-public class WorldNode extends AbstractNode
+public class SituationsNode extends AbstractNode
 {
-	protected Image icon;
+	protected Image openedIcon;
+	protected Image closedIcon;
 	
-	public WorldNode(VisitonsProject project)
-	{	
-		super(new StaticChildrenCollection(new Node[]{
-			new MapNode(project),
-			new InfrastructureNode(project)
-		}), Lookups.singleton(project));
-		this.setDisplayName("World");
+	public SituationsNode(VisitonsProject project)
+	{
+		super(Children.create(new SituationsChildFactory(project.getSituationManager()), true), Lookups.singleton(project));
+		this.setDisplayName("Situations");
 		
 		IconManager iconManager = Lookup.getDefault().lookup(IconManager.class);
-		this.icon = iconManager.getIconFor("world");
-	} // end ProjectNode();
+		this.openedIcon = iconManager.getIconFor("package-opened");
+		this.closedIcon = iconManager.getIconFor("package");
+	} // end SituationsNode();
 	
 	@Override
 	public boolean canCut()
@@ -57,13 +55,13 @@ public class WorldNode extends AbstractNode
 	@Override
 	public boolean canDestroy()
 	{
-		return false;
+		return true;
 	} // end canDestroy();
 	
 	@Override
 	public boolean canRename()
 	{
-		return false;
+		return true;
 	} // end canRename();
 	
 	@Override
@@ -75,13 +73,13 @@ public class WorldNode extends AbstractNode
 	@Override
 	public Image getIcon(int type)
 	{
-		return this.icon;
+		return this.closedIcon;
 	} // end getIcon();
 	
 	@Override
 	public Image getOpenedIcon(int type)
 	{
-		return this.icon;
-	} // end getOpenedIcon();
-} // end WorldNode;
+		return this.openedIcon;
+	} // end getIcon();
+} // end SituationsNode;
 

@@ -15,9 +15,9 @@
  * You should have received a copy of the GNU General Public License
  * along with Visitons. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.invenzzia.visitons.netbeans;
+package org.invenzzia.opentrans.visitonsbundle;
 
-import org.invenzzia.visitons.netbeans.logicalview.ProjectNode;
+import org.invenzzia.opentrans.visitonsbundle.logicalview.ProjectNode;
 import org.netbeans.spi.project.ui.LogicalViewProvider;
 import org.openide.nodes.Node;
 

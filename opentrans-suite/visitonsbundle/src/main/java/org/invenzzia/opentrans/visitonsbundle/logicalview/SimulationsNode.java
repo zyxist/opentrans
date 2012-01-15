@@ -15,33 +15,36 @@
  * You should have received a copy of the GNU General Public License
  * along with Visitons. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.invenzzia.visitons.netbeans.logicalview;
+package org.invenzzia.opentrans.visitonsbundle.logicalview;
 
 import java.awt.Image;
 
 import org.invenzzia.visitons.project.VisitonsProject;
-import org.invenzzia.visitons.netbeans.IconManager;
+import org.invenzzia.opentrans.visitonsbundle.IconManager;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.util.Lookup;
+import org.openide.util.lookup.Lookups;
 
 /**
- *  * A presentation node for the map. It uses the NetBeans Nodes API.
+ * A presentation node for the simulation. It uses the NetBeans Nodes API.
  * 
  * @author Tomasz Jędrzejewski
  */
-public class MapNode extends AbstractNode
+public class SimulationsNode extends AbstractNode
 {
-	protected Image icon;
+	protected Image openedIcon;
+	protected Image closedIcon;
 	
-	public MapNode(VisitonsProject project)
+	public SimulationsNode(VisitonsProject project)
 	{
-		super(Children.LEAF);
-		this.setDisplayName("Map");
+		super(Children.create(new SimulationsChildFactory(project.getSimulationManager()), true), Lookups.singleton(project));
+		this.setDisplayName("Simulations");
 		
 		IconManager iconManager = Lookup.getDefault().lookup(IconManager.class);
-		this.icon = iconManager.getIconFor("map");
-	} // end ProjectNode();
+		this.openedIcon = iconManager.getIconFor("package-opened");
+		this.closedIcon = iconManager.getIconFor("package");
+	} // end SimulationsNode();
 	
 	@Override
 	public boolean canCut()
@@ -52,13 +55,13 @@ public class MapNode extends AbstractNode
 	@Override
 	public boolean canDestroy()
 	{
-		return false;
+		return true;
 	} // end canDestroy();
 	
 	@Override
 	public boolean canRename()
 	{
-		return false;
+		return true;
 	} // end canRename();
 	
 	@Override
@@ -70,7 +73,13 @@ public class MapNode extends AbstractNode
 	@Override
 	public Image getIcon(int type)
 	{
-		return this.icon;
+		return this.closedIcon;
 	} // end getIcon();
-} // end MapNode;
+	
+	@Override
+	public Image getOpenedIcon(int type)
+	{
+		return this.openedIcon;
+	} // end getIcon();
+} // end SimulationsNode;
 

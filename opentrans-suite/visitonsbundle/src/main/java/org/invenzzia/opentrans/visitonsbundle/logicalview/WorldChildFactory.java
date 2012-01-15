@@ -15,23 +15,29 @@
  * You should have received a copy of the GNU General Public License
  * along with Visitons. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.invenzzia.visitons.netbeans.logicalview;
-import java.util.Arrays;
+package org.invenzzia.opentrans.visitonsbundle.logicalview;
 
-import org.openide.nodes.Children;
-import org.openide.nodes.Node;
+import java.util.List;
+
+import org.invenzzia.visitons.visualization.World;
+import org.openide.nodes.ChildFactory;
 
 /**
- * Description here.
+ * A factory for the World nodes.
  * 
- * @copyright Invenzzia Group <http://www.invenzzia.org/>
  * @author Tomasz Jędrzejewski
  */
-public class StaticChildrenCollection extends Children.Array
+class WorldChildFactory extends ChildFactory<Object>
 {
-	public StaticChildrenCollection(Node nodes[])
+
+	public WorldChildFactory(World world)
 	{
-		super(Arrays.asList(nodes));
-	} // end StaticChildrenCollection();
-} // end StaticChildrenCollection;
+	} // end WorldChildFactory();
+
+	@Override
+	protected boolean createKeys(List<Object> list)
+	{
+		return true;
+	} // end createKeys();
+} // end WorldChildFactory;
 

@@ -17,8 +17,12 @@
  */
 package org.invenzzia.visitons.visualization;
 
-import java.awt.Canvas;
 import java.awt.Dimension;
+import java.awt.Graphics;
+import javax.swing.JPanel;
+
+import org.invenzzia.utils.geometry.IPoint;
+import org.invenzzia.utils.geometry.Point;
 
 /**
  * The camera objects are responsible for rendering the simulation
@@ -27,7 +31,7 @@ import java.awt.Dimension;
  *
  * @author zyxist
  */
-public class Camera extends Canvas
+public class Camera extends JPanel
 {
 	public static final double DEFAULT_MPP = 1.0;
 	private static final long serialVersionUID = 1L;
@@ -35,7 +39,7 @@ public class Camera extends Canvas
 	/**
 	 * A reference to the rendered world object.
 	 */
-	protected World world;
+	protected World world = null;
 	/**
 	 * A reference for the painting strategy.
 	 */
@@ -97,6 +101,22 @@ public class Camera extends Canvas
 		}
 		return this;
 	} // end setWorld();
+	
+	/**
+	 * Restores the initial state of the camera.
+	 * 
+	 * @return Fluent interface.
+	 */
+	public Camera clearWorld()
+	{
+		this.world = null;
+		this.drawnSegments = null;
+		this.posX = this.posY = 0.0;
+		this.camWidth = this.camHeight = 0.0;
+		this.centX = this.centY = 0.0;
+		this.hOverflow = this.vOverflow = false;
+		return this;
+	} // end clearWorld();
 	
 	/**
 	 * Returns the reference to the rendered world.
@@ -230,5 +250,102 @@ public class Camera extends Canvas
 
 		return this;
 	} // end calculateViewport();
-} // end Camera;
 
+	@Override
+	public void paintComponent(Graphics g)
+	{
+		super.paintComponent(g);
+		
+		if(null == this.world)
+		{
+			this.drawClearCamera(g);
+		}
+		else
+		{
+			this.drawWorld(g);
+		}
+	} // end paintComponent();
+	
+	/**
+	 * This method is called, if no world is loaded to render.
+	 * It displays a dummy text.
+	 */
+	protected void drawClearCamera(Graphics g)
+	{
+		g.drawString("Nothing to draw.", this.getWidth() / 2 - 80, this.getHeight() / 2 - 10);
+	} // end drawClearCamera();
+	
+	/**
+	 * Draws the world on the given graphics canvas.
+	 */
+	protected void drawWorld(Graphics g)
+	{
+		
+	} // end drawWorld();
+	
+	/**
+	 * Converts pixels into the world coordinates.
+	 * 
+	 * @param coord The pixel coordinate X.
+	 * @return X world coordinate.
+	 */
+	public double pix2worldX(long coord)
+	{
+		return this.posX + (coord - this.centX) * this.mpp;
+	} // end pix2worldX();
+
+	/**
+	 * Converts pixels into the world coordinates.
+	 * 
+	 * @param coord The pixel coordinate Y.
+	 * @return Y world coordinate.
+	 */
+	public double pix2worldY(long coord)
+	{
+		return this.posY + (coord - this.centY) * this.mpp;
+	} // end pix2worldY();
+
+	/**
+	 * Converts world coordinates into pixels..
+	 * 
+	 * @param coord The world coordinate X.
+	 * @return X pixel position.
+	 */
+	public long world2pixX(double coord)
+	{
+		return Math.round((coord - this.posX) / this.mpp + this.centX);
+	} // end world2pixX();
+
+	/**
+	 * Converts world coordinates into pixels.
+	 * 
+	 * @param coord The world coordinate Y.
+	 * @return Y pixel position.
+	 */
+	public long world2pixY(double coord)
+	{
+		return Math.round((coord - this.posY) / this.mpp + this.centY);
+	} // end world2pixY();
+
+	/**
+	 * Converts world coordinates into pixels.
+	 * 
+	 * @param coord The point with world coordinates.
+	 * @return The pixel point.
+	 */
+	public IPoint world2pix(IPoint p)
+	{
+		return Point.valueOf(this.world2pixX(p.getX()), this.world2pixY(p.getY()));
+	} // end world2pix();
+
+	/**
+	 * Converts length in the world units into pixel length.
+	 * 
+	 * @param length The world length.
+	 * @return The pixel length.
+	 */
+	public long world2pixLength(double length)
+	{
+		return Math.round(length / this.mpp);
+	} // end world2pixLength();
+} // end Camera;

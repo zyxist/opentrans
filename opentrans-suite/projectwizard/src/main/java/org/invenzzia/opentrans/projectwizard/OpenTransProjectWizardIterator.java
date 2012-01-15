@@ -326,14 +326,9 @@ public class OpenTransProjectWizardIterator implements WizardDescriptor./*Progre
 			XmlUtil.quickPropertyWrite(rootElement, "website", (String) descriptor.getProperty("website"));
 			XmlUtil.quickPropertyWrite(rootElement, "notes", (String) descriptor.getProperty("notes"));
 			
-			OutputStream out = fo.getOutputStream();
-			try
+			try(OutputStream out = fo.getOutputStream())
 			{
 				XMLUtil.write(doc, out, "UTF-8");
-			}
-			finally
-			{
-				out.close();
 			}
 		}
 		catch(Exception ex)

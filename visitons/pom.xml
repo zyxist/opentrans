@@ -47,21 +47,6 @@
 		</dependency>
 		<dependency>
 			<groupId>org.netbeans.api</groupId>
-			<artifactId>org-openide-nodes</artifactId>
-			<version>RELEASE701</version>
-		</dependency>
-		<dependency>
-			<groupId>org.netbeans.api</groupId>
-			<artifactId>org-netbeans-modules-projectapi</artifactId>
-			<version>RELEASE701</version>
-		</dependency>
-		<dependency>
-			<groupId>org.netbeans.api</groupId>
-			<artifactId>org-netbeans-modules-projectuiapi</artifactId>
-			<version>RELEASE701</version>
-		</dependency>
-		<dependency>
-			<groupId>org.netbeans.api</groupId>
 			<artifactId>org-openide-util</artifactId>
 			<version>RELEASE701</version>
 		</dependency>
@@ -70,11 +55,11 @@
 			<artifactId>org-openide-util-lookup</artifactId>
 			<version>RELEASE701</version>
 		</dependency>
-		<dependency>
-			<groupId>org.netbeans.api</groupId>
-			<artifactId>org-openide-filesystems</artifactId>
-			<version>RELEASE701</version>
-		</dependency>
+	 <dependency>
+	  <groupId>org.netbeans.api</groupId>
+	  <artifactId>org-openide-filesystems</artifactId>
+	  <version>RELEASE701</version>
+	 </dependency>
 	</dependencies>
 
 	<build>
@@ -86,11 +71,14 @@
 				<extensions>true</extensions>
 				<configuration>
 					<publicPackages>
-						<publicPackage>org.invenzzia.visitons.exception</publicPackage>
-						<publicPackage>org.invenzzia.visitons.netbeans</publicPackage>
-						<publicPackage>org.invenzzia.visitons.network</publicPackage>
-						<publicPackage>org.invenzzia.visitons.project</publicPackage>
-						<publicPackage>org.invenzzia.visitons.visualization</publicPackage>
+					 <publicPackage>org.invenzzia.visitons.exception</publicPackage>
+					 <publicPackage>org.invenzzia.visitons.exception.io</publicPackage>
+					 <publicPackage>org.invenzzia.visitons.netbeans</publicPackage>
+					 <publicPackage>org.invenzzia.visitons.netbeans.cookies</publicPackage>
+					 <publicPackage>org.invenzzia.visitons.network</publicPackage>
+					 <publicPackage>org.invenzzia.visitons.project</publicPackage>
+					 <publicPackage>org.invenzzia.visitons.project.nodes</publicPackage>
+					 <publicPackage>org.invenzzia.visitons.visualization</publicPackage>
 					</publicPackages>
 				</configuration>
 			</plugin>

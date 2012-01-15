@@ -91,5 +91,8 @@
     </properties>
   <modules>
     <module>projectwizard</module>
+    <module>networkeditor</module>
+    <module>visitonsbundle</module>
+    <module>beaneditor</module>
   </modules>
 </project>

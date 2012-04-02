@@ -11,18 +11,13 @@ Requirements
 
 * Java 7
 * Maven 3
-* NetBeans Platform
-* http://github.com/zyxist/java-utils
+* [Helium libraries](http://github.com/zyxist/helium)
 
 Structure
 ---------
 
-The general mechanics is provided by ViSiToNs library which
-serves as a simulation engine. Most of the code is independent
-from NBP, although there are some bundles in the .nbp package
-using mostly the Nodes API.
-
-ViSiToNs provides:
+The general mechanics is provided by Visitons library which
+serves as a simulation engine. The library provides:
 
 * Visualization services
 * Agent-based simulation engine
@@ -33,8 +28,10 @@ In addition, it defines the concept of transport simulation
 project, and provides I/O operations that allow to read and
 save the simulation state.
 
-The actual application is written with NetBeans Platform and
-contains both a network editor, and the simulation runner.
+The actual application can be found in `opentrans-client`
+directory. It is written with Helium GUI Framework developed
+as a separate project, so that it could be used as a standalone
+library.
 
 License and authors
 -------------------

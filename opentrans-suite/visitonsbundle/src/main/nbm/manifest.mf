@@ -1,3 +1,0 @@
-Manifest-Version: 1.0
-OpenIDE-Module-Localizing-Bundle: org/invenzzia/opentrans/visitonsbundle/Bundle.properties
-OpenIDE-Module-Layer: org/invenzzia/opentrans/visitonsbundle/layer.xml

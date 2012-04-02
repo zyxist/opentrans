@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.invenzzia</groupId>
+	<artifactId>opentrans</artifactId>
+	<version>0.1.0</version>
+	<packaging>pom</packaging>
+	<name>opentrans</name>
+	<description>
+		Public transport simulator.
+	</description>
+	
+	<modules>
+		<module>opentrans-visitons</module>
+		<module>opentrans-client</module>
+	</modules>
+	
+	<dependencies>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>${slf4j.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+			<scope>runtime</scope>
+			<version>${logback.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit-dep</artifactId>
+			<version>${junit.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.hamcrest</groupId>
+			<artifactId>hamcrest-library</artifactId>
+			<version>${hamcrest.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>${guava.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.invenzzia</groupId>
+			<artifactId>helium-base</artifactId>
+			<version>${helium.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.invenzzia</groupId>
+			<artifactId>helium-activeobject</artifactId>
+			<version>${helium.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.invenzzia</groupId>
+			<artifactId>helium-storage</artifactId>
+			<version>${helium.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.invenzzia</groupId>
+			<artifactId>helium-gui</artifactId>
+			<version>${helium.version}</version>
+		</dependency>
+	</dependencies>
+	<properties>
+		<logback.version>1.0.0</logback.version>
+		<slf4j.version>1.6.4</slf4j.version>
+		<junit.version>4.10</junit.version>
+		<hamcrest.version>1.2.1</hamcrest.version>
+		<guava.version>11.0.2</guava.version>
+		<helium.version>0.1.0</helium.version>
+	</properties>
+</project>

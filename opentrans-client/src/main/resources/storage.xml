@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<storage>
+	<element name="Branding">
+		<element name="Info">
+			<attribute name="appName" value="openTrans" />
+			<attribute name="appVersion" value="0.1.0" />
+			<attribute name="author" value="Tomasz Jędrzejewski" />
+			<attribute name="website" value="http://github.com/zyxist/opentrans" />
+			<attribute name="copyright" value="Invenzzia Group 2012" />
+			<attribute name="license" value="GNU General Public License 3" />
+			<attribute name="promoImage" value="images/splash.gif" />
+		</element>
+		<element name="Splash">
+			<attribute name="imagePath" value="images/splash.gif" />
+		</element>
+	</element>
+	<element name="Help">
+		<element name="index"><attribute name="url" value="./docs/index.html" /></element>
+	</element>
+</storage>

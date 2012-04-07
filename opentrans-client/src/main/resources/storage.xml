@@ -16,22 +16,22 @@
 	</element>
 	<element name="Cards">
 		<element name="editor">
-			<attribute name="dividedFrom" value="NULL" />
+			<attribute name="ancestor" value="NULL" />
 		</element>
 		<element name="explorer">
-			<attribute name="dividedFrom" value="editor" />
-			<attribute name="divisionDirection" value="left" />
-			<attribute name="width" value="150" />
+			<attribute name="ancestor" value="editor" />
+			<attribute name="orientation" value="right" />
+			<attribute name="width" value="250" />
 		</element>
 		<element name="properties">
-			<attribute name="dividedFrom" value="explorer" />
-			<attribute name="divisionDirection" value="bottom" />
-			<attribute name="width" value="250" />
+			<attribute name="ancestor" value="explorer" />
+			<attribute name="orientation" value="top" />
+			<attribute name="width" value="550" />
 		</element>
 		<element name="info">
-			<attribute name="dividedFrom" value="editor" />
-			<attribute name="divisionDirection" value="bottom" />
-			<attribute name="width" value="250" />
+			<attribute name="ancestor" value="editor" />
+			<attribute name="orientation" value="top" />
+			<attribute name="width" value="600" />
 		</element>
 	</element>
 	<element name="Help">

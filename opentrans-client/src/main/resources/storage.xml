@@ -37,4 +37,13 @@
 	<element name="Help">
 		<element name="index"><attribute name="url" value="./docs/index.html" /></element>
 	</element>
+	<element name="Welcome">
+		<element name="gradient">
+			<attr name="startColor" value="0xFFFFFF" />
+			<attr name="endColor" value="0xFFCCCC" />
+		</element>
+		<element name="text" color="0x550000" x="50" y="50" size="16">
+			<attr name="text" value="Welcome to OpenTrans" />
+		</element>
+	</element>
 </storage>

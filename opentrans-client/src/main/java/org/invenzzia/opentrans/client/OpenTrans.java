@@ -39,6 +39,6 @@ public class OpenTrans {
 	 */
 	public static void main(String args[]) {
 		Application theApp = new Application("storage.xml");
-		theApp.run(null, null);
+		theApp.run(new StartupTasks(theApp), null);
 	} // end main();
 } // end OpenTrans;

@@ -64,6 +64,16 @@
 			<artifactId>helium-gui</artifactId>
 			<version>${helium.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>javax.validation</groupId>
+			<artifactId>validation-api</artifactId>
+			<version>${validation-api.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-validator</artifactId>
+			<version>${hibernate-validator.version}</version>
+		</dependency>
 	</dependencies>
 	<properties>
 		<logback.version>1.0.0</logback.version>
@@ -71,6 +81,8 @@
 		<junit.version>4.10</junit.version>
 		<hamcrest.version>1.2.1</hamcrest.version>
 		<guava.version>11.0.2</guava.version>
-		<helium.version>0.1.0</helium.version>
+		<helium.version>0.2.0</helium.version>
+		<validation-api.version>1.0.0.GA</validation-api.version>
+		<hibernate-validator.version>4.2.0.Final</hibernate-validator.version>
 	</properties>
 </project>

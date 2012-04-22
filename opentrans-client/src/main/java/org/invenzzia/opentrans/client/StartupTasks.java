@@ -18,8 +18,10 @@
 package org.invenzzia.opentrans.client;
 
 import org.invenzzia.helium.application.Application;
+import org.invenzzia.helium.gui.LifecycleManager;
 import org.invenzzia.helium.gui.exception.PresenterConfigurationException;
 import org.invenzzia.helium.gui.presenter.card.CardPresenter;
+import org.invenzzia.helium.gui.presenter.menu.MenuPresenter;
 import org.invenzzia.helium.gui.presenter.welcome.WelcomePresenter;
 import org.invenzzia.helium.tasks.annotations.Task;
 
@@ -33,6 +35,19 @@ public class StartupTasks {
 	public StartupTasks(Application app) {
 		this.app = app;
 	} // end StartupTasks();
+	
+	/**
+	 * OpenTrans-specific GUI initialization code.
+	 * 
+	 * @throws PresenterConfigurationException 
+	 */
+	@Task(order = 900, weight = 5, description = "Initializing GUI")
+	public void initializePresenters() throws PresenterConfigurationException {
+		LifecycleManager lc = this.app.getLifecycleManager();
+		MenuPresenter menuP = lc.getPresenter(MenuPresenter.class);
+		
+		menuP.registerActions(new MenuActions(this.app));
+	}
 	
 	@Task(order = 2000, weight = 1, description = "Opening cards")
 	public void createWelcomeScreen() throws PresenterConfigurationException {

@@ -25,7 +25,16 @@
 			</plugin>
 		</plugins>
 	</build>
+	<dependencies>
+		<dependency>
+			<groupId>org.invenzzia</groupId>
+			<artifactId>opentrans-visitons</artifactId>
+			<version>${visitons.version}</version>
+		</dependency>
+	</dependencies>
+	
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<visitons.version>0.1.0</visitons.version>
 	</properties>
 </project>

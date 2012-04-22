@@ -17,6 +17,10 @@
  */
 package org.invenzzia.opentrans.visitons;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import org.hibernate.validator.constraints.NotEmpty;
+
 /**
  * Provides a concept of a "simulation project". The project consists of a world map and different simulations that could be edited and run
  * by the user.
@@ -44,10 +48,16 @@ public class VisitonsProject {
 	/**
 	 * Project name.
 	 */
+	@NotNull
+	@NotEmpty
+	@Size(min = 2, max = 30)
 	private String name = "Project name";
 	/**
 	 * The project author.
 	 */
+	@NotNull
+	@NotEmpty
+	@Size(min=2, max = 30)
 	private String author = "";
 	/**
 	 * The project website.
@@ -57,6 +67,13 @@ public class VisitonsProject {
 	 * The project notes.
 	 */
 	private String notes = "";
+	/**
+	 * The filesystem location of the project.
+	 */
+	@NotNull
+	@NotEmpty
+	@Size(min = 2, max = 300)
+	private String path = "";
 
 	/**
 	 * @return The project name.
@@ -129,4 +146,22 @@ public class VisitonsProject {
 		this.notes = notes;
 		return this;
 	} // end setNotes();
+	
+	/**
+	 * @return Filesystem path.
+	 */
+	public String getPath() {
+		return this.path;
+	}
+	
+	/**
+	 * Sets the project filesystem path.
+	 * 
+	 * @param path
+	 * @return Fluent interface.
+	 */
+	public VisitonsProject setPath(String path) {
+		this.path = path;
+		return this;
+	}
 } // end VisitonsProject;

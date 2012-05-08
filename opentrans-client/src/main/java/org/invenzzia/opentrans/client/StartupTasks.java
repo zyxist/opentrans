@@ -53,7 +53,7 @@ public class StartupTasks {
 	public void createWelcomeScreen() throws PresenterConfigurationException {
 		CardPresenter cardPresenter = this.app.getLifecycleManager().getPresenter(CardPresenter.class);
 		
-		for(int i = 0; i < 20; i++) {
+		for(int i = 0; i < 3; i++) {
 			cardPresenter.createCard(this.app.getLifecycleManager().getPresenter(WelcomePresenter.class, "id"+Integer.toString(i)));
 		}
 	} // end createWelcomeScreen();

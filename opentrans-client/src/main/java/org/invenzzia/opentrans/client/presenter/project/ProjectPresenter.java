@@ -18,13 +18,17 @@
 package org.invenzzia.opentrans.client.presenter.project;
 
 import java.awt.Component;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import org.invenzzia.helium.application.Application;
+import org.invenzzia.helium.forms.DefinitionManager;
+import org.invenzzia.helium.forms.Form;
+import org.invenzzia.helium.forms.IFormFactory;
+import org.invenzzia.helium.forms.exception.FormException;
 import org.invenzzia.helium.gui.BaseLeafPresenter;
 import org.invenzzia.helium.gui.LifecycleManager;
 import org.invenzzia.helium.gui.annotations.Dialog;
 import org.invenzzia.helium.gui.exception.PresenterConfigurationException;
-import org.invenzzia.helium.gui.forms.Form;
 import org.invenzzia.helium.gui.presenter.dialog.DialogPresenter;
 import org.invenzzia.helium.gui.presenter.dialog.IDialogPresenter;
 import org.invenzzia.opentrans.visitons.VisitonsProject;
@@ -41,6 +45,7 @@ import org.picocontainer.Characteristics;
 )
 public class ProjectPresenter extends BaseLeafPresenter implements IDialogPresenter {
 	private JPanel view;
+	private Form form;
 
 	public ProjectPresenter(Application application, LifecycleManager manager, String name) throws PresenterConfigurationException {
 		super(application, manager, name);
@@ -48,14 +53,15 @@ public class ProjectPresenter extends BaseLeafPresenter implements IDialogPresen
 	
 	@Override
 	protected boolean doStartup() {
-		Form form = this.application.getContainer().as(Characteristics.NO_CACHE).getComponent(Form.class);
-		
-		VisitonsProject project = new VisitonsProject();
-		form.setBean(project);
 		try {
-			this.view = form.render();
+			this.form = this.application.getContainer().getComponent(IFormFactory.class).createForm("forms/NewProjectForm.xml");
+
+			VisitonsProject project = new VisitonsProject();
+			this.form.setBean(project);
+			this.view = this.form.render();
 			return true;
-		} catch(Exception exception) {
+		} catch(FormException exception) {
+			JOptionPane.showMessageDialog(null, exception.getMessage());
 			return false;
 		}
 	}
@@ -66,7 +72,14 @@ public class ProjectPresenter extends BaseLeafPresenter implements IDialogPresen
 	}
 
 	@Override
-	public void confirm() {
+	public boolean confirm() {
+		if(this.form.validate()) {
+			this.form.populate();
+			return true;
+		} else {
+			this.form.refresh(this.view);
+			return false;
+		}
 	}
 
 	@Override

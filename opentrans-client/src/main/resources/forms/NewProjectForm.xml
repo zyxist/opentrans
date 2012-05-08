@@ -1,0 +1,31 @@
+<?xml version="1.0" ?>
+<definition>
+	<heading>New project</heading>
+	<groups>
+		<group>
+			<fields>
+				<field>
+					<name>Project name</name>
+					<property>name</property>
+				</field>
+				<field>
+					<name>Author</name>
+					<property>author</property>
+					<toolTip>Your name and surname</toolTip>
+					<floating>LEFT</floating>
+				</field>
+				<field>
+					<name>Website</name>
+					<property>website</property>
+					<toolTip>The website of the simulation or your personal website</toolTip>
+					<floating>RIGHT</floating>
+				</field>
+				<field>
+					<name>Notes</name>
+					<property>notes</property>
+					<toolTip>Extra information about this project</toolTip>
+				</field>
+			</fields>
+		</group>
+	</groups>
+</definition>

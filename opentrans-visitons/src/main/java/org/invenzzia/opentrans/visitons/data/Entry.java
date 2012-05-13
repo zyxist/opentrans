@@ -19,44 +19,49 @@ package org.invenzzia.opentrans.visitons.data;
 
 import java.io.Serializable;
 import javax.validation.Valid;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-import org.invenzzia.helium.domain.annotation.Identifier;
 import org.invenzzia.opentrans.visitons.ISimulationData;
 import org.invenzzia.opentrans.visitons.Simulation;
+import org.invenzzia.opentrans.visitons.types.Time;
 
 /**
- * A single vehicle. Most of the parameters of vehicle is defined by its 
- * "class" (note that this term does not mean a Java class, but simply
- * a real-world type of the vehicle). Here, we have very little to do.
- *
+ * A single entry of the course timetable for the given line. It links
+ * a stop with an hour, when the serving vehicle should arrive at it.
+ * 
  * @author Tomasz Jędrzejewski
  */
-public class Vehicle implements Serializable {
-	@Min(value = 0)
-	@Identifier
-	private int id;
-	@NotNull
-	@Size(min = 1, max = 30)
-	private String name;
+public class Entry implements ISimulationData, Serializable {
+	private Course course;
 	
-	public Vehicle() {
+	private Platform stopPlatform;
+	
+	private Time arrivalTime;
+	
+	@Valid
+	private Simulation simulation;
+	
+	public Course getCourse() {
+		return this.course;
 	}
 	
-	public int getId() {
-		return this.id;
+	public void setCourse(Course course) {
+		this.course = course;
+	}
+	
+	public Platform getStopPlatform() {
+		return this.stopPlatform;
+	}
+	
+	public void setStopPlatform(Platform stopPlatform) {
+		this.stopPlatform = stopPlatform;
+	}
+	
+	@Override
+	public void setSimulation(Simulation simulation) {
+		this.simulation = simulation;
 	}
 
-	public void setId(int iterator) {
-		this.id = iterator;
-	}
-
-	public String getName() {
-		return this.name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
+	@Override
+	public Simulation getSimulation() {
+		return this.simulation;
 	}
 }

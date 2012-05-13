@@ -17,46 +17,21 @@
  */
 package org.invenzzia.opentrans.visitons.data;
 
-import java.io.Serializable;
 import javax.validation.Valid;
+import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-import org.invenzzia.helium.domain.annotation.Identifier;
-import org.invenzzia.opentrans.visitons.ISimulationData;
-import org.invenzzia.opentrans.visitons.Simulation;
 
 /**
- * A single vehicle. Most of the parameters of vehicle is defined by its 
- * "class" (note that this term does not mean a Java class, but simply
- * a real-world type of the vehicle). Here, we have very little to do.
- *
+ * Each stop can consist of multiple platforms. A platform is a single point
+ * of handling the vehicle. The more platforms, the more vehicles can be
+ * served at the same time.
+ * 
  * @author Tomasz Jędrzejewski
  */
-public class Vehicle implements Serializable {
-	@Min(value = 0)
-	@Identifier
-	private int id;
-	@NotNull
-	@Size(min = 1, max = 30)
-	private String name;
-	
-	public Vehicle() {
-	}
-	
-	public int getId() {
-		return this.id;
-	}
-
-	public void setId(int iterator) {
-		this.id = iterator;
-	}
-
-	public String getName() {
-		return this.name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
+public class Platform {
+	@Valid
+	private Stop stop;
+	@Min(value = 1)
+	@Max(value = 100)
+	private byte number;
 }

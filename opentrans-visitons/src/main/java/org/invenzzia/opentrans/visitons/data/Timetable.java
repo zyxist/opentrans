@@ -20,30 +20,25 @@ package org.invenzzia.opentrans.visitons.data;
 import java.io.Serializable;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import org.invenzzia.helium.domain.annotation.Identifier;
 import org.invenzzia.opentrans.visitons.ISimulationData;
 import org.invenzzia.opentrans.visitons.Simulation;
 
 /**
- * A single vehicle. Most of the parameters of vehicle is defined by its 
- * "class" (note that this term does not mean a Java class, but simply
- * a real-world type of the vehicle). Here, we have very little to do.
- *
+ * The timetable describes, when each vehicle should arrive at the given
+ * stop on its line. The simulation can have several timetables for different
+ * days.
+ * 
  * @author Tomasz Jędrzejewski
  */
-public class Vehicle implements Serializable {
+public class Timetable implements ISimulationData, Serializable {
 	@Min(value = 0)
 	@Identifier
 	private int id;
-	@NotNull
-	@Size(min = 1, max = 30)
 	private String name;
-	
-	public Vehicle() {
-	}
-	
+	@Valid
+	private Simulation simulation;
+
 	public int getId() {
 		return this.id;
 	}
@@ -59,4 +54,14 @@ public class Vehicle implements Serializable {
 	public void setName(String name) {
 		this.name = name;
 	}
-}
+	
+	@Override
+	public void setSimulation(Simulation simulation) {
+		this.simulation = simulation;
+	}
+
+	@Override
+	public Simulation getSimulation() {
+		return this.simulation;
+	}
+} // end Timetable;

@@ -15,48 +15,69 @@
  * You should have received a copy of the GNU General Public License
  * along with Visitons. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.invenzzia.opentrans.visitons.data;
+package org.invenzzia.opentrans.visitons;
 
-import java.io.Serializable;
 import javax.validation.Valid;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import org.hibernate.validator.constraints.NotEmpty;
 import org.invenzzia.helium.domain.annotation.Identifier;
-import org.invenzzia.opentrans.visitons.ISimulationData;
-import org.invenzzia.opentrans.visitons.Simulation;
 
 /**
- * A single vehicle. Most of the parameters of vehicle is defined by its 
- * "class" (note that this term does not mean a Java class, but simply
- * a real-world type of the vehicle). Here, we have very little to do.
- *
+ * A single project may consist of several simulations with different initial
+ * conditions. In addition, there can be defined "simulation templates" which
+ * act as templates for creating other, concrete simulations.
+ * 
+ * The only part of the project that is shared among all the simulations is the
+ * world map and infrastructure.
+ * 
  * @author Tomasz Jędrzejewski
  */
-public class Vehicle implements Serializable {
-	@Min(value = 0)
+public class Simulation {
+	@NotEmpty
+	@Size(min = 2, max = 30)
 	@Identifier
-	private int id;
+	private String id;
 	@NotNull
-	@Size(min = 1, max = 30)
+	@NotEmpty
+	@Size(min = 2, max = 30)
 	private String name;
+	private boolean template;
+	@Valid
+	private VisitonsProject project;
 	
-	public Vehicle() {
+	public Simulation() {
 	}
 	
-	public int getId() {
+	public String getId() {
 		return this.id;
 	}
-
-	public void setId(int iterator) {
-		this.id = iterator;
+	
+	public void setId(String id) {
+		this.id = id;
 	}
-
+	
 	public String getName() {
 		return this.name;
 	}
-
+	
 	public void setName(String name) {
 		this.name = name;
+	}
+	
+	public boolean isTemplate() {
+		return this.template;
+	}
+	
+	public void setTemplate(boolean status) {
+		this.template = status;
+	}
+	
+	public VisitonsProject getVisitonsProject() {
+		return this.project;
+	}
+	
+	public void setVisitonsProject(VisitonsProject project) {
+		this.project = project;
 	}
 }

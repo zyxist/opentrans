@@ -18,45 +18,52 @@
 package org.invenzzia.opentrans.visitons.data;
 
 import java.io.Serializable;
+import java.util.List;
+import java.util.Map.Entry;
 import javax.validation.Valid;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-import org.invenzzia.helium.domain.annotation.Identifier;
 import org.invenzzia.opentrans.visitons.ISimulationData;
 import org.invenzzia.opentrans.visitons.Simulation;
 
 /**
- * A single vehicle. Most of the parameters of vehicle is defined by its 
- * "class" (note that this term does not mean a Java class, but simply
- * a real-world type of the vehicle). Here, we have very little to do.
- *
+ * Represents a single course of the timetable line. The course can have
+ * different termini than the primary settings of the line, thus being
+ * a variant course or a shortened relation.
+ * 
  * @author Tomasz Jędrzejewski
  */
-public class Vehicle implements Serializable {
-	@Min(value = 0)
-	@Identifier
-	private int id;
+public class Course implements ISimulationData, Serializable {
+	@Valid
 	@NotNull
-	@Size(min = 1, max = 30)
-	private String name;
+	private TimetableLine timetableLine;	
+	@Valid
+	@NotNull
+	private Simulation simulation;
+	@Valid
+	@NotNull
+	private Stop startTerminus;
+	@Valid
+	@NotNull
+	private Stop endTerminus;
 	
-	public Vehicle() {
+	private List<Entry> timetableEntries;
+	
+	
+	public TimetableLine getTimetableLine() {
+		return this.timetableLine;
 	}
 	
-	public int getId() {
-		return this.id;
+	public void setTimetableLine(TimetableLine line) {
+		this.timetableLine = line;
+	}
+	
+	@Override
+	public void setSimulation(Simulation simulation) {
+		this.simulation = simulation;
 	}
 
-	public void setId(int iterator) {
-		this.id = iterator;
-	}
-
-	public String getName() {
-		return this.name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
+	@Override
+	public Simulation getSimulation() {
+		return this.simulation;
 	}
 }

@@ -18,6 +18,10 @@
 package org.invenzzia.opentrans.visitons.data;
 
 import java.io.Serializable;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import org.invenzzia.helium.domain.annotation.MinDouble;
 
 /**
  * This Java Bean describes the characteristics of the given mean of transport.
@@ -28,14 +32,18 @@ public class TransportMean implements Serializable {
 	/**
 	 * The autoincremented identifier.
 	 */
+	@Min(value = 0)
 	private int id;
 	/**
 	 * The name of the mean of transport.
 	 */
+	@NotNull
+	@Size(min = 2, max = 30)
 	private String name;
 	/**
 	 * Friction coefficient used in the physics simulation.
 	 */
+	@MinDouble(value = 0.0)
 	private double frictionCoefficient;
 	/**
 	 * Is overtaking allowed?
@@ -44,6 +52,7 @@ public class TransportMean implements Serializable {
 	/**
 	 * The coefficient for passing the curves.
 	 */
+	@MinDouble(value = 0.0)
 	private double curveCoefficient;
 
 	public TransportMean() {

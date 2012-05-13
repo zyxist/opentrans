@@ -18,11 +18,42 @@
 package org.invenzzia.opentrans.visitons.data;
 
 import java.io.Serializable;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import org.invenzzia.helium.domain.annotation.Identifier;
 
 /**
- * Description here.
+ * A single vehicle. Most of the parameters of vehicle is defined by its 
+ * "class" (note that this term does not mean a Java class, but simply
+ * a real-world type of the vehicle). Here, we have very little to do.
  *
  * @author Tomasz Jędrzejewski
  */
 public class Vehicle implements Serializable {
-} // end Vehicle;
+	@Min(value = 0)
+	@Identifier
+	private int id;
+	@NotNull
+	@Size(min = 1, max = 30)
+	private String name;
+	
+	public Vehicle() {
+	}
+	
+	public int getId() {
+		return this.id;
+	}
+
+	public void setId(int iterator) {
+		this.id = iterator;
+	}
+
+	public String getName() {
+		return this.name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+}

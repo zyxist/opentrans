@@ -27,6 +27,11 @@
 	</build>
 	<dependencies>
 		<dependency>
+			<groupId>org.invenzzia</groupId>
+			<artifactId>helium-domain</artifactId>
+			<version>${helium.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>com.vividsolutions</groupId>
 			<artifactId>jts</artifactId>
 			<version>${jts.version}</version>
@@ -35,5 +40,6 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<jts.version>1.12</jts.version>
+		<helium.version>0.2.0</helium.version>
 	</properties>
 </project>

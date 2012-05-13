@@ -20,6 +20,13 @@ package org.invenzzia.opentrans.visitons.data;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyVetoException;
 import java.io.Serializable;
+import javax.validation.Valid;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import org.invenzzia.helium.domain.annotation.Identifier;
+import org.invenzzia.helium.domain.annotation.MinDouble;
 
 /**
  * Describes a single vehicle class, whose parameters are typical for a whole group of vehicles.
@@ -29,14 +36,28 @@ import java.io.Serializable;
  * @author Tomasz Jędrzejewski
  */
 public class VehicleClass implements Serializable {
+	@Min(value = 0)
+	@Identifier
 	private int id;
+	@NotNull
+	@Size(min = 2, max = 30)
 	private String name;
+	@Valid
+	@NotNull
 	private TransportMean meanOfTransport = null;
+	@MinDouble(value = 1.0)
 	private double length;
+	@Min(value = 1)
+	@Max(value = 10)
 	private byte nodeNumber;
+	@Min(value = 0)
 	private int mass;
+	@Min(value = 0)
 	private int power;
+	@Min(value = 0)
+	@Max(value = 1000)
 	private int capacity;
+	@MinDouble(value = 1.0)
 	private double maxSpeed;
 
 	public VehicleClass() {
@@ -64,10 +85,6 @@ public class VehicleClass implements Serializable {
 	} // end getMeanOfTransport();
 
 	public void setMeanOfTransport(TransportMean mean) throws PropertyVetoException {
-		if(null == mean) {
-			throw new PropertyVetoException("Cannot reset the mean of transport reference to NULL.",
-				new PropertyChangeEvent(this, "meanOfTransport", this.meanOfTransport, meanOfTransport));
-		}
 		this.meanOfTransport = mean;
 	} // end setMeanOfTransport();
 
@@ -75,10 +92,7 @@ public class VehicleClass implements Serializable {
 		return this.length;
 	} // end getLength();
 
-	public void setLength(double length) throws PropertyVetoException {
-		if(length <= 0.0) {
-			throw new PropertyVetoException("Cannot set a negative length", new PropertyChangeEvent(this, "length", this.length, length));
-		}
+	public void setLength(double length) {
 		this.length = length;
 	} // end setLength();
 
@@ -86,10 +100,7 @@ public class VehicleClass implements Serializable {
 		return this.nodeNumber;
 	} // end getNodeNumber();
 
-	public void setNodeNumber(byte nodeNumber) throws PropertyVetoException {
-		if(nodeNumber <= 0) {
-			throw new PropertyVetoException("Cannot set a negative node number", new PropertyChangeEvent(this, "nodeNumber", this.nodeNumber, nodeNumber));
-		}
+	public void setNodeNumber(byte nodeNumber) {
 		this.nodeNumber = nodeNumber;
 	} // end setNodeNumber();
 
@@ -97,10 +108,7 @@ public class VehicleClass implements Serializable {
 		return this.mass;
 	} // end getMass();
 
-	public void setMass(int mass) throws PropertyVetoException {
-		if(mass <= 0) {
-			throw new PropertyVetoException("Cannot set a negative mass", new PropertyChangeEvent(this, "mass", this.mass, mass));
-		}
+	public void setMass(int mass) {
 		this.mass = mass;
 	} // end setMass();
 
@@ -108,10 +116,7 @@ public class VehicleClass implements Serializable {
 		return this.power;
 	} // end getPower();
 
-	public void setPower(int power) throws PropertyVetoException {
-		if(power <= 0) {
-			throw new PropertyVetoException("Cannot set a negative engine power", new PropertyChangeEvent(this, "power", this.power, power));
-		}
+	public void setPower(int power) {
 		this.power = power;
 	} // end setPower();
 
@@ -119,10 +124,7 @@ public class VehicleClass implements Serializable {
 		return this.capacity;
 	} // end getCapacity();
 
-	public void setCapacity(int capacity) throws PropertyVetoException {
-		if(capacity <= 0) {
-			throw new PropertyVetoException("Cannot set a negative capacity", new PropertyChangeEvent(this, "capacity", this.capacity, capacity));
-		}
+	public void setCapacity(int capacity) {
 		this.capacity = capacity;
 	} // end setCapacity();
 
@@ -130,10 +132,7 @@ public class VehicleClass implements Serializable {
 		return this.maxSpeed;
 	} // end getMaxSpeed();
 
-	public void setMaxSpeed(double maxSpeed) throws PropertyVetoException {
-		if(maxSpeed <= 0.0) {
-			throw new PropertyVetoException("Cannot set a negative maximum speed", new PropertyChangeEvent(this, "maxSpeed", this.maxSpeed, maxSpeed));
-		}
+	public void setMaxSpeed(double maxSpeed) {
 		this.maxSpeed = maxSpeed;
 	} // end setMaxSpeed();
 

@@ -18,7 +18,7 @@
 package org.invenzzia.opentrans.visitons.world;
 
 import com.google.common.base.Preconditions;
-import org.invenzzia.opentrans.visitons.network.Vertex;
+import org.invenzzia.opentrans.visitons.infrastructure.Vertex;
 
 /**
  * Description here.

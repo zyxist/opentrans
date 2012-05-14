@@ -15,25 +15,39 @@
  * You should have received a copy of the GNU General Public License
  * along with Visitons. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.invenzzia.opentrans.visitons.network;
-import java.util.List;
+package org.invenzzia.opentrans.visitons.infrastructure;
 
 /**
- * This interface handles vehicle transition between the edges entering
- * the node.
- * 
+ * Represents an edge that connects two vertices on a network.
+ *
  * @author zyxist
  */
-public interface ITransit
+public class Edge
 {
-	/**
-	 * The track objects can use this method to ask, what edges are reachable
-	 * through this vertex from the given edge. It is the implementor responsibility
-	 * to generate choices that make sense (i.e. not to return an edge that is
-	 * unreachable on a junction).
-	 * 
-	 * @param edge The edge we come from
-	 * @return The array of edges we can go to
-	 */
-	public List<Edge> whereCanWeGoFrom(Edge edge);
-} // end ITransit;
+	protected Vertex vertices[];
+	
+	public Edge()
+	{
+		this.vertices = new Vertex[2];
+	} // end Edge();
+	
+	public Edge setVertex(byte idx, Vertex vertex)
+	{
+		if(idx < 0 || idx > 1)
+		{
+			throw new IllegalArgumentException("Invalid vertex index: "+Byte.toString(idx));
+		}
+		this.vertices[idx] = vertex;
+		return this;
+	} // end setVertex();
+	
+	public Vertex getVertex(byte idx)
+	{
+		if(idx < 0 || idx > 1)
+		{
+			throw new IllegalArgumentException("Invalid vertex index: "+Byte.toString(idx));
+		}
+		return this.vertices[idx];
+	} // end getVertex();
+} // end Edge;
+

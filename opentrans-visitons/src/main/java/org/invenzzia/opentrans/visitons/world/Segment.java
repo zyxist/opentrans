@@ -5,7 +5,7 @@
 package org.invenzzia.opentrans.visitons.world;
 
 import java.awt.Image;
-import org.invenzzia.opentrans.visitons.network.Vertex;
+import org.invenzzia.opentrans.visitons.infrastructure.Vertex;
 
 /**
  * Represents a single world segment, a mechanism of partitioning the space in order to speed up rendering and finding objects. A segment

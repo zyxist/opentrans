@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with Visitons. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.invenzzia.opentrans.visitons.network;
+package org.invenzzia.opentrans.visitons.infrastructure;
 
 import com.google.common.base.Preconditions;
 import com.vividsolutions.jts.math.Vector2D;

@@ -18,13 +18,14 @@
 package org.invenzzia.opentrans.visitons.data;
 
 import java.io.Serializable;
-import javax.validation.Valid;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import org.invenzzia.helium.domain.annotation.Identifier;
-import org.invenzzia.opentrans.visitons.ISimulationData;
 import org.invenzzia.opentrans.visitons.Simulation;
+import org.invenzzia.opentrans.visitons.exception.NoSimulationDataException;
 
 /**
  * A single vehicle. Most of the parameters of vehicle is defined by its 
@@ -40,7 +41,11 @@ public class Vehicle implements Serializable {
 	@NotNull
 	@Size(min = 1, max = 30)
 	private String name;
-	
+	/**
+	 * Simulation-specific vehicle data references are kept in this map.
+	 */
+	private Map<Simulation, AssignedVehicle> simulationData = new LinkedHashMap<>();
+
 	public Vehicle() {
 	}
 	
@@ -58,5 +63,33 @@ public class Vehicle implements Serializable {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+	
+	void bindAssignedVehicle(AssignedVehicle asv) {
+		this.simulationData.put(asv.getSimulation(), asv);
+	}
+	
+	void unbindAssignedVehicle(AssignedVehicle asv) {
+		this.simulationData.remove(asv.getSimulation());
+	}
+
+	void unbindAssignedVehicle(Simulation simulation) {
+		this.simulationData.remove(simulation);
+	}
+	
+	/**
+	 * Returs the simulation-specific vehicle data for the given simulation. If there is no
+	 * entry for the given simulation, an exception is thrown.
+	 * 
+	 * @param simulation The probed simulation.
+	 * @return Simulation-specific vehicle data.
+	 * @throws NoSimulationDataException 
+	 */
+	public AssignedVehicle getSimulationData(Simulation simulation) throws NoSimulationDataException {
+		AssignedVehicle vehicle = this.simulationData.get(simulation);
+		if(null == vehicle) {
+			throw new NoSimulationDataException(String.format("The vehicle is not assigned to the simulation '%s'.", simulation.getName()), simulation);
+		}
+		return vehicle;
 	}
 }

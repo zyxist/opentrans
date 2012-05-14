@@ -17,8 +17,13 @@
  */
 package org.invenzzia.opentrans.visitons.data;
 
+import com.google.common.base.Preconditions;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import javax.validation.constraints.Max;
+import org.invenzzia.opentrans.visitons.exception.NoSuchConnectionException;
+import org.invenzzia.opentrans.visitons.network.Connection;
 
 /**
  * Represents a stop, where the passenger exchange takes place after
@@ -30,4 +35,74 @@ public class Stop {
 	private String name;
 	@Max(value = 100)
 	private List<Platform> platforms;
+	/**
+	 * Connections with other stops defined by lines.
+	 */
+	private Map<Stop, Connection> connections = new LinkedHashMap<>();
+	
+	public String getName() {
+		return this.name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+	
+	public boolean isConnectedWith(Stop otherStop) {
+		return this.connections.containsKey(otherStop);
+	}
+	
+	/**
+	 * Returns the connection object to the given stop. An exception is
+	 * thrown, if the connection does not exist.
+	 * 
+	 * @param stop
+	 * @return
+	 * @throws NoSuchConnectionException 
+	 */
+	public Connection getConnectionTo(Stop stop) throws NoSuchConnectionException {
+		Preconditions.checkNotNull(stop, "Passing empty stop to Stop.getConnectionTo()");
+		Connection conn = this.connections.get(stop);
+		if(null == conn) {
+			throw new NoSuchConnectionException(String.format("There is no connection to stop '%s'.", stop.getName()));
+		}
+		return conn;
+	}
+	
+	/**
+	 * Binds two stops with a newly created {@link Connection} object. If the
+	 * connection already exists, the method does nothing.
+	 * 
+	 * @param stop1
+	 * @param stop2 
+	 */
+	public static void bindStops(Stop stop1, Stop stop2) {
+		Preconditions.checkNotNull(stop1, "None of the stops in Stop.bindStops() can be null.");
+		Preconditions.checkNotNull(stop2, "None of the stops in Stop.bindStops() can be null.");
+		
+		if(stop1.isConnectedWith(stop2)) {
+			return;
+		}
+		
+		Connection connection = new Connection(stop1, stop2);
+		stop1.connections.put(stop2, connection);
+		stop2.connections.put(stop1, connection);
+	}
+	
+	/**
+	 * Removes the connection between two stops. Nothing happens, if such connection does
+	 * not exist.
+	 * 
+	 * @param stop1
+	 * @param stop2 
+	 */
+	public static void unbindStops(Stop stop1, Stop stop2) {
+		Preconditions.checkNotNull(stop1, "None of the stops in Stop.unbindStops() can be null.");
+		Preconditions.checkNotNull(stop2, "None of the stops in Stop.unbindStops() can be null.");
+		if(!stop1.isConnectedWith(stop2)) {
+			return;
+		}
+		stop1.connections.remove(stop2);
+		stop2.connections.remove(stop1);
+	}
 }

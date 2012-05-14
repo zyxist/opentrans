@@ -49,7 +49,7 @@ public class Vertex implements ITransit {
 	public Vertex(int edgeNum, double x, double y) {
 		this.edges = new Edge[edgeNum];
 		this.vector = new Vector2D(x, y);
-	} // end Vertex();
+	}
 
 	/**
 	 * Binds an edge to the vertex under the given index. The index must not exceed the vertex degree.
@@ -62,7 +62,7 @@ public class Vertex implements ITransit {
 		Preconditions.checkElementIndex(edgeId, this.edges.length);
 		this.edges[edgeId] = edge;
 		return this;
-	} // end setEdge();
+	}
 
 	/**
 	 * Returns the given edge connected to this vertex.
@@ -73,7 +73,7 @@ public class Vertex implements ITransit {
 	public Edge getEdge(int edgeId) {
 		Preconditions.checkElementIndex(edgeId, this.edges.length);
 		return this.edges[edgeId];
-	} // end getEdge();
+	}
 
 	/**
 	 * Increases the vertex degree.
@@ -85,7 +85,7 @@ public class Vertex implements ITransit {
 		System.arraycopy(this.edges, 0, newEdges, 0, this.edges.length);
 		this.edges = newEdges;
 		return this;
-	} // end expandVertex();
+	}
 
 	/**
 	 * Decreases the vertex degree.
@@ -101,7 +101,7 @@ public class Vertex implements ITransit {
 		System.arraycopy(this.edges, 0, newEdges, 0, newEdges.length);
 		this.edges = newEdges;
 		return this;
-	} // end degradeVertex();
+	}
 
 	/**
 	 * Returns the vertex degree.
@@ -110,11 +110,11 @@ public class Vertex implements ITransit {
 	 */
 	public int getDegree() {
 		return this.edges.length;
-	} // end getDegree();
+	}
 
 	public List<Edge> getEdges() {
 		return Arrays.asList(this.edges);
-	} // end getEdges();
+	}
 
 	public Vertex setVector(Vector2D vector) {
 		this.vector = vector;
@@ -123,15 +123,15 @@ public class Vertex implements ITransit {
 
 	public double getX() {
 		return this.vector.getX();
-	} // end getX();
+	}
 
 	public double getY() {
 		return this.vector.getY();
-	} // end getY();
+	}
 	
 	public Vector2D getVector() {
 		return this.vector;
-	} // end getVector();
+	}
 
 	/**
 	 * @see ITransit
@@ -139,5 +139,5 @@ public class Vertex implements ITransit {
 	@Override
 	public List<Edge> whereCanWeGoFrom(Edge edge) {
 		throw new UnsupportedOperationException("Not supported yet.");
-	} // end whereCanWeGoFrom();
-} // end Vertex;
+	}
+}

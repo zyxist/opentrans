@@ -17,37 +17,28 @@
  */
 package org.invenzzia.opentrans.visitons.infrastructure;
 
+import com.google.common.base.Preconditions;
+
 /**
  * Represents an edge that connects two vertices on a network.
  *
  * @author zyxist
  */
-public class Edge
-{
-	protected Vertex vertices[];
+public class Edge {
+	protected Vertex vertices[] = new Vertex[2];
 	
-	public Edge()
-	{
-		this.vertices = new Vertex[2];
-	} // end Edge();
+	public Edge() {
+	}
 	
-	public Edge setVertex(byte idx, Vertex vertex)
-	{
-		if(idx < 0 || idx > 1)
-		{
-			throw new IllegalArgumentException("Invalid vertex index: "+Byte.toString(idx));
-		}
+	public Edge setVertex(byte idx, Vertex vertex) {
+		Preconditions.checkArgument(idx == 0 || idx == 1, "The edge end-points can have only 0 or 1 as an index.");
 		this.vertices[idx] = vertex;
 		return this;
-	} // end setVertex();
+	}
 	
-	public Vertex getVertex(byte idx)
-	{
-		if(idx < 0 || idx > 1)
-		{
-			throw new IllegalArgumentException("Invalid vertex index: "+Byte.toString(idx));
-		}
+	public Vertex getVertex(byte idx) {
+		Preconditions.checkArgument(idx == 0 || idx == 1, "The edge end-points can have only 0 or 1 as an index.");
 		return this.vertices[idx];
-	} // end getVertex();
-} // end Edge;
+	}
+}
 

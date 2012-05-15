@@ -32,7 +32,7 @@ import org.invenzzia.opentrans.visitons.Simulation;
 public class TimetableLine implements ISimulationData, Serializable {
 	@Valid
 	private Line line;
-	@Valid @RelationshipMaster
+	@Valid @RelationshipMaster(inversedBy="timetableLines")
 	private Timetable timetable;	
 	@Valid
 	private Simulation simulation;

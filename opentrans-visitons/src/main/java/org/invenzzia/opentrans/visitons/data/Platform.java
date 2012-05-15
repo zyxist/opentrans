@@ -30,7 +30,7 @@ import org.invenzzia.helium.domain.annotation.RelationshipMaster;
  * @author Tomasz Jędrzejewski
  */
 public class Platform {
-	@Valid @RelationshipMaster
+	@Valid @RelationshipMaster(inversedBy="platforms")
 	private Stop stop;
 	@Min(value = 1)
 	@Max(value = 100)

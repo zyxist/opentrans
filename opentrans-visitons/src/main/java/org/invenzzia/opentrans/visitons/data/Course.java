@@ -34,7 +34,7 @@ import org.invenzzia.opentrans.visitons.Simulation;
  * @author Tomasz Jędrzejewski
  */
 public class Course implements ISimulationData, Serializable {
-	@Valid @NotNull @RelationshipMaster
+	@Valid @NotNull @RelationshipMaster(inversedBy="courses")
 	private TimetableLine timetableLine;	
 	@Valid
 	@NotNull

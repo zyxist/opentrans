@@ -38,7 +38,7 @@ public class Timetable implements ISimulationData, Serializable {
 	@Identifier
 	private int id;
 	private String name;
-	@Valid @RelationshipMaster
+	@Valid @RelationshipMaster(inversedBy="timetables")
 	private Simulation simulation;
 	/**
 	 * All lines in this timetable.

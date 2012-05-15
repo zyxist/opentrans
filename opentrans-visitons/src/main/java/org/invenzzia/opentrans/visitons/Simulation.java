@@ -17,11 +17,18 @@
  */
 package org.invenzzia.opentrans.visitons;
 
+import com.google.common.base.Preconditions;
+import java.util.LinkedList;
+import java.util.List;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.invenzzia.helium.domain.annotation.Identifier;
+import org.invenzzia.helium.domain.relation.RelationshipPerspective;
+import org.invenzzia.opentrans.visitons.data.AssignedVehicle;
+import org.invenzzia.opentrans.visitons.data.Line;
+import org.invenzzia.opentrans.visitons.data.Timetable;
 
 /**
  * A single project may consist of several simulations with different initial
@@ -45,6 +52,18 @@ public class Simulation {
 	private boolean template;
 	@Valid
 	private VisitonsProject project;
+	/**
+	 * List of transportation lines in this simulation.
+	 */
+	private RelationshipPerspective<Simulation, Line> lines;
+	/**
+	 * List of all vehicles assigned to this simulation.
+	 */
+	private RelationshipPerspective<Simulation, AssignedVehicle> vehicles;
+	/**
+	 * List of timetables in this simulation.
+	 */
+	private RelationshipPerspective<Simulation, Timetable> timetables;
 	
 	public Simulation() {
 	}
@@ -79,5 +98,29 @@ public class Simulation {
 	
 	public void setVisitonsProject(VisitonsProject project) {
 		this.project = project;
+	}
+	
+	/**
+	 * Injector for the relationship perspective. Do not use explicitely.
+	 * @param perspective 
+	 */
+	public void setLinesPerspective(RelationshipPerspective perspective) {
+		this.lines = (RelationshipPerspective<Simulation, Line>) perspective;
+	}
+	
+	/**
+	 * Injector for the relationship perspective. Do not use explicitely.
+	 * @param perspective 
+	 */
+	public void setTimetablesPerspective(RelationshipPerspective perspective) {
+		this.timetables = (RelationshipPerspective<Simulation, Timetable>) perspective;
+	}
+	
+	public RelationshipPerspective<Simulation, Line> getLines() {
+		return this.lines;
+	}
+	
+	public RelationshipPerspective<Simulation, Timetable> getTimetables() {
+		return this.timetables;
 	}
 }

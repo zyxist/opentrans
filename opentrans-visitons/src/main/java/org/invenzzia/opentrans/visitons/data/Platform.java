@@ -20,6 +20,7 @@ package org.invenzzia.opentrans.visitons.data;
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
+import org.invenzzia.helium.domain.annotation.RelationshipMaster;
 
 /**
  * Each stop can consist of multiple platforms. A platform is a single point
@@ -29,7 +30,7 @@ import javax.validation.constraints.Min;
  * @author Tomasz Jędrzejewski
  */
 public class Platform {
-	@Valid
+	@Valid @RelationshipMaster
 	private Stop stop;
 	@Min(value = 1)
 	@Max(value = 100)

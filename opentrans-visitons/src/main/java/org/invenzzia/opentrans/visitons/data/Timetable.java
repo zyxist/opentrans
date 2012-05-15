@@ -21,6 +21,8 @@ import java.io.Serializable;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import org.invenzzia.helium.domain.annotation.Identifier;
+import org.invenzzia.helium.domain.annotation.RelationshipMaster;
+import org.invenzzia.helium.domain.relation.RelationshipPerspective;
 import org.invenzzia.opentrans.visitons.ISimulationData;
 import org.invenzzia.opentrans.visitons.Simulation;
 
@@ -36,8 +38,12 @@ public class Timetable implements ISimulationData, Serializable {
 	@Identifier
 	private int id;
 	private String name;
-	@Valid
+	@Valid @RelationshipMaster
 	private Simulation simulation;
+	/**
+	 * All lines in this timetable.
+	 */
+	private RelationshipPerspective<Timetable, TimetableLine> timetableLines;
 
 	public int getId() {
 		return this.id;
@@ -55,6 +61,10 @@ public class Timetable implements ISimulationData, Serializable {
 		this.name = name;
 	}
 	
+	/**
+	 * Do not call explicitely. Use relationship manager instead.
+	 * @param simulation 
+	 */
 	@Override
 	public void setSimulation(Simulation simulation) {
 		this.simulation = simulation;
@@ -64,4 +74,16 @@ public class Timetable implements ISimulationData, Serializable {
 	public Simulation getSimulation() {
 		return this.simulation;
 	}
-} // end Timetable;
+	
+	/**
+	 * Injector for the relationship perspective. Do not use explicitely.
+	 * @param perspective 
+	 */
+	public void setTimetableLinesPerspective(RelationshipPerspective perspective) {
+		this.timetableLines = (RelationshipPerspective<Timetable, TimetableLine>) perspective;
+	}
+	
+	public RelationshipPerspective<Timetable, TimetableLine> getTimetableLines() {
+		return this.timetableLines;
+	}
+}

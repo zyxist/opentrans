@@ -19,9 +19,9 @@ package org.invenzzia.opentrans.visitons.data;
 
 import com.google.common.base.Preconditions;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
-import javax.validation.constraints.Max;
+import org.invenzzia.helium.domain.annotation.RelationshipSize;
+import org.invenzzia.helium.domain.relation.RelationshipPerspective;
 import org.invenzzia.opentrans.visitons.exception.NoSuchConnectionException;
 import org.invenzzia.opentrans.visitons.network.Connection;
 
@@ -33,8 +33,11 @@ import org.invenzzia.opentrans.visitons.network.Connection;
  */
 public class Stop {
 	private String name;
-	@Max(value = 100)
-	private List<Platform> platforms;
+	/**
+	 * All platforms on this stop.
+	 */
+	@RelationshipSize(max = 100)
+	private RelationshipPerspective<Stop, Platform> platforms;
 	/**
 	 * Connections with other stops defined by lines.
 	 */
@@ -46,6 +49,18 @@ public class Stop {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+	
+	/**
+	 * Injector for the relationship perspective. Do not use explicitely.
+	 * @param perspective 
+	 */
+	public void setPlatformsPerspective(RelationshipPerspective perspective) {
+		this.platforms = (RelationshipPerspective<Stop, Platform>) perspective;
+	}
+	
+	public RelationshipPerspective<Stop, Platform> getPlatforms() {
+		return this.platforms;
 	}
 	
 	public boolean isConnectedWith(Stop otherStop) {

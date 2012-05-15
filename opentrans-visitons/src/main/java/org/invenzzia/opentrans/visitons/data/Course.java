@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import org.invenzzia.helium.domain.annotation.RelationshipMaster;
 import org.invenzzia.opentrans.visitons.ISimulationData;
 import org.invenzzia.opentrans.visitons.Simulation;
 
@@ -33,8 +34,7 @@ import org.invenzzia.opentrans.visitons.Simulation;
  * @author Tomasz Jędrzejewski
  */
 public class Course implements ISimulationData, Serializable {
-	@Valid
-	@NotNull
+	@Valid @NotNull @RelationshipMaster
 	private TimetableLine timetableLine;	
 	@Valid
 	@NotNull

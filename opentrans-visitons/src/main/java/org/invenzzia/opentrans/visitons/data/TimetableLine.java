@@ -19,6 +19,8 @@ package org.invenzzia.opentrans.visitons.data;
 
 import java.io.Serializable;
 import javax.validation.Valid;
+import org.invenzzia.helium.domain.annotation.RelationshipMaster;
+import org.invenzzia.helium.domain.relation.RelationshipPerspective;
 import org.invenzzia.opentrans.visitons.ISimulationData;
 import org.invenzzia.opentrans.visitons.Simulation;
 
@@ -30,10 +32,30 @@ import org.invenzzia.opentrans.visitons.Simulation;
 public class TimetableLine implements ISimulationData, Serializable {
 	@Valid
 	private Line line;
-	@Valid
+	@Valid @RelationshipMaster
 	private Timetable timetable;	
 	@Valid
 	private Simulation simulation;
+	/**
+	 * All courses for this line in this timetable.
+	 */
+	private RelationshipPerspective<TimetableLine, Course> courses;
+
+	public Line getLine() {
+		return this.line;
+	}
+
+	public void setLine(Line line) {
+		this.line = line;
+	}
+
+	public Timetable getTimetable() {
+		return this.timetable;
+	}
+
+	public void setTimetable(Timetable timetable) {
+		this.timetable = timetable;
+	}
 	
 	@Override
 	public void setSimulation(Simulation simulation) {
@@ -43,5 +65,17 @@ public class TimetableLine implements ISimulationData, Serializable {
 	@Override
 	public Simulation getSimulation() {
 		return this.simulation;
+	}
+	
+	/**
+	 * Injector for the relationship perspective. Do not use explicitely.
+	 * @param perspective 
+	 */
+	public void setCoursesPerspective(RelationshipPerspective perspective) {
+		this.courses = (RelationshipPerspective<TimetableLine, Course>) perspective;
+	}
+	
+	public RelationshipPerspective<TimetableLine, Course> getCourses() {
+		return this.courses;
 	}
 }

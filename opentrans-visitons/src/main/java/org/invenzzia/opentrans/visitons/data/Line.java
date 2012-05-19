@@ -17,11 +17,73 @@
  */
 package org.invenzzia.opentrans.visitons.data;
 
+import java.io.Serializable;
+import org.invenzzia.helium.domain.relation.IndexedRelationshipPerspective;
+import org.invenzzia.opentrans.visitons.ISimulationData;
+import org.invenzzia.opentrans.visitons.Simulation;
+
 /**
  * A transportation network line.
  * 
  * @author Tomasz Jędrzejewski
  */
-public class Line {
+public class Line implements ISimulationData, Serializable {
+	/**
+	 * Line number and identifier.
+	 */
+	private String number;
+	/**
+	 * The simulation this line belongs to.
+	 */
+	private Simulation simulation;
+	/**
+	 * The instances of this line for different timetables.
+	 */
+	private IndexedRelationshipPerspective<Line, Timetable, TimetableLine> timetableLines;
+	
+	public void setNumber(String number) {
+		this.number = number;
+	}
+	
+	public String getNumber() {
+		return this.number;
+	}
+	
+	/**
+	 * Do not call explicitely. Use relationship manager instead.
+	 * @param simulation 
+	 */
+	@Override
+	public void setSimulation(Simulation simulation) {
+		this.simulation = simulation;
+	}
 
+	@Override
+	public Simulation getSimulation() {
+		return this.simulation;
+	}
+
+	/**
+	 * Returns the representation of this line in the given timetable.
+	 * There we can find the information about the line timetable, courses
+	 * and brigades.
+	 * 
+	 * @param tt The timetable context.
+	 * @return Timetable-specific line information.
+	 */
+	public TimetableLine getTimetableRepresentation(Timetable tt) {
+		return null;
+	}
+	
+	/**
+	 * Injector for the relationship perspective. Do not use explicitely.
+	 * @param perspective 
+	 */
+	public void setTimetableLinesPerspective(IndexedRelationshipPerspective perspective) {
+		this.timetableLines = (IndexedRelationshipPerspective<Line, Timetable, TimetableLine>) perspective;
+	}
+	
+	public IndexedRelationshipPerspective<Line, Timetable, TimetableLine> getTimetableLines() {
+		return this.timetableLines;
+	}
 }

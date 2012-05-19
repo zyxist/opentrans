@@ -19,6 +19,7 @@ package org.invenzzia.opentrans.visitons.data;
 
 import java.io.Serializable;
 import javax.validation.Valid;
+import org.invenzzia.helium.domain.annotation.RelationshipIndex;
 import org.invenzzia.opentrans.visitons.ISimulationData;
 import org.invenzzia.opentrans.visitons.Simulation;
 
@@ -31,6 +32,7 @@ public class AssignedVehicle implements ISimulationData, Serializable {
 	@Valid
 	private Vehicle vehicle;
 	@Valid
+	@RelationshipIndex(entity = Depot.class, inversedBy = "vehicles")
 	private Simulation simulation;
 	
 	public Vehicle getVehicle() {

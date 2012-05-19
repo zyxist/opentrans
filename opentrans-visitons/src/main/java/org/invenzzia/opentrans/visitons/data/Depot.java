@@ -17,11 +17,11 @@
  */
 package org.invenzzia.opentrans.visitons.data;
 
-import java.util.*;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import org.invenzzia.helium.domain.annotation.Identifier;
+import org.invenzzia.helium.domain.relation.IndexedRelationshipPerspective;
 import org.invenzzia.opentrans.visitons.Simulation;
 
 /**
@@ -39,7 +39,8 @@ public class Depot {
 	@Size(min = 2, max = 30)
 	private String name;
 	
-	private Map<Simulation, Set<AssignedVehicle>> vehicles = new LinkedHashMap<>();
+	private IndexedRelationshipPerspective<Depot, Simulation, AssignedVehicle> vehicles;
+
 	
 	public int getId() {
 		return this.id;
@@ -57,36 +58,15 @@ public class Depot {
 		this.name = name;
 	}
 	
-	public void addVehicle(AssignedVehicle asv) {
-		Simulation sim = asv.getSimulation();
-		Set<AssignedVehicle> asvSet = this.vehicles.get(sim);
-		if(null == asvSet) {
-			asvSet = new HashSet<>();
-			this.vehicles.put(sim, asvSet);
-		}
-		asvSet.add(asv);
+	/**
+	 * Injector for the relationship perspective. Do not use explicitely.
+	 * @param perspective 
+	 */
+	public void setVehiclesPerspective(IndexedRelationshipPerspective perspective) {
+		this.vehicles = (IndexedRelationshipPerspective<Depot, Simulation, AssignedVehicle>) perspective;
 	}
 	
-	public boolean hasVehicle(AssignedVehicle asv) {
-		Simulation sim = asv.getSimulation();
-		Set<AssignedVehicle> asvSet = this.vehicles.get(sim);
-		if(null == asvSet) {
-			return false;
-		}
-		return asvSet.contains(asv);
-	}
-	
-	public AssignedVehicle getVehicle(Simulation simulation, String name) {
-		return null;
-	}
-	
-	public AssignedVehicle getVehicle(Simulation simulation, int id) {
-		return null;
-	}
-	
-	public Collection<AssignedVehicle> getVehicles(Simulation simulation) {
-		Collection<AssignedVehicle> results = new LinkedList<>();
-		
-		return results;
+	public IndexedRelationshipPerspective<Depot, Simulation, AssignedVehicle> getVehicles() {
+		return this.vehicles;
 	}
 }

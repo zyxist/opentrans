@@ -19,6 +19,7 @@ package org.invenzzia.opentrans.visitons.data;
 
 import java.io.Serializable;
 import javax.validation.Valid;
+import org.invenzzia.helium.domain.annotation.RelationshipIndex;
 import org.invenzzia.helium.domain.annotation.RelationshipMaster;
 import org.invenzzia.helium.domain.relation.RelationshipPerspective;
 import org.invenzzia.opentrans.visitons.ISimulationData;
@@ -32,8 +33,10 @@ import org.invenzzia.opentrans.visitons.Simulation;
 public class TimetableLine implements ISimulationData, Serializable {
 	@Valid
 	private Line line;
-	@Valid @RelationshipMaster(inversedBy="timetableLines")
-	private Timetable timetable;	
+	@Valid
+	@RelationshipMaster(inversedBy="timetableLines", updateable = false)
+	@RelationshipIndex(entity = Line.class, inversedBy = "timetableLines")
+	private Timetable timetable;
 	@Valid
 	private Simulation simulation;
 	/**

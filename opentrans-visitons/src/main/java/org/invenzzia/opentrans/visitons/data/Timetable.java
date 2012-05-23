@@ -23,8 +23,7 @@ import javax.validation.constraints.Min;
 import org.invenzzia.helium.domain.annotation.Identifier;
 import org.invenzzia.helium.domain.annotation.RelationshipMaster;
 import org.invenzzia.helium.domain.relation.RelationshipPerspective;
-import org.invenzzia.opentrans.visitons.ISimulationData;
-import org.invenzzia.opentrans.visitons.Simulation;
+import org.invenzzia.opentrans.visitons.VisitonsProject;
 
 /**
  * The timetable describes, when each vehicle should arrive at the given
@@ -33,13 +32,13 @@ import org.invenzzia.opentrans.visitons.Simulation;
  * 
  * @author Tomasz Jędrzejewski
  */
-public class Timetable implements ISimulationData, Serializable {
+public class Timetable implements Serializable {
 	@Min(value = 0)
 	@Identifier
 	private int id;
 	private String name;
 	@Valid @RelationshipMaster(inversedBy="timetables")
-	private Simulation simulation;
+	private VisitonsProject project;
 	/**
 	 * All lines in this timetable.
 	 */
@@ -63,16 +62,14 @@ public class Timetable implements ISimulationData, Serializable {
 	
 	/**
 	 * Do not call explicitely. Use relationship manager instead.
-	 * @param simulation 
+	 * @param project 
 	 */
-	@Override
-	public void setSimulation(Simulation simulation) {
-		this.simulation = simulation;
+	public void setProject(VisitonsProject project) {
+		this.project = project;
 	}
 
-	@Override
-	public Simulation getSimulation() {
-		return this.simulation;
+	public VisitonsProject getProject() {
+		return this.project;
 	}
 	
 	/**

@@ -19,9 +19,6 @@ package org.invenzzia.opentrans.visitons.data;
 
 import java.io.Serializable;
 import java.util.List;
-import javax.validation.Valid;
-import org.invenzzia.opentrans.visitons.ISimulationData;
-import org.invenzzia.opentrans.visitons.Simulation;
 
 /**
  * Brigade is an assignment of a single vehicle to a certain group of courses
@@ -29,7 +26,7 @@ import org.invenzzia.opentrans.visitons.Simulation;
  * 
  * @author Tomasz Jędrzejewski
  */
-public class Brigade implements ISimulationData, Serializable {
+public class Brigade implements Serializable {
 	/**
 	 * Primary line of the brigade.
 	 */
@@ -47,8 +44,6 @@ public class Brigade implements ISimulationData, Serializable {
 	 * The vehicle that serves this group of courses.
 	 */
 	private Vehicle vehicle;
-	@Valid
-	private Simulation simulation;
 
 	public Line getLine() {
 		return this.line;
@@ -72,15 +67,5 @@ public class Brigade implements ISimulationData, Serializable {
 
 	public void setVehicle(Vehicle vehicle) {
 		this.vehicle = vehicle;
-	}
-	
-	@Override
-	public void setSimulation(Simulation simulation) {
-		this.simulation = simulation;
-	}
-
-	@Override
-	public Simulation getSimulation() {
-		return this.simulation;
 	}
 } // end Brigade;

@@ -18,9 +18,6 @@
 package org.invenzzia.opentrans.visitons.data;
 
 import java.io.Serializable;
-import javax.validation.Valid;
-import org.invenzzia.opentrans.visitons.ISimulationData;
-import org.invenzzia.opentrans.visitons.Simulation;
 import org.invenzzia.opentrans.visitons.types.Time;
 
 /**
@@ -29,16 +26,13 @@ import org.invenzzia.opentrans.visitons.types.Time;
  * 
  * @author Tomasz Jędrzejewski
  */
-public class Entry implements ISimulationData, Serializable {
+public class Entry implements Serializable {
 	private Course course;
 	
 	private Platform stopPlatform;
 	
 	private Time arrivalTime;
-	
-	@Valid
-	private Simulation simulation;
-	
+		
 	public Course getCourse() {
 		return this.course;
 	}
@@ -53,15 +47,5 @@ public class Entry implements ISimulationData, Serializable {
 	
 	public void setStopPlatform(Platform stopPlatform) {
 		this.stopPlatform = stopPlatform;
-	}
-	
-	@Override
-	public void setSimulation(Simulation simulation) {
-		this.simulation = simulation;
-	}
-
-	@Override
-	public Simulation getSimulation() {
-		return this.simulation;
 	}
 }

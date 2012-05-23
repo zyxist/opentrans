@@ -23,8 +23,6 @@ import java.util.Map.Entry;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import org.invenzzia.helium.domain.annotation.RelationshipMaster;
-import org.invenzzia.opentrans.visitons.ISimulationData;
-import org.invenzzia.opentrans.visitons.Simulation;
 
 /**
  * Represents a single course of the timetable line. The course can have
@@ -33,12 +31,9 @@ import org.invenzzia.opentrans.visitons.Simulation;
  * 
  * @author Tomasz Jędrzejewski
  */
-public class Course implements ISimulationData, Serializable {
+public class Course implements Serializable {
 	@Valid @NotNull @RelationshipMaster(inversedBy="courses")
 	private TimetableLine timetableLine;	
-	@Valid
-	@NotNull
-	private Simulation simulation;
 	@Valid
 	@NotNull
 	private Stop startTerminus;
@@ -55,15 +50,5 @@ public class Course implements ISimulationData, Serializable {
 	
 	public void setTimetableLine(TimetableLine line) {
 		this.timetableLine = line;
-	}
-	
-	@Override
-	public void setSimulation(Simulation simulation) {
-		this.simulation = simulation;
-	}
-
-	@Override
-	public Simulation getSimulation() {
-		return this.simulation;
 	}
 }

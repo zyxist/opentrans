@@ -18,28 +18,27 @@
 package org.invenzzia.opentrans.visitons.data;
 
 import java.io.Serializable;
+import javax.validation.Valid;
+import org.invenzzia.helium.domain.annotation.RelationshipMaster;
 import org.invenzzia.helium.domain.relation.IndexedRelationshipPerspective;
-import org.invenzzia.opentrans.visitons.ISimulationData;
-import org.invenzzia.opentrans.visitons.Simulation;
+import org.invenzzia.opentrans.visitons.VisitonsProject;
 
 /**
  * A transportation network line.
  * 
  * @author Tomasz Jędrzejewski
  */
-public class Line implements ISimulationData, Serializable {
+public class Line implements Serializable {
 	/**
 	 * Line number and identifier.
 	 */
 	private String number;
 	/**
-	 * The simulation this line belongs to.
-	 */
-	private Simulation simulation;
-	/**
 	 * The instances of this line for different timetables.
 	 */
 	private IndexedRelationshipPerspective<Line, Timetable, TimetableLine> timetableLines;
+	@Valid @RelationshipMaster(inversedBy="lines")
+	private VisitonsProject project;
 	
 	public void setNumber(String number) {
 		this.number = number;
@@ -51,16 +50,14 @@ public class Line implements ISimulationData, Serializable {
 	
 	/**
 	 * Do not call explicitely. Use relationship manager instead.
-	 * @param simulation 
+	 * @param project 
 	 */
-	@Override
-	public void setSimulation(Simulation simulation) {
-		this.simulation = simulation;
+	public void setProject(VisitonsProject project) {
+		this.project = project;
 	}
 
-	@Override
-	public Simulation getSimulation() {
-		return this.simulation;
+	public VisitonsProject getProject() {
+		return this.project;
 	}
 
 	/**

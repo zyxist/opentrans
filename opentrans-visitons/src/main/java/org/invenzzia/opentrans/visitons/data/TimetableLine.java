@@ -22,23 +22,20 @@ import javax.validation.Valid;
 import org.invenzzia.helium.domain.annotation.RelationshipIndex;
 import org.invenzzia.helium.domain.annotation.RelationshipMaster;
 import org.invenzzia.helium.domain.relation.RelationshipPerspective;
-import org.invenzzia.opentrans.visitons.ISimulationData;
-import org.invenzzia.opentrans.visitons.Simulation;
 
 /**
  * The timetable-specific data about the given line. 
  * 
  * @author Tomasz Jędrzejewski
  */
-public class TimetableLine implements ISimulationData, Serializable {
+public class TimetableLine implements Serializable {
 	@Valid
 	private Line line;
 	@Valid
 	@RelationshipMaster(inversedBy="timetableLines", updateable = false)
 	@RelationshipIndex(entity = Line.class, inversedBy = "timetableLines")
 	private Timetable timetable;
-	@Valid
-	private Simulation simulation;
+
 	/**
 	 * All courses for this line in this timetable.
 	 */
@@ -58,16 +55,6 @@ public class TimetableLine implements ISimulationData, Serializable {
 
 	public void setTimetable(Timetable timetable) {
 		this.timetable = timetable;
-	}
-	
-	@Override
-	public void setSimulation(Simulation simulation) {
-		this.simulation = simulation;
-	}
-
-	@Override
-	public Simulation getSimulation() {
-		return this.simulation;
 	}
 	
 	/**

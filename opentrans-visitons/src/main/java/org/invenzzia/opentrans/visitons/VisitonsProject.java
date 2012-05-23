@@ -20,6 +20,10 @@ package org.invenzzia.opentrans.visitons;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import org.hibernate.validator.constraints.NotEmpty;
+import org.invenzzia.helium.domain.relation.RelationshipPerspective;
+import org.invenzzia.opentrans.visitons.data.Line;
+import org.invenzzia.opentrans.visitons.data.Timetable;
+import org.invenzzia.opentrans.visitons.data.Vehicle;
 
 /**
  * Provides a concept of a "simulation project". The project consists of a world map and different simulations that could be edited and run
@@ -74,6 +78,18 @@ public class VisitonsProject {
 	@NotEmpty
 	@Size(min = 2, max = 300)
 	private String path = "";
+	/**
+	 * List of transportation lines in this simulation.
+	 */
+	private RelationshipPerspective<VisitonsProject, Line> lines;
+	/**
+	 * List of all vehicles assigned to this simulation.
+	 */
+	private RelationshipPerspective<VisitonsProject, Vehicle> vehicles;
+	/**
+	 * List of timetables in this simulation.
+	 */
+	private RelationshipPerspective<VisitonsProject, Timetable> timetables;
 
 	/**
 	 * @return The project name.
@@ -163,5 +179,29 @@ public class VisitonsProject {
 	public VisitonsProject setPath(String path) {
 		this.path = path;
 		return this;
+	}
+	
+	/**
+	 * Injector for the relationship perspective. Do not use explicitely.
+	 * @param perspective 
+	 */
+	public void setLinesPerspective(RelationshipPerspective perspective) {
+		this.lines = (RelationshipPerspective<VisitonsProject, Line>) perspective;
+	}
+	
+	/**
+	 * Injector for the relationship perspective. Do not use explicitely.
+	 * @param perspective 
+	 */
+	public void setTimetablesPerspective(RelationshipPerspective perspective) {
+		this.timetables = (RelationshipPerspective<VisitonsProject, Timetable>) perspective;
+	}
+	
+	public RelationshipPerspective<VisitonsProject, Line> getLines() {
+		return this.lines;
+	}
+	
+	public RelationshipPerspective<VisitonsProject, Timetable> getTimetables() {
+		return this.timetables;
 	}
 } // end VisitonsProject;

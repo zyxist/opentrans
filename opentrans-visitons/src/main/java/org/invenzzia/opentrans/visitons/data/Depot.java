@@ -21,8 +21,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import org.invenzzia.helium.domain.annotation.Identifier;
-import org.invenzzia.helium.domain.relation.IndexedRelationshipPerspective;
-import org.invenzzia.opentrans.visitons.Simulation;
+import org.invenzzia.helium.domain.relation.RelationshipPerspective;
 
 /**
  * Represents a vehicle depot. While the depots are a part of the infrastructure and thus
@@ -39,7 +38,7 @@ public class Depot {
 	@Size(min = 2, max = 30)
 	private String name;
 	
-	private IndexedRelationshipPerspective<Depot, Simulation, AssignedVehicle> vehicles;
+	private RelationshipPerspective<Depot, Vehicle> vehicles;
 
 	
 	public int getId() {
@@ -62,11 +61,11 @@ public class Depot {
 	 * Injector for the relationship perspective. Do not use explicitely.
 	 * @param perspective 
 	 */
-	public void setVehiclesPerspective(IndexedRelationshipPerspective perspective) {
-		this.vehicles = (IndexedRelationshipPerspective<Depot, Simulation, AssignedVehicle>) perspective;
+	public void setVehiclesPerspective(RelationshipPerspective perspective) {
+		this.vehicles = (RelationshipPerspective<Depot, Vehicle>) perspective;
 	}
 	
-	public IndexedRelationshipPerspective<Depot, Simulation, AssignedVehicle> getVehicles() {
+	public RelationshipPerspective<Depot, Vehicle> getVehicles() {
 		return this.vehicles;
 	}
 }

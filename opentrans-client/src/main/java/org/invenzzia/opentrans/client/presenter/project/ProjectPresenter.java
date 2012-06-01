@@ -17,28 +17,12 @@
  */
 package org.invenzzia.opentrans.client.presenter.project;
 
-import java.awt.Component;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import org.invenzzia.helium.application.Application;
-import org.invenzzia.helium.forms.DefinitionManager;
-import org.invenzzia.helium.forms.Form;
-import org.invenzzia.helium.forms.IFormFactory;
-import org.invenzzia.helium.forms.exception.FormException;
-import org.invenzzia.helium.gui.BaseLeafPresenter;
-import org.invenzzia.helium.gui.LifecycleManager;
-import org.invenzzia.helium.gui.annotations.Dialog;
-import org.invenzzia.helium.gui.exception.PresenterConfigurationException;
-import org.invenzzia.helium.gui.presenter.dialog.DialogPresenter;
-import org.invenzzia.helium.gui.presenter.dialog.IDialogPresenter;
-import org.invenzzia.opentrans.visitons.VisitonsProject;
-import org.picocontainer.Characteristics;
-
 /**
  * Description here.
  * 
  * @author Tomasz Jędrzejewski
  */
+/*
 @Dialog(
 	title="New project",
 	buttons = { DialogPresenter.DialogButtons.BUTTON_OK, DialogPresenter.DialogButtons.BUTTON_CANCEL }
@@ -88,3 +72,7 @@ public class ProjectPresenter extends BaseLeafPresenter implements IDialogPresen
 	}
 
 } // end ProjectPresenter;
+*/
+public class ProjectPresenter {
+	
+}

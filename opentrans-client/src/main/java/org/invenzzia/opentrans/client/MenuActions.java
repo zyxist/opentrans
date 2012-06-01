@@ -19,12 +19,7 @@ package org.invenzzia.opentrans.client;
 
 import com.google.common.base.Preconditions;
 import org.invenzzia.helium.application.Application;
-import org.invenzzia.helium.gui.LifecycleManager;
-import org.invenzzia.helium.gui.annotations.Action;
-import org.invenzzia.helium.gui.exception.PresenterConfigurationException;
-import org.invenzzia.helium.gui.presenter.dialog.DialogUtils;
-import org.invenzzia.helium.gui.utils.AboutDialogPresenter;
-import org.invenzzia.opentrans.client.presenter.project.ProjectPresenter;
+import org.invenzzia.helium.gui.annotation.Action;
 
 /**
  * Menu actions for OpenTrans.
@@ -39,8 +34,10 @@ public class MenuActions {
 	}
 	
 	@Action(id="newProject")
-	public void actionNewProject() throws PresenterConfigurationException {
+	public void actionNewProject() {
+		/*
 		LifecycleManager lcm = this.application.getLifecycleManager();
 		DialogUtils.runDialog(lcm, lcm.getPresenter(ProjectPresenter.class));
+		*/
 	} // end actionNewProject();
 } // end MenuActions;

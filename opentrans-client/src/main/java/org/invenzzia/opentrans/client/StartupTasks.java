@@ -17,13 +17,14 @@
  */
 package org.invenzzia.opentrans.client;
 
+import javax.swing.SwingUtilities;
 import org.invenzzia.helium.application.Application;
-import org.invenzzia.helium.gui.LifecycleManager;
-import org.invenzzia.helium.gui.exception.PresenterConfigurationException;
-import org.invenzzia.helium.gui.presenter.card.CardPresenter;
-import org.invenzzia.helium.gui.presenter.menu.MenuPresenter;
-import org.invenzzia.helium.gui.presenter.welcome.WelcomePresenter;
+import org.invenzzia.helium.gui.ui.card.CardView;
+import org.invenzzia.helium.gui.ui.welcome.WelcomeController;
+import org.invenzzia.helium.gui.ui.welcome.WelcomeView;
 import org.invenzzia.helium.tasks.annotations.Task;
+import org.picocontainer.Characteristics;
+import org.picocontainer.MutablePicoContainer;
 
 /**
  *
@@ -36,25 +37,46 @@ public class StartupTasks {
 		this.app = app;
 	} // end StartupTasks();
 	
+	@Task(order = 1, weight = 5, description = "Initializing dependency graph.")
+	public void initDependencies() {
+		MutablePicoContainer container = this.app.getContainer();
+		container.as(Characteristics.NO_CACHE).addComponent(MyWelcomeView.class).as(Characteristics.NO_CACHE).addComponent(AnotherWelcomeView.class);
+	}
+	
 	/**
 	 * OpenTrans-specific GUI initialization code.
 	 * 
 	 * @throws PresenterConfigurationException 
 	 */
 	@Task(order = 900, weight = 5, description = "Initializing GUI")
-	public void initializePresenters() throws PresenterConfigurationException {
-		LifecycleManager lc = this.app.getLifecycleManager();
-		MenuPresenter menuP = lc.getPresenter(MenuPresenter.class);
-		
-		menuP.registerActions(new MenuActions(this.app));
+	public void initializeActions() {
+		this.app.getActionManager().registerActions(new MenuActions(this.app));
 	}
 	
 	@Task(order = 2000, weight = 1, description = "Opening cards")
-	public void createWelcomeScreen() throws PresenterConfigurationException {
-		CardPresenter cardPresenter = this.app.getLifecycleManager().getPresenter(CardPresenter.class);
+	public void createWelcomeScreen() {
+		final CardView cardView = this.app.getContainer().getComponent(CardView.class);
+		WelcomeController controller = this.app.getContainer().getComponent(WelcomeController.class);
+		controller.loadDefinition("Welcome");
+		
+		SwingUtilities.invokeLater(new Runnable() {
+
+			@Override
+			public void run() {
+				for(int i = 0; i < 3; i++) {
+					WelcomeView welcomeView = StartupTasks.this.app.getContainer().getComponent(MyWelcomeView.class);
+					cardView.createCard(welcomeView);
+				}
+				WelcomeView welcomeView = StartupTasks.this.app.getContainer().as(Characteristics.NO_CACHE).getComponent(AnotherWelcomeView.class);
+				cardView.createCard(welcomeView);
+			}
+		});
+		/*
+		CardView cardPresenter = this.app.getLifecycleManager().getPresenter(CardPresenter.class);
 		
 		for(int i = 0; i < 3; i++) {
 			cardPresenter.createCard(this.app.getLifecycleManager().getPresenter(WelcomePresenter.class, "id"+Integer.toString(i)));
 		}
+		*/ 
 	} // end createWelcomeScreen();
 } // end StartupTasks();

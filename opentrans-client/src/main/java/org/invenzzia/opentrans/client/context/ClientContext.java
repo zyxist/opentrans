@@ -15,32 +15,31 @@
  * You should have received a copy of the GNU General Public License
  * along with OpenTrans. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.invenzzia.opentrans.client;
+package org.invenzzia.opentrans.client.context;
 
-import com.google.common.base.Preconditions;
 import org.invenzzia.helium.application.Application;
-import org.invenzzia.helium.gui.ContextManager;
-import org.invenzzia.helium.gui.annotation.Action;
-import org.invenzzia.opentrans.client.context.ProjectContext;
-import org.invenzzia.opentrans.visitons.VisitonsProject;
+import org.invenzzia.helium.gui.context.AbstractContext;
 
 /**
- * Menu actions for OpenTrans.
+ * Context for the OpenTrans client. Represents a case, where no project
+ * is open.
  * 
  * @author Tomasz Jędrzejewski
  */
-public class MenuActions {
-	private Application application;
-	
-	public MenuActions(Application app) {
-		this.application = Preconditions.checkNotNull(app);
+public class ClientContext extends AbstractContext {
+	public ClientContext(Application application) {
+		super(application);
 	}
-	
-	@Action(id="newProject")
-	public void actionNewProject() {
-		ProjectContext projectCtx = new ProjectContext(this.application, new VisitonsProject());
-		
-		ContextManager cm = this.application.getCurrentContainer().getComponent(ContextManager.class);
-		cm.pushContext(projectCtx);
-	} // end actionNewProject();
-} // end MenuActions;
+
+	@Override
+	protected boolean startup() {
+		this.container.start();
+		return true;
+	}
+
+	@Override
+	protected boolean shutdown() {
+		this.container.stop();
+		return true;
+	}
+}

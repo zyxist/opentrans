@@ -40,7 +40,7 @@ public class StartupTasks {
 	@Task(order = 1, weight = 5, description = "Initializing dependency graph.")
 	public void initDependencies() {
 		MutablePicoContainer container = this.app.getContainer();
-		container.as(Characteristics.NO_CACHE).addComponent(MyWelcomeView.class).as(Characteristics.NO_CACHE).addComponent(AnotherWelcomeView.class);
+		container.as(Characteristics.NO_CACHE).addComponent(MyWelcomeView.class);
 	}
 	
 	/**
@@ -63,20 +63,9 @@ public class StartupTasks {
 
 			@Override
 			public void run() {
-				for(int i = 0; i < 3; i++) {
-					WelcomeView welcomeView = StartupTasks.this.app.getContainer().getComponent(MyWelcomeView.class);
-					cardView.createCard(welcomeView);
-				}
-				WelcomeView welcomeView = StartupTasks.this.app.getContainer().as(Characteristics.NO_CACHE).getComponent(AnotherWelcomeView.class);
+				WelcomeView welcomeView = StartupTasks.this.app.getContainer().getComponent(MyWelcomeView.class);
 				cardView.createCard(welcomeView);
 			}
 		});
-		/*
-		CardView cardPresenter = this.app.getLifecycleManager().getPresenter(CardPresenter.class);
-		
-		for(int i = 0; i < 3; i++) {
-			cardPresenter.createCard(this.app.getLifecycleManager().getPresenter(WelcomePresenter.class, "id"+Integer.toString(i)));
-		}
-		*/ 
 	} // end createWelcomeScreen();
 } // end StartupTasks();

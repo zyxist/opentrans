@@ -24,6 +24,7 @@ import org.invenzzia.helium.domain.relation.RelationshipPerspective;
 import org.invenzzia.opentrans.visitons.data.Line;
 import org.invenzzia.opentrans.visitons.data.Timetable;
 import org.invenzzia.opentrans.visitons.data.Vehicle;
+import org.invenzzia.opentrans.visitons.world.World;
 
 /**
  * Provides a concept of a "simulation project". The project consists of a world map and different simulations that could be edited and run
@@ -91,6 +92,16 @@ public class VisitonsProject {
 	 */
 	private RelationshipPerspective<VisitonsProject, Timetable> timetables;
 
+	private World world;
+
+	public VisitonsProject() {
+		this.world = new World();
+	}
+	
+	public World getWorld() {
+		return this.world;
+	}
+	
 	/**
 	 * @return The project name.
 	 */

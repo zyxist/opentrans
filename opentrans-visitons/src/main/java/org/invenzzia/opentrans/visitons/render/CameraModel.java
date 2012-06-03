@@ -18,14 +18,22 @@
 package org.invenzzia.opentrans.visitons.render;
 
 import com.google.common.base.Preconditions;
+import com.vividsolutions.jts.geom.Coordinate;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Set;
+import org.invenzzia.helium.concurrency.InvocationTicket;
+import org.invenzzia.helium.concurrency.MethodInvocator;
 import org.invenzzia.opentrans.visitons.world.World;
 
 /**
  * A data model of the camera. It holds all the information about the currently
  * viewed part of the world. Listener functionality allows the controllers and
  * views to be notified about changes.
+ * 
+ * The class is not synchronized. The multithreaded access must be protected
+ * externally.
  * 
  * @author Tomasz Jędrzejewski
  */
@@ -34,7 +42,7 @@ public class CameraModel {
 	public static final double SEGMENT_SIZE = 1000.0;
 	public static final double DEFAULT_ZOOM = 1.0;
 	
-	
+	private Map<ICameraModelListener, InvocationTicket> invocationTickets = new LinkedHashMap<>();
 	private Set<ICameraModelListener> listeners = new HashSet<>();
 	/**
 	 * Top-left corner viewport position in the world map units (metres).
@@ -47,7 +55,11 @@ public class CameraModel {
 	 */
 	protected double viewportWidth;
 	protected double viewportHeight;
-	
+	/**
+	 * The width and height of the viewport in pixels.
+	 */
+	protected int viewportWidthPx;
+	protected int viewportHeightPx;
 	/**
 	 * Overflow means that the viewport covers some area outside the world map.
 	 */
@@ -61,14 +73,20 @@ public class CameraModel {
 	/**
 	 * Metres per pixel (zoom unit).
 	 */
-	protected double mpp;
+	protected double mpp = 1.0;
 	/**
 	 * We grab the world size from here.
 	 */
 	protected final World world;
+	/**
+	 * Listener notifications can exceed the thread boundaries. Method invocator assumes that each object
+	 * is notified in its own thread.
+	 */
+	private final MethodInvocator methodInvocator;
 	
-	public CameraModel(World world) {
+	public CameraModel(World world, MethodInvocator methodInvocator) {
 		this.world = Preconditions.checkNotNull(world, "The camera model cannot operate without a world object.");
+		this.methodInvocator = Preconditions.checkNotNull(methodInvocator);
 	}
 
 	public double getMpp() {
@@ -87,6 +105,14 @@ public class CameraModel {
 		
 		this.calculateViewport();
 		this.notifyCameraModelListeners();
+	}
+	
+	public double getSizeX() {
+		return this.world.getX() * CameraModel.SEGMENT_SIZE;
+	}
+	
+	public double getSizeY() {
+		return this.world.getY() * CameraModel.SEGMENT_SIZE;
 	}
 
 	public double getPosX() {
@@ -130,10 +156,6 @@ public class CameraModel {
 		this.calculateViewport();
 		this.notifyCameraModelListeners();
 	}
-
-	public double getViewportHeight() {
-		return this.viewportHeight;
-	}
 	
 	/**
 	 * Sets the new top-left corner position (in metres). Updating causes the recalculation of
@@ -144,11 +166,11 @@ public class CameraModel {
 	 * @param y Y coordinate in the world map units (metres).
 	 */
 	public void setPos(double x, double y) {
-		if(x > this.world.getX()) {
-			x = this.world.getX() - CameraModel.MIN_VIEWPORT;
+		if(x > this.getSizeX()) {
+			x = this.getSizeX() - CameraModel.MIN_VIEWPORT;
 		}
-		if(y > this.world.getY()) {
-			y = this.world.getY() - CameraModel.MIN_VIEWPORT;
+		if(y > this.getSizeY()) {
+			y = this.getSizeY() - CameraModel.MIN_VIEWPORT;
 		}
 		
 		this.posX = x;
@@ -158,6 +180,10 @@ public class CameraModel {
 		this.notifyCameraModelListeners();
 	}
 
+	public double getViewportHeight() {
+		return this.viewportHeight;
+	}
+	
 	/**
 	 * Sets the height of the viewport in metres. Updating causes the recalculation of
 	 * the viewport and notifications of all the listeners. If the model is tied to the GUI
@@ -167,11 +193,31 @@ public class CameraModel {
 	 */
 	public void setViewportHeight(double viewportHeight) {
 		this.viewportHeight = viewportHeight;
+		this.viewportHeightPx = (int) (viewportHeight / this.mpp);
 		
 		this.calculateViewport();
 		this.notifyCameraModelListeners();
 	}
-
+	
+	public int getViewportHeightPx() {
+		return this.viewportHeightPx;
+	}
+	
+	/**
+	 * Sets the height of the viewport in metres. Updating causes the recalculation of
+	 * the viewport and notifications of all the listeners. If the model is tied to the GUI
+	 * code, this method should be updated in the event dispatch thread.
+	 * 
+	 * @param viewportWidth The viewport height (in metres).
+	 */
+	public void setViewportHeightPx(int viewportHeight) {
+		this.viewportHeightPx = viewportHeight;
+		this.viewportHeight = viewportHeight * this.mpp;
+		
+		this.calculateViewport();
+		this.notifyCameraModelListeners();
+	}
+	
 	public double getViewportWidth() {
 		return this.viewportWidth;
 	}
@@ -185,6 +231,26 @@ public class CameraModel {
 	 */
 	public void setViewportWidth(double viewportWidth) {
 		this.viewportWidth = viewportWidth;
+		this.viewportWidthPx = (int) (viewportWidth / this.mpp);
+		
+		this.calculateViewport();
+		this.notifyCameraModelListeners();
+	}
+	
+	public int getViewportWidthPx() {
+		return this.viewportWidthPx;
+	}
+
+	/**
+	 * Sets the height of the viewport in metres. Updating causes the recalculation of
+	 * the viewport and notifications of all the listeners. If the model is tied to the GUI
+	 * code, this method should be updated in the event dispatch thread.
+	 * 
+	 * @param viewportWidth The viewport width (in metres).
+	 */
+	public void setViewportWidthPx(int viewportWidth) {
+		this.viewportWidthPx = viewportWidth;
+		this.viewportWidth = viewportWidth * this.mpp;
 		
 		this.calculateViewport();
 		this.notifyCameraModelListeners();
@@ -201,6 +267,25 @@ public class CameraModel {
 	public void setViewportDimension(double width, double height) {
 		this.viewportWidth = width;
 		this.viewportHeight = height;
+		
+		this.calculateViewport();
+		this.notifyCameraModelListeners();
+	}
+	
+	/**
+	 * Sets the width and height of the viewport in metres. Updating causes the recalculation of
+	 * the viewport and notifications of all the listeners. If the model is tied to the GUI
+	 * code, this method should be updated in the event dispatch thread.
+	 * 
+	 * @param width The viewport width (in metres).
+	 * @param height The viewport height (in metres).
+	 */
+	public void setViewportDimensionPx(int width, int height) {
+		this.viewportWidthPx = width;
+		this.viewportHeightPx = height;
+		
+		this.viewportWidth = width * this.mpp;
+		this.viewportHeight = height * this.mpp;
 		
 		this.calculateViewport();
 		this.notifyCameraModelListeners();
@@ -293,7 +378,67 @@ public class CameraModel {
 		}
 	}
 	
+	/**
+	 * Converts units from pixels to world meters on the X axis. Returns the
+	 * absolute value.
+	 * 
+	 * @param coord X coordinate in pixels.
+	 * @return X coordinate in metres.
+	 */
+	public double pix2worldX(long coord) {
+		return this.posX + (coord - this.overflowCenterX) * this.mpp;
+	}
+
+	/**
+	 * Converts units from pixels to world meters on the Y axis. Returns the
+	 * absolute value.
+	 * 
+	 * @param coord Y coordinate in pixels.
+	 * @return Y coordinate in metres.
+	 */
+	public double pix2worldY(long coord) {
+		return this.posY + (coord - this.overflowCenterY) * this.mpp;
+	}
+
+	/**
+	 * Converts units from world metres to pixels on X axis.
+	 * 
+	 * @param coord X coordinate in metres (absolute value).
+	 * @return X coordinate in pixels.
+	 */
+	public int world2pixX(double coord) {
+		return (int) Math.round((coord - this.posX) / this.mpp + this.overflowCenterX);
+	}
 	
+	/**
+	 * Converts units from world metres to pixels on Y axis.
+	 * 
+	 * @param coord Y coordinate in metres (absolute value).
+	 * @return Y coordinate in pixels.
+	 */
+	public int world2pixY(double coord) {
+		return (int) Math.round((coord - this.posY) / this.mpp + this.overflowCenterY);
+	}
+
+	/**
+	 * Converts units from world metres to pixels.
+	 * 
+	 * @param p Coordinates in world metres (absolute value).
+	 * @return Coordinates in pixels.
+	 */
+	public Coordinate world2pix(Coordinate p) {
+		return new Coordinate(this.world2pixX(p.x), world2pixY(p.y));
+	}
+
+	/**
+	 * Converts length in metres to pixels.
+	 * 
+	 * @param length Length in meters.
+	 * @return Length in pixels.
+	 */
+	public long world2pix(double length) {
+		return Math.round(length / this.mpp);
+	}
 	
 	/**
 	 * Calculates the remaining parameters of the viewport. The method is called automatically
@@ -332,7 +477,12 @@ public class CameraModel {
 	
 	protected void notifyCameraModelListeners() {
 		for(ICameraModelListener listener: this.listeners) {
-			listener.cameraUpdated(this);
+			InvocationTicket ticket = this.invocationTickets.get(listener);
+			if(null == ticket) {
+				this.invocationTickets.put(listener, this.methodInvocator.executeMethod(listener, "cameraUpdated", this));
+			} else {
+				this.methodInvocator.executeMethod(listener, ticket, this);
+			}
 		}
 	}
 }

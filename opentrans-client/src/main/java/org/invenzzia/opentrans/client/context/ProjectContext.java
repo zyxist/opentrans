@@ -26,6 +26,8 @@ import org.invenzzia.helium.gui.exception.CardNotFoundException;
 import org.invenzzia.helium.gui.ui.card.Card;
 import org.invenzzia.helium.gui.ui.card.CardView;
 import org.invenzzia.opentrans.client.concurrent.RenderScheduler;
+import org.invenzzia.opentrans.client.projectmodel.WorldDescriptor;
+import org.invenzzia.opentrans.client.ui.explorer.ExplorerController;
 import org.invenzzia.opentrans.client.ui.explorer.ExplorerView;
 import org.invenzzia.opentrans.client.ui.netedit.CameraView;
 import org.invenzzia.opentrans.client.ui.netedit.EditorView;
@@ -60,7 +62,11 @@ public class ProjectContext extends AbstractContext {
 			.addComponent(CameraModel.class)
 			.addComponent(VisitonsProject.class, this.project)
 			.addComponent(ExplorerView.class)
-			.addComponent(World.class, this.project.getWorld());
+			.addComponent(ExplorerController.class)
+			.addComponent(World.class, this.project.getWorld())
+			
+			// Project model
+			.addComponent(WorldDescriptor.class);
 	}
 	
 	public VisitonsProject getProject() {

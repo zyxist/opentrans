@@ -17,7 +17,12 @@
  */
 package org.invenzzia.opentrans.client.ui.explorer;
 
+import javax.swing.JPanel;
 import org.invenzzia.helium.gui.annotation.Card;
+import org.invenzzia.helium.gui.mvc.IView;
+import org.invenzzia.helium.gui.ui.trees.HeliumTreeController;
+import org.invenzzia.helium.gui.ui.trees.HeliumTreeView;
+import org.picocontainer.MutablePicoContainer;
 
 /**
  * The project explorer view which provides the tree-based access to the
@@ -26,13 +31,73 @@ import org.invenzzia.helium.gui.annotation.Card;
  * @author Tomasz Jędrzejewski
  */
 @Card(position = "explorer", title = "Project")
-public class ExplorerView extends javax.swing.JPanel {
-
+public class ExplorerView extends JPanel implements IView<ExplorerController> {
+	private ExplorerController controller;
+	boolean attached = false;
+	
 	/**
 	 * Creates new form ExplorerView
 	 */
 	public ExplorerView() {
-		initComponents();
+		super();
+		System.out.println("Empty explorer view controller.");
+		this.initComponents();
+	}
+	
+	public ExplorerView(ExplorerController controller) {
+		this();
+		this.setController(controller);
+	}
+	
+	public void setProjectName(String name) {
+		this.projectNameLabel.setText(name);
+	}
+
+	public String getProjectName() {
+		return this.projectNameLabel.getText();
+	}
+	
+	public final void setController(ExplorerController controller) {
+		if(null != this.controller) {
+			this.attached = false;
+			this.controller.detachView(this);
+		}
+		this.controller = controller;
+		if(null != this.controller) {
+			this.attached = true;
+			this.controller.attachView(this);
+		}
+	}
+	
+	@Override
+	public ExplorerController getController() {
+		return this.controller;
+	}
+	
+	public void setTreeController(HeliumTreeController treeController) {
+		this.treeView.setController(treeController);
+	}
+	
+	public HeliumTreeController getTreeController() {
+		return this.treeView.getController();
+	}
+	
+	@Override
+	public void addNotify() {
+		super.addNotify();
+		if(null != this.controller && !this.attached) {
+			this.controller.attachView(this);
+			this.attached = true;
+		}
+	}
+	
+	@Override
+	public void removeNotify() {
+		super.removeNotify();
+		if(null != this.controller && this.attached) {
+			this.controller.detachView(this);
+			this.attached = false;
+		}
 	}
 
 	/**
@@ -46,14 +111,12 @@ public class ExplorerView extends javax.swing.JPanel {
         projectNameLabel = new javax.swing.JLabel();
         settingsButton = new javax.swing.JButton();
         explorerScrollPane = new javax.swing.JScrollPane();
-        explorerTree = new javax.swing.JTree();
+        this.explorerScrollPane.setViewportView(this.treeView = new HeliumTreeView());
 
         projectNameLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         projectNameLabel.setText("Project name");
 
         settingsButton.setText("Settings");
-
-        explorerScrollPane.setViewportView(explorerTree);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -77,8 +140,8 @@ public class ExplorerView extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JScrollPane explorerScrollPane;
-    private javax.swing.JTree explorerTree;
     private javax.swing.JLabel projectNameLabel;
     private javax.swing.JButton settingsButton;
     // End of variables declaration//GEN-END:variables
+	private HeliumTreeView treeView;
 }

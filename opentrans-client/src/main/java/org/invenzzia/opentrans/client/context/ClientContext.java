@@ -83,7 +83,7 @@ public class ClientContext extends AbstractContext {
 		model.startBatchUpdate();
 		try {
 			IMenuElementStorage fileElement = model.getElement("file", IMenuElementStorage.class);
-			fileElement.prependElement(new Position("newProject", "New project"));
+			fileElement.prependElement(new Position("newProject", "New project", "newProject"));
 			fileElement.addElementAfter(new Separator("newProjectSeparator"), "newProject");
 			fileElement.addElementAfter(new Position("openProject", "Open project"), "newProjectSeparator");
 			fileElement.addElementAfter(new Position("saveProject", "Save project"), "openProject");

@@ -17,8 +17,28 @@
  */
 package org.invenzzia.opentrans.client.context;
 
+import com.google.common.eventbus.EventBus;
+import javax.swing.SwingUtilities;
 import org.invenzzia.helium.application.Application;
+import org.invenzzia.helium.gui.annotation.Tasks;
 import org.invenzzia.helium.gui.context.AbstractContext;
+import org.invenzzia.helium.gui.events.SplashEvent;
+import org.invenzzia.helium.gui.ui.card.CardView;
+import org.invenzzia.helium.gui.ui.menu.IMenuElementStorage;
+import org.invenzzia.helium.gui.ui.menu.MenuController;
+import org.invenzzia.helium.gui.ui.menu.MenuModel;
+import org.invenzzia.helium.gui.ui.menu.element.Menu;
+import org.invenzzia.helium.gui.ui.menu.element.Position;
+import org.invenzzia.helium.gui.ui.menu.element.Separator;
+import org.invenzzia.helium.gui.ui.welcome.WelcomeController;
+import org.invenzzia.helium.gui.ui.welcome.WelcomeView;
+import org.invenzzia.helium.tasks.annotations.Task;
+import org.invenzzia.opentrans.client.MenuActions;
+import org.invenzzia.opentrans.client.MyWelcomeView;
+import org.invenzzia.opentrans.client.StartupTasks;
+import org.picocontainer.Characteristics;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Context for the OpenTrans client. Represents a case, where no project
@@ -26,14 +46,26 @@ import org.invenzzia.helium.gui.context.AbstractContext;
  * 
  * @author Tomasz Jędrzejewski
  */
+@Tasks(weight = 2)
 public class ClientContext extends AbstractContext {
+	private final Logger logger = LoggerFactory.getLogger(ClientContext.class);
+	
 	public ClientContext(Application application) {
 		super(application);
+		this.container.as(Characteristics.NO_CACHE).addComponent(MyWelcomeView.class);
 	}
 
 	@Override
 	protected boolean startup() {
+		this.logger.info("OpenTrans client is being opened.");
 		this.container.start();
+		
+		EventBus eventBus = this.application.getEventBus();
+		eventBus.post(new SplashEvent(2, "Initializing OpenTrans environment..."));
+		this.initClientMenu(this.container.getComponent(MenuController.class).getModel());
+		this.initActions();
+		this.initWelcomeScreen();
+		
 		return true;
 	}
 
@@ -41,5 +73,54 @@ public class ClientContext extends AbstractContext {
 	protected boolean shutdown() {
 		this.container.stop();
 		return true;
+	}
+	
+	/**
+	 * Initializes the basic client menu structure. Note that we do not have to clean it manually
+	 * at the end of the context, because the menu model automatically does that for us.
+	 * 
+	 * @param model 
+	 */
+	private void initClientMenu(MenuModel model) {
+		model.startBatchUpdate();
+		try {
+			IMenuElementStorage fileElement = model.getElement("file", IMenuElementStorage.class);
+			fileElement.prependElement(new Position("newProject", "New project"));
+			fileElement.addElementAfter(new Separator("newProjectSeparator"), "newProject");
+			fileElement.addElementAfter(new Position("openProject", "Open project"), "newProjectSeparator");
+			fileElement.addElementAfter(new Position("saveProject", "Save project"), "openProject");
+			fileElement.addElementAfter(new Position("saveProjectAs", "Save project as..."), "saveProject");
+			fileElement.addElementAfter(new Separator("quitSeparator"), "saveProjectAs");
+		
+			Menu editMenu = new Menu("edit", "Edit");
+			editMenu.appendElement(new Position("undo", "Undo"));
+			editMenu.appendElement(new Position("redo", "Redo"));
+			
+			Menu viewMenu = new Menu("view", "View");
+			
+			fileElement.addElementAfter(editMenu, "file");
+			fileElement.addElementAfter(viewMenu, "edit");
+		} finally {
+			model.stopBatchUpdate();
+		}
+	}
+	
+	public void initActions() {
+		this.application.getActionManager().registerActions(new MenuActions(this.application));
+	}
+	
+	public void initWelcomeScreen() {
+		final CardView cardView = this.container.getComponent(CardView.class);
+		WelcomeController controller = this.container.getComponent(WelcomeController.class);
+		controller.loadDefinition("Welcome");
+		
+		SwingUtilities.invokeLater(new Runnable() {
+
+			@Override
+			public void run() {
+				WelcomeView welcomeView = ClientContext.this.container.getComponent(MyWelcomeView.class);
+				cardView.createCard(welcomeView);
+			}
+		});
 	}
 }

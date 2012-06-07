@@ -18,6 +18,7 @@
 package org.invenzzia.opentrans.client;
 
 import org.invenzzia.helium.application.Application;
+import org.invenzzia.opentrans.client.context.ClientContext;
 
 /**
  * The main class for the application.
@@ -39,6 +40,6 @@ public class OpenTrans {
 	 */
 	public static void main(String args[]) {
 		Application theApp = new Application("storage.xml");
-		theApp.run(new StartupTasks(theApp), null);
+		theApp.run(ClientContext.class);
 	} // end main();
 } // end OpenTrans;

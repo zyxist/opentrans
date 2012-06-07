@@ -25,6 +25,8 @@ import org.invenzzia.helium.gui.events.StatusChangeEvent;
 import org.invenzzia.helium.gui.exception.CardNotFoundException;
 import org.invenzzia.helium.gui.ui.card.Card;
 import org.invenzzia.helium.gui.ui.card.CardView;
+import org.invenzzia.helium.gui.ui.menu.IMenuElementStorage;
+import org.invenzzia.helium.gui.ui.menu.MenuModel;
 import org.invenzzia.opentrans.client.concurrent.RenderScheduler;
 import org.invenzzia.opentrans.client.projectmodel.WorldDescriptor;
 import org.invenzzia.opentrans.client.ui.explorer.ExplorerController;
@@ -120,4 +122,12 @@ public class ProjectContext extends AbstractContext {
 		}
 	}
 
+	private void initProjectMenu(MenuModel model) {
+		IMenuElementStorage fileElement = model.getElement("file", IMenuElementStorage.class);
+		
+	}
+	
+	private void doneProjectMenu(MenuModel model) {
+		
+	}
 }

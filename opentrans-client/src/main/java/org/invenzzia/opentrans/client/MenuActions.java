@@ -18,9 +18,11 @@
 package org.invenzzia.opentrans.client;
 
 import com.google.common.base.Preconditions;
+import javax.swing.JOptionPane;
 import org.invenzzia.helium.application.Application;
 import org.invenzzia.helium.gui.ContextManager;
 import org.invenzzia.helium.gui.annotation.Action;
+import org.invenzzia.helium.gui.ui.appframe.AppframeView;
 import org.invenzzia.opentrans.client.context.ProjectContext;
 import org.invenzzia.opentrans.visitons.VisitonsProject;
 
@@ -42,5 +44,16 @@ public class MenuActions {
 		
 		ContextManager cm = this.application.getCurrentContainer().getComponent(ContextManager.class);
 		cm.pushContext(projectCtx);
-	} // end actionNewProject();
+	}
+	
+	@Action(id="closeProject")
+	public void actionCloseProject() {
+		ContextManager cm = this.application.getCurrentContainer().getComponent(ContextManager.class);
+		AppframeView appView = this.application.getCurrentContainer().getComponent(AppframeView.class);
+		int n = JOptionPane.showConfirmDialog(appView, "Do you really want to close the project?", "Closing project", JOptionPane.YES_NO_OPTION);
+		if(JOptionPane.YES_OPTION == n) {
+			while(cm.popContext().getClass() != ProjectContext.class) {
+			}
+		}
+	}
 } // end MenuActions;

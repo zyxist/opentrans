@@ -27,7 +27,11 @@ import org.invenzzia.helium.gui.exception.CardNotFoundException;
 import org.invenzzia.helium.gui.ui.card.Card;
 import org.invenzzia.helium.gui.ui.card.CardView;
 import org.invenzzia.helium.gui.ui.menu.IMenuElementStorage;
+import org.invenzzia.helium.gui.ui.menu.MenuController;
 import org.invenzzia.helium.gui.ui.menu.MenuModel;
+import org.invenzzia.helium.gui.ui.menu.element.Menu;
+import org.invenzzia.helium.gui.ui.menu.element.Position;
+import org.invenzzia.helium.gui.ui.menu.element.Separator;
 import org.invenzzia.opentrans.client.concurrent.RenderScheduler;
 import org.invenzzia.opentrans.client.projectmodel.WorldDescriptor;
 import org.invenzzia.opentrans.client.ui.explorer.ExplorerController;
@@ -96,6 +100,8 @@ public class ProjectContext extends AbstractContext {
 		ExplorerView exView = this.container.getComponent(ExplorerView.class);
 		cardView.createCard(exView);
 		
+		this.initProjectMenu(this.container.getComponent(MenuController.class).getModel());
+		
 		this.application.getEventBus().post(new StatusChangeEvent("Project '"+this.project.getName()+"' loaded."));
 		
 		this.logger.info("Project '{}' has been opened.", this.project.getName());
@@ -132,12 +138,20 @@ public class ProjectContext extends AbstractContext {
 		return true;
 	}
 
+	/**
+	 * Initializes the basic client menu structure. Note that we do not have to clean it manually
+	 * at the end of the context, because the menu model automatically does that for us.
+	 * 
+	 * @param model 
+	 */
 	private void initProjectMenu(MenuModel model) {
-		IMenuElementStorage fileElement = model.getElement("file", IMenuElementStorage.class);
-		
-	}
-	
-	private void doneProjectMenu(MenuModel model) {
-		
+		model.startBatchUpdate();
+		try {
+			IMenuElementStorage fileElement = model.getElement("file", IMenuElementStorage.class);
+			fileElement.addElementBefore(new Separator("closeProjectSeparator"), "quitSeparator");
+			fileElement.addElementBefore(new Position("closeProject", "Close project", "closeProject"), "quitSeparator");
+		} finally {
+			model.stopBatchUpdate();
+		}
 	}
 }

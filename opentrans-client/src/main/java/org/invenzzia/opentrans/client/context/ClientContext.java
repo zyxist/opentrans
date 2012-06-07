@@ -96,8 +96,8 @@ public class ClientContext extends AbstractContext {
 			
 			Menu viewMenu = new Menu("view", "View");
 			
-			fileElement.addElementAfter(editMenu, "file");
-			fileElement.addElementAfter(viewMenu, "edit");
+			model.addElementAfter(editMenu, "file");
+			model.addElementAfter(viewMenu, "edit");
 		} finally {
 			model.stopBatchUpdate();
 		}

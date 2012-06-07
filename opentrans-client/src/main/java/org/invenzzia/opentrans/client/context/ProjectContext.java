@@ -18,6 +18,7 @@
 package org.invenzzia.opentrans.client.context;
 
 import com.google.common.base.Preconditions;
+import javax.swing.SwingUtilities;
 import org.invenzzia.helium.activeobject.SchedulerManager;
 import org.invenzzia.helium.application.Application;
 import org.invenzzia.helium.gui.context.AbstractContext;
@@ -103,23 +104,32 @@ public class ProjectContext extends AbstractContext {
 
 	@Override
 	protected boolean shutdown() {
-		try {
-			this.logger.info("Project '{}' is being closed.", this.project.getName());
-			CardView cardView = this.container.getComponent(CardView.class);
-			cardView.removeCard(this.networkEditorCard);
-			cardView.removeCard(this.explorerCard);
-
-			SchedulerManager manager = this.container.getComponent(SchedulerManager.class);
-			manager.stop("renderer");
+		this.logger.info("Project '{}' is being closed.", this.project.getName());
+		final CardView cardView = this.container.getComponent(CardView.class);
 			
-			this.application.getEventBus().post(new StatusChangeEvent("Project '"+this.project.getName()+"' closed."));
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					if(cardView.hasCard(ProjectContext.this.networkEditorCard)) {
+						cardView.removeCard(ProjectContext.this.networkEditorCard);
+					}
+					if(cardView.hasCard(ProjectContext.this.explorerCard)) {
+						cardView.removeCard(ProjectContext.this.explorerCard);
+					}
+				} catch(CardNotFoundException exception) {
+					ProjectContext.this.logger.error("Cannot stop the project context: 'network editor' card not found.");
+				}
+					
+			}	
+		});
 
-			this.logger.info("Project '{}' has been closed.", this.project.getName());
-			return true;
-		} catch(CardNotFoundException exception) {
-			this.logger.error("Cannot stop the project context: 'network editor' card not found.");
-			return false;
-		}
+		SchedulerManager manager = this.container.getComponent(SchedulerManager.class);
+		manager.stop("renderer");
+			
+		this.application.getEventBus().post(new StatusChangeEvent("Project '"+this.project.getName()+"' closed."));
+		this.logger.info("Project '{}' has been closed.", this.project.getName());
+		return true;
 	}
 
 	private void initProjectMenu(MenuModel model) {

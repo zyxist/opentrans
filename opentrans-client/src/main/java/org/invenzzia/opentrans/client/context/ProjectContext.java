@@ -21,6 +21,7 @@ import com.google.common.base.Preconditions;
 import javax.swing.SwingUtilities;
 import org.invenzzia.helium.activeobject.SchedulerManager;
 import org.invenzzia.helium.application.Application;
+import org.invenzzia.helium.gui.ActionManager;
 import org.invenzzia.helium.gui.context.AbstractContext;
 import org.invenzzia.helium.gui.events.StatusChangeEvent;
 import org.invenzzia.helium.gui.exception.CardNotFoundException;
@@ -32,13 +33,19 @@ import org.invenzzia.helium.gui.ui.menu.MenuModel;
 import org.invenzzia.helium.gui.ui.menu.element.Menu;
 import org.invenzzia.helium.gui.ui.menu.element.Position;
 import org.invenzzia.helium.gui.ui.menu.element.Separator;
+import org.invenzzia.helium.gui.utils.BasicMenuActions;
+import org.invenzzia.opentrans.client.ProjectMenuActions;
 import org.invenzzia.opentrans.client.concurrent.RenderScheduler;
 import org.invenzzia.opentrans.client.projectmodel.WorldDescriptor;
 import org.invenzzia.opentrans.client.ui.explorer.ExplorerController;
 import org.invenzzia.opentrans.client.ui.explorer.ExplorerView;
+import org.invenzzia.opentrans.client.ui.minimap.MinimapController;
+import org.invenzzia.opentrans.client.ui.minimap.MinimapView;
 import org.invenzzia.opentrans.client.ui.netedit.CameraView;
 import org.invenzzia.opentrans.client.ui.netedit.EditorView;
 import org.invenzzia.opentrans.client.ui.netedit.NeteditController;
+import org.invenzzia.opentrans.client.ui.worldresize.WorldResizeController;
+import org.invenzzia.opentrans.client.ui.worldresize.WorldResizeView;
 import org.invenzzia.opentrans.visitons.VisitonsProject;
 import org.invenzzia.opentrans.visitons.render.CameraModel;
 import org.invenzzia.opentrans.visitons.render.Renderer;
@@ -57,6 +64,7 @@ public class ProjectContext extends AbstractContext {
 	private VisitonsProject project;
 	private Card networkEditorCard;
 	private Card explorerCard;
+	private Card minimapCard;
 
 	public ProjectContext(Application application, VisitonsProject project) {
 		super(application);
@@ -71,6 +79,11 @@ public class ProjectContext extends AbstractContext {
 			.addComponent(ExplorerView.class)
 			.addComponent(ExplorerController.class)
 			.addComponent(World.class, this.project.getWorld())
+			.addComponent(MinimapView.class)
+			.addComponent(MinimapController.class)
+			.addComponent(ProjectMenuActions.class)
+			.addComponent(WorldResizeView.class)
+			.addComponent(WorldResizeController.class)
 			
 			// Project model
 			.addComponent(WorldDescriptor.class);
@@ -102,6 +115,12 @@ public class ProjectContext extends AbstractContext {
 		ExplorerView exView = this.container.getComponent(ExplorerView.class);
 		this.explorerCard = cardView.createCard(exView);
 		
+		MinimapView minimapView = this.container.getComponent(MinimapView.class);
+		this.minimapCard = cardView.createCard(minimapView);
+		
+		ActionManager actionManager = this.container.getComponent(ActionManager.class);
+		actionManager.registerActions(this.container.getComponent(ProjectMenuActions.class));
+		
 		this.initProjectMenu(this.container.getComponent(MenuController.class).getModel());
 		
 		this.application.getEventBus().post(new StatusChangeEvent("Project '"+this.project.getName()+"' loaded."));
@@ -113,6 +132,10 @@ public class ProjectContext extends AbstractContext {
 	@Override
 	protected boolean shutdown() {
 		this.logger.info("Project '{}' is being closed.", this.project.getName());
+		
+		ActionManager actionManager = this.container.getComponent(ActionManager.class);
+		actionManager.unregisterActions(this.container.getComponent(ProjectMenuActions.class));
+		
 		final CardView cardView = this.container.getComponent(CardView.class);
 			
 		SwingUtilities.invokeLater(new Runnable() {
@@ -124,6 +147,9 @@ public class ProjectContext extends AbstractContext {
 					}
 					if(cardView.hasCard(ProjectContext.this.explorerCard)) {
 						cardView.removeCard(ProjectContext.this.explorerCard);
+					}
+					if(cardView.hasCard(ProjectContext.this.minimapCard)) {
+						cardView.removeCard(ProjectContext.this.minimapCard);
 					}
 				} catch(CardNotFoundException exception) {
 					ProjectContext.this.logger.error("Cannot stop the project context: 'network editor' card not found.");

@@ -87,9 +87,11 @@ public class ProjectContext extends AbstractContext {
 		
 		this.logger.debug("Initializing project renderer.");
 		SchedulerManager manager = this.container.getComponent(SchedulerManager.class);
-		RenderScheduler scheduler = new RenderScheduler("renderer");
-		scheduler.setRenderer(this.container.getComponent(Renderer.class));
-		manager.addScheduler(scheduler);
+		if(!manager.hasScheduler("renderer")) {
+			RenderScheduler scheduler = new RenderScheduler("renderer");
+			scheduler.setRenderer(this.container.getComponent(Renderer.class));
+			manager.addScheduler(scheduler);
+		}
 		manager.start("renderer");
 		
 		this.logger.debug("Initializing project views.");
@@ -98,7 +100,7 @@ public class ProjectContext extends AbstractContext {
 		this.networkEditorCard = cardView.createCard(edView);
 		
 		ExplorerView exView = this.container.getComponent(ExplorerView.class);
-		cardView.createCard(exView);
+		this.explorerCard = cardView.createCard(exView);
 		
 		this.initProjectMenu(this.container.getComponent(MenuController.class).getModel());
 		
@@ -150,6 +152,26 @@ public class ProjectContext extends AbstractContext {
 			IMenuElementStorage fileElement = model.getElement("file", IMenuElementStorage.class);
 			fileElement.addElementBefore(new Separator("closeProjectSeparator"), "quitSeparator");
 			fileElement.addElementBefore(new Position("closeProject", "Close project", "closeProject"), "quitSeparator");
+			
+			Menu projectMenu = new Menu("project", "Project");
+			projectMenu.appendElement(new Position("settings", "Settings", "showSettings"));
+			projectMenu.appendElement(new Separator("firstSeparator"));
+			projectMenu.appendElement(new Position("worldSize", "World size", "showWorldSizeDialog"));
+			projectMenu.appendElement(new Position("configureSimulation", "Configure simulation", "showSimulationConfigDialog"));
+			
+			Menu objectsMenu = new Menu("objects", "Objects");
+			objectsMenu.appendElement(new Position("meansOfTransport", "Means of transport", "showMeansOfTransportGrid"));
+			objectsMenu.appendElement(new Position("vehicleClasses", "Vehicle classes", "showVehicleClassesGrid"));
+			objectsMenu.appendElement(new Position("vehicles", "Vehicles", "showVehiclesGrid"));
+			objectsMenu.appendElement(new Separator("firstSeparator"));
+			objectsMenu.appendElement(new Position("lines", "Lines", "showLinesGrid"));
+			objectsMenu.appendElement(new Position("timetables", "Timetables", "showTimetablesGrid"));
+			objectsMenu.appendElement(new Separator("secondSeparator"));
+			objectsMenu.appendElement(new Position("stops", "Stops", "showStopsGrid"));
+			objectsMenu.appendElement(new Position("depots", "Depots", "showDepotsGrid"));
+			
+			model.addElementBefore(projectMenu, "help");
+			model.addElementBefore(objectsMenu, "help");
 		} finally {
 			model.stopBatchUpdate();
 		}

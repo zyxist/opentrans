@@ -189,8 +189,8 @@ public class ProjectContext extends AbstractContext {
 			objectsMenu.appendElement(new Position("stops", "Stops", "showStopsGrid"));
 			objectsMenu.appendElement(new Position("depots", "Depots", "showDepotsGrid"));
 			
-			model.addElementBefore(projectMenu, "help");
-			model.addElementBefore(objectsMenu, "help");
+			model.addElementBefore(projectMenu, "dockStatus");
+			model.addElementBefore(objectsMenu, "dockStatus");
 		} finally {
 			model.stopBatchUpdate();
 		}

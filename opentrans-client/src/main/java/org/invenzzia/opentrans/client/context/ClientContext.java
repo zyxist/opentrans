@@ -27,6 +27,7 @@ import org.invenzzia.helium.gui.context.AbstractContext;
 import org.invenzzia.helium.gui.events.SplashEvent;
 import org.invenzzia.helium.gui.ui.card.CardView;
 import org.invenzzia.helium.gui.ui.dock.*;
+import org.invenzzia.helium.gui.ui.dock.components.DockStatusMenu;
 import org.invenzzia.helium.gui.ui.dock.dock.SplitDock;
 import org.invenzzia.helium.gui.ui.menu.IMenuElementStorage;
 import org.invenzzia.helium.gui.ui.menu.MenuController;
@@ -53,6 +54,8 @@ import org.slf4j.LoggerFactory;
 @Tasks(weight = 10)
 public class ClientContext extends AbstractContext {
 	private final Logger logger = LoggerFactory.getLogger(ClientContext.class);
+	
+	private DockStatusMenu dockStatusMenu;
 	
 	public ClientContext(Application application) {
 		super(application);
@@ -86,6 +89,7 @@ public class ClientContext extends AbstractContext {
 
 	@Override
 	protected boolean shutdown() {
+		this.eventBus.unregister(this.dockStatusMenu);
 		this.container.stop();
 		return true;
 	}
@@ -115,6 +119,9 @@ public class ClientContext extends AbstractContext {
 			
 			model.addElementAfter(editMenu, "file");
 			model.addElementAfter(viewMenu, "edit");
+			
+			model.addElementBefore(this.dockStatusMenu = new DockStatusMenu("dockStatus", "Window", this.container.getComponent(WorkspaceDockModel.class)), "help");
+			this.eventBus.register(this.dockStatusMenu);
 		} finally {
 			model.stopBatchUpdate();
 		}

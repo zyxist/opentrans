@@ -51,7 +51,7 @@
     </Component>
     <Container class="javax.swing.JScrollPane" name="explorerScrollPane">
       <AuxValues>
-        <AuxValue name="JavaCodeGenerator_CreateCodePost" type="java.lang.String" value="this.explorerScrollPane.setViewportView(this.treeView = new HeliumTreeView());"/>
+        <AuxValue name="JavaCodeGenerator_CreateCodePost" type="java.lang.String" value="this.explorerScrollPane.setViewportView(this.treeView = new HeliumTreeView(this.iconManager));"/>
       </AuxValues>
 
       <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>

@@ -143,7 +143,6 @@ public class Minimap extends JComponent {
 			estimatedPixelSize = estimatedPixelSizeX;
 		}
 		if(((double)this.maximumSegmentSize) < estimatedPixelSize) {
-			System.out.println("I'm setting it.");
 			estimatedPixelSize = this.maximumSegmentSize;
 		}
 		/** segments per pixel - if more than 1, interpolation is used. */

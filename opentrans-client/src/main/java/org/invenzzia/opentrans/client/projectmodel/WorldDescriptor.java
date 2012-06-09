@@ -41,4 +41,9 @@ public class WorldDescriptor implements INodeDescriptor<World> {
 	public String getToolTipTextFor(World node) {
 		return "Opens a map of the transportation network.";
 	}
+
+	@Override
+	public String getIconFor(World node) {
+		return "visitons-netedit";
+	}
 }

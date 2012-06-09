@@ -18,6 +18,7 @@
 package org.invenzzia.opentrans.client.ui.explorer;
 
 import javax.swing.JPanel;
+import org.invenzzia.helium.gui.IconManager;
 import org.invenzzia.helium.gui.annotation.Card;
 import org.invenzzia.helium.gui.mvc.IView;
 import org.invenzzia.helium.gui.ui.trees.HeliumTreeController;
@@ -34,19 +35,28 @@ import org.picocontainer.MutablePicoContainer;
 public class ExplorerView extends JPanel implements IView<ExplorerController> {
 	private ExplorerController controller;
 	boolean attached = false;
+	/**
+	 * Used for displaying icons.
+	 */
+	private IconManager iconManager;
 	
 	/**
 	 * Creates new form ExplorerView
 	 */
 	public ExplorerView() {
 		super();
-		System.out.println("Empty explorer view controller.");
 		this.initComponents();
 	}
 	
 	public ExplorerView(ExplorerController controller) {
 		this();
 		this.setController(controller);
+	}
+	
+	public ExplorerView(ExplorerController controller, IconManager manager) {
+		this(controller);
+		this.iconManager = manager;
+		this.treeView.setIconManager(iconManager);
 	}
 	
 	public void setProjectName(String name) {
@@ -111,7 +121,7 @@ public class ExplorerView extends JPanel implements IView<ExplorerController> {
         projectNameLabel = new javax.swing.JLabel();
         settingsButton = new javax.swing.JButton();
         explorerScrollPane = new javax.swing.JScrollPane();
-        this.explorerScrollPane.setViewportView(this.treeView = new HeliumTreeView());
+        this.explorerScrollPane.setViewportView(this.treeView = new HeliumTreeView(this.iconManager));
 
         projectNameLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         projectNameLabel.setText("Project name");

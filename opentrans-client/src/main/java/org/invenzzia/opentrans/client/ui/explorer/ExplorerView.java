@@ -19,11 +19,9 @@ package org.invenzzia.opentrans.client.ui.explorer;
 
 import javax.swing.JPanel;
 import org.invenzzia.helium.gui.IconManager;
-import org.invenzzia.helium.gui.annotation.Card;
 import org.invenzzia.helium.gui.mvc.IView;
 import org.invenzzia.helium.gui.ui.trees.HeliumTreeController;
 import org.invenzzia.helium.gui.ui.trees.HeliumTreeView;
-import org.picocontainer.MutablePicoContainer;
 
 /**
  * The project explorer view which provides the tree-based access to the
@@ -31,7 +29,6 @@ import org.picocontainer.MutablePicoContainer;
  * 
  * @author Tomasz Jędrzejewski
  */
-@Card(position = "explorer", title = "Project")
 public class ExplorerView extends JPanel implements IView<ExplorerController> {
 	private ExplorerController controller;
 	boolean attached = false;

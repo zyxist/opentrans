@@ -24,7 +24,6 @@ import org.invenzzia.helium.application.Application;
 import org.invenzzia.helium.gui.ActionManager;
 import org.invenzzia.helium.gui.context.AbstractContext;
 import org.invenzzia.helium.gui.events.StatusChangeEvent;
-import org.invenzzia.helium.gui.ui.card.Card;
 import org.invenzzia.helium.gui.ui.dock.DockModel;
 import org.invenzzia.helium.gui.ui.dock.Dockable;
 import org.invenzzia.helium.gui.ui.dock.KnownPositions;
@@ -64,9 +63,6 @@ import org.slf4j.LoggerFactory;
 public class ProjectContext extends AbstractContext {
 	private final Logger logger = LoggerFactory.getLogger(ProjectContext.class);
 	private VisitonsProject project;
-	private Card networkEditorCard;
-	private Card explorerCard;
-	private Card minimapCard;
 
 	public ProjectContext(Application application, VisitonsProject project) {
 		super(application);

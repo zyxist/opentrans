@@ -17,10 +17,14 @@
  */
 package org.invenzzia.opentrans.client.ui.netedit;
 
-import java.awt.*;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.AdjustmentListener;
-import javax.swing.*;
-import org.invenzzia.helium.gui.annotation.Card;
+import javax.swing.JPanel;
+import javax.swing.JScrollBar;
+import javax.swing.JScrollPane;
 import org.invenzzia.helium.gui.mvc.IView;
 import org.invenzzia.opentrans.visitons.render.CameraModel;
 import org.invenzzia.opentrans.visitons.render.ICameraModelListener;
@@ -30,7 +34,6 @@ import org.invenzzia.opentrans.visitons.render.ICameraModelListener;
  * 
  * @author Tomasz Jędrzejewski
  */
-@Card(position = "editor", title = "Network editor")
 public class EditorView extends JPanel implements IView<NeteditController>, ICameraModelListener {
 	private final NeteditController controller;
 	private Ruler horizontalRuler;

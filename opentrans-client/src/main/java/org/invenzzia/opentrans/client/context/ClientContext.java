@@ -25,7 +25,6 @@ import org.invenzzia.helium.gui.IconManager;
 import org.invenzzia.helium.gui.annotation.Tasks;
 import org.invenzzia.helium.gui.context.AbstractContext;
 import org.invenzzia.helium.gui.events.SplashEvent;
-import org.invenzzia.helium.gui.ui.card.CardView;
 import org.invenzzia.helium.gui.ui.dock.*;
 import org.invenzzia.helium.gui.ui.dock.components.DockStatusMenu;
 import org.invenzzia.helium.gui.ui.dock.dock.SplitDock;
@@ -155,7 +154,6 @@ public class ClientContext extends AbstractContext {
 	}
 	
 	public void initWelcomeScreen() {
-		final CardView cardView = this.container.getComponent(CardView.class);
 		WelcomeController controller = this.container.getComponent(WelcomeController.class);
 		controller.loadDefinition("Welcome");
 		

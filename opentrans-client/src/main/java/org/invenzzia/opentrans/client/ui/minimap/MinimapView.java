@@ -17,13 +17,10 @@
  */
 package org.invenzzia.opentrans.client.ui.minimap;
 
-import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import javax.swing.BoxLayout;
 import javax.swing.JPanel;
-import org.invenzzia.helium.gui.annotation.Card;
 import org.invenzzia.helium.gui.mvc.IView;
 import org.invenzzia.opentrans.client.ui.commons.Minimap;
 
@@ -32,7 +29,6 @@ import org.invenzzia.opentrans.client.ui.commons.Minimap;
  * 
  * @author Tomasz Jędrzejewski
  */
-@Card(position = "properties", title = "Minimap")
 public class MinimapView extends JPanel implements IView<MinimapController> {
 	private MinimapController controller;
 	private boolean attached = false;

@@ -6,7 +6,6 @@
 package org.invenzzia.opentrans.client;
 
 import java.awt.Dimension;
-import org.invenzzia.helium.gui.annotation.Card;
 import org.invenzzia.helium.gui.ui.welcome.WelcomeController;
 import org.invenzzia.helium.gui.ui.welcome.WelcomeView;
 
@@ -15,7 +14,6 @@ import org.invenzzia.helium.gui.ui.welcome.WelcomeView;
  * 
  * @author Tomasz Jędrzejewski
  */
-@Card(position = "editor", title = "Welcome")
 public class MyWelcomeView extends WelcomeView {
 	public MyWelcomeView(WelcomeController controller) {
 		super(controller);

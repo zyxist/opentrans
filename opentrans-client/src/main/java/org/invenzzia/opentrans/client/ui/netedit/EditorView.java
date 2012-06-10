@@ -100,7 +100,7 @@ public class EditorView extends JPanel implements IView<NeteditController>, ICam
 		
 		this.updateScrollbars();
 		
-		component.setPreferredSize(new Dimension(600, 600));
+		component.setPreferredSize(new Dimension(1200, 700));
 		
 		GridBagConstraints c = new GridBagConstraints();
 		c.gridwidth = c.gridheight = 1;

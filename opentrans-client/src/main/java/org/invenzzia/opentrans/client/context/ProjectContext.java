@@ -24,9 +24,7 @@ import org.invenzzia.helium.application.Application;
 import org.invenzzia.helium.gui.ActionManager;
 import org.invenzzia.helium.gui.context.AbstractContext;
 import org.invenzzia.helium.gui.events.StatusChangeEvent;
-import org.invenzzia.helium.gui.exception.CardNotFoundException;
 import org.invenzzia.helium.gui.ui.card.Card;
-import org.invenzzia.helium.gui.ui.card.CardView;
 import org.invenzzia.helium.gui.ui.dock.DockModel;
 import org.invenzzia.helium.gui.ui.dock.Dockable;
 import org.invenzzia.helium.gui.ui.dock.KnownPositions;
@@ -37,7 +35,6 @@ import org.invenzzia.helium.gui.ui.menu.element.Menu;
 import org.invenzzia.helium.gui.ui.menu.element.Position;
 import org.invenzzia.helium.gui.ui.menu.element.Separator;
 import org.invenzzia.helium.gui.ui.workspace.WorkspaceDockModel;
-import org.invenzzia.helium.gui.utils.BasicMenuActions;
 import org.invenzzia.opentrans.client.ProjectMenuActions;
 import org.invenzzia.opentrans.client.concurrent.RenderScheduler;
 import org.invenzzia.opentrans.client.projectmodel.WorldDescriptor;
@@ -127,10 +124,11 @@ public class ProjectContext extends AbstractContext {
 				
 				Dockable dockable = new Dockable(edView, "Network editor", "visitons-netedit");
 				dockModel.resolvePath(knownPositions.selectPath(dockable, "editor"), dockable);
-				dockable = new Dockable(exView, "Project");
-				dockModel.resolvePath(knownPositions.selectPath(dockable, "explorer"), dockable);
 				dockable = new Dockable(minimapView, "Minimap");
 				dockModel.resolvePath(knownPositions.selectPath(dockable, "minimap"), dockable);
+				dockable = new Dockable(exView, "Project");
+				dockModel.resolvePath(knownPositions.selectPath(dockable, "explorer"), dockable);
+
 			}
 		});		
 		ActionManager actionManager = this.container.getComponent(ActionManager.class);

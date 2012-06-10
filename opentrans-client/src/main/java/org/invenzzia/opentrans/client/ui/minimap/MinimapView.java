@@ -18,6 +18,7 @@
 package org.invenzzia.opentrans.client.ui.minimap;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import javax.swing.BoxLayout;
@@ -49,6 +50,7 @@ public class MinimapView extends JPanel implements IView<MinimapController> {
 			{ false, false, true, true, true, false, true, false },
 			{ false, false, false, true, false, false, true, false }
 		});
+		this.setPreferredSize(new Dimension(280, 200));
 		this.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
 		c.gridx = 0;

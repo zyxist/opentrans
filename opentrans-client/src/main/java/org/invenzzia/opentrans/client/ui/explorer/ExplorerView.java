@@ -123,6 +123,8 @@ public class ExplorerView extends JPanel implements IView<ExplorerController> {
         explorerScrollPane = new javax.swing.JScrollPane();
         this.explorerScrollPane.setViewportView(this.treeView = new HeliumTreeView(this.iconManager));
 
+        setPreferredSize(new java.awt.Dimension(280, 500));
+
         projectNameLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         projectNameLabel.setText("Project name");
 

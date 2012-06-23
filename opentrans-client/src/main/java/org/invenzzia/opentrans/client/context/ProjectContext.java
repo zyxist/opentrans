@@ -49,6 +49,7 @@ import org.invenzzia.opentrans.client.ui.worldresize.WorldResizeView;
 import org.invenzzia.opentrans.visitons.VisitonsProject;
 import org.invenzzia.opentrans.visitons.render.CameraModel;
 import org.invenzzia.opentrans.visitons.render.Renderer;
+import org.invenzzia.opentrans.visitons.render.stream.GridStream;
 import org.invenzzia.opentrans.visitons.world.World;
 import org.picocontainer.MutablePicoContainer;
 import org.slf4j.Logger;
@@ -83,6 +84,9 @@ public class ProjectContext extends AbstractContext {
 			.addComponent(WorldResizeView.class)
 			.addComponent(WorldResizeController.class)
 			
+			// Rendering
+			.addComponent(GridStream.class)
+			
 			// Project model
 			.addComponent(WorldDescriptor.class);
 	}
@@ -100,7 +104,7 @@ public class ProjectContext extends AbstractContext {
 		SchedulerManager manager = this.container.getComponent(SchedulerManager.class);
 		if(!manager.hasScheduler("renderer")) {
 			RenderScheduler scheduler = new RenderScheduler("renderer");
-			scheduler.setRenderer(this.container.getComponent(Renderer.class));
+			scheduler.setRenderer(this.constructRenderer());
 			manager.addScheduler(scheduler);
 		}
 		manager.start("renderer");
@@ -188,5 +192,19 @@ public class ProjectContext extends AbstractContext {
 		} finally {
 			model.stopBatchUpdate();
 		}
+	}
+	
+	/**
+	 * Temporary method for constructing the renderer. In the future, when the simulation window will be present,
+	 * this must be moved to some kind of factory.
+	 * 
+	 * @return 
+	 */
+	private Renderer constructRenderer() {
+		Renderer r = this.container.getComponent(Renderer.class);
+		
+		r.addRenderingStream(this.container.getComponent(GridStream.class));
+		
+		return r;
 	}
 }

@@ -126,7 +126,7 @@ public class World {
 				this.segments[x][y] = new Segment().setPosition(x, y);
 			}
 		}
-	} // end createWorld();
+	}
 
 	public World extendHorizontally(HorizontalDir where) {
 		Segment[][] newSegments = new Segment[dimX + 1][dimY];
@@ -144,7 +144,7 @@ public class World {
 		this.segments = newSegments;
 		this.dimX++;
 		return this;
-	} // end extendHorizontally();
+	}
 
 	/**
 	 * Extends the world vertically. The parameter indicates whether the new segments are added from the top or the bottom side.
@@ -168,7 +168,7 @@ public class World {
 		this.segments = newSegments;
 		this.dimY++;
 		return this;
-	} // end extendVertically();
+	}
 
 	/**
 	 * A helper method used to copy the contents of the segment array to a new one.
@@ -183,7 +183,22 @@ public class World {
 				newArray[x + deltaX][y + deltaY] = this.segments[x][y].setPosition(x + deltaX, y + deltaY);
 			}
 		}
-	} // end copySegments();
+	}
+	
+	/**
+	 * Returns the segment object with the given coordinates or NULL, if the segment does not
+	 * exist.
+	 * 
+	 * @param x
+	 * @param y
+	 * @return Segment object or NULL
+	 */
+	public Segment findSegment(int x, int y) {
+		if(x >= 0 && x < this.dimX && y >= 0 && y < this.dimY) {
+			return this.segments[x][y];
+		}
+		return null;
+	}
 
 	/**
 	 * Returns the segment, where the vertex belongs to.
@@ -196,7 +211,7 @@ public class World {
 		int y = (int) Math.ceil(vertex.getY() / Segment.SIZE);
 
 		return this.segments[x][y];
-	} // end segmentFor();
+	}
 
 	/**
 	 * Adds a vertex to the world visualization, placing it in the proper segment.
@@ -207,7 +222,7 @@ public class World {
 	public World addVertex(Vertex vertex) {
 		this.segmentFor(vertex).addVertex(vertex);
 		return this;
-	} // end addVertex();
+	}
 
 	/**
 	 * Removes the vertex from the world, updating the proper segment.
@@ -217,5 +232,5 @@ public class World {
 	 */
 	public World removeVertex(Vertex vertex) {
 		return this;
-	} // end removeVertex();
+	}
 } // end World;

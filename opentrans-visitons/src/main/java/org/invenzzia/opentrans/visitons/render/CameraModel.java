@@ -37,43 +37,10 @@ import org.invenzzia.opentrans.visitons.world.World;
  * 
  * @author Tomasz Jędrzejewski
  */
-public class CameraModel {
-	public static final double MIN_VIEWPORT = 1.0;
-	public static final double SEGMENT_SIZE = 1000.0;
-	public static final double DEFAULT_ZOOM = 1.0;
-	
+public class CameraModel extends AbstractCameraModelFoundation {	
 	private Map<ICameraModelListener, InvocationTicket> invocationTickets = new LinkedHashMap<>();
 	private Set<ICameraModelListener> listeners = new HashSet<>();
-	/**
-	 * Top-left corner viewport position in the world map units (metres).
-	 */
-	protected double posX;
-	protected double posY;
-	
-	/**
-	 * The width and height of the viewport in the world map units (metres).
-	 */
-	protected double viewportWidth;
-	protected double viewportHeight;
-	/**
-	 * The width and height of the viewport in pixels.
-	 */
-	protected int viewportWidthPx;
-	protected int viewportHeightPx;
-	/**
-	 * Overflow means that the viewport covers some area outside the world map.
-	 */
-	protected boolean horizOverflow;
-	protected boolean vertOverflow;
-	/**
-	 * Where to center the view port on the given axis if the overflow occurs?
-	 */
-	protected double overflowCenterX;
-	protected double overflowCenterY;
-	/**
-	 * Metres per pixel (zoom unit).
-	 */
-	protected double mpp = 1.0;
+
 	/**
 	 * We grab the world size from here.
 	 */
@@ -87,10 +54,6 @@ public class CameraModel {
 	public CameraModel(World world, MethodInvocator methodInvocator) {
 		this.world = Preconditions.checkNotNull(world, "The camera model cannot operate without a world object.");
 		this.methodInvocator = Preconditions.checkNotNull(methodInvocator);
-	}
-
-	public double getMpp() {
-		return mpp;
 	}
 
 	/**
@@ -115,10 +78,6 @@ public class CameraModel {
 		return this.world.getY() * CameraModel.SEGMENT_SIZE;
 	}
 
-	public double getPosX() {
-		return this.posX;
-	}
-
 	/**
 	 * Sets the new top-left corner position (in metres). Updating causes the recalculation of
 	 * the viewport and notifications of all the listeners. If the model is tied to the GUI
@@ -134,10 +93,6 @@ public class CameraModel {
 		
 		this.calculateViewport();
 		this.notifyCameraModelListeners();
-	}
-
-	public double getPosY() {
-		return this.posY;
 	}
 
 	/**
@@ -179,10 +134,6 @@ public class CameraModel {
 		this.calculateViewport();
 		this.notifyCameraModelListeners();
 	}
-
-	public double getViewportHeight() {
-		return this.viewportHeight;
-	}
 	
 	/**
 	 * Sets the height of the viewport in metres. Updating causes the recalculation of
@@ -199,10 +150,6 @@ public class CameraModel {
 		this.notifyCameraModelListeners();
 	}
 	
-	public int getViewportHeightPx() {
-		return this.viewportHeightPx;
-	}
-	
 	/**
 	 * Sets the height of the viewport in metres. Updating causes the recalculation of
 	 * the viewport and notifications of all the listeners. If the model is tied to the GUI
@@ -216,10 +163,6 @@ public class CameraModel {
 		
 		this.calculateViewport();
 		this.notifyCameraModelListeners();
-	}
-	
-	public double getViewportWidth() {
-		return this.viewportWidth;
 	}
 
 	/**
@@ -235,10 +178,6 @@ public class CameraModel {
 		
 		this.calculateViewport();
 		this.notifyCameraModelListeners();
-	}
-	
-	public int getViewportWidthPx() {
-		return this.viewportWidthPx;
 	}
 
 	/**
@@ -376,68 +315,6 @@ public class CameraModel {
 				this.notifyCameraModelListeners();
 			}
 		}
-	}
-	
-	/**
-	 * Converts units from pixels to world meters on the X axis. Returns the
-	 * absolute value.
-	 * 
-	 * @param coord X coordinate in pixels.
-	 * @return X coordinate in metres.
-	 */
-	public double pix2worldX(long coord) {
-		return this.posX + (coord - this.overflowCenterX) * this.mpp;
-	}
-
-	/**
-	 * Converts units from pixels to world meters on the Y axis. Returns the
-	 * absolute value.
-	 * 
-	 * @param coord Y coordinate in pixels.
-	 * @return Y coordinate in metres.
-	 */
-	public double pix2worldY(long coord) {
-		return this.posY + (coord - this.overflowCenterY) * this.mpp;
-	}
-
-	/**
-	 * Converts units from world metres to pixels on X axis.
-	 * 
-	 * @param coord X coordinate in metres (absolute value).
-	 * @return X coordinate in pixels.
-	 */
-	public int world2pixX(double coord) {
-		return (int) Math.round((coord - this.posX) / this.mpp + this.overflowCenterX);
-	}
-	
-	/**
-	 * Converts units from world metres to pixels on Y axis.
-	 * 
-	 * @param coord Y coordinate in metres (absolute value).
-	 * @return Y coordinate in pixels.
-	 */
-	public int world2pixY(double coord) {
-		return (int) Math.round((coord - this.posY) / this.mpp + this.overflowCenterY);
-	}
-
-	/**
-	 * Converts units from world metres to pixels.
-	 * 
-	 * @param p Coordinates in world metres (absolute value).
-	 * @return Coordinates in pixels.
-	 */
-	public Coordinate world2pix(Coordinate p) {
-		return new Coordinate(this.world2pixX(p.x), world2pixY(p.y));
-	}
-
-	/**
-	 * Converts length in metres to pixels.
-	 * 
-	 * @param length Length in meters.
-	 * @return Length in pixels.
-	 */
-	public long world2pix(double length) {
-		return Math.round(length / this.mpp);
 	}
 	
 	/**

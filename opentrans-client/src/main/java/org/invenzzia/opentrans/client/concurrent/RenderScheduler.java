@@ -19,7 +19,7 @@ package org.invenzzia.opentrans.client.concurrent;
 
 import javax.swing.SwingUtilities;
 import org.invenzzia.helium.activeobject.AbstractScheduler;
-import org.invenzzia.opentrans.client.ui.netedit.CameraView;
+import org.invenzzia.opentrans.client.ui.netview.CameraView;
 import org.invenzzia.opentrans.visitons.render.Renderer;
 
 /**

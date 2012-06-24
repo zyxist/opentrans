@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with OpenTrans. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.invenzzia.opentrans.client.ui.netedit;
+package org.invenzzia.opentrans.client.ui.netview;
 
 import com.google.common.base.Preconditions;
 import java.awt.Dimension;

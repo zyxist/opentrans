@@ -24,6 +24,7 @@ import org.invenzzia.helium.application.Application;
 import org.invenzzia.helium.gui.ActionManager;
 import org.invenzzia.helium.gui.context.AbstractContext;
 import org.invenzzia.helium.gui.events.StatusChangeEvent;
+import org.invenzzia.helium.gui.model.InformationModel;
 import org.invenzzia.helium.gui.ui.dock.DockModel;
 import org.invenzzia.helium.gui.ui.dock.Dockable;
 import org.invenzzia.helium.gui.ui.dock.KnownPositions;
@@ -36,14 +37,16 @@ import org.invenzzia.helium.gui.ui.menu.element.Separator;
 import org.invenzzia.helium.gui.ui.workspace.WorkspaceDockModel;
 import org.invenzzia.opentrans.client.ProjectMenuActions;
 import org.invenzzia.opentrans.client.concurrent.RenderScheduler;
+import org.invenzzia.opentrans.client.editor.opmodes.DrawingMode;
+import org.invenzzia.opentrans.client.editor.opmodes.SelectionMode;
 import org.invenzzia.opentrans.client.projectmodel.WorldDescriptor;
 import org.invenzzia.opentrans.client.ui.explorer.ExplorerController;
 import org.invenzzia.opentrans.client.ui.explorer.ExplorerView;
 import org.invenzzia.opentrans.client.ui.minimap.MinimapController;
 import org.invenzzia.opentrans.client.ui.minimap.MinimapView;
-import org.invenzzia.opentrans.client.ui.netedit.CameraView;
-import org.invenzzia.opentrans.client.ui.netedit.EditorView;
-import org.invenzzia.opentrans.client.ui.netedit.NeteditController;
+import org.invenzzia.opentrans.client.ui.netview.CameraView;
+import org.invenzzia.opentrans.client.ui.netview.EditorView;
+import org.invenzzia.opentrans.client.ui.netview.NeteditController;
 import org.invenzzia.opentrans.client.ui.worldresize.WorldResizeController;
 import org.invenzzia.opentrans.client.ui.worldresize.WorldResizeView;
 import org.invenzzia.opentrans.visitons.VisitonsProject;
@@ -122,6 +125,8 @@ public class ProjectContext extends AbstractContext {
 				DockModel dockModel = container.getComponent(WorkspaceDockModel.class);
 				KnownPositions knownPositions = container.getComponent(KnownPositions.class);
 				
+				ProjectContext.this.initNetworkView();
+				
 				Dockable dockable = new Dockable(edView, "Network editor", "visitons-netedit");
 				dockModel.resolvePath(knownPositions.selectPath(dockable, "editor"), dockable);
 				dockable = new Dockable(minimapView, "Minimap");
@@ -136,7 +141,9 @@ public class ProjectContext extends AbstractContext {
 		
 		this.initProjectMenu(this.container.getComponent(MenuController.class).getModel());
 		
-		this.application.getEventBus().post(new StatusChangeEvent("Project '"+this.project.getName()+"' loaded."));
+		InformationModel infoModel = this.container.getComponent(InformationModel.class);
+		infoModel.setStatus("Project '"+this.project.getName()+"' loaded.");
+		infoModel.setTitle(this.project.getName());
 		
 		this.logger.info("Project '{}' has been opened.", this.project.getName());
 		return true;
@@ -145,6 +152,10 @@ public class ProjectContext extends AbstractContext {
 	@Override
 	protected boolean shutdown() {
 		this.logger.info("Project '{}' is being closed.", this.project.getName());
+		
+		InformationModel infoModel = this.container.getComponent(InformationModel.class);
+		infoModel.setStatus("No project loaded.");
+		infoModel.setTitle("No project");
 		
 		ActionManager actionManager = this.container.getComponent(ActionManager.class);
 		actionManager.unregisterActions(this.container.getComponent(ProjectMenuActions.class));
@@ -192,6 +203,16 @@ public class ProjectContext extends AbstractContext {
 		} finally {
 			model.stopBatchUpdate();
 		}
+	}
+	
+	public void initNetworkView() {
+		EditorView edView = this.container.getComponent(EditorView.class);
+		NeteditController controller = this.container.getComponent(NeteditController.class);
+		
+		controller.addOperation(new SelectionMode());
+		controller.addOperation(new DrawingMode());
+		
+		edView.updateOperationButtons();
 	}
 	
 	/**

@@ -187,8 +187,11 @@ public class ClientContext extends AbstractContext {
 					iconManager.preloadIcon("ui-close", currentLoader.getResource("icons/ui-close.png"));
 					iconManager.preloadIcon("ui-maximize", currentLoader.getResource("icons/ui-maximize.png"));
 					iconManager.preloadIcon("ui-restore", currentLoader.getResource("icons/ui-restore.png"));
+					iconManager.preloadIcon("ui-cursor", currentLoader.getResource("icons/ui-cursor.png"));
 					
 					iconManager.preloadIcon("visitons-netedit", currentLoader.getResource("icons/visitons-netedit.png"));
+					iconManager.addIcon("pencil", currentLoader.getResource("icons/pencil.png"));
+					iconManager.addIcon("vector", currentLoader.getResource("icons/vector.png"));
 				}
 			});
 		} catch(InterruptedException | InvocationTargetException ex) {

@@ -31,6 +31,7 @@ import org.invenzzia.helium.gui.ui.dock.dock.SplitDock;
 import org.invenzzia.helium.gui.ui.menu.IMenuElementStorage;
 import org.invenzzia.helium.gui.ui.menu.MenuController;
 import org.invenzzia.helium.gui.ui.menu.MenuModel;
+import org.invenzzia.helium.gui.ui.menu.MenuView;
 import org.invenzzia.helium.gui.ui.menu.element.Menu;
 import org.invenzzia.helium.gui.ui.menu.element.Position;
 import org.invenzzia.helium.gui.ui.menu.element.Separator;
@@ -73,7 +74,7 @@ public class ClientContext extends AbstractContext {
 		
 		eventBus.post(new SplashEvent(2, "Initializing OpenTrans environment..."));
 		this.logger.info("Initializing client menu.");
-		this.initClientMenu(this.container.getComponent(MenuController.class).getModel());
+		this.initClientMenu(this.container.getComponent(MenuView.class).getModel());
 		this.logger.info("Initializing docking system.");
 		this.initDockingSystem();
 		this.logger.info("Initializing actions.");

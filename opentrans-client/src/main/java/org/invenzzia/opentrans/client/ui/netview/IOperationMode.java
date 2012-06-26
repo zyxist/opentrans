@@ -17,6 +17,8 @@
  */
 package org.invenzzia.opentrans.client.ui.netview;
 
+import org.invenzzia.helium.gui.ui.menu.MenuModel;
+
 /**
  * Description here.
  * 
@@ -27,4 +29,9 @@ public interface IOperationMode extends IOperation {
 	public void modeActivated();
 	public void modeDeactivated();
 	public String getHelpText();
+
+	/**
+	 * @return Menu model used to display a pop-up menu.
+	 */
+	public MenuModel getContextMenuModel();
 }

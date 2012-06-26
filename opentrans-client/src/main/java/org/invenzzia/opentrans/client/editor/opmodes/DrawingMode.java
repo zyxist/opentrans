@@ -17,6 +17,7 @@
  */
 package org.invenzzia.opentrans.client.editor.opmodes;
 
+import org.invenzzia.helium.gui.ui.menu.MenuModel;
 import org.invenzzia.opentrans.client.ui.netview.IOperationMode;
 
 /**
@@ -46,5 +47,10 @@ public class DrawingMode implements IOperationMode {
 	@Override
 	public String getHelpText() {
 		return "Click on the map to start drawing a track.";
+	}
+	
+	@Override
+	public MenuModel getContextMenuModel() {
+		return null;
 	}
 }

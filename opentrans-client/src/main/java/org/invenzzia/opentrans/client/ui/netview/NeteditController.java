@@ -25,7 +25,6 @@ import java.util.LinkedList;
 import java.util.List;
 import javax.swing.JComponent;
 import org.invenzzia.helium.activeobject.SchedulerManager;
-import org.invenzzia.helium.gui.events.StatusChangeEvent;
 import org.invenzzia.helium.gui.model.InformationModel;
 import org.invenzzia.helium.gui.mvc.IController;
 import org.invenzzia.opentrans.client.concurrent.RenderScheduler;
@@ -49,15 +48,17 @@ public class NeteditController implements ComponentListener, AdjustmentListener,
 	private SchedulerManager schedulerManager;
 	private EventBus eventBus;
 	private InformationModel informationModel;
+	private NetviewCommandTranslator commandTranslator;
 	
 	private List<IOperation> operations = new LinkedList<>();
 	private IOperationMode currentOperationMode = null;
 
-	public NeteditController(CameraModel model, SchedulerManager schedulerManager, EventBus eventBus, InformationModel informationModel) {
+	public NeteditController(CameraModel model, SchedulerManager schedulerManager, EventBus eventBus, InformationModel informationModel, NetviewCommandTranslator translator) {
 		this.model = Preconditions.checkNotNull(model);
 		this.schedulerManager = schedulerManager;
 		this.eventBus = eventBus;
 		this.informationModel = informationModel;
+		this.commandTranslator = translator;
 	}
 	
 	public CameraModel getModel() {
@@ -73,6 +74,7 @@ public class NeteditController implements ComponentListener, AdjustmentListener,
 		this.operations.add(operation);
 		if(operation instanceof IOperationMode && null == this.currentOperationMode) {
 			this.currentOperationMode = (IOperationMode) operation;
+			this.commandTranslator.setCurrentOperationMode(this.currentOperationMode);
 		}
 	}
 	
@@ -82,6 +84,7 @@ public class NeteditController implements ComponentListener, AdjustmentListener,
 	public void clearOperations() {
 		this.operations.clear();
 		this.currentOperationMode = null;
+		this.commandTranslator.setCurrentOperationMode(null);
 		this.editorView.removeOperationButtons();
 	}
 	
@@ -116,6 +119,9 @@ public class NeteditController implements ComponentListener, AdjustmentListener,
 		this.view.addComponentListener(this);
 		RenderScheduler rsc = (RenderScheduler) this.schedulerManager.getScheduler("renderer");
 		rsc.setCameraView(object);
+		
+		this.view.addMouseListener(this.commandTranslator);
+		this.view.addMouseMotionListener(this.commandTranslator);
 	}
 
 	@Override
@@ -123,6 +129,8 @@ public class NeteditController implements ComponentListener, AdjustmentListener,
 		RenderScheduler rsc = (RenderScheduler) this.schedulerManager.getScheduler("renderer");
 		rsc.setCameraView(null);
 		
+		this.view.removeMouseListener(this.commandTranslator);
+		this.view.removeMouseMotionListener(this.commandTranslator);
 		this.view.removeComponentListener(this);
 		this.view = null;
 	}

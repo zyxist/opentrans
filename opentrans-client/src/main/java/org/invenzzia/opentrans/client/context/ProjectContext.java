@@ -31,6 +31,7 @@ import org.invenzzia.helium.gui.ui.dock.KnownPositions;
 import org.invenzzia.helium.gui.ui.menu.IMenuElementStorage;
 import org.invenzzia.helium.gui.ui.menu.MenuController;
 import org.invenzzia.helium.gui.ui.menu.MenuModel;
+import org.invenzzia.helium.gui.ui.menu.MenuView;
 import org.invenzzia.helium.gui.ui.menu.element.Menu;
 import org.invenzzia.helium.gui.ui.menu.element.Position;
 import org.invenzzia.helium.gui.ui.menu.element.Separator;
@@ -47,6 +48,7 @@ import org.invenzzia.opentrans.client.ui.minimap.MinimapView;
 import org.invenzzia.opentrans.client.ui.netview.CameraView;
 import org.invenzzia.opentrans.client.ui.netview.EditorView;
 import org.invenzzia.opentrans.client.ui.netview.NeteditController;
+import org.invenzzia.opentrans.client.ui.netview.NetviewCommandTranslator;
 import org.invenzzia.opentrans.client.ui.worldresize.WorldResizeController;
 import org.invenzzia.opentrans.client.ui.worldresize.WorldResizeView;
 import org.invenzzia.opentrans.visitons.VisitonsProject;
@@ -75,6 +77,7 @@ public class ProjectContext extends AbstractContext {
 		this.container.addComponent(EditorView.class)
 			.addComponent(CameraView.class)
 			.addComponent(NeteditController.class)
+			.addComponent(NetviewCommandTranslator.class)
 			.addComponent(Renderer.class)
 			.addComponent(CameraModel.class)
 			.addComponent(VisitonsProject.class, this.project)
@@ -86,6 +89,10 @@ public class ProjectContext extends AbstractContext {
 			.addComponent(ProjectMenuActions.class)
 			.addComponent(WorldResizeView.class)
 			.addComponent(WorldResizeController.class)
+			
+			// Editor
+			.addComponent(SelectionMode.class)
+			.addComponent(DrawingMode.class)
 			
 			// Rendering
 			.addComponent(GridStream.class)
@@ -139,7 +146,7 @@ public class ProjectContext extends AbstractContext {
 		ActionManager actionManager = this.container.getComponent(ActionManager.class);
 		actionManager.registerActions(this.container.getComponent(ProjectMenuActions.class));
 		
-		this.initProjectMenu(this.container.getComponent(MenuController.class).getModel());
+		this.initProjectMenu(this.container.getComponent(MenuView.class).getModel());
 		
 		InformationModel infoModel = this.container.getComponent(InformationModel.class);
 		infoModel.setStatus("Project '"+this.project.getName()+"' loaded.");
@@ -209,8 +216,8 @@ public class ProjectContext extends AbstractContext {
 		EditorView edView = this.container.getComponent(EditorView.class);
 		NeteditController controller = this.container.getComponent(NeteditController.class);
 		
-		controller.addOperation(new SelectionMode());
-		controller.addOperation(new DrawingMode());
+		controller.addOperation(this.container.getComponent(SelectionMode.class));
+		controller.addOperation(this.container.getComponent(DrawingMode.class));
 		
 		edView.updateOperationButtons();
 	}

@@ -17,6 +17,10 @@
  */
 package org.invenzzia.opentrans.client.editor.opmodes;
 
+import com.google.common.eventbus.EventBus;
+import org.invenzzia.helium.gui.ContextManager;
+import org.invenzzia.helium.gui.ui.menu.MenuModel;
+import org.invenzzia.helium.gui.ui.menu.element.Position;
 import org.invenzzia.opentrans.client.ui.netview.IOperationMode;
 
 /**
@@ -29,6 +33,12 @@ import org.invenzzia.opentrans.client.ui.netview.IOperationMode;
  * @author Tomasz Jędrzejewski
  */
 public class SelectionMode implements IOperationMode {
+	private MenuModel contextMenuModel;
+	
+	public SelectionMode(EventBus eventBus, ContextManager contextManager) {
+		this.contextMenuModel = new MenuModel(eventBus, contextManager);
+		this.contextMenuModel.appendElement(new Position("set-segment-bitmap", "Set segment bitmap", "setSegmentBitmap"));
+	}
 
 	@Override
 	public void modeActivated() {
@@ -51,5 +61,10 @@ public class SelectionMode implements IOperationMode {
 	@Override
 	public String getHelpText() {
 		return "Click on the network infrastructure elements to select them.";
+	}
+	
+	@Override
+	public MenuModel getContextMenuModel() {
+		return this.contextMenuModel;
 	}
 }

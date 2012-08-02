@@ -128,6 +128,8 @@ public class ProjectContext extends AbstractContext {
 				EditorView edView = container.getComponent(EditorView.class);
 				ExplorerView exView = container.getComponent(ExplorerView.class);
 				MinimapView minimapView = container.getComponent(MinimapView.class);
+				MinimapController minimapController = container.getComponent(MinimapController.class);
+				minimapView.setController(minimapController);
 
 				DockModel dockModel = container.getComponent(WorkspaceDockModel.class);
 				KnownPositions knownPositions = container.getComponent(KnownPositions.class);

@@ -23,6 +23,7 @@ import java.awt.GridBagLayout;
 import javax.swing.JPanel;
 import org.invenzzia.helium.gui.mvc.IView;
 import org.invenzzia.opentrans.client.ui.commons.Minimap;
+import org.invenzzia.opentrans.visitons.world.World;
 
 /**
  * Description here.
@@ -33,18 +34,13 @@ public class MinimapView extends JPanel implements IView<MinimapController> {
 	private MinimapController controller;
 	private boolean attached = false;
 	
+	private World model;
 	private Minimap minimapComponent;
 	
 	public MinimapView() {
 		this.minimapComponent = new Minimap();
 		this.minimapComponent.setData(new boolean[][] {
-			{ false, false, true, true, false, false, true, false },
-			{ false, false, true, true, false, false, true, false },
-			{ false, true, true, true, true, true, true, false },
-			{ false, true, true, true, true, true, true, true },
-			{ true, true, true, true, true, true, true, true },
-			{ false, false, true, true, true, false, true, false },
-			{ false, false, false, true, false, false, true, false }
+			{ false }
 		});
 		this.setPreferredSize(new Dimension(280, 200));
 		this.setLayout(new GridBagLayout());
@@ -75,5 +71,33 @@ public class MinimapView extends JPanel implements IView<MinimapController> {
 	public MinimapController getController() {
 		return this.controller;
 	}
-
+	
+	public void setModel(World model) {
+		this.model = model;
+	}
+	
+	public World getModel() {
+		return this.model;
+	}
+	
+	/**
+	 * Updates the information about cursor location above the minimap, so that
+	 * it can highlight some area somehow.
+	 * 
+	 * @param x
+	 * @param y 
+	 */
+	public void setCursorLocationForHighlight(int x, int y) {
+		this.minimapComponent.setCursorPosition(x, y);
+	}
+	
+	/**
+	 * Retrieves the data from the world model and updates the minimap component.
+	 */
+	public void refreshView() {
+		if(null != this.model) {
+			this.minimapComponent.setData(this.model.exportSegmentUsage());
+			this.minimapComponent.repaint();
+		}
+	}
 } // end MinimapView;

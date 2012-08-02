@@ -183,11 +183,20 @@ public class Minimap extends JComponent {
 				} else {
 					state = this.interpolate(i, j, spp);
 				}
-				if(state) {
-					g.setColor(this.usedSegmentColor);
+				if(this.cursorX >= posX && this.cursorX < posX + finalPixelSize && this.cursorY >= posY && this.cursorY < posY + finalPixelSize) {
+					if(state) {
+						g.setColor(this.highlightUsedSegmentColor);
+					} else {
+						g.setColor(this.highlightEmptySegmentColor);
+					}
 				} else {
-					g.setColor(this.emptySegmentColor);
+					if(state) {
+						g.setColor(this.usedSegmentColor);
+					} else {
+						g.setColor(this.emptySegmentColor);
+					}
 				}
+
 				g.fillRect(posX, posY, finalPixelSize, finalPixelSize);
 				
 				posY += finalPixelSize + 1;

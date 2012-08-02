@@ -167,6 +167,7 @@ public final class Renderer implements ICameraModelListener {
 		if(this.modelUpdated) {
 			this.drawnImage = new BufferedImage(model.getViewportWidthPx(), model.getViewportHeightPx(), BufferedImage.TYPE_INT_ARGB);
 			this.viewport = this.viewportCopy;
+			this.findVisibleSegments();
 			this.modelUpdated = false;
 		} else {
 			this.drawnImage = tmp;

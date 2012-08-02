@@ -23,8 +23,10 @@ import org.invenzzia.helium.gui.annotation.Action;
 import org.invenzzia.helium.gui.exception.ViewConfigurationException;
 import org.invenzzia.helium.gui.ui.appframe.AppframeView;
 import org.invenzzia.helium.gui.ui.dialog.DefaultDialogController;
+import org.invenzzia.opentrans.client.events.WorldSizeChangedEvent;
 import org.invenzzia.opentrans.client.ui.worldresize.WorldResizeController;
 import org.invenzzia.opentrans.client.ui.worldresize.WorldResizeView;
+import org.invenzzia.opentrans.visitons.VisitonsProject;
 import org.picocontainer.MutablePicoContainer;
 
 /**
@@ -40,7 +42,7 @@ public class ProjectMenuActions {
 	}
 	
 	@Action(id="showWorldSizeDialog")
-	public void actionAbout() throws ViewConfigurationException {
+	public void actionWorldResize() throws ViewConfigurationException {
 		MutablePicoContainer container = this.application.getCurrentContainer();
 		AppframeView appView = container.getComponent(AppframeView.class);
 		
@@ -49,5 +51,9 @@ public class ProjectMenuActions {
 		view.setController(controller);
 		
 		appView.displayDialog(view, container.getComponent(DefaultDialogController.class));
+		
+		// Once the dialog is closed, we must refresh some data.
+		VisitonsProject project = container.getComponent(VisitonsProject.class);
+		this.application.getEventBus().post(new WorldSizeChangedEvent(project.getWorld()));
 	}
 }

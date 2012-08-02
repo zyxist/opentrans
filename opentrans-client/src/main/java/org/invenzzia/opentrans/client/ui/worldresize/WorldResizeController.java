@@ -17,7 +17,14 @@
  */
 package org.invenzzia.opentrans.client.ui.worldresize;
 
+import com.google.common.base.Preconditions;
+import javax.swing.JOptionPane;
 import org.invenzzia.helium.gui.mvc.IController;
+import org.invenzzia.opentrans.visitons.VisitonsProject;
+import org.invenzzia.opentrans.visitons.exception.WorldException;
+import org.invenzzia.opentrans.visitons.world.World;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The controller for the world resize responds to the extend/shrink
@@ -30,15 +37,99 @@ import org.invenzzia.helium.gui.mvc.IController;
  * @author Tomasz Jędrzejewski
  */
 public class WorldResizeController implements IController<WorldResizeView> {
+	private final Logger logger = LoggerFactory.getLogger(WorldResizeController.class);
+	
 	private WorldResizeView view;
+	private VisitonsProject model;
+	private int currentMode;
+	
+	public WorldResizeController(VisitonsProject model) {
+		this.model = Preconditions.checkNotNull(model);
+	}
 	
 	@Override
 	public void attachView(WorldResizeView object) {
 		this.view = object;
+		this.view.setModel(this.model.getWorld());
+		this.view.refreshData();
+		this.currentMode = this.view.getMode();
+		this.logger.debug("View attached.");
 	}
 
 	@Override
 	public void detachView(WorldResizeView object) {
+		this.view.setModel(null);
 		this.view = null;
+		this.logger.debug("View detached.");
+	}
+	
+	public void switchStateToExtend() {
+		if(null != this.view) {
+			this.logger.info("Switching the mode to 'extend'.");
+			
+			this.view.setMode(WorldResizeView.MODE_EXTEND);
+			this.currentMode = this.view.getMode();
+		}
+	}
+	
+	public void switchStateToShrink() {
+		if(null != this.view) {
+			this.logger.info("Switching the mode to 'shrink'.");
+			
+			this.view.setMode(WorldResizeView.MODE_SHRINK);
+			this.currentMode = this.view.getMode();
+		}
+	}
+	
+	public void leftResize() {
+		try {
+			if(WorldResizeView.MODE_EXTEND == this.currentMode) {
+				this.model.getWorld().extendHorizontally(World.HorizontalDir.LEFT);
+			} else {
+				this.model.getWorld().shrinkHorizontally(World.HorizontalDir.LEFT);
+			}
+			this.view.refreshData();
+		} catch(WorldException exception) {
+			JOptionPane.showMessageDialog(this.view, exception.getMessage(), "Cannot resize", JOptionPane.OK_OPTION);
+		}
+	}
+	
+	public void rightResize() {
+		try {
+			if(WorldResizeView.MODE_EXTEND == this.currentMode) {
+				this.model.getWorld().extendHorizontally(World.HorizontalDir.RIGHT);
+			} else {
+				this.model.getWorld().shrinkHorizontally(World.HorizontalDir.RIGHT);
+			}
+			this.view.refreshData();
+		} catch(WorldException exception) {
+			JOptionPane.showMessageDialog(this.view, exception.getMessage(), "Cannot resize", JOptionPane.OK_OPTION);
+		}
+	}
+	
+	public void topResize() {
+		try {
+			if(WorldResizeView.MODE_EXTEND == this.currentMode) {
+				this.model.getWorld().extendVertically(World.VerticalDir.UP);
+			} else {
+				this.model.getWorld().shrinkVertically(World.VerticalDir.UP);
+			}
+			this.view.refreshData();
+		} catch(WorldException exception) {
+			JOptionPane.showMessageDialog(this.view, exception.getMessage(), "Cannot resize", JOptionPane.OK_OPTION);
+		}
+	}
+	
+	public void bottomResize() {
+		try {
+			if(WorldResizeView.MODE_EXTEND == this.currentMode) {
+				this.model.getWorld().extendVertically(World.VerticalDir.DOWN);
+			} else {
+				this.model.getWorld().shrinkVertically(World.VerticalDir.DOWN);
+			}
+			this.view.refreshData();
+		} catch(WorldException exception) {
+			JOptionPane.showMessageDialog(this.view, exception.getMessage(), "Cannot resize", JOptionPane.OK_OPTION);
+		}
 	}
 }

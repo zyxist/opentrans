@@ -74,6 +74,9 @@
         <Property name="selected" type="boolean" value="true"/>
         <Property name="text" type="java.lang.String" value="Extend world"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="toggleExtendActionPerformed"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JRadioButton" name="toggleShrink">
       <Properties>
@@ -82,26 +85,41 @@
         </Property>
         <Property name="text" type="java.lang.String" value="Shrink world"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="toggleShrinkActionPerformed"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JButton" name="topResize">
       <Properties>
         <Property name="text" type="java.lang.String" value="&#x2191;"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="topResizeActionPerformed"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JButton" name="rightResize">
       <Properties>
         <Property name="text" type="java.lang.String" value="&#x2192;"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="rightResizeActionPerformed"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JButton" name="bottomResize">
       <Properties>
         <Property name="text" type="java.lang.String" value="&#x2193;"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="bottomResizeActionPerformed"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JButton" name="leftResize">
       <Properties>
         <Property name="text" type="java.lang.String" value="&#x2190;"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="leftResizeActionPerformed"/>
+      </Events>
     </Component>
     <Container class="org.invenzzia.opentrans.client.ui.commons.Minimap" name="minimap1">
 

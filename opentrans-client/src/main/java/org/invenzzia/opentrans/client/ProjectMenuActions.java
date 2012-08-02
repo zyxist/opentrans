@@ -23,6 +23,7 @@ import org.invenzzia.helium.gui.annotation.Action;
 import org.invenzzia.helium.gui.exception.ViewConfigurationException;
 import org.invenzzia.helium.gui.ui.appframe.AppframeView;
 import org.invenzzia.helium.gui.ui.dialog.DefaultDialogController;
+import org.invenzzia.opentrans.client.ui.worldresize.WorldResizeController;
 import org.invenzzia.opentrans.client.ui.worldresize.WorldResizeView;
 import org.picocontainer.MutablePicoContainer;
 
@@ -42,6 +43,11 @@ public class ProjectMenuActions {
 	public void actionAbout() throws ViewConfigurationException {
 		MutablePicoContainer container = this.application.getCurrentContainer();
 		AppframeView appView = container.getComponent(AppframeView.class);
-		appView.displayDialog(container.getComponent(WorldResizeView.class), container.getComponent(DefaultDialogController.class));
+		
+		WorldResizeView view = container.getComponent(WorldResizeView.class);
+		WorldResizeController controller = container.getComponent(WorldResizeController.class);
+		view.setController(controller);
+		
+		appView.displayDialog(view, container.getComponent(DefaultDialogController.class));
 	}
 }

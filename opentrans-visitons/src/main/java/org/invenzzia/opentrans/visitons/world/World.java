@@ -233,4 +233,23 @@ public class World {
 	public World removeVertex(Vertex vertex) {
 		return this;
 	}
+	
+	/**
+	 * Prepares a map of segment usage. Each cell in the returned array represents
+	 * a segment. The 'true' flag indicates that the segment contains some visible
+	 * infrastructure data, and 'false' that the segment is unused.
+	 * 
+	 * @return Segment usage map.
+	 */
+	public boolean[][] exportSegmentUsage() {
+		boolean map[][] = new boolean[this.dimX][this.dimY];
+		
+		for(int i = 0; i < this.dimX; i++) {
+			for(int j = 0; j < this.dimY; j++) {
+				map[i][j] = this.segments[i][j].isUsed();
+			}
+		}
+		
+		return map;
+	}
 } // end World;

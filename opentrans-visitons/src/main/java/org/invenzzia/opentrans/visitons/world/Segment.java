@@ -79,6 +79,13 @@ public class Segment {
 	public int getY() {
 		return this.positionY;
 	} // end getY();
+	
+	/**
+	 * @return True, if the segment contains some infrastructural data or 'false' if it is empty.
+	 */
+	public boolean isUsed() {
+		return false;
+	}
 
 	/**
 	 * Adds a new vertex to the segment. Avoid using this method in favour of {@link World#addVertex}.
@@ -88,5 +95,5 @@ public class Segment {
 	 */
 	Segment addVertex(Vertex vertex) {
 		return this;
-	} // end addVertex();
+	}
 } // end Segment;

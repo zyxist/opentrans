@@ -20,6 +20,7 @@ package org.invenzzia.opentrans.client.ui.netview;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
 import java.awt.event.*;
 import java.util.LinkedList;
 import java.util.List;
@@ -28,6 +29,7 @@ import org.invenzzia.helium.activeobject.SchedulerManager;
 import org.invenzzia.helium.gui.model.InformationModel;
 import org.invenzzia.helium.gui.mvc.IController;
 import org.invenzzia.opentrans.client.concurrent.RenderScheduler;
+import org.invenzzia.opentrans.client.events.WorldSizeChangedEvent;
 import org.invenzzia.opentrans.visitons.render.CameraModel;
 import org.invenzzia.opentrans.visitons.render.ICameraModelListener;
 import org.slf4j.Logger;
@@ -106,11 +108,13 @@ public class NeteditController implements ComponentListener, AdjustmentListener,
 	public void attachEditorView(EditorView view) {
 		this.editorView = view;
 		this.editorView.addAdjustmentListener(this);
+		this.eventBus.register(this);
 	}
 	
 	public void detachEditorView(EditorView view) {
 		this.editorView.removeAdjustmentListener(this);
 		this.editorView = null;
+		this.eventBus.unregister(this);
 	}
 	
 	@Override
@@ -133,6 +137,11 @@ public class NeteditController implements ComponentListener, AdjustmentListener,
 		this.view.removeMouseMotionListener(this.commandTranslator);
 		this.view.removeComponentListener(this);
 		this.view = null;
+	}
+	
+	@Subscribe
+	public void notifyWorldSizeChanged(WorldSizeChangedEvent event) {
+		this.editorView.updateScrollbars();
 	}
 
 	@Override

@@ -21,7 +21,7 @@ import com.google.common.base.Preconditions;
 import javax.swing.SwingUtilities;
 import org.invenzzia.helium.activeobject.SchedulerManager;
 import org.invenzzia.helium.application.Application;
-import org.invenzzia.helium.gui.ActionManager;
+import org.invenzzia.helium.gui.actions.ActionManagerService;
 import org.invenzzia.helium.gui.context.AbstractContext;
 import org.invenzzia.helium.gui.events.StatusChangeEvent;
 import org.invenzzia.helium.gui.model.InformationModel;
@@ -39,7 +39,7 @@ import org.invenzzia.helium.gui.ui.workspace.WorkspaceDockModel;
 import org.invenzzia.opentrans.client.ProjectMenuActions;
 import org.invenzzia.opentrans.client.concurrent.RenderScheduler;
 import org.invenzzia.opentrans.client.editor.opmodes.DrawingMode;
-import org.invenzzia.opentrans.client.editor.opmodes.SelectionMode;
+import org.invenzzia.opentrans.client.editor.opmodes.selection.SelectionMode;
 import org.invenzzia.opentrans.client.projectmodel.WorldDescriptor;
 import org.invenzzia.opentrans.client.ui.explorer.ExplorerController;
 import org.invenzzia.opentrans.client.ui.explorer.ExplorerView;
@@ -145,7 +145,7 @@ public class ProjectContext extends AbstractContext {
 
 			}
 		});		
-		ActionManager actionManager = this.container.getComponent(ActionManager.class);
+		ActionManagerService actionManager = this.container.getComponent(ActionManagerService.class);
 		actionManager.registerActions(this.container.getComponent(ProjectMenuActions.class));
 		
 		this.initProjectMenu(this.container.getComponent(MenuView.class).getModel());
@@ -166,7 +166,7 @@ public class ProjectContext extends AbstractContext {
 		infoModel.setStatus("No project loaded.");
 		infoModel.setTitle("No project");
 		
-		ActionManager actionManager = this.container.getComponent(ActionManager.class);
+		ActionManagerService actionManager = this.container.getComponent(ActionManagerService.class);
 		actionManager.unregisterActions(this.container.getComponent(ProjectMenuActions.class));
 
 		SchedulerManager manager = this.container.getComponent(SchedulerManager.class);

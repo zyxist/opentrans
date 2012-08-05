@@ -34,4 +34,8 @@ public interface IOperationMode extends IOperation {
 	 * @return Menu model used to display a pop-up menu.
 	 */
 	public MenuModel getContextMenuModel();
+	/**
+	 * @return Class implementing the pop-up menu actions.
+	 */
+	public Class<?> getMenuActions();
 }

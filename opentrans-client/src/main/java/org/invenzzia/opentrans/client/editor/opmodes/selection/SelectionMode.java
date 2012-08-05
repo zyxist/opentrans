@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with OpenTrans. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.invenzzia.opentrans.client.editor.opmodes;
+package org.invenzzia.opentrans.client.editor.opmodes.selection;
 
 import com.google.common.eventbus.EventBus;
 import org.invenzzia.helium.gui.ContextManager;
@@ -66,5 +66,10 @@ public class SelectionMode implements IOperationMode {
 	@Override
 	public MenuModel getContextMenuModel() {
 		return this.contextMenuModel;
+	}
+	
+	@Override
+	public Class<?> getMenuActions() {
+		return SelectionMenuActions.class;
 	}
 }

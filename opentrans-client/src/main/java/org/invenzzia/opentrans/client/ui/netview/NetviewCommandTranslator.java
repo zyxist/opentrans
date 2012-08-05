@@ -20,8 +20,7 @@ package org.invenzzia.opentrans.client.ui.netview;
 import com.google.common.eventbus.EventBus;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import javax.swing.JPopupMenu;
-import org.invenzzia.helium.gui.ActionManager;
+import org.invenzzia.helium.gui.actions.ActionManagerService;
 import org.invenzzia.helium.gui.ui.menu.MenuController;
 import org.invenzzia.helium.gui.ui.menu.MenuModel;
 import org.invenzzia.helium.gui.ui.menu.PopupView;
@@ -38,9 +37,9 @@ public class NetviewCommandTranslator extends MouseAdapter {
 	private IOperationMode operationMode;
 	private MenuController controller;
 	private EventBus eventBus;
-	private ActionManager actionManager;
+	private ActionManagerService actionManager;
 	
-	public NetviewCommandTranslator(MenuController controller, EventBus eventBus, ActionManager actionManager) {
+	public NetviewCommandTranslator(MenuController controller, EventBus eventBus, ActionManagerService actionManager) {
 		this.controller = controller;
 		this.eventBus = eventBus;
 		this.actionManager = actionManager;

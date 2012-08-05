@@ -18,6 +18,9 @@
 package org.invenzzia.opentrans.visitons.render;
 
 import com.vividsolutions.jts.geom.Coordinate;
+import org.invenzzia.opentrans.visitons.utils.SegmentCoordinate;
+import org.invenzzia.opentrans.visitons.world.Segment;
+import org.invenzzia.opentrans.visitons.world.World;
 
 /**
  * Common parts of {@link CameraModel} and {@link CameraModelSnapshot}:
@@ -151,5 +154,31 @@ abstract public class AbstractCameraModelFoundation {
 	 */
 	public long world2pix(double length) {
 		return Math.round(length / this.mpp);
+	}
+	
+	/**
+	 * Calculates segment coordinate object from the viewport coordinates.
+	 * 
+	 * @param world Segment repository.
+	 * @param x Viewport X coordinate.
+	 * @param y Viewport Y coordinate.
+	 * @return Segment under the given coordinates and X,Y coordinates within this segment in world metres.
+	 */
+	public SegmentCoordinate constructSegmentCoordinate(World world, long x, long y) {
+		double wx = this.pix2worldX(x);
+		double wy = this.pix2worldY(y);
+		
+		if(wx < 0 || wy < 0 || wx >= world.getX() * SEGMENT_SIZE || wy >= world.getY() * SEGMENT_SIZE) {
+			return null;
+		}
+		
+		int sx = (int)Math.floor(wx / SEGMENT_SIZE);
+		int sy = (int)Math.floor(wy / SEGMENT_SIZE);
+		
+		Segment s = world.findSegment(sx, sy);
+		if(null != s) {
+			return new SegmentCoordinate(s, wx % SEGMENT_SIZE, wy % SEGMENT_SIZE);
+		}
+		return null;
 	}
 }

@@ -53,4 +53,9 @@ public class DrawingMode implements IOperationMode {
 	public MenuModel getContextMenuModel() {
 		return null;
 	}
+	
+	@Override
+	public Class<?> getMenuActions() {
+		return null;
+	}
 }

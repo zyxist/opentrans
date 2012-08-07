@@ -18,7 +18,7 @@
 package org.invenzzia.opentrans.client.editor.opmodes.selection;
 
 import com.google.common.eventbus.EventBus;
-import org.invenzzia.helium.gui.ContextManager;
+import org.invenzzia.helium.gui.ContextManagerService;
 import org.invenzzia.helium.gui.ui.menu.MenuModel;
 import org.invenzzia.helium.gui.ui.menu.element.Position;
 import org.invenzzia.opentrans.client.ui.netview.IOperationMode;
@@ -35,7 +35,7 @@ import org.invenzzia.opentrans.client.ui.netview.IOperationMode;
 public class SelectionMode implements IOperationMode {
 	private MenuModel contextMenuModel;
 	
-	public SelectionMode(EventBus eventBus, ContextManager contextManager) {
+	public SelectionMode(EventBus eventBus, ContextManagerService contextManager) {
 		this.contextMenuModel = new MenuModel(eventBus, contextManager);
 		this.contextMenuModel.appendElement(new Position("set-segment-bitmap", "Set segment bitmap", "setSegmentBitmap"));
 	}

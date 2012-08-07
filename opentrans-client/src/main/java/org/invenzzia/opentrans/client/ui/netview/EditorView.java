@@ -27,7 +27,7 @@ import java.awt.event.AdjustmentListener;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import javax.swing.*;
-import org.invenzzia.helium.gui.IconManager;
+import org.invenzzia.helium.gui.IconManagerService;
 import org.invenzzia.helium.gui.mvc.IView;
 import org.invenzzia.opentrans.visitons.render.CameraModel;
 import org.invenzzia.opentrans.visitons.render.ICameraModelListener;
@@ -64,13 +64,13 @@ public class EditorView extends JPanel implements IView<NeteditController>, ICam
 	/**
 	 * Resolving toolbar button icons.
 	 */
-	private IconManager iconManager;
+	private IconManagerService iconManager;
 	/**
 	 * Is the view attached to a component?
 	 */
 	private boolean attached = false;
 	
-	public EditorView(NeteditController controller, CameraView view, IconManager iconManager) {
+	public EditorView(NeteditController controller, CameraView view, IconManagerService iconManager) {
 		super(new GridBagLayout());
 		
 		this.iconManager = iconManager;

@@ -59,6 +59,11 @@ public class CameraView extends JViewport implements IView<NeteditController>, S
 	}
 	
 	@Override
+	public void setController(NeteditController controller) {
+		
+	}
+	
+	@Override
 	public void addNotify() {
 		super.addNotify();
 		this.controller.attachView(this);

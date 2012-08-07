@@ -17,7 +17,7 @@
  */
 package org.invenzzia.opentrans.client.ui.explorer;
 
-import org.invenzzia.helium.gui.ContextManager;
+import org.invenzzia.helium.gui.ContextManagerService;
 import org.invenzzia.helium.gui.mvc.IController;
 import org.invenzzia.helium.gui.ui.trees.HeliumTreeController;
 import org.invenzzia.helium.gui.ui.trees.HeliumTreeModel;
@@ -37,7 +37,7 @@ public class ExplorerController implements IController<ExplorerView> {
 	private HeliumTreeModel treeModel;
 	private HeliumTreeController treeController;
 
-	public ExplorerController(VisitonsProject project, HeliumTreeController treeController, ContextManager ctxMgr) {
+	public ExplorerController(VisitonsProject project, HeliumTreeController treeController, ContextManagerService ctxMgr) {
 		this.model = project;
 		this.treeController = treeController;
 		this.treeModel = new HeliumTreeModel(ctxMgr.getCurrentContainer());

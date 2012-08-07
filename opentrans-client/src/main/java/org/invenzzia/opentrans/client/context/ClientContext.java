@@ -18,24 +18,27 @@
 package org.invenzzia.opentrans.client.context;
 
 import com.google.common.eventbus.EventBus;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import javax.swing.SwingUtilities;
 import org.invenzzia.helium.application.Application;
-import org.invenzzia.helium.gui.IconManager;
+import org.invenzzia.helium.exceptions.ParseException;
+import org.invenzzia.helium.gui.IconManagerService;
 import org.invenzzia.helium.gui.annotation.Tasks;
 import org.invenzzia.helium.gui.context.AbstractContext;
 import org.invenzzia.helium.gui.events.SplashEvent;
+import org.invenzzia.helium.gui.ui.appframe.AppframeView;
 import org.invenzzia.helium.gui.ui.dock.*;
 import org.invenzzia.helium.gui.ui.dock.components.DockStatusMenu;
 import org.invenzzia.helium.gui.ui.dock.dock.SplitDock;
 import org.invenzzia.helium.gui.ui.menu.IMenuElementStorage;
-import org.invenzzia.helium.gui.ui.menu.MenuController;
 import org.invenzzia.helium.gui.ui.menu.MenuModel;
 import org.invenzzia.helium.gui.ui.menu.MenuView;
 import org.invenzzia.helium.gui.ui.menu.element.Menu;
 import org.invenzzia.helium.gui.ui.menu.element.Position;
 import org.invenzzia.helium.gui.ui.menu.element.Separator;
 import org.invenzzia.helium.gui.ui.welcome.WelcomeController;
+import org.invenzzia.helium.gui.ui.welcome.WelcomeModel;
 import org.invenzzia.helium.gui.ui.welcome.WelcomeView;
 import org.invenzzia.helium.gui.ui.workspace.WorkspaceDockModel;
 import org.invenzzia.helium.gui.ui.workspace.WorkspaceView;
@@ -155,22 +158,29 @@ public class ClientContext extends AbstractContext {
 	}
 	
 	public void initWelcomeScreen() {
-		WelcomeController controller = this.container.getComponent(WelcomeController.class);
-		controller.loadDefinition("Welcome");
-		
-		SwingUtilities.invokeLater(new Runnable() {
+		final WelcomeController controller = this.container.getComponent(WelcomeController.class);
+		final WelcomeModel model = this.container.getComponent(WelcomeModel.class);
+		try {
+			model.loadPage(ClientContext.class.getClassLoader().getResourceAsStream("welcome.xml"), "welcome.xml");
 
-			@Override
-			public void run() {
-				WelcomeView welcomeView = ClientContext.this.container.getComponent(MyWelcomeView.class);
-				
-				Dockable welcomeDockable = new Dockable(welcomeView, "Welcome");
-				
-				DockModel dockModel = ClientContext.this.container.getComponent(WorkspaceDockModel.class);
-				KnownPositions knownPositions = ClientContext.this.container.getComponent(KnownPositions.class);
-				dockModel.resolvePath(knownPositions.selectPath(welcomeDockable, "editor"), welcomeDockable);
-			}
-		});
+			SwingUtilities.invokeLater(new Runnable() {
+
+				@Override
+				public void run() {
+					WelcomeView welcomeView = new WelcomeView();
+					welcomeView.setModel(model);
+					welcomeView.setController(controller);
+
+					Dockable welcomeDockable = new Dockable(welcomeView, "Welcome");
+
+					DockModel dockModel = ClientContext.this.container.getComponent(WorkspaceDockModel.class);
+					KnownPositions knownPositions = ClientContext.this.container.getComponent(KnownPositions.class);
+					dockModel.resolvePath(knownPositions.selectPath(welcomeDockable, "editor"), welcomeDockable);
+				}
+			});
+		} catch(IOException | ParseException exception) {
+			this.container.getComponent(AppframeView.class).displayError("Error loading welcome.xml", exception);
+		}
 	}
 	
 	/**
@@ -178,7 +188,7 @@ public class ClientContext extends AbstractContext {
 	 */
 	public void loadIcons() {
 		try {
-			final IconManager iconManager = this.container.getComponent(IconManager.class);
+			final IconManagerService iconManager = this.container.getComponent(IconManagerService.class);
 			final ClassLoader currentLoader = this.getClass().getClassLoader();
 			SwingUtilities.invokeAndWait(new Runnable() {
 				@Override

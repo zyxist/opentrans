@@ -18,7 +18,7 @@
 package org.invenzzia.opentrans.client.ui.explorer;
 
 import javax.swing.JPanel;
-import org.invenzzia.helium.gui.IconManager;
+import org.invenzzia.helium.gui.IconManagerService;
 import org.invenzzia.helium.gui.mvc.IView;
 import org.invenzzia.helium.gui.ui.trees.HeliumTreeController;
 import org.invenzzia.helium.gui.ui.trees.HeliumTreeView;
@@ -35,7 +35,7 @@ public class ExplorerView extends JPanel implements IView<ExplorerController> {
 	/**
 	 * Used for displaying icons.
 	 */
-	private IconManager iconManager;
+	private IconManagerService iconManager;
 	
 	/**
 	 * Creates new form ExplorerView
@@ -50,7 +50,7 @@ public class ExplorerView extends JPanel implements IView<ExplorerController> {
 		this.setController(controller);
 	}
 	
-	public ExplorerView(ExplorerController controller, IconManager manager) {
+	public ExplorerView(ExplorerController controller, IconManagerService manager) {
 		this(controller);
 		this.iconManager = manager;
 		this.treeView.setIconManager(iconManager);

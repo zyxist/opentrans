@@ -16,7 +16,7 @@ import org.invenzzia.helium.gui.ui.welcome.WelcomeView;
  */
 public class MyWelcomeView extends WelcomeView {
 	public MyWelcomeView(WelcomeController controller) {
-		super(controller);
+		super();
 		this.setPreferredSize(new Dimension(600, 600));
 	}
 }

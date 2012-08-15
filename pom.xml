@@ -56,11 +56,6 @@
 		</dependency>
 		<dependency>
 			<groupId>org.invenzzia</groupId>
-			<artifactId>helium-forms</artifactId>
-			<version>${helium.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.invenzzia</groupId>
 			<artifactId>helium-gui</artifactId>
 			<version>${helium.version}</version>
 		</dependency>

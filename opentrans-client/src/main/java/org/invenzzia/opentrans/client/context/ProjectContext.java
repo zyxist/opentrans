@@ -18,6 +18,7 @@
 package org.invenzzia.opentrans.client.context;
 
 import com.google.common.base.Preconditions;
+import com.google.common.eventbus.EventBus;
 import javax.swing.SwingUtilities;
 import org.invenzzia.helium.activeobject.SchedulerManager;
 import org.invenzzia.helium.application.Application;
@@ -29,7 +30,6 @@ import org.invenzzia.helium.gui.ui.dock.DockModel;
 import org.invenzzia.helium.gui.ui.dock.Dockable;
 import org.invenzzia.helium.gui.ui.dock.KnownPositions;
 import org.invenzzia.helium.gui.ui.menu.IMenuElementStorage;
-import org.invenzzia.helium.gui.ui.menu.MenuController;
 import org.invenzzia.helium.gui.ui.menu.MenuModel;
 import org.invenzzia.helium.gui.ui.menu.MenuView;
 import org.invenzzia.helium.gui.ui.menu.element.Menu;
@@ -172,7 +172,7 @@ public class ProjectContext extends AbstractContext {
 		SchedulerManager manager = this.container.getComponent(SchedulerManager.class);
 		manager.stop("renderer");
 			
-		this.application.getEventBus().post(new StatusChangeEvent("Project '"+this.project.getName()+"' closed."));
+		this.application.get(EventBus.class).post(new StatusChangeEvent("Project '"+this.project.getName()+"' closed."));
 		this.logger.info("Project '{}' has been closed.", this.project.getName());
 		return true;
 	}

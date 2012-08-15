@@ -18,6 +18,7 @@
 package org.invenzzia.opentrans.client;
 
 import com.google.common.base.Preconditions;
+import com.google.common.eventbus.EventBus;
 import org.invenzzia.helium.application.Application;
 import org.invenzzia.helium.gui.annotation.Action;
 import org.invenzzia.helium.gui.exception.ViewConfigurationException;
@@ -54,6 +55,6 @@ public class ProjectMenuActions {
 		
 		// Once the dialog is closed, we must refresh some data.
 		VisitonsProject project = container.getComponent(VisitonsProject.class);
-		this.application.getEventBus().post(new WorldSizeChangedEvent(project.getWorld()));
+		this.application.get(EventBus.class).post(new WorldSizeChangedEvent(project.getWorld()));
 	}
 }

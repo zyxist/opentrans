@@ -24,6 +24,7 @@ import javax.swing.SwingUtilities;
 import org.invenzzia.helium.application.Application;
 import org.invenzzia.helium.exceptions.ParseException;
 import org.invenzzia.helium.gui.IconManagerService;
+import org.invenzzia.helium.gui.actions.ActionManagerService;
 import org.invenzzia.helium.gui.annotation.Tasks;
 import org.invenzzia.helium.gui.context.AbstractContext;
 import org.invenzzia.helium.gui.events.SplashEvent;
@@ -70,12 +71,11 @@ public class ClientContext extends AbstractContext {
 		this.logger.info("OpenTrans client is being opened.");
 		this.container.start();
 		
-		EventBus eventBus = this.application.getEventBus();
-		eventBus.post(new SplashEvent(8, "Loading icons..."));
+		this.eventBus.post(new SplashEvent(8, "Loading icons..."));
 		this.logger.info("Loading icons.");
 		this.loadIcons();
 		
-		eventBus.post(new SplashEvent(2, "Initializing OpenTrans environment..."));
+		this.eventBus.post(new SplashEvent(2, "Initializing OpenTrans environment..."));
 		this.logger.info("Initializing client menu.");
 		this.initClientMenu(this.container.getComponent(MenuView.class).getModel());
 		this.logger.info("Initializing docking system.");
@@ -154,7 +154,7 @@ public class ClientContext extends AbstractContext {
 	}
 	
 	public void initActions() {
-		this.application.getActionManager().registerActions(new MenuActions(this.application));
+		this.application.get(ActionManagerService.class).registerActions(new MenuActions(this.application));
 	}
 	
 	public void initWelcomeScreen() {

@@ -17,15 +17,17 @@
  */
 package org.invenzzia.opentrans.client;
 
+import java.io.File;
 import org.invenzzia.helium.application.Application;
 import org.invenzzia.opentrans.client.context.ClientContext;
+import org.picocontainer.MutablePicoContainer;
 
 /**
  * The main class for the application.
  * 
  * @author Tomasz Jędrzejewski
  */
-public class OpenTrans {
+public class OpenTrans extends Application {
 	public static final String VERSION = "0.1.0";
 	
 	/**
@@ -39,7 +41,8 @@ public class OpenTrans {
 	 * @param args 
 	 */
 	public static void main(String args[]) {
-		Application theApp = new Application("storage.xml");
+		System.setProperty("org.invenzzia.helium.preferenceFile", System.getProperty("user.dir")+File.pathSeparator+".opentrans"+File.pathSeparator+"preferences.conf");
+		OpenTrans theApp = new OpenTrans();
 		theApp.run(ClientContext.class);
-	} // end main();
-} // end OpenTrans;
+	}
+}

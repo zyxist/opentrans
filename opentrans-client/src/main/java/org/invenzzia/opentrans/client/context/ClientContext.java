@@ -17,9 +17,9 @@
  */
 package org.invenzzia.opentrans.client.context;
 
-import com.google.common.eventbus.EventBus;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import javax.inject.Inject;
 import javax.swing.SwingUtilities;
 import org.invenzzia.helium.application.Application;
 import org.invenzzia.helium.exceptions.ParseException;
@@ -28,13 +28,12 @@ import org.invenzzia.helium.gui.actions.ActionManagerService;
 import org.invenzzia.helium.gui.annotation.Tasks;
 import org.invenzzia.helium.gui.context.AbstractContext;
 import org.invenzzia.helium.gui.events.SplashEvent;
+import org.invenzzia.helium.gui.mvc.ModelService;
 import org.invenzzia.helium.gui.ui.appframe.AppframeView;
 import org.invenzzia.helium.gui.ui.dock.*;
 import org.invenzzia.helium.gui.ui.dock.components.DockStatusMenu;
-import org.invenzzia.helium.gui.ui.dock.dock.SplitDock;
 import org.invenzzia.helium.gui.ui.menu.IMenuElementStorage;
 import org.invenzzia.helium.gui.ui.menu.MenuModel;
-import org.invenzzia.helium.gui.ui.menu.MenuView;
 import org.invenzzia.helium.gui.ui.menu.element.Menu;
 import org.invenzzia.helium.gui.ui.menu.element.Position;
 import org.invenzzia.helium.gui.ui.menu.element.Separator;
@@ -42,10 +41,7 @@ import org.invenzzia.helium.gui.ui.welcome.WelcomeController;
 import org.invenzzia.helium.gui.ui.welcome.WelcomeModel;
 import org.invenzzia.helium.gui.ui.welcome.WelcomeView;
 import org.invenzzia.helium.gui.ui.workspace.WorkspaceDockModel;
-import org.invenzzia.helium.gui.ui.workspace.WorkspaceView;
 import org.invenzzia.opentrans.client.MenuActions;
-import org.invenzzia.opentrans.client.MyWelcomeView;
-import org.picocontainer.Characteristics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,10 +56,30 @@ public class ClientContext extends AbstractContext {
 	private final Logger logger = LoggerFactory.getLogger(ClientContext.class);
 	
 	private DockStatusMenu dockStatusMenu;
+	/**
+	 * For registrations within the docking system.
+	 */
+	private KnownPositions knownPositions;
+	/**
+	 * Access global models.
+	 */
+	private ModelService modelService;
 	
 	public ClientContext(Application application) {
 		super(application);
-		this.container.as(Characteristics.NO_CACHE).addComponent(MyWelcomeView.class);
+		this.registerManagedClasses(new Object[][] {
+			{ ProjectContext.class },
+		});
+	}
+	
+	@Inject
+	public void setKnownPositions(KnownPositions kp) {
+		this.knownPositions = kp;
+	}
+	
+	@Inject
+	public void setModelService(ModelService ms) {
+		this.modelService = ms;
 	}
 
 	@Override
@@ -77,9 +93,7 @@ public class ClientContext extends AbstractContext {
 		
 		this.eventBus.post(new SplashEvent(2, "Initializing OpenTrans environment..."));
 		this.logger.info("Initializing client menu.");
-		this.initClientMenu(this.container.getComponent(MenuView.class).getModel());
-		this.logger.info("Initializing docking system.");
-		this.initDockingSystem();
+		this.initClientMenu(this.modelService.get(MenuModel.class));
 		this.logger.info("Initializing actions.");
 		this.initActions();
 		this.logger.info("Initializing welcome screen.");
@@ -130,29 +144,6 @@ public class ClientContext extends AbstractContext {
 		}
 	}
 	
-	/**
-	 * Initially configures the docking system.
-	 */
-	private void initDockingSystem() {
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				SplitDock rootSplitDock = new SplitDock();
-				
-				DockModel dockModel = ClientContext.this.container.getComponent(WorkspaceDockModel.class);
-				dockModel.addRootDock("root", rootSplitDock);
-
-				KnownPositions knownPositions = ClientContext.this.container.getComponent(KnownPositions.class);
-				knownPositions.addPosition("editor", new DockingPath("root", new Location(Location.RIGHT), new Location(Location.TOP), new Location(0)));
-				knownPositions.addPosition("explorer", new DockingPath("root", new Location(Location.LEFT), new Location(Location.TOP), new Location(0)));
-				knownPositions.addPosition("minimap", new DockingPath("root", new Location(Location.LEFT), new Location(Location.BOTTOM), new Location(0)));
-				knownPositions.addPosition("properties", new DockingPath("root", new Location(Location.RIGHT), new Location(Location.BOTTOM), new Location(0)));
-
-				ClientContext.this.container.getComponent(WorkspaceView.class).setNestedComponent(rootSplitDock);
-			}
-		});
-	}
-	
 	public void initActions() {
 		this.application.get(ActionManagerService.class).registerActions(new MenuActions(this.application));
 	}
@@ -172,9 +163,7 @@ public class ClientContext extends AbstractContext {
 					welcomeView.setController(controller);
 
 					Dockable welcomeDockable = new Dockable(welcomeView, "Welcome");
-
-					DockModel dockModel = ClientContext.this.container.getComponent(WorkspaceDockModel.class);
-					KnownPositions knownPositions = ClientContext.this.container.getComponent(KnownPositions.class);
+					DockModel dockModel = modelService.get(WorkspaceDockModel.class);
 					dockModel.resolvePath(knownPositions.selectPath(welcomeDockable, "editor"), welcomeDockable);
 				}
 			});

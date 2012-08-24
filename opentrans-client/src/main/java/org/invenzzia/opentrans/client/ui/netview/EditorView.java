@@ -19,12 +19,10 @@ package org.invenzzia.opentrans.client.ui.netview;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.AdjustmentListener;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import javax.swing.*;
 import org.invenzzia.helium.gui.IconManagerService;
@@ -58,6 +56,10 @@ public class EditorView extends JPanel implements IView<NeteditController>, ICam
 	 */
 	private BiMap<IOperation, JComponent> operationButtons = HashBiMap.create();
 	/**
+	 * The nested view displayed in the middle of this one.
+	 */
+	private CameraDrawer cameraDrawer;
+	/**
 	 * Camera viewport model - what we are observing?
 	 */
 	private CameraModel model;
@@ -70,63 +72,14 @@ public class EditorView extends JPanel implements IView<NeteditController>, ICam
 	 */
 	private boolean attached = false;
 	
-	public EditorView(NeteditController controller, CameraView view, IconManagerService iconManager) {
+	public EditorView() {
 		super(new GridBagLayout());
-		
-		this.iconManager = iconManager;
-		this.model = controller.getModel();
-
-		this.initComponents(view);
-		this.setController(controller);
-	}
-	
-	@Override
-	public NeteditController getController() {
-		return this.controller;
-	}
-	
-	public final void setController(NeteditController controller) {
-		if(null != this.controller) {
-			this.removeOperationButtons();
-			this.controller.detachEditorView(this);
-			this.model.removeCameraModelListener(this);
-			this.attached = false;
-		}
-		this.controller = controller;
-		if(null != this.controller) {
-			this.attached = true;
-			this.updateOperationButtons();
-			this.controller.attachEditorView(this);
-			this.model.addCameraModelListener(this);
-		}
-	}
-
-	
-	public void addAdjustmentListener(AdjustmentListener listener) {
-		this.horizontalBar.addAdjustmentListener(listener);
-		this.verticalBar.addAdjustmentListener(listener);
-	}
-	
-	public void removeAdjustmentListener(AdjustmentListener listener) {
-		this.horizontalBar.removeAdjustmentListener(listener);
-		this.verticalBar.removeAdjustmentListener(listener);
-	}
-	
-	public int getHorizontalScrollValue() {
-		return this.horizontalBar.getValue();
-	}
-	
-	public int getVerticalScrollValue() {
-		return this.verticalBar.getValue();
-	}
-
-	private void initComponents(Component component) {
-		this.horizontalRuler = new Ruler(this.model, Ruler.HORIZONTAL);
+		this.horizontalRuler = new Ruler(Ruler.HORIZONTAL);
 		this.horizontalRuler.setPreferredSize(600);
 		
-		this.verticalRuler = new Ruler(this.model, Ruler.VERTICAL);		
+		this.verticalRuler = new Ruler(Ruler.VERTICAL);
 		this.verticalRuler.setPreferredSize(600);
-		
+
 		this.horizontalBar = new JScrollBar(JScrollBar.HORIZONTAL);
 		this.horizontalBar.setMinimum(0);
 		this.horizontalBar.setPreferredSize(new Dimension(600, 18));
@@ -141,7 +94,8 @@ public class EditorView extends JPanel implements IView<NeteditController>, ICam
 		
 		this.updateScrollbars();
 		
-		component.setPreferredSize(new Dimension(1200, 700));
+		this.cameraDrawer = new CameraDrawer();
+		this.cameraDrawer.setPreferredSize(new Dimension(1200, 700));
 		
 		GridBagConstraints c = new GridBagConstraints();
 		c.gridwidth = 3;
@@ -152,8 +106,7 @@ public class EditorView extends JPanel implements IView<NeteditController>, ICam
 		c.weightx = 1.0;
 		c.weighty = 0.0;
 		this.add(this.toolBar, c);
-		
-		
+
 		c.gridwidth = c.gridheight = 1;
 		c.gridx = 1;
 		c.gridy = 1;
@@ -184,15 +137,99 @@ public class EditorView extends JPanel implements IView<NeteditController>, ICam
 		c.fill = GridBagConstraints.BOTH;
 		c.weightx = 1.0;
 		c.weighty = 1.0;
-		this.add(component, c);
+		this.add(this.cameraDrawer, c);
+	}
+	
+	public EditorView(IconManagerService iconManager) {
+		this();
+		this.setIconManagerService(iconManager);
+	}
+	
+	public void setCameraModel(CameraModel model) {
+		if(null != this.model) {
+			this.horizontalRuler.setModel(null);
+			this.verticalRuler.setModel(null);
+			this.updateScrollbars();
+			this.model.removeCameraModelListener(this);
+		}
+		this.model = model;
+		if(null != this.model) {
+			this.horizontalRuler.setModel(model);
+			this.verticalRuler.setModel(model);
+			this.updateScrollbars();
+			this.model.addCameraModelListener(this);
+		}
+	}
+	
+	public CameraModel getCameraModel() {
+		return this.model;
+	}
+	
+	@Override
+	public NeteditController getController() {
+		return this.controller;
+	}
+	
+	@Override
+	public final void setController(NeteditController controller) {
+		if(null != this.controller) {
+			this.removeOperationButtons();
+			this.controller.detachView(this);
+			this.attached = false;
+		}
+		this.controller = controller;
+		if(null != this.controller) {
+			this.attached = true;
+			this.updateOperationButtons();
+			this.controller.attachView(this);
+		}
+	}
+	
+	public final void setCameraDrawer(CameraDrawer view) {
+		this.cameraDrawer = view;
+	}
+	
+	public final CameraDrawer getCameraDrawer() {
+		return this.cameraDrawer;
+	}
+	
+	public final void setIconManagerService(IconManagerService iconManager) {
+		this.iconManager = iconManager;
+	}
+
+	
+	public void addAdjustmentListener(AdjustmentListener listener) {
+		this.horizontalBar.addAdjustmentListener(listener);
+		this.verticalBar.addAdjustmentListener(listener);
+	}
+	
+	public void removeAdjustmentListener(AdjustmentListener listener) {
+		this.horizontalBar.removeAdjustmentListener(listener);
+		this.verticalBar.removeAdjustmentListener(listener);
+	}
+	
+	public int getHorizontalScrollValue() {
+		return this.horizontalBar.getValue();
+	}
+	
+	public int getVerticalScrollValue() {
+		return this.verticalBar.getValue();
 	}
 
 	public void updateScrollbars() {
-		this.horizontalBar.setMaximum((int) this.model.getSizeX());
-		this.verticalBar.setMaximum((int) this.model.getSizeY());
-		
-		this.horizontalBar.setVisibleAmount((int) this.model.getViewportWidth());
-		this.verticalBar.setVisibleAmount((int) this.model.getViewportHeight());
+		if(null != this.model) {
+			this.horizontalBar.setMaximum((int) this.model.getSizeX());
+			this.verticalBar.setMaximum((int) this.model.getSizeY());
+
+			this.horizontalBar.setVisibleAmount((int) this.model.getViewportWidth());
+			this.verticalBar.setVisibleAmount((int) this.model.getViewportHeight());
+		} else {
+			this.horizontalBar.setMaximum(1000);
+			this.verticalBar.setMaximum(1000);
+
+			this.horizontalBar.setVisibleAmount(1000);
+			this.verticalBar.setVisibleAmount(1000);
+		}
 	}
 	
 	@Override
@@ -206,7 +243,9 @@ public class EditorView extends JPanel implements IView<NeteditController>, ICam
 			JComponent component;
 			if(operation instanceof IOperationMode) {
 				JToggleButton tgb = new JToggleButton();
-				tgb.setIcon(this.iconManager.getIcon(operation.getIcon()));
+				if(null != this.iconManager) {
+					tgb.setIcon(this.iconManager.getIcon(operation.getIcon()));
+				}
 				tgb.setToolTipText(operation.getName());
 				
 				if(operation == this.controller.getCurrentOperationMode()) {
@@ -217,7 +256,9 @@ public class EditorView extends JPanel implements IView<NeteditController>, ICam
 				component = tgb;
 			} else {
 				JButton btn = new JButton();
-				btn.setIcon(this.iconManager.getIcon(operation.getIcon()));
+				if(null != this.iconManager) {
+					btn.setIcon(this.iconManager.getIcon(operation.getIcon()));
+				}
 				btn.setToolTipText(operation.getName());
 				btn.addActionListener(this.controller);
 				component = btn;

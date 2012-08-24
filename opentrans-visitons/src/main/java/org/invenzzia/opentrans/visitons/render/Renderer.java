@@ -54,7 +54,7 @@ public final class Renderer implements ICameraModelListener {
 	/**
 	 * Viewport information.
 	 */
-	private final CameraModel model;
+	private CameraModel model;
 	/**
 	 * Rendered world.
 	 */
@@ -80,24 +80,41 @@ public final class Renderer implements ICameraModelListener {
 	 */
 	private List<Segment> visibleSegments = new LinkedList<>();
 	
-	public Renderer(CameraModel model, World world) {
-		int width = model.getViewportWidthPx();
-		int height = model.getViewportHeightPx();
-		if(width <= 0) {
-			width = 100;
-		}
-		if(height <= 0) {
-			height = 100;
-		}
-		this.viewport = new CameraModelSnapshot(model);
+	public Renderer(World world) {
 		this.world = Preconditions.checkNotNull(world, "The renderer cannot operate without a world model.");
-		this.model = Preconditions.checkNotNull(model, "The renderer cannot operate without an active camera model.");
-		this.servedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-		this.drawnImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-
-		this.model.addCameraModelListener(this);
+	}
+	
+	public void setCameraModel(CameraModel model) {
 		
-		this.findVisibleSegments();
+		if(null != model) {
+			int width = model.getViewportWidthPx();
+			int height = model.getViewportHeightPx();
+			if(width <= 0) {
+				width = 100;
+			}
+			if(height <= 0) {
+				height = 100;
+			}
+			this.viewport = new CameraModelSnapshot(model);
+			this.servedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+			this.drawnImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+
+			model.addCameraModelListener(this);
+
+			this.findVisibleSegments();
+			this.model = model;
+		} else {
+			this.model = model;
+			this.servedImage = null;
+			this.drawnImage = null;
+			this.viewport = null;
+			this.visibleSegments.clear();
+		}
+		
+	}
+	
+	public CameraModel getCameraModel() {
+		return this.model;
 	}
 	
 	/**

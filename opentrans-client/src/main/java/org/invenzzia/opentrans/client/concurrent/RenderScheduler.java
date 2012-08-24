@@ -17,9 +17,9 @@
  */
 package org.invenzzia.opentrans.client.concurrent;
 
-import javax.swing.SwingUtilities;
 import org.invenzzia.helium.activeobject.AbstractScheduler;
-import org.invenzzia.opentrans.client.ui.netview.CameraView;
+import org.invenzzia.helium.activeobject.IMethodRequest;
+import org.invenzzia.opentrans.client.ui.netview.CameraDrawer;
 import org.invenzzia.opentrans.visitons.render.Renderer;
 
 /**
@@ -38,7 +38,7 @@ public class RenderScheduler extends AbstractScheduler {
 	/**
 	 * Send here the repaint requests on every frame.
 	 */
-	private CameraView cameraView;
+	private CameraDrawer cameraView;
 	/**
 	 * The rendering time of the previous frame.
 	 */
@@ -61,11 +61,11 @@ public class RenderScheduler extends AbstractScheduler {
 		return this.renderer;
 	}
 	
-	public void setCameraView(CameraView cameraView) {
+	public void setCameraView(CameraDrawer cameraView) {
 		this.cameraView = cameraView;
 	}
 	
-	public CameraView getCameraView() {
+	public CameraDrawer getCameraView() {
 		return this.cameraView;
 	}
 
@@ -81,12 +81,10 @@ public class RenderScheduler extends AbstractScheduler {
 			this.renderer.render(this.prevTime);
 		}
 		this.prevTime = System.currentTimeMillis() - d0;
-		
 		// Send the repaint request to Swing
 		if(null != this.cameraView) {
 			this.cameraView.repaint();
 		}
-		
 		// Suspend the execution to provide a constant frame rate.
 		if(this.prevTime < RenderScheduler.FRAME_TIME) {
 			Thread.sleep(RenderScheduler.FRAME_TIME - this.prevTime);
@@ -94,5 +92,4 @@ public class RenderScheduler extends AbstractScheduler {
 			Thread.sleep(3);
 		}
 	}
-
 }

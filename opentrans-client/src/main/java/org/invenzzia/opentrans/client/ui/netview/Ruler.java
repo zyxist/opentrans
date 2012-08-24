@@ -46,11 +46,29 @@ public class Ruler extends JComponent implements ICameraModelListener {
 	public Ruler() {
 		this.model = null;
 		this.orientation = Ruler.HORIZONTAL;
+		this.setMinimumSize(new Dimension(Ruler.SIZE, Ruler.SIZE));
+	}
+	
+	public Ruler(int orientation) {
+		this.model = null;
+		this.orientation = orientation;
+		this.setMinimumSize(new Dimension(Ruler.SIZE, Ruler.SIZE));
 	}
 
 	public Ruler(CameraModel model, int orientation) {
 		this.model = Preconditions.checkNotNull(model);
 		this.orientation = orientation;
+	}
+	
+	public void setModel(CameraModel model) {
+		this.model = Preconditions.checkNotNull(model);
+		if(null != this.model) {
+			this.repaint();
+		}
+	}
+	
+	public CameraModel getModel() {
+		return this.model;
 	}
 	
 	public int getOrientation() {

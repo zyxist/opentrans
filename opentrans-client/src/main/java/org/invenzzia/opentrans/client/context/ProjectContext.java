@@ -19,13 +19,20 @@ package org.invenzzia.opentrans.client.context;
 
 import com.google.common.base.Preconditions;
 import com.google.common.eventbus.EventBus;
+import javax.inject.Inject;
 import javax.swing.SwingUtilities;
 import org.invenzzia.helium.activeobject.SchedulerManager;
 import org.invenzzia.helium.application.Application;
+import org.invenzzia.helium.gui.IconManagerService;
 import org.invenzzia.helium.gui.actions.ActionManagerService;
 import org.invenzzia.helium.gui.context.AbstractContext;
 import org.invenzzia.helium.gui.events.StatusChangeEvent;
 import org.invenzzia.helium.gui.model.InformationModel;
+import org.invenzzia.helium.gui.mvc.ControllerService;
+import org.invenzzia.helium.gui.mvc.IController;
+import org.invenzzia.helium.gui.mvc.IView;
+import org.invenzzia.helium.gui.mvc.ModelService;
+import org.invenzzia.helium.gui.mvc.ViewService;
 import org.invenzzia.helium.gui.ui.dock.DockModel;
 import org.invenzzia.helium.gui.ui.dock.Dockable;
 import org.invenzzia.helium.gui.ui.dock.KnownPositions;
@@ -45,7 +52,7 @@ import org.invenzzia.opentrans.client.ui.explorer.ExplorerController;
 import org.invenzzia.opentrans.client.ui.explorer.ExplorerView;
 import org.invenzzia.opentrans.client.ui.minimap.MinimapController;
 import org.invenzzia.opentrans.client.ui.minimap.MinimapView;
-import org.invenzzia.opentrans.client.ui.netview.CameraView;
+import org.invenzzia.opentrans.client.ui.netview.CameraDrawer;
 import org.invenzzia.opentrans.client.ui.netview.EditorView;
 import org.invenzzia.opentrans.client.ui.netview.NeteditController;
 import org.invenzzia.opentrans.client.ui.netview.NetviewCommandTranslator;
@@ -69,36 +76,107 @@ import org.slf4j.LoggerFactory;
 public class ProjectContext extends AbstractContext {
 	private final Logger logger = LoggerFactory.getLogger(ProjectContext.class);
 	private VisitonsProject project;
+	
+	/**
+	 * For registrations within the docking system.
+	 */
+	private KnownPositions knownPositions;
+	/**
+	 * Access global models.
+	 */
+	private ModelService modelService;
+	/**
+	 * Service, where we shall register extra views.
+	 */
+	private ViewService viewService;
+	/**
+	 * Service, where we shall register extra controllers.
+	 */
+	private ControllerService controllerService;
+	/**
+	 * Registration of the project-specific threads: the renderer and the model loop.
+	 */
+	private SchedulerManager schedulerManager;
+	/**
+	 * For registering actions.
+	 */
+	private ActionManagerService actionManager;
+	/**
+	 * The renderer instance.
+	 */
+	private Renderer renderer;
 
-	public ProjectContext(Application application, VisitonsProject project) {
+	public ProjectContext(Application application) {
 		super(application);
-		this.project = Preconditions.checkNotNull(project, "Cannot create a project context without a project.");
-		
-		this.container.addComponent(EditorView.class)
-			.addComponent(CameraView.class)
-			.addComponent(NeteditController.class)
-			.addComponent(NetviewCommandTranslator.class)
-			.addComponent(Renderer.class)
-			.addComponent(CameraModel.class)
-			.addComponent(VisitonsProject.class, this.project)
-			.addComponent(ExplorerView.class)
-			.addComponent(ExplorerController.class)
-			.addComponent(World.class, this.project.getWorld())
-			.addComponent(MinimapView.class)
-			.addComponent(MinimapController.class)
-			.addComponent(ProjectMenuActions.class)
-			.addComponent(WorldResizeView.class)
-			.addComponent(WorldResizeController.class)
-			
-			// Editor
-			.addComponent(SelectionMode.class)
-			.addComponent(DrawingMode.class)
-			
-			// Rendering
-			.addComponent(GridStream.class)
-			
-			// Project model
-			.addComponent(WorldDescriptor.class);
+		this.initProjectContainer();
+	}
+	
+	@Inject
+	public void setKnownPositions(KnownPositions kp) {
+		this.knownPositions = kp;
+	}
+
+	@Inject
+	public void setSchedulerManager(SchedulerManager schedulerManager) {
+		this.schedulerManager = schedulerManager;
+	}
+	
+	@Inject
+	public void setControllerService(ControllerService service) {
+		this.controllerService = service;
+	}
+	
+	@Inject
+	public void setModelService(ModelService service) {
+		this.modelService = service;
+	}
+
+	@Inject
+	public void setViewService(ViewService service) {
+		this.viewService = service;
+	}
+
+	@Inject
+	public void setActionManager(ActionManagerService actionManager) {
+		this.actionManager = actionManager;
+	}
+	
+	/**
+	 * This method must be called before starting this context. It passes the processed project
+	 * to the context. Once set, the project cannot be changed for this context.
+	 * 
+	 * @param project 
+	 */
+	public void setVisitonsProject(VisitonsProject project) {
+		if(null == this.project) {
+			this.project = Preconditions.checkNotNull(project, "Cannot set an empty project.");
+			this.registerManagedCachedClasses(new Object[][] {
+				{ VisitonsProject.class, this.project },
+				{ World.class, this.project.getWorld() }
+			});
+		}
+	}
+
+	/**
+	 * Initializes the DI scope for this context.
+	 */
+	private void initProjectContainer() {
+		this.registerManagedClasses(new Object[][] {
+			{ NeteditController.class },
+			{ NetviewCommandTranslator.class },
+			{ CameraModel.class },
+			{ ExplorerController.class },
+			{ MinimapController.class },
+			{ ProjectMenuActions.class },
+			{ WorldResizeController.class },
+			{ SelectionMode.class },
+			{ DrawingMode.class },
+			{ GridStream.class },
+			{ Renderer.class },
+		});
+		this.registerManagedCachedClasses(new Object[][] { 
+			{ WorldDescriptor.class },
+		});
 	}
 	
 	public VisitonsProject getProject() {
@@ -107,52 +185,33 @@ public class ProjectContext extends AbstractContext {
 	
 	@Override
 	protected boolean startup() {
+		if(null == this.project) {
+			this.logger.error("Cannot start the project: no project defined.");
+			return false;
+		}
+		
 		this.logger.info("Project '{}' is being opened.", this.project.getName());
 		this.container.start();
 		
-		this.logger.debug("Initializing project renderer.");
-		SchedulerManager manager = this.container.getComponent(SchedulerManager.class);
-		if(!manager.hasScheduler("renderer")) {
-			RenderScheduler scheduler = new RenderScheduler("renderer");
-			scheduler.setRenderer(this.constructRenderer());
-			manager.addScheduler(scheduler);
-		}
-		manager.start("renderer");
+		this.logger.debug("Initializing project models.");
+		this.initModels();
 		
-		this.logger.debug("Initializing project views.");
+		this.logger.debug("Initializing project renderer.");
+		this.initRenderer();
+		
+		this.logger.debug("Initializing project GUI.");
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-				MutablePicoContainer container = ProjectContext.this.container;
-				
-				EditorView edView = container.getComponent(EditorView.class);
-				ExplorerView exView = container.getComponent(ExplorerView.class);
-				MinimapView minimapView = container.getComponent(MinimapView.class);
-				MinimapController minimapController = container.getComponent(MinimapController.class);
-				minimapView.setController(minimapController);
-
-				DockModel dockModel = container.getComponent(WorkspaceDockModel.class);
-				KnownPositions knownPositions = container.getComponent(KnownPositions.class);
-				
-				ProjectContext.this.initNetworkView();
-				
-				Dockable dockable = new Dockable(edView, "Network editor", "visitons-netedit");
-				dockModel.resolvePath(knownPositions.selectPath(dockable, "editor"), dockable);
-				dockable = new Dockable(minimapView, "Minimap");
-				dockModel.resolvePath(knownPositions.selectPath(dockable, "minimap"), dockable);
-				dockable = new Dockable(exView, "Project");
-				dockModel.resolvePath(knownPositions.selectPath(dockable, "explorer"), dockable);
-
+				ProjectContext.this.initGUI();
 			}
-		});		
-		ActionManagerService actionManager = this.container.getComponent(ActionManagerService.class);
-		actionManager.registerActions(this.container.getComponent(ProjectMenuActions.class));
+		});
+		this.logger.debug("Initializing project actions.");
+		this.initActions();
 		
-		this.initProjectMenu(this.container.getComponent(MenuView.class).getModel());
-		
-		InformationModel infoModel = this.container.getComponent(InformationModel.class);
-		infoModel.setStatus("Project '"+this.project.getName()+"' loaded.");
-		infoModel.setTitle(this.project.getName());
+		this.logger.debug("Initializing project notifications.");
+		this.initNotifications();
+
 		
 		this.logger.info("Project '{}' has been opened.", this.project.getName());
 		return true;
@@ -162,9 +221,14 @@ public class ProjectContext extends AbstractContext {
 	protected boolean shutdown() {
 		this.logger.info("Project '{}' is being closed.", this.project.getName());
 		
-		InformationModel infoModel = this.container.getComponent(InformationModel.class);
-		infoModel.setStatus("No project loaded.");
-		infoModel.setTitle("No project");
+		this.logger.debug("Stopping project models.");
+		this.shutdownModels();
+		
+		this.logger.debug("Stopping the rendering.");
+		this.shutdownRendering();
+		
+		this.logger.debug("Unregistering project hooks.");
+		this.shutdownProjectHooks();
 		
 		ActionManagerService actionManager = this.container.getComponent(ActionManagerService.class);
 		actionManager.unregisterActions(this.container.getComponent(ProjectMenuActions.class));
@@ -175,6 +239,72 @@ public class ProjectContext extends AbstractContext {
 		this.application.get(EventBus.class).post(new StatusChangeEvent("Project '"+this.project.getName()+"' closed."));
 		this.logger.info("Project '{}' has been closed.", this.project.getName());
 		return true;
+	}
+	
+	/**
+	 * Initialize extra models necessary for the communications between threads, etc. This is the first
+	 * thing we must do before configuring anything else.
+	 */
+	private void initModels() {
+		CameraModel theCamera = this.get(CameraModel.class);
+		this.modelService.addModel(theCamera);
+	}
+	
+	private void initRenderer() {
+		if(!this.schedulerManager.hasScheduler("renderer")) {
+			RenderScheduler scheduler = new RenderScheduler("renderer");
+			scheduler.setRenderer(this.renderer = this.constructRenderer());
+			this.schedulerManager.addScheduler(scheduler);
+		}
+		this.schedulerManager.start("renderer");
+	}
+	
+	/**
+	 * Performs the initialization of GUI engine: creates the basic views and places them in the
+	 * docking system.
+	 */
+	private void initGUI() {
+		// First, controllers.
+		MinimapController minimapController = this.get(MinimapController.class);
+		NeteditController neteditController = this.get(NeteditController.class);
+		ExplorerController explorerController = this.get(ExplorerController.class);
+		
+		neteditController.setInformationModel(this.modelService.get(InformationModel.class));
+		
+		this.initNetworkController(neteditController);
+		this.controllerService.addAll(new IController[] { neteditController, minimapController, explorerController });
+		
+		// Next, views
+		
+		EditorView edView = new EditorView(this.get(IconManagerService.class));
+		edView.getCameraDrawer().setRenderer(this.renderer);
+		edView.setCameraModel(this.modelService.get(CameraModel.class));
+		edView.setController(neteditController);
+		edView.updateScrollbars();
+
+		ExplorerView exView = new ExplorerView();
+		exView.setController(explorerController);
+		MinimapView minimapView = new MinimapView();
+		minimapView.setController(minimapController);
+		
+		this.viewService.addAll(new IView[] { edView, exView, minimapView });
+		
+		// Finally, the docking system registration.
+		DockModel dockModel = this.modelService.get(WorkspaceDockModel.class);
+		Dockable dockable = new Dockable(edView, "Network editor", "visitons-netedit");
+		dockModel.resolvePath(this.knownPositions.selectPath(dockable, "editor"), dockable);
+		dockable = new Dockable(minimapView, "Minimap");
+		dockModel.resolvePath(this.knownPositions.selectPath(dockable, "minimap"), dockable);
+		dockable = new Dockable(exView, "Project");
+		dockModel.resolvePath(this.knownPositions.selectPath(dockable, "explorer"), dockable);
+	}
+	
+	/**
+	 * Initializes the UI actions for the project.
+	 */
+	private void initActions() {
+		this.actionManager.registerActions(this.get(ProjectMenuActions.class));
+		this.initProjectMenu(this.modelService.get(MenuModel.class));
 	}
 
 	/**
@@ -214,16 +344,23 @@ public class ProjectContext extends AbstractContext {
 		}
 	}
 	
-	public void initNetworkView() {
-		EditorView edView = this.container.getComponent(EditorView.class);
-		NeteditController controller = this.container.getComponent(NeteditController.class);
-		
-		controller.addOperation(this.container.getComponent(SelectionMode.class));
-		controller.addOperation(this.container.getComponent(DrawingMode.class));
-		
-		edView.updateOperationButtons();
+	/**
+	 * Last initialization step - puts some information about the project.
+	 */
+	private void initNotifications() {
+		InformationModel infoModel = this.modelService.get(InformationModel.class);
+		infoModel.setStatus("Project '"+this.project.getName()+"' loaded.");
+		infoModel.setTitle(this.project.getName());
 	}
-	
+
+	/**
+	 * Initializes the network view.
+	 */
+	private void initNetworkController(NeteditController controller) {		
+		controller.addOperation(this.get(SelectionMode.class));
+		controller.addOperation(this.get(DrawingMode.class));
+	}
+
 	/**
 	 * Temporary method for constructing the renderer. In the future, when the simulation window will be present,
 	 * this must be moved to some kind of factory.
@@ -232,9 +369,25 @@ public class ProjectContext extends AbstractContext {
 	 */
 	private Renderer constructRenderer() {
 		Renderer r = this.container.getComponent(Renderer.class);
-		
+		r.setCameraModel(this.modelService.get(CameraModel.class));
+
 		r.addRenderingStream(this.container.getComponent(GridStream.class));
 		
 		return r;
+	}
+	
+	private void shutdownModels() {
+		
+	}
+	
+	private void shutdownRendering() {
+		this.schedulerManager.stop("renderer");
+		((RenderScheduler)this.schedulerManager.getScheduler("renderer")).getRenderer().setCameraModel(null);
+	}
+	
+	private void shutdownProjectHooks() {
+		InformationModel infoModel = this.modelService.get(InformationModel.class);
+		infoModel.setStatus("No project loaded.");
+		infoModel.setTitle("No project");
 	}
 }

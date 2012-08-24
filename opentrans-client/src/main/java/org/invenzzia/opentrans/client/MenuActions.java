@@ -40,7 +40,8 @@ public class MenuActions {
 	
 	@Action(id="newProject")
 	public void actionNewProject() {
-		ProjectContext projectCtx = new ProjectContext(this.application, new VisitonsProject());
+		ProjectContext projectCtx = this.application.getCurrentContainer().getComponent(ProjectContext.class);
+		projectCtx.setVisitonsProject(new VisitonsProject());
 		
 		ContextManagerService cm = this.application.getCurrentContainer().getComponent(ContextManagerService.class);
 		cm.pushContext(projectCtx);

@@ -20,7 +20,6 @@ package org.invenzzia.opentrans.client;
 import java.io.File;
 import org.invenzzia.helium.application.Application;
 import org.invenzzia.opentrans.client.context.ClientContext;
-import org.picocontainer.MutablePicoContainer;
 
 /**
  * The main class for the application.
@@ -41,7 +40,7 @@ public class OpenTrans extends Application {
 	 * @param args 
 	 */
 	public static void main(String args[]) {
-		System.setProperty("org.invenzzia.helium.preferenceFile", System.getProperty("user.dir")+File.pathSeparator+".opentrans"+File.pathSeparator+"preferences.conf");
+		System.setProperty("org.invenzzia.helium.preferenceFile", System.getProperty("user.home")+File.separator+".opentrans"+File.separator+"preferences.conf");
 		OpenTrans theApp = new OpenTrans();
 		theApp.run(ClientContext.class);
 	}

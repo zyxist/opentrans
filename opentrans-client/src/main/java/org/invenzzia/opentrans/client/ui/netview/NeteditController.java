@@ -26,6 +26,7 @@ import java.util.LinkedList;
 import java.util.List;
 import javax.swing.JComponent;
 import org.invenzzia.helium.activeobject.SchedulerManager;
+import org.invenzzia.helium.gui.annotation.EventSubscriber;
 import org.invenzzia.helium.gui.model.InformationModel;
 import org.invenzzia.helium.gui.mvc.IController;
 import org.invenzzia.opentrans.client.concurrent.RenderScheduler;
@@ -41,26 +42,31 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Tomasz Jędrzejewski
  */
-public class NeteditController implements ComponentListener, AdjustmentListener, IController<CameraView>, ICameraModelListener, ActionListener {
+@EventSubscriber
+public class NeteditController implements ComponentListener, AdjustmentListener, IController<EditorView>, ICameraModelListener, ActionListener {
 	private final Logger logger = LoggerFactory.getLogger(NeteditController.class);
 	
-	private final CameraModel model;
-	private CameraView view;
+	private CameraModel model;
+	private CameraDrawer cameraDrawer;
 	private EditorView editorView;
 	private SchedulerManager schedulerManager;
-	private EventBus eventBus;
 	private InformationModel informationModel;
 	private NetviewCommandTranslator commandTranslator;
 	
 	private List<IOperation> operations = new LinkedList<>();
 	private IOperationMode currentOperationMode = null;
 
-	public NeteditController(CameraModel model, SchedulerManager schedulerManager, EventBus eventBus, InformationModel informationModel, NetviewCommandTranslator translator) {
-		this.model = Preconditions.checkNotNull(model);
+	public NeteditController(SchedulerManager schedulerManager, NetviewCommandTranslator translator) {
 		this.schedulerManager = schedulerManager;
-		this.eventBus = eventBus;
-		this.informationModel = informationModel;
 		this.commandTranslator = translator;
+	}
+	
+	public void setInformationModel(InformationModel im) {
+		this.informationModel = im;
+	}
+	
+	public InformationModel getInformationModel() {
+		return this.informationModel;
 	}
 	
 	public CameraModel getModel() {
@@ -104,44 +110,55 @@ public class NeteditController implements ComponentListener, AdjustmentListener,
 		return this.currentOperationMode;
 	}
 	
-	
-	public void attachEditorView(EditorView view) {
+	@Override
+	public void attachView(EditorView view) {
 		this.editorView = view;
 		this.editorView.addAdjustmentListener(this);
-		this.eventBus.register(this);
-	}
-	
-	public void detachEditorView(EditorView view) {
-		this.editorView.removeAdjustmentListener(this);
-		this.editorView = null;
-		this.eventBus.unregister(this);
+		
+		this.model = editorView.getCameraModel();
+		
+		if(null != view.getCameraDrawer()) {
+			this.attachDrawer(view.getCameraDrawer());
+		}
 	}
 	
 	@Override
-	public void attachView(CameraView object) {
-		this.view = object;
-		this.view.addComponentListener(this);
+	public void detachView(EditorView view) {
+		if(null != this.cameraDrawer) {
+			this.detachDrawer(cameraDrawer);
+		}
+		this.editorView.removeAdjustmentListener(this);
+		this.editorView = null;
+		this.model = null;
+	}
+	
+	
+	public void attachDrawer(CameraDrawer object) {
+		this.cameraDrawer = object;
+		this.cameraDrawer.addComponentListener(this);
 		RenderScheduler rsc = (RenderScheduler) this.schedulerManager.getScheduler("renderer");
 		rsc.setCameraView(object);
 		
-		this.view.addMouseListener(this.commandTranslator);
-		this.view.addMouseMotionListener(this.commandTranslator);
+		this.cameraDrawer.addMouseListener(this.commandTranslator);
+		this.cameraDrawer.addMouseMotionListener(this.commandTranslator);
 	}
 
-	@Override
-	public void detachView(CameraView object) {
+	
+	public void detachDrawer(CameraDrawer object) {
 		RenderScheduler rsc = (RenderScheduler) this.schedulerManager.getScheduler("renderer");
 		rsc.setCameraView(null);
 		
-		this.view.removeMouseListener(this.commandTranslator);
-		this.view.removeMouseMotionListener(this.commandTranslator);
-		this.view.removeComponentListener(this);
-		this.view = null;
+		this.cameraDrawer.removeMouseListener(this.commandTranslator);
+		this.cameraDrawer.removeMouseMotionListener(this.commandTranslator);
+		this.cameraDrawer.removeComponentListener(this);
+		this.cameraDrawer = null;
 	}
 	
 	@Subscribe
 	public void notifyWorldSizeChanged(WorldSizeChangedEvent event) {
-		this.editorView.updateScrollbars();
+		if(null != this.editorView) {
+			this.editorView.updateScrollbars();
+		}
 	}
 
 	@Override
@@ -168,8 +185,8 @@ public class NeteditController implements ComponentListener, AdjustmentListener,
 	@Override
 	public void cameraUpdated(CameraModel model) {
 		this.editorView.updateScrollbars();
-		this.view.revalidate();
-		this.view.repaint();
+		this.cameraDrawer.revalidate();
+		this.cameraDrawer.repaint();
 	}
 
 	@Override
@@ -197,7 +214,10 @@ public class NeteditController implements ComponentListener, AdjustmentListener,
 			}
 
 			this.logger.info("Selecting network view operation mode: {}", op.getName());
-			this.informationModel.setStatus(((IOperationMode) op).getHelpText());
+			
+			if(null != this.informationModel) {
+				this.informationModel.setStatus(((IOperationMode) op).getHelpText());
+			}
 			this.currentOperationMode = (IOperationMode) op;
 			((IOperationMode)op).modeActivated();
 			this.editorView.setOperationModeState(this.currentOperationMode, true);

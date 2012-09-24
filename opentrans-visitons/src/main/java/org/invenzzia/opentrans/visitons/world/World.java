@@ -19,6 +19,7 @@ package org.invenzzia.opentrans.visitons.world;
 
 import com.google.common.base.Preconditions;
 import org.invenzzia.opentrans.visitons.exception.WorldException;
+import org.invenzzia.opentrans.visitons.infrastructure.IVertex;
 import org.invenzzia.opentrans.visitons.infrastructure.Vertex;
 
 /**
@@ -55,14 +56,6 @@ public class World {
 	 * Segment database.
 	 */
 	protected Segment segments[][];
-	/**
-	 * The iterator for creating unique vertex names.
-	 */
-	protected long vertexIterator;
-	/**
-	 * The iterator for creating unique edge names.
-	 */
-	protected long edgeIterator;
 
 	/**
 	 * Initializes an empty world with the dimensions 1x1.
@@ -71,8 +64,7 @@ public class World {
 		this.dimX = 1;
 		this.dimY = 1;
 		this.createWorld();
-		this.setIterators(0, 0);
-	} // end World();
+	}
 
 	/**
 	 * Returns the number of segments on the horizontal axis.
@@ -91,17 +83,6 @@ public class World {
 	public int getY() {
 		return this.dimY;
 	} // end getY();
-
-	/**
-	 * Populates the iterators that are used to give the vertices and edges the unique names.
-	 *
-	 * @param vertexIterator The value of the vertex iterator.
-	 * @param edgeIterator The value of the edge iterator.
-	 */
-	public void setIterators(long vertexIterator, long edgeIterator) {
-		this.vertexIterator = vertexIterator;
-		this.edgeIterator = edgeIterator;
-	} // end setIterators();
 
 	/**
 	 * Initializes an empty world with the dimensions provided in the arguments. The old data is lost.
@@ -302,9 +283,9 @@ public class World {
 	 * @param vertex The network vertex.
 	 * @return The owning segment.
 	 */
-	public Segment segmentFor(Vertex vertex) {
-		int x = (int) Math.ceil(vertex.getX() / Segment.SIZE);
-		int y = (int) Math.ceil(vertex.getY() / Segment.SIZE);
+	public Segment segmentFor(IVertex vertex) {
+		int x = (int) Math.ceil(vertex.x() / Segment.SIZE);
+		int y = (int) Math.ceil(vertex.y() / Segment.SIZE);
 
 		return this.segments[x][y];
 	}

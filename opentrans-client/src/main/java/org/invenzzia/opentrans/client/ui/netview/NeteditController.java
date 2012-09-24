@@ -17,13 +17,12 @@
  */
 package org.invenzzia.opentrans.client.ui.netview;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import java.awt.event.*;
 import java.util.LinkedList;
 import java.util.List;
+import javax.inject.Inject;
 import javax.swing.JComponent;
 import org.invenzzia.helium.activeobject.SchedulerManager;
 import org.invenzzia.helium.gui.annotation.EventSubscriber;
@@ -31,6 +30,7 @@ import org.invenzzia.helium.gui.model.InformationModel;
 import org.invenzzia.helium.gui.mvc.IController;
 import org.invenzzia.opentrans.client.concurrent.RenderScheduler;
 import org.invenzzia.opentrans.client.events.WorldSizeChangedEvent;
+import org.invenzzia.opentrans.visitons.factory.SceneFactory;
 import org.invenzzia.opentrans.visitons.render.CameraModel;
 import org.invenzzia.opentrans.visitons.render.ICameraModelListener;
 import org.slf4j.Logger;
@@ -53,6 +53,11 @@ public class NeteditController implements ComponentListener, AdjustmentListener,
 	private InformationModel informationModel;
 	private NetviewCommandTranslator commandTranslator;
 	
+	/**
+	 * Manages updating the rendered data.
+	 */
+	private SceneFactory sceneFactory;
+	
 	private List<IOperation> operations = new LinkedList<>();
 	private IOperationMode currentOperationMode = null;
 
@@ -67,6 +72,15 @@ public class NeteditController implements ComponentListener, AdjustmentListener,
 	
 	public InformationModel getInformationModel() {
 		return this.informationModel;
+	}
+	
+	@Inject
+	public void setSceneFactory(SceneFactory sceneFactory) {
+		this.sceneFactory = sceneFactory;
+	}
+	
+	public SceneFactory getSceneFactory() {
+		return this.sceneFactory;
 	}
 	
 	public CameraModel getModel() {
@@ -116,6 +130,7 @@ public class NeteditController implements ComponentListener, AdjustmentListener,
 		this.editorView.addAdjustmentListener(this);
 		
 		this.model = editorView.getCameraModel();
+		this.model.addCameraModelListener(this);
 		
 		if(null != view.getCameraDrawer()) {
 			this.attachDrawer(view.getCameraDrawer());
@@ -127,6 +142,7 @@ public class NeteditController implements ComponentListener, AdjustmentListener,
 		if(null != this.cameraDrawer) {
 			this.detachDrawer(cameraDrawer);
 		}
+		this.model.removeCameraModelListener(this);
 		this.editorView.removeAdjustmentListener(this);
 		this.editorView = null;
 		this.model = null;
@@ -182,8 +198,16 @@ public class NeteditController implements ComponentListener, AdjustmentListener,
 	public void componentHidden(ComponentEvent ce) {
 	}
 
+	/**
+	 * A listener responsible for receiving events about the updated camera model.
+	 * We must update scrollbars then and send the notification to the scene manager,
+	 * so that the new model data are reflected by the renderer.
+	 * 
+	 * @param model 
+	 */
 	@Override
 	public void cameraUpdated(CameraModel model) {
+		this.sceneFactory.onCameraUpdate();
 		this.editorView.updateScrollbars();
 		this.cameraDrawer.revalidate();
 		this.cameraDrawer.repaint();

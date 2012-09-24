@@ -149,6 +149,7 @@ public class EditorView extends JPanel implements IView<NeteditController>, ICam
 		if(null != this.model) {
 			this.horizontalRuler.setModel(null);
 			this.verticalRuler.setModel(null);
+			this.cameraDrawer.setModel(null);
 			this.updateScrollbars();
 			this.model.removeCameraModelListener(this);
 		}
@@ -156,6 +157,7 @@ public class EditorView extends JPanel implements IView<NeteditController>, ICam
 		if(null != this.model) {
 			this.horizontalRuler.setModel(model);
 			this.verticalRuler.setModel(model);
+			this.cameraDrawer.setModel(model);
 			this.updateScrollbars();
 			this.model.addCameraModelListener(this);
 		}

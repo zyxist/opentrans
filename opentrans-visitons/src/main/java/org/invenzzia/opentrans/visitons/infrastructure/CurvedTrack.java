@@ -1,5 +1,5 @@
 /*
- * Visitons - transportation network simulation and visualization library.
+ * Visitons - public transport simulation engine
  * Copyright (c) 2011-2012 Invenzzia Group
  * 
  * Visitons is free software: you can redistribute it and/or modify
@@ -17,28 +17,35 @@
  */
 package org.invenzzia.opentrans.visitons.infrastructure;
 
-import com.google.common.base.Preconditions;
-
 /**
- * Represents an edge that connects two vertices on a network.
- *
- * @author zyxist
+ * One of three primitives for building tracks: a regular curve, part
+ * of the arc.
+ * 
+ * @author Tomasz Jędrzejewski
  */
-public class Edge {
-	protected Vertex vertices[] = new Vertex[2];
+public class CurvedTrack extends AbstractTrack<CurvedTrack> {
 	
-	public Edge() {
+	public CurvedTrack(long id) {
+		super(id);
 	}
 	
-	public Edge setVertex(byte idx, Vertex vertex) {
-		Preconditions.checkArgument(idx == 0 || idx == 1, "The edge end-points can have only 0 or 1 as an index.");
-		this.vertices[idx] = vertex;
-		return this;
+	@Override
+	public boolean isVertexChangeAllowed(IVertex vertex, double x, double y) {
+		return false;
 	}
 	
-	public Vertex getVertex(byte idx) {
-		Preconditions.checkArgument(idx == 0 || idx == 1, "The edge end-points can have only 0 or 1 as an index.");
-		return this.vertices[idx];
+	@Override
+	public void verticesUpdated() {
+		throw new UnsupportedOperationException("Not supported yet.");
+	}
+
+	@Override
+	public CurvedTrack fork() {
+		throw new UnsupportedOperationException("Not supported yet.");
+	}
+
+	@Override
+	public void copyFrom(CurvedTrack copy) {
+		throw new UnsupportedOperationException("Not supported yet.");
 	}
 }
-

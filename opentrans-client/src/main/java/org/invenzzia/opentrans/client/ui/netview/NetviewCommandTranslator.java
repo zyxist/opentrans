@@ -20,10 +20,16 @@ package org.invenzzia.opentrans.client.ui.netview;
 import com.google.common.eventbus.EventBus;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import org.invenzzia.helium.gui.actions.ActionManagerService;
+import org.invenzzia.helium.gui.ContextManagerService;
+import org.invenzzia.helium.gui.actions.SimpleActionManager;
+import org.invenzzia.helium.gui.mvc.ModelService;
 import org.invenzzia.helium.gui.ui.menu.MenuController;
 import org.invenzzia.helium.gui.ui.menu.MenuModel;
 import org.invenzzia.helium.gui.ui.menu.PopupView;
+import org.invenzzia.opentrans.client.context.ProjectContext;
+import org.invenzzia.opentrans.visitons.render.CameraModel;
+import org.invenzzia.opentrans.visitons.world.Segment;
+import org.invenzzia.opentrans.visitons.world.World;
 
 /**
  * A helper class of the netedit view controller which translates the user
@@ -37,16 +43,36 @@ public class NetviewCommandTranslator extends MouseAdapter {
 	private IOperationMode operationMode;
 	private MenuController controller;
 	private EventBus eventBus;
-	private ActionManagerService actionManager;
+	private SimpleActionManager actionManager;
+	private NetviewActionInterceptor actionInterceptor;
+	private ProjectContext projectContext;
+	private CameraModel cameraModel;
 	
-	public NetviewCommandTranslator(MenuController controller, EventBus eventBus, ActionManagerService actionManager) {
+	public NetviewCommandTranslator(
+		MenuController controller,
+		EventBus eventBus,
+		SimpleActionManager simpleActionManager,
+		NetviewActionInterceptor actionInterceptor,
+		ContextManagerService ctxService,
+		ModelService modelService)
+	{
 		this.controller = controller;
 		this.eventBus = eventBus;
-		this.actionManager = actionManager;
+		this.controller.setActionManager(simpleActionManager);
+		this.actionInterceptor = actionInterceptor;
+		this.actionManager = simpleActionManager;
+		this.actionManager.setInterceptor(actionInterceptor);
+		this.projectContext = (ProjectContext) ctxService.peekContext();
+		this.cameraModel = modelService.get(CameraModel.class);
 	}
 	
 	public void setCurrentOperationMode(IOperationMode operationMode) {
+		this.actionManager.unregisterAll();
 		this.operationMode = operationMode;
+		if(null != operationMode) {
+			Object menuActions = this.projectContext.get(this.operationMode.getMenuActions());
+			this.actionManager.registerActions(menuActions);
+		}
 	}
 	
 	@Override
@@ -68,11 +94,32 @@ public class NetviewCommandTranslator extends MouseAdapter {
 		if(null != this.operationMode) {
 			MenuModel model = this.operationMode.getContextMenuModel();
 			if(null != model) {
+				actionInterceptor.setClickedElement(this.createClickedElementFromMouseEvent(event));
 				PopupView popupView = new PopupView();
 				popupView.setModel(model);
 				popupView.setController(this.controller);
 				popupView.show(event);
 			}
 		}
+	}
+	
+	/**
+	 * Translates a mouse event into a clicked element object.
+	 * 
+	 * @param event The event to translate.
+	 * @return Clicked element 
+	 */
+	private ClickedElement createClickedElementFromMouseEvent(MouseEvent event) {
+		World world = this.projectContext.getProject().getWorld();
+		
+		double x = this.cameraModel.world2pixX(event.getX());
+		double y = this.cameraModel.world2pixY(event.getY());
+		
+		if(x >= 0.0 && x <= world.getX() * CameraModel.SEGMENT_SIZE && y >= 0 && y <= world.getY() * CameraModel.SEGMENT_SIZE) {
+			Segment segment = world.findSegment((int)(x / CameraModel.SEGMENT_SIZE), (int)(y / CameraModel.SEGMENT_SIZE));	
+			return new ClickedElement(segment, x % CameraModel.SEGMENT_SIZE, y % CameraModel.SEGMENT_SIZE);
+		}
+		
+		return null;
 	}
 }

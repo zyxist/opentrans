@@ -15,19 +15,37 @@
  * You should have received a copy of the GNU General Public License
  * along with Visitons. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.invenzzia.opentrans.visitons.render;
-
-import java.util.Map;
+package org.invenzzia.opentrans.visitons.infrastructure;
 
 /**
- * Abstract class that provides default implementations of the setters
- * from the {@link IRenderingStream} interface. You must still write
- * the actual renderer.
+ * One of three primitives for building tracks: a doubly curved track (two
+ * parts of the arc: one concave, second convex.
  * 
  * @author Tomasz Jędrzejewski
  */
-public abstract class RenderingStreamAdapter implements IRenderingStream {
-	public <T> T extract(Map<Object, Object> snapshot, Class<T> key) {
-		return (T) snapshot.get(key);
+public class DoublyCurvedTrack extends AbstractTrack<DoublyCurvedTrack> {
+	
+	public DoublyCurvedTrack(long id) {
+		super(id);
+	}
+	
+	@Override
+	public void verticesUpdated() {
+		throw new UnsupportedOperationException("Not supported yet.");
+	}
+	
+	@Override
+	public boolean isVertexChangeAllowed(IVertex vertex, double x, double y) {
+		return false;
+	}
+
+	@Override
+	public DoublyCurvedTrack fork() {
+		throw new UnsupportedOperationException("Not supported yet.");
+	}
+
+	@Override
+	public void copyFrom(DoublyCurvedTrack copy) {
+		throw new UnsupportedOperationException("Not supported yet.");
 	}
 }

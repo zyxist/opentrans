@@ -22,6 +22,7 @@ import javax.swing.JOptionPane;
 import org.invenzzia.helium.gui.mvc.IController;
 import org.invenzzia.opentrans.visitons.VisitonsProject;
 import org.invenzzia.opentrans.visitons.exception.WorldException;
+import org.invenzzia.opentrans.visitons.factory.SceneFactory;
 import org.invenzzia.opentrans.visitons.world.World;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,12 +42,14 @@ public class WorldResizeController implements IController<WorldResizeView> {
 	
 	private WorldResizeView view;
 	private VisitonsProject model;
+	private SceneFactory sceneFactory;
 	private int currentMode;
 	
-	public WorldResizeController(VisitonsProject model) {
+	public WorldResizeController(VisitonsProject model, SceneFactory sceneFactory) {
 		this.model = Preconditions.checkNotNull(model);
+		this.sceneFactory = Preconditions.checkNotNull(sceneFactory);
 	}
-	
+
 	@Override
 	public void attachView(WorldResizeView object) {
 		this.view = object;
@@ -88,6 +91,7 @@ public class WorldResizeController implements IController<WorldResizeView> {
 			} else {
 				this.model.getWorld().shrinkHorizontally(World.HorizontalDir.LEFT);
 			}
+			this.sceneFactory.onWorldSizeUpdate();
 			this.view.refreshData();
 		} catch(WorldException exception) {
 			JOptionPane.showMessageDialog(this.view, exception.getMessage(), "Cannot resize", JOptionPane.OK_OPTION);
@@ -101,6 +105,7 @@ public class WorldResizeController implements IController<WorldResizeView> {
 			} else {
 				this.model.getWorld().shrinkHorizontally(World.HorizontalDir.RIGHT);
 			}
+			this.sceneFactory.onWorldSizeUpdate();
 			this.view.refreshData();
 		} catch(WorldException exception) {
 			JOptionPane.showMessageDialog(this.view, exception.getMessage(), "Cannot resize", JOptionPane.OK_OPTION);
@@ -114,6 +119,7 @@ public class WorldResizeController implements IController<WorldResizeView> {
 			} else {
 				this.model.getWorld().shrinkVertically(World.VerticalDir.UP);
 			}
+			this.sceneFactory.onWorldSizeUpdate();
 			this.view.refreshData();
 		} catch(WorldException exception) {
 			JOptionPane.showMessageDialog(this.view, exception.getMessage(), "Cannot resize", JOptionPane.OK_OPTION);
@@ -127,6 +133,7 @@ public class WorldResizeController implements IController<WorldResizeView> {
 			} else {
 				this.model.getWorld().shrinkVertically(World.VerticalDir.DOWN);
 			}
+			this.sceneFactory.onWorldSizeUpdate();
 			this.view.refreshData();
 		} catch(WorldException exception) {
 			JOptionPane.showMessageDialog(this.view, exception.getMessage(), "Cannot resize", JOptionPane.OK_OPTION);

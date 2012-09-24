@@ -25,6 +25,7 @@ import org.invenzzia.helium.activeobject.SchedulerManager;
 import org.invenzzia.helium.application.Application;
 import org.invenzzia.helium.gui.IconManagerService;
 import org.invenzzia.helium.gui.actions.ActionManagerService;
+import org.invenzzia.helium.gui.actions.SimpleActionManager;
 import org.invenzzia.helium.gui.context.AbstractContext;
 import org.invenzzia.helium.gui.events.StatusChangeEvent;
 import org.invenzzia.helium.gui.model.InformationModel;
@@ -37,8 +38,8 @@ import org.invenzzia.helium.gui.ui.dock.DockModel;
 import org.invenzzia.helium.gui.ui.dock.Dockable;
 import org.invenzzia.helium.gui.ui.dock.KnownPositions;
 import org.invenzzia.helium.gui.ui.menu.IMenuElementStorage;
+import org.invenzzia.helium.gui.ui.menu.MenuController;
 import org.invenzzia.helium.gui.ui.menu.MenuModel;
-import org.invenzzia.helium.gui.ui.menu.MenuView;
 import org.invenzzia.helium.gui.ui.menu.element.Menu;
 import org.invenzzia.helium.gui.ui.menu.element.Position;
 import org.invenzzia.helium.gui.ui.menu.element.Separator;
@@ -46,24 +47,26 @@ import org.invenzzia.helium.gui.ui.workspace.WorkspaceDockModel;
 import org.invenzzia.opentrans.client.ProjectMenuActions;
 import org.invenzzia.opentrans.client.concurrent.RenderScheduler;
 import org.invenzzia.opentrans.client.editor.opmodes.DrawingMode;
+import org.invenzzia.opentrans.client.editor.opmodes.selection.SelectionMenuActions;
 import org.invenzzia.opentrans.client.editor.opmodes.selection.SelectionMode;
 import org.invenzzia.opentrans.client.projectmodel.WorldDescriptor;
 import org.invenzzia.opentrans.client.ui.explorer.ExplorerController;
 import org.invenzzia.opentrans.client.ui.explorer.ExplorerView;
 import org.invenzzia.opentrans.client.ui.minimap.MinimapController;
 import org.invenzzia.opentrans.client.ui.minimap.MinimapView;
-import org.invenzzia.opentrans.client.ui.netview.CameraDrawer;
 import org.invenzzia.opentrans.client.ui.netview.EditorView;
 import org.invenzzia.opentrans.client.ui.netview.NeteditController;
+import org.invenzzia.opentrans.client.ui.netview.NetviewActionInterceptor;
 import org.invenzzia.opentrans.client.ui.netview.NetviewCommandTranslator;
 import org.invenzzia.opentrans.client.ui.worldresize.WorldResizeController;
-import org.invenzzia.opentrans.client.ui.worldresize.WorldResizeView;
 import org.invenzzia.opentrans.visitons.VisitonsProject;
+import org.invenzzia.opentrans.visitons.factory.SceneFactory;
 import org.invenzzia.opentrans.visitons.render.CameraModel;
 import org.invenzzia.opentrans.visitons.render.Renderer;
+import org.invenzzia.opentrans.visitons.render.SceneManager;
 import org.invenzzia.opentrans.visitons.render.stream.GridStream;
+import org.invenzzia.opentrans.visitons.render.stream.SegmentBitmapStream;
 import org.invenzzia.opentrans.visitons.world.World;
-import org.picocontainer.MutablePicoContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -169,13 +172,21 @@ public class ProjectContext extends AbstractContext {
 			{ MinimapController.class },
 			{ ProjectMenuActions.class },
 			{ WorldResizeController.class },
+			{ SimpleActionManager.class },
+			{ NetviewActionInterceptor.class },
 			{ SelectionMode.class },
 			{ DrawingMode.class },
 			{ GridStream.class },
+			{ SegmentBitmapStream.class },
 			{ Renderer.class },
+			
+			// Classes for the operation modes in the editor
+			{ SelectionMenuActions.class },
 		});
 		this.registerManagedCachedClasses(new Object[][] { 
 			{ WorldDescriptor.class },
+			{ SceneFactory.class },
+			{ SceneManager.class }
 		});
 	}
 	
@@ -248,6 +259,12 @@ public class ProjectContext extends AbstractContext {
 	private void initModels() {
 		CameraModel theCamera = this.get(CameraModel.class);
 		this.modelService.addModel(theCamera);
+		
+		// Put everything we need to the scene manager, so that the renderer could work.	
+		SceneFactory factory = this.get(SceneFactory.class);
+		factory.setVisitonsProject(this.project);
+		factory.setCameraModel(theCamera);
+		factory.onCameraUpdate();
 	}
 	
 	private void initRenderer() {
@@ -297,8 +314,12 @@ public class ProjectContext extends AbstractContext {
 		dockModel.resolvePath(this.knownPositions.selectPath(dockable, "minimap"), dockable);
 		dockable = new Dockable(exView, "Project");
 		dockModel.resolvePath(this.knownPositions.selectPath(dockable, "explorer"), dockable);
+		
+		// Finally, send the notification that we know the viewport size.
+		SceneFactory factory = this.get(SceneFactory.class);
+		factory.onCameraUpdate();
 	}
-	
+
 	/**
 	 * Initializes the UI actions for the project.
 	 */
@@ -365,13 +386,12 @@ public class ProjectContext extends AbstractContext {
 	 * Temporary method for constructing the renderer. In the future, when the simulation window will be present,
 	 * this must be moved to some kind of factory.
 	 * 
-	 * @return 
+	 * @return Constructed and properly initialized renderer.
 	 */
 	private Renderer constructRenderer() {
-		Renderer r = this.container.getComponent(Renderer.class);
-		r.setCameraModel(this.modelService.get(CameraModel.class));
-
-		r.addRenderingStream(this.container.getComponent(GridStream.class));
+		Renderer r = this.get(Renderer.class);
+		r.addRenderingStream(this.get(SegmentBitmapStream.class));
+		r.addRenderingStream(this.get(GridStream.class));
 		
 		return r;
 	}
@@ -382,7 +402,6 @@ public class ProjectContext extends AbstractContext {
 	
 	private void shutdownRendering() {
 		this.schedulerManager.stop("renderer");
-		((RenderScheduler)this.schedulerManager.getScheduler("renderer")).getRenderer().setCameraModel(null);
 	}
 	
 	private void shutdownProjectHooks() {

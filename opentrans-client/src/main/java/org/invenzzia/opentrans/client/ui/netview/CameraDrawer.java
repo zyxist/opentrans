@@ -59,14 +59,22 @@ public final class CameraDrawer extends JViewport implements Scrollable {
 	 */
 	public void setRenderer(Renderer renderer) {
 		this.renderer = Preconditions.checkNotNull(renderer, "The camera component cannot operate without a renderer.");
-		this.model = this.renderer.getModel();
-
-		this.setPreferredSize(new Dimension(this.model.world2pixX(this.model.getSizeX()), this.model.world2pixY(this.model.getSizeY())));
-		this.setOpaque(true);
 	}
 	
 	public Renderer getRenderer() {
 		return this.renderer;
+	}
+	
+	public void setModel(CameraModel model) {
+		if(null != model) {
+			this.setPreferredSize(new Dimension(model.world2pixX(model.getSizeX()), model.world2pixY(model.getSizeY())));
+			this.setOpaque(true);	
+		}
+		this.model = model;
+	}
+	
+	public CameraModel getModel() {
+		return this.model;
 	}
 	
 	public int getMaxUnitIncrement() {

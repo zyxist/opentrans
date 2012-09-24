@@ -18,7 +18,6 @@
 package org.invenzzia.opentrans.visitons.render;
 
 import com.google.common.base.Preconditions;
-import com.vividsolutions.jts.geom.Coordinate;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -324,6 +323,10 @@ public class CameraModel extends AbstractCameraModelFoundation {
 	 */
 	public void calculateViewport() {
 		double wx, wy;
+		
+		this.viewportWidth = this.viewportWidthPx * this.mpp;
+		this.viewportHeight = this.viewportHeightPx * this.mpp;
+		
 		if(this.viewportWidth > (wx = (this.world.getX() * CameraModel.SEGMENT_SIZE))) {
 			this.horizOverflow = true;
 			this.overflowCenterX = (this.viewportWidth - wx) / 2.0 / this.mpp;

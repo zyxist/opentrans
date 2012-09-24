@@ -1,5 +1,5 @@
 /*
- * Visitons - transportation network simulation and visualization library.
+ * Visitons - public transport simulation engine
  * Copyright (c) 2011-2012 Invenzzia Group
  * 
  * Visitons is free software: you can redistribute it and/or modify
@@ -18,26 +18,37 @@
 package org.invenzzia.opentrans.visitons.infrastructure;
 
 import com.google.common.base.Preconditions;
-import com.vividsolutions.jts.math.Vector2D;
-import java.util.Arrays;
 import java.util.List;
-import org.invenzzia.opentrans.visitons.exception.GraphException;
+import java.util.Map;
 
 /**
- * This class represents a free vertex which can be moved etc. by us.
- *
- * @author zyxist
+ * Description here.
+ * 
+ * @author Tomasz Jędrzejewski
  */
-public class Vertex implements ITransit {
-
+public class Vertex implements IVertex<Vertex> {
 	/**
 	 * Contains the references to edges coming out from this vertex.
 	 */
-	protected Edge[] edges;
+	protected ITrack[] tracks;
 	/**
-	 * Location of the vertex.
+	 * Actual X location in the world units.
 	 */
-	protected Vector2D vector;
+	protected double x;
+	/**
+	 * Actual Y location in the world units.
+	 */
+	protected double y;
+	/**
+	 * Temporary X, used in the move operation.
+	 */
+	protected double tempX;
+	/**
+	 * Temporary U, used in the move operation.
+	 */
+	protected double tempY;
+	
+	protected long id;
 
 	/**
 	 * Creates a vertex at the given coordinates.
@@ -46,98 +57,96 @@ public class Vertex implements ITransit {
 	 * @param x
 	 * @param y
 	 */
-	public Vertex(int edgeNum, double x, double y) {
-		this.edges = new Edge[edgeNum];
-		this.vector = new Vector2D(x, y);
+	public Vertex(long id, int trackNum, double x, double y) {
+		this.tracks = new ITrack[trackNum];
+		this.id = id;
+		this.x = x;
+		this.y = y;
 	}
 
-	/**
-	 * Binds an edge to the vertex under the given index. The index must not exceed the vertex degree.
-	 *
-	 * @param edgeId The edge index.
-	 * @param edge The edge to bind.
-	 * @return Fluent interface.
-	 */
-	public Vertex setEdge(int edgeId, Edge edge) {
-		Preconditions.checkElementIndex(edgeId, this.edges.length);
-		this.edges[edgeId] = edge;
-		return this;
-	}
-
-	/**
-	 * Returns the given edge connected to this vertex.
-	 *
-	 * @param edgeId The edge number [0, vertex degree)
-	 * @return The edge object
-	 */
-	public Edge getEdge(int edgeId) {
-		Preconditions.checkElementIndex(edgeId, this.edges.length);
-		return this.edges[edgeId];
-	}
-
-	/**
-	 * Increases the vertex degree.
-	 *
-	 * @return Fluent interface
-	 */
-	public Vertex expandVertex() {
-		Edge newEdges[] = new Edge[this.edges.length + 1];
-		System.arraycopy(this.edges, 0, newEdges, 0, this.edges.length);
-		this.edges = newEdges;
-		return this;
-	}
-
-	/**
-	 * Decreases the vertex degree.
-	 *
-	 * @return Fluent interface.
-	 * @throws GraphException If the degree is equal 1.
-	 */
-	public Vertex degradeVertex() throws GraphException {
-		if(this.edges.length < 2) {
-			throw new GraphException("Cannot degrade a vertex of degree 1.");
-		}
-		Edge newEdges[] = new Edge[this.edges.length - 1];
-		System.arraycopy(this.edges, 0, newEdges, 0, newEdges.length);
-		this.edges = newEdges;
-		return this;
-	}
-
-	/**
-	 * Returns the vertex degree.
-	 *
-	 * @return Vertex degree.
-	 */
-	public int getDegree() {
-		return this.edges.length;
-	}
-
-	public List<Edge> getEdges() {
-		return Arrays.asList(this.edges);
-	}
-
-	public Vertex setVector(Vector2D vector) {
-		this.vector = vector;
-		return this;
-	}
-
-	public double getX() {
-		return this.vector.getX();
-	}
-
-	public double getY() {
-		return this.vector.getY();
+	@Override
+	public long getId() {
+		return this.id;
 	}
 	
-	public Vector2D getVector() {
-		return this.vector;
+	@Override
+	public void setId(long id) {
+		this.id = id;
 	}
 
-	/**
-	 * @see ITransit
-	 */
 	@Override
-	public List<Edge> whereCanWeGoFrom(Edge edge) {
+	public void registerUpdate(double x, double y) {
+		this.tempX = x;
+		this.tempY = y;
+	}
+	
+	@Override
+	public double x() {
+		return this.x;
+	}
+	
+	@Override
+	public double y() {
+		return this.y;
+	}
+
+	@Override
+	public boolean isUpdatePossible() {
+		return false;
+	}
+
+	@Override
+	public void applyUpdate() {
 		throw new UnsupportedOperationException("Not supported yet.");
+	}
+
+	@Override
+	public void rollbackUpdate() {
+		throw new UnsupportedOperationException("Not supported yet.");
+	}
+
+	@Override
+	public void markAsDeleted() {
+		throw new UnsupportedOperationException("Not supported yet.");
+	}
+
+	@Override
+	public boolean isDeleted() {
+		throw new UnsupportedOperationException("Not supported yet.");
+	}
+	
+	@Override
+	public Vertex fork() {
+		Vertex nv = new Vertex(this.getId(), this.tracks.length, this.x, this.y);
+		System.arraycopy(this.tracks, 0, nv.tracks, 0, this.tracks.length);
+		return nv;
+	}
+	
+	@Override
+	public void copyFrom(Vertex copy) {
+		Preconditions.checkArgument(copy.id == this.id, "The data can be copied from vertices with the same ID only.");
+
+		this.x = copy.x;
+		this.y = copy.y;
+		this.tracks = new ITrack[copy.tracks.length];
+		System.arraycopy(copy.tracks, 0, this.tracks, 0, this.tracks.length);
+	}
+
+	@Override
+	public int getTrackCount() {
+		return this.tracks.length;
+	}
+
+	@Override
+	public ITrack[] getTracks() {
+		ITrack tt[] = new ITrack[this.tracks.length];
+		System.arraycopy(tt, 0, this.tracks, 0, this.tracks.length);
+		return tt;
+	}
+
+	@Override
+	public void setTrack(int id, ITrack track) {
+		Preconditions.checkArgument(id >= 0 && id < this.tracks.length, "Invalid track index.");
+		this.tracks[id] = Preconditions.checkNotNull(track);
 	}
 }

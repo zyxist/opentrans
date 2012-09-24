@@ -17,15 +17,15 @@
  */
 package org.invenzzia.opentrans.visitons.exception;
 
-import org.invenzzia.helium.exceptions.ApplicationException;
+import org.invenzzia.opentrans.visitons.infrastructure.IVertex;
 
 /**
  * Indicates problems with the network graph related to the improper configuration.
  *
  * @author Tomasz Jędrzejewski
  */
-public class GraphException extends ApplicationException {
+public class GraphException extends Exception {
 	public GraphException(String message) {
 		super(message);
-	} // end GraphException();
-} // end GraphException;
+	}
+}

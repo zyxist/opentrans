@@ -17,48 +17,39 @@
  */
 package org.invenzzia.opentrans.visitons.render.stream;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.Map;
+import org.invenzzia.opentrans.visitons.render.AbstractCameraModelFoundation;
+import org.invenzzia.opentrans.visitons.render.CameraModel;
 import org.invenzzia.opentrans.visitons.render.CameraModelSnapshot;
 import org.invenzzia.opentrans.visitons.render.RenderingStreamAdapter;
 import org.invenzzia.opentrans.visitons.render.scene.VisibleSegmentSnapshot;
 import org.invenzzia.opentrans.visitons.render.scene.VisibleSegmentSnapshot.SegmentInfo;
 
 /**
- * Draws the navigation grid on the map.
+ * Draws the bitmaps associated to each segment, i.e. prerendered maps of
+ * some area.
  * 
  * @author Tomasz Jędrzejewski
  */
-public class GridStream extends RenderingStreamAdapter {
-	public static final Color GRID_COLOR = Color.MAGENTA;
-	public static final int MIN_SCREEN_WIDTH_FOR_SUBGRID = 60;
-	public static final BasicStroke SEGMENT_STROKE = new BasicStroke();
-	public static final BasicStroke SUBGRID_STROKE = new BasicStroke(1.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 10.0f, new float[] { 2.0f }, 0.0f);
+public class SegmentBitmapStream extends RenderingStreamAdapter {
+	private static final double MAX_ZOOM_VISIBILITY = 3.0;
 	
 	@Override
-	public void render(Graphics2D g, Map<Object, Object> snapshot, long prevTimeFrame) {
-		g.setColor(GridStream.GRID_COLOR);
+	public void render(Graphics2D graphics, Map<Object, Object> snapshot, long prevTimeFrame) {
 		VisibleSegmentSnapshot vss = this.extract(snapshot, VisibleSegmentSnapshot.class);
 		CameraModelSnapshot camera = this.extract(snapshot, CameraModelSnapshot.class);
 		
-		double mpp = camera.getMpp();
-		for(SegmentInfo s: vss.getSegments()) {
-			int x = (int) camera.world2pixX(s.x * CameraModelSnapshot.SEGMENT_SIZE);
-			int y = (int) camera.world2pixY(s.y * CameraModelSnapshot.SEGMENT_SIZE);
-			
-			int width = (int) (CameraModelSnapshot.SEGMENT_SIZE / mpp);
-			int height = (int) (CameraModelSnapshot.SEGMENT_SIZE / mpp);
-			
-			g.setStroke(GridStream.SEGMENT_STROKE);
-			g.drawRect(x, y, width, height);
-			
-			if(width >= GridStream.MIN_SCREEN_WIDTH_FOR_SUBGRID) {
-				g.setStroke(GridStream.SUBGRID_STROKE);
-				g.drawLine(x + width / 2, y, x + width / 2, y + height);
-				g.drawLine(x, y + height / 2, x + width, y + height / 2);
+		for(SegmentInfo segment: vss.getSegments()) {
+			if(null != segment.image) {
+				int x = (int) camera.world2pixX(segment.x * CameraModel.SEGMENT_SIZE);
+				int y = (int) camera.world2pixY(segment.y * CameraModel.SEGMENT_SIZE);
+				
+				if(camera.getMpp() < MAX_ZOOM_VISIBILITY) {
+					int newSize = (int) Math.round((CameraModel.DEFAULT_ZOOM / camera.getMpp() * CameraModel.SEGMENT_SIZE));
+					graphics.drawImage(segment.image, x, y, newSize, newSize, null);
+				}
 			}
-		}
+		}	
 	}
-}
+} 

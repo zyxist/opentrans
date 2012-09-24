@@ -18,9 +18,7 @@
 package org.invenzzia.opentrans.visitons.render;
 
 import java.awt.Graphics2D;
-import java.util.List;
-import org.invenzzia.opentrans.visitons.world.Segment;
-import org.invenzzia.opentrans.visitons.world.World;
+import java.util.Map;
 
 /**
  * Rendering stream is a single phase of rendering that paints a certain
@@ -34,15 +32,6 @@ import org.invenzzia.opentrans.visitons.world.World;
  */
 public interface IRenderingStream {
 	/**
-	 * @param segments Mutable (do not change) list of visible segments in the viewport.
-	 */
-	public void setVisibleSegmentList(List<Segment> segments);
-	/**
-	 * @param world Rendered world.
-	 */
-	public void setWorld(World world);
-	
-	/**
 	 * Renders a single frame of the animation using the given graphics device and viewport
 	 * settings. For animations, the actual time of rendering the previous frame is given.
 	 * The method is called sequentially for all the registered streams, and all of them
@@ -50,8 +39,8 @@ public interface IRenderingStream {
 	 * already painted with this device.
 	 * 
 	 * @param graphics Graphics device.
-	 * @param viewport Camera model data snapshot about the viewport.
+	 * @param scene Description of the stuff in the scene.
 	 * @param prevTimeFrame The time of rendering the previous frame in milliseconds.
 	 */
-	public void render(Graphics2D graphics, CameraModelSnapshot viewport, long prevTimeFrame);
+	public void render(Graphics2D graphics, Map<Object, Object> scene, long prevTimeFrame);
 } 

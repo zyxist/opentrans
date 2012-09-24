@@ -24,8 +24,8 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import org.invenzzia.opentrans.visitons.world.Segment;
-import org.invenzzia.opentrans.visitons.world.World;
 
 /**
  * Active rendered which renders the world to the image buffer which can be used
@@ -38,7 +38,7 @@ import org.invenzzia.opentrans.visitons.world.World;
  * 
  * @author Tomasz Jędrzejewski
  */
-public final class Renderer implements ICameraModelListener {
+public final class Renderer {
 	/**
 	 * The color of the background.
 	 */
@@ -52,25 +52,13 @@ public final class Renderer implements ICameraModelListener {
 	 */
 	private BufferedImage drawnImage;
 	/**
-	 * Viewport information.
+	 * Map of resources to draw on the buffer.
 	 */
-	private CameraModel model;
-	/**
-	 * Rendered world.
-	 */
-	private final World world;
-	/**
-	 * Notification about camera model update, processed at the end of the frame rendering.
-	 */
-	private boolean modelUpdated;
+	private SceneManager sceneManager;
 	/**
 	 * Snapshot of the camera model - we don't have to care about updates and blocking.
 	 */
-	private CameraModelSnapshot viewport;
-	/**
-	 * The viewport copy that shall replace the current viewport snapshot information at the end of rendering of the current frame.
-	 */
-	private CameraModelSnapshot viewportCopy;
+	private CameraModelSnapshot previousModel;
 	/**
 	 * Rendering streams that paint sequentially on the device in each frame.
 	 */
@@ -80,48 +68,64 @@ public final class Renderer implements ICameraModelListener {
 	 */
 	private List<Segment> visibleSegments = new LinkedList<>();
 	
-	public Renderer(World world) {
-		this.world = Preconditions.checkNotNull(world, "The renderer cannot operate without a world model.");
+	public Renderer(SceneManager sceneManager) {
+		this.sceneManager = Preconditions.checkNotNull(sceneManager, "The renderer cannot operate without a scene manager.");
+		this.createBuffers();
 	}
 	
-	public void setCameraModel(CameraModel model) {
-		
-		if(null != model) {
+	/**
+	 * This method reads the data from the camera model and creates the initial buffers.
+	 */
+	private void createBuffers() {
+		CameraModelSnapshot model = (CameraModelSnapshot) this.sceneManager.getResource(CameraModelSnapshot.class);
+		int width = model.getViewportWidthPx();
+		int height = model.getViewportHeightPx();
+		if(width <= 0) {
+			width = 100;
+		}
+		if(height <= 0) {
+			height = 100;
+		}
+		this.servedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+		this.drawnImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+	}
+	
+	/**
+	 * Updates the buffer structures if the camera model has been changed.
+	 */
+	private void updateBuffers(Map<Object, Object> snapshot) {
+		CameraModelSnapshot model = (CameraModelSnapshot) snapshot.get(CameraModelSnapshot.class);
+		if(model != this.previousModel) {
 			int width = model.getViewportWidthPx();
-			int height = model.getViewportHeightPx();
 			if(width <= 0) {
 				width = 100;
 			}
+			int height = model.getViewportHeightPx();
 			if(height <= 0) {
 				height = 100;
 			}
-			this.viewport = new CameraModelSnapshot(model);
-			this.servedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 			this.drawnImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-
-			model.addCameraModelListener(this);
-
-			this.findVisibleSegments();
-			this.model = model;
-		} else {
-			this.model = model;
-			this.servedImage = null;
-			this.drawnImage = null;
-			this.viewport = null;
-			this.visibleSegments.clear();
 		}
-		
 	}
 	
-	public CameraModel getCameraModel() {
-		return this.model;
+	/**
+	 * Replaces the served buffer with the buffer we are drawing on.
+	 * @param snapshot 
+	 */
+	public void swapBuffers(Map<Object, Object> snapshot) {
+		CameraModelSnapshot model = (CameraModelSnapshot) snapshot.get(CameraModelSnapshot.class);
+		
+		BufferedImage tmp = this.servedImage;
+		this.servedImage = this.drawnImage;
+		this.drawnImage = tmp;
+		this.previousModel = model;
 	}
 	
 	/**
 	 * Appends a new stream to the rendering queue.
 	 */
 	public void addRenderingStream(IRenderingStream stream) {
-		this.renderingStreams.add(stream);
+		this.renderingStreams.add(Preconditions.checkNotNull(stream, "Attempt to register a NULL rendering stream."));
 	}
 	
 	/**
@@ -141,25 +145,7 @@ public final class Renderer implements ICameraModelListener {
 	public BufferedImage getServedImage() {
 		return this.servedImage;
 	}
-	
-	public CameraModel getModel() {
-		return this.model;
-	}
-	
-	public World getWorld() {
-		return this.world;
-	}
-	
-	/**
-	 * Provides a reference to the list of visible segments. It is not immutable, but the users
-	 * shall not modify it.
-	 * 
-	 * @return List of visible segments.
-	 */
-	public List<Segment> getVisibleSegments() {
-		return this.visibleSegments;
-	}
-	
+
 	/**
 	 * Renders the single frame and swaps the camera buffers. In order to make the animations
 	 * work, the method expects the actual rendering time of the previous frame.
@@ -167,34 +153,24 @@ public final class Renderer implements ICameraModelListener {
 	 * @param prevFrameTime Actual rendering time of the previous frame.
 	 */
 	public void render(long prevFrameTime) {
+		Map<Object, Object> snapshot = this.sceneManager.getSnapshot();
+		this.updateBuffers(snapshot);
+		
 		Graphics g = this.drawnImage.getGraphics();
 		g.setColor(Renderer.BACKGROUND_COLOR);
 		g.fillRect(0, 0, this.drawnImage.getWidth(), this.drawnImage.getHeight());
 		
 		// Run the rendering streams.
 		for(IRenderingStream stream: this.renderingStreams) {
-			stream.setWorld(this.world);
-			stream.setVisibleSegmentList(this.visibleSegments);
-			stream.render((Graphics2D) g, this.viewport, prevFrameTime);
+			stream.render((Graphics2D) g, snapshot, prevFrameTime);
 		}
-
-		// Swap buffers.
-		BufferedImage tmp = this.servedImage;
-		this.servedImage = this.drawnImage;
-		if(this.modelUpdated) {
-			this.drawnImage = new BufferedImage(model.getViewportWidthPx(), model.getViewportHeightPx(), BufferedImage.TYPE_INT_ARGB);
-			this.viewport = this.viewportCopy;
-			this.findVisibleSegments();
-			this.modelUpdated = false;
-		} else {
-			this.drawnImage = tmp;
-		}
-		
+		this.swapBuffers(snapshot);
 	}
-	
+
 	/**
 	 * Scans the segment table and determines, which segments are visible in our viewport.
 	 */
+/*
 	protected void findVisibleSegments() {	
 		int whereStartsX = (int) Math.round(Math.floor(this.viewport.getPosX() / 1000.0));
 		int whereStartsY = (int) Math.round(Math.floor(this.viewport.getPosY() / 1000.0));
@@ -214,10 +190,5 @@ public final class Renderer implements ICameraModelListener {
 			}
 		}
 	}
-
-	@Override
-	public void cameraUpdated(CameraModel model) {
-		this.viewportCopy = new CameraModelSnapshot(model);
-		this.modelUpdated = true;
-	}
+*/
 }

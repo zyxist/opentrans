@@ -21,6 +21,7 @@ import com.google.common.eventbus.EventBus;
 import org.invenzzia.helium.gui.ContextManagerService;
 import org.invenzzia.helium.gui.ui.menu.MenuModel;
 import org.invenzzia.helium.gui.ui.menu.element.Position;
+import org.invenzzia.helium.gui.ui.menu.element.Separator;
 import org.invenzzia.opentrans.client.ui.netview.IOperationMode;
 
 /**
@@ -38,6 +39,10 @@ public class SelectionMode implements IOperationMode {
 	public SelectionMode(EventBus eventBus, ContextManagerService contextManager) {
 		this.contextMenuModel = new MenuModel(eventBus, contextManager);
 		this.contextMenuModel.appendElement(new Position("set-segment-bitmap", "Set segment bitmap", "setSegmentBitmap"));
+		this.contextMenuModel.appendElement(new Position("remove-segment-bitmap", "Remove segment bitmap", "removeSegmentBitmap"));
+		this.contextMenuModel.appendElement(new Separator("zoom-separator"));
+		this.contextMenuModel.appendElement(new Position("zoom-in", "Zoom in", "zoomIn"));
+		this.contextMenuModel.appendElement(new Position("zoom-out", "Zoom out", "zoomOut"));
 	}
 
 	@Override

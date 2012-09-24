@@ -18,12 +18,18 @@
 package org.invenzzia.opentrans.client.editor.opmodes.selection;
 
 import com.google.common.base.Preconditions;
+import com.google.common.eventbus.EventBus;
 import java.io.File;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileFilter;
 import org.invenzzia.helium.application.Application;
 import org.invenzzia.helium.gui.annotation.Action;
+import org.invenzzia.helium.gui.events.StatusChangeEvent;
+import org.invenzzia.helium.gui.mvc.ModelService;
+import org.invenzzia.opentrans.client.ui.netview.ClickedElement;
+import org.invenzzia.opentrans.visitons.factory.SceneFactory;
+import org.invenzzia.opentrans.visitons.render.CameraModel;
 
 /**
  * Actions for the context pop-up menu used in the 'selection'
@@ -32,29 +38,67 @@ import org.invenzzia.helium.gui.annotation.Action;
  * @author Tomasz Jędrzejewski
  */
 public class SelectionMenuActions {
-	private Application application;
+	private SceneFactory sceneFactory;
+	private EventBus eventBus;
+	private CameraModel cameraModel;
 	/**
 	 * The location of the last selected bitmap - user experience.
 	 */
 	private String lastBitmapDirectory = null;
 	
-	public SelectionMenuActions(Application app) {
-		this.application = Preconditions.checkNotNull(app);
+	public SelectionMenuActions(EventBus eventBus, SceneFactory sceneFactory, ModelService service) {
+		this.eventBus = Preconditions.checkNotNull(eventBus);
+		this.sceneFactory = Preconditions.checkNotNull(sceneFactory);
+		this.cameraModel = service.get(CameraModel.class);
 	}
 	
 	@Action(id="setSegmentBitmap")
-	public void setSegmentBitmapAction() {
-		JFileChooser chooser;
-		if(null == this.lastBitmapDirectory) {
-			chooser = new JFileChooser(System.getProperty("user.home"));
+	public void setSegmentBitmapAction(ClickedElement element) {
+		if(null != element) {
+			JFileChooser chooser;
+			if(null == this.lastBitmapDirectory) {
+				chooser = new JFileChooser(System.getProperty("user.home"));
+			} else {
+				chooser = new JFileChooser(this.lastBitmapDirectory);
+			}
+			chooser.addChoosableFileFilter(new SegmentBitmapFilter());
+			chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+
+			if(JFileChooser.APPROVE_OPTION == chooser.showOpenDialog(null)) {
+				File theFile = chooser.getSelectedFile();
+				element.getSegment().setImagePath(theFile.getAbsolutePath());
+				this.sceneFactory.onSegmentPropertiesUpdate();
+				eventBus.post(new StatusChangeEvent("New segment image has been set."));
+			}
 		} else {
-			chooser = new JFileChooser(this.lastBitmapDirectory);
+			eventBus.post(new StatusChangeEvent("Please click on a segment to select a bitmap image for it."));
 		}
-		chooser.addChoosableFileFilter(new SegmentBitmapFilter());
-		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-		
-		if(JFileChooser.APPROVE_OPTION == chooser.showOpenDialog(null)) {
-			JOptionPane.showMessageDialog(null, "To be done.");
+	}
+	
+	@Action(id="removeSegmentBitmap")
+	public void removeSegmentBitmapAction(ClickedElement element) {
+		if(null != element) {
+			element.getSegment().setImagePath(null);
+			this.sceneFactory.onSegmentPropertiesUpdate();
+			eventBus.post(new StatusChangeEvent("Segment image has been removed."));
+		} else {
+			eventBus.post(new StatusChangeEvent("Please click on a segment to select a bitmap image for it."));
+		}
+	}
+	
+	@Action(id="zoomIn")
+	public void zoomInAction(ClickedElement element) {
+		if(null != element) {
+			this.cameraModel.centerAt(element.getX(), element.getY());
+			this.cameraModel.setMpp(this.cameraModel.getMpp() / 2.0);
+		}
+	}
+	
+	@Action(id="zoomOut")
+	public void zoomOutAction(ClickedElement element) {
+		if(null != element) {
+			this.cameraModel.centerAt(element.getX(), element.getY());
+			this.cameraModel.setMpp(this.cameraModel.getMpp() * 2.0);
 		}
 	}
 	

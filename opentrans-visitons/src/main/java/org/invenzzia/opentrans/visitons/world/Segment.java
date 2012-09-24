@@ -41,11 +41,7 @@ public class Segment {
 	 */
 	private int positionY;
 	/**
-	 * Stores a background bitmap, but only if the image is already displayed.
-	 */
-	private Image image;
-	/**
-	 * The path to the image.
+	 * The path to the background bitmap.
 	 */
 	private String imagePath;
 	/**
@@ -87,6 +83,17 @@ public class Segment {
 		return false;
 	}
 
+	public void setImagePath(String imagePath) {
+		this.imagePath = imagePath;
+	}
+	
+	/**
+	 * @return Path to the bitmap image.
+	 */
+	public String getImagePath() {
+		return this.imagePath;
+	}
+	
 	/**
 	 * Adds a new vertex to the segment. Avoid using this method in favour of {@link World#addVertex}.
 	 *
@@ -96,4 +103,4 @@ public class Segment {
 	Segment addVertex(Vertex vertex) {
 		return this;
 	}
-} // end Segment;
+}

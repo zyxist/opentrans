@@ -112,10 +112,10 @@ public class NetviewCommandTranslator extends MouseAdapter {
 	private ClickedElement createClickedElementFromMouseEvent(MouseEvent event) {
 		World world = this.projectContext.getProject().getWorld();
 		
-		double x = this.cameraModel.world2pixX(event.getX());
-		double y = this.cameraModel.world2pixY(event.getY());
+		double x = this.cameraModel.pix2worldX(event.getX());
+		double y = this.cameraModel.pix2worldY(event.getY());
 		
-		if(x >= 0.0 && x <= world.getX() * CameraModel.SEGMENT_SIZE && y >= 0 && y <= world.getY() * CameraModel.SEGMENT_SIZE) {
+		if(x >= 0.0 && x <= (world.getX() * CameraModel.SEGMENT_SIZE) && y >= 0 && y <= (world.getY() * CameraModel.SEGMENT_SIZE)) {
 			Segment segment = world.findSegment((int)(x / CameraModel.SEGMENT_SIZE), (int)(y / CameraModel.SEGMENT_SIZE));	
 			return new ClickedElement(segment, x % CameraModel.SEGMENT_SIZE, y % CameraModel.SEGMENT_SIZE);
 		}

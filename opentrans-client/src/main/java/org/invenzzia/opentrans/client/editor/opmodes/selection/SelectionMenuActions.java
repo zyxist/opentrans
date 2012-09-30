@@ -89,16 +89,16 @@ public class SelectionMenuActions {
 	@Action(id="zoomIn")
 	public void zoomInAction(ClickedElement element) {
 		if(null != element) {
-			this.cameraModel.centerAt(element.getX(), element.getY());
 			this.cameraModel.setMpp(this.cameraModel.getMpp() / 2.0);
+			this.cameraModel.centerAt(element.getX(), element.getY());
 		}
 	}
 	
 	@Action(id="zoomOut")
 	public void zoomOutAction(ClickedElement element) {
 		if(null != element) {
-			this.cameraModel.centerAt(element.getX(), element.getY());
 			this.cameraModel.setMpp(this.cameraModel.getMpp() * 2.0);
+			this.cameraModel.centerAt(element.getX(), element.getY());
 		}
 	}
 	

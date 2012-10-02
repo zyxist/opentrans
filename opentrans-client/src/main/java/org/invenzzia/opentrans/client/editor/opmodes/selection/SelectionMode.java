@@ -17,13 +17,17 @@
  */
 package org.invenzzia.opentrans.client.editor.opmodes.selection;
 
+import com.google.common.base.Preconditions;
 import com.google.common.eventbus.EventBus;
 import org.invenzzia.helium.gui.ContextManagerService;
+import org.invenzzia.helium.gui.mvc.ModelService;
 import org.invenzzia.helium.gui.ui.menu.MenuModel;
 import org.invenzzia.helium.gui.ui.menu.element.Position;
 import org.invenzzia.helium.gui.ui.menu.element.Separator;
 import org.invenzzia.opentrans.client.ui.netview.ClickedElement;
 import org.invenzzia.opentrans.client.ui.netview.IOperationMode;
+import org.invenzzia.opentrans.visitons.factory.SceneFactory;
+import org.invenzzia.opentrans.visitons.render.CameraModel;
 
 /**
  * In the selection mode, we can select the parts of the infrastructure
@@ -36,14 +40,19 @@ import org.invenzzia.opentrans.client.ui.netview.IOperationMode;
  */
 public class SelectionMode implements IOperationMode {
 	private MenuModel contextMenuModel;
+	private SceneFactory sceneFactory;
+	private CameraModel camera;
 	
-	public SelectionMode(EventBus eventBus, ContextManagerService contextManager) {
+	public SelectionMode(EventBus eventBus, ContextManagerService contextManager, SceneFactory sceneFactory, ModelService service) {
 		this.contextMenuModel = new MenuModel(eventBus, contextManager);
 		this.contextMenuModel.appendElement(new Position("set-segment-bitmap", "Set segment bitmap", "setSegmentBitmap"));
 		this.contextMenuModel.appendElement(new Position("remove-segment-bitmap", "Remove segment bitmap", "removeSegmentBitmap"));
 		this.contextMenuModel.appendElement(new Separator("zoom-separator"));
 		this.contextMenuModel.appendElement(new Position("zoom-in", "Zoom in", "zoomIn"));
 		this.contextMenuModel.appendElement(new Position("zoom-out", "Zoom out", "zoomOut"));
+		
+		this.sceneFactory = sceneFactory;
+		this.camera = Preconditions.checkNotNull(service.get(CameraModel.class), "No Camera model in the model service.");
 	}
 
 	@Override
@@ -81,11 +90,21 @@ public class SelectionMode implements IOperationMode {
 
 	@Override
 	public void mouseClicked(ClickedElement element, short button) {
-		throw new UnsupportedOperationException("Not supported yet.");
+		if(button == IOperationMode.CLICK_LEFT) {
+			this.camera.centerAt(element.getX(), element.getY());
+			this.sceneFactory.onCameraUpdate();
+		}
 	}
 
 	@Override
 	public void mouseMoved(ClickedElement element) {
-		throw new UnsupportedOperationException("Not supported yet.");
+	}
+
+	@Override
+	public void mouseDragged(ClickedElement element, short button) {
+		if(button == IOperationMode.CLICK_RIGHT) {
+			this.camera.centerAt(element.getX(), element.getY());
+			this.sceneFactory.onCameraUpdate();
+		}
 	}
 }

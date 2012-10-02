@@ -27,7 +27,9 @@ import org.invenzzia.helium.gui.ui.menu.MenuController;
 import org.invenzzia.helium.gui.ui.menu.MenuModel;
 import org.invenzzia.helium.gui.ui.menu.PopupView;
 import org.invenzzia.opentrans.client.context.ProjectContext;
+import org.invenzzia.opentrans.visitons.render.AbstractCameraModelFoundation;
 import org.invenzzia.opentrans.visitons.render.CameraModel;
+import org.invenzzia.opentrans.visitons.render.CameraModelSnapshot;
 import org.invenzzia.opentrans.visitons.world.Segment;
 import org.invenzzia.opentrans.visitons.world.World;
 
@@ -47,6 +49,15 @@ public class NetviewCommandTranslator extends MouseAdapter {
 	private NetviewActionInterceptor actionInterceptor;
 	private ProjectContext projectContext;
 	private CameraModel cameraModel;
+	
+	/**
+	 * Flag that tells us that we are currently dragging the mouse.
+	 */
+	private boolean dragging = false;
+	/**
+	 * Camera model snapshot used for clicked element calculations during the mouse dragging.
+	 */
+	private CameraModelSnapshot dragSnapshot;
 	
 	public NetviewCommandTranslator(
 		MenuController controller,
@@ -77,17 +88,33 @@ public class NetviewCommandTranslator extends MouseAdapter {
 	
 	@Override
 	public void mouseReleased(MouseEvent event) {
-		if(event.getButton() == MouseEvent.BUTTON3) {
-			// Right click activates the menu
-			this.togglePopupMenu(event);
+		if(this.dragging) {
+			this.dragging = false;
+			this.dragSnapshot = null;
 		} else {
-			this.operationMode.mouseClicked(this.createClickedElementFromMouseEvent(event), IOperationMode.CLICK_LEFT);
+			if(event.getButton() == MouseEvent.BUTTON3) {
+				// Right click activates the menu
+				this.togglePopupMenu(event);
+			} else {
+				this.operationMode.mouseClicked(this.createClickedElementFromMouseEvent(event, this.cameraModel), IOperationMode.CLICK_LEFT);
+			}
 		}
 	}
 	
 	@Override
 	public void mouseMoved(MouseEvent event) {
-		this.operationMode.mouseMoved(this.createClickedElementFromMouseEvent(event));
+		this.operationMode.mouseMoved(this.createClickedElementFromMouseEvent(event, this.cameraModel));
+	}
+
+	@Override
+	public void mouseDragged(MouseEvent event) {
+		if(false == this.dragging) {
+			this.dragging = true;
+			this.dragSnapshot = new CameraModelSnapshot(this.cameraModel);
+		}
+		this.operationMode.mouseDragged(this.createClickedElementFromMouseEvent(event, this.dragSnapshot),
+			event.getButton() == MouseEvent.BUTTON3 ? IOperationMode.CLICK_LEFT : IOperationMode.CLICK_RIGHT
+		);
 	}
 
 	/**
@@ -99,7 +126,7 @@ public class NetviewCommandTranslator extends MouseAdapter {
 		if(null != this.operationMode) {
 			MenuModel model = this.operationMode.getContextMenuModel();
 			if(null != model) {
-				actionInterceptor.setClickedElement(this.createClickedElementFromMouseEvent(event));
+				actionInterceptor.setClickedElement(this.createClickedElementFromMouseEvent(event, this.cameraModel));
 				PopupView popupView = new PopupView();
 				popupView.setModel(model);
 				popupView.setController(this.controller);
@@ -114,11 +141,11 @@ public class NetviewCommandTranslator extends MouseAdapter {
 	 * @param event The event to translate.
 	 * @return Clicked element 
 	 */
-	private ClickedElement createClickedElementFromMouseEvent(MouseEvent event) {
+	private ClickedElement createClickedElementFromMouseEvent(MouseEvent event, AbstractCameraModelFoundation cm) {
 		World world = this.projectContext.getProject().getWorld();
 		
-		double x = this.cameraModel.pix2worldX(event.getX());
-		double y = this.cameraModel.pix2worldY(event.getY());
+		double x = cm.pix2worldX(event.getX());
+		double y = cm.pix2worldY(event.getY());
 		
 		if(x >= 0.0 && x <= (world.getX() * CameraModel.SEGMENT_SIZE) && y >= 0 && y <= (world.getY() * CameraModel.SEGMENT_SIZE)) {
 			Segment segment = world.findSegment((int)(x / CameraModel.SEGMENT_SIZE), (int)(y / CameraModel.SEGMENT_SIZE));	

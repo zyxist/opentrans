@@ -59,4 +59,13 @@ public interface IOperationMode extends IOperation {
 	 * @param button Button used for clicking.
 	 */	
 	public void mouseMoved(ClickedElement element);
+	/**
+	 * This method is called by the command translator when we drag a mouse on
+	 * a network map. We receive information about the neighbourhood (position+segment
+	 * in world units, nearby vertices and tracks).
+	 * 
+	 * @param element Where we have clicked?
+	 * @param button Button used for clicking.
+	 */
+	public void mouseDragged(ClickedElement element, short button);
 }

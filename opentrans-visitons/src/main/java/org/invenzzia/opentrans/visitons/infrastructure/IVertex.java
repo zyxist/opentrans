@@ -18,6 +18,7 @@
 package org.invenzzia.opentrans.visitons.infrastructure;
 
 import java.util.Map;
+import org.invenzzia.opentrans.visitons.world.Segment;
 
 /**
  * Description here.
@@ -35,6 +36,10 @@ public interface IVertex<T extends IVertex> extends ICopiable<T> {
 	 */
 	public void setId(long id);
 	/**
+	 * @return The segment of the vertex.
+	 */
+	public Segment getSegment();
+	/**
 	 * @return X coordinate in the segment units.
 	 */
 	public double x();
@@ -48,13 +53,32 @@ public interface IVertex<T extends IVertex> extends ICopiable<T> {
 	public ITrack[] getTracks();
 	
 	public void setTrack(int id, ITrack track);
-	
-	public void registerUpdate(double x, double y);
-	
+	/**
+	 * Registers new coordinates of this vertex that we wish to apply. In order
+	 * to verify the correctness of our intents, we shall call {@link isUpdatePossible},
+	 * and then either {@link applyUpdate} or {@link rollbackUpdate} if the new
+	 * position is incorrect.
+	 * 
+	 * @param x
+	 * @param y 
+	 */
+	public void registerUpdate(Segment segment, double x, double y);
+	/**
+	 * The implementation shall vertify the new intended position of the vertex, whether
+	 * it is correct and mathematically valid for all the interested tracks. If no,
+	 * this method must return false.
+	 * 
+	 * @return True, if the moving to the indented position is mathematically correct. 
+	 */
 	public boolean isUpdatePossible();
-	
+	/**
+	 * Applies the update of the vertex coordinates. It also recalculates all the
+	 * interested tracks.
+	 */
 	public void applyUpdate();
-	
+	/**
+	 * Removes the information about the suggested update from the vertex.
+	 */
 	public void rollbackUpdate();
 	
 	public void markAsDeleted();

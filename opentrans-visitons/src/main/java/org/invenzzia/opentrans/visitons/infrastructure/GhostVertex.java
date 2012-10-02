@@ -18,6 +18,7 @@
 package org.invenzzia.opentrans.visitons.infrastructure;
 
 import com.google.common.base.Preconditions;
+import org.invenzzia.opentrans.visitons.world.Segment;
 
 /**
  * Used for editable graph logic. Cannot be edited, wraps actual vertex
@@ -47,7 +48,7 @@ public class GhostVertex implements IVertex<GhostVertex> {
 	}
 
 	@Override
-	public void registerUpdate(double x, double y) {
+	public void registerUpdate(Segment segment, double x, double y) {
 		throw new UnsupportedOperationException("Not supported yet.");
 	}
 
@@ -109,5 +110,10 @@ public class GhostVertex implements IVertex<GhostVertex> {
 	@Override
 	public double y() {
 		return this.delegate.y();
+	}
+
+	@Override
+	public Segment getSegment() {
+		return this.delegate.getSegment();
 	}
 }

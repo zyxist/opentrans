@@ -20,16 +20,15 @@ package org.invenzzia.opentrans.visitons.utils;
 import org.invenzzia.opentrans.visitons.world.Segment;
 
 /**
- * Coordinates within a segment.
- * 
- * @author Tomasz Jędrzejewski
+ *
+ * @author zyxist
  */
-public final class SegmentCoordinate {
-	private final Segment segment;
-	private final double x;
-	private final double y;
+public class MutableSegmentCoordinate {
+	protected Segment segment;
+	protected double x;
+	protected double y;
 
-	public SegmentCoordinate(Segment s, double x, double y) {
+	public MutableSegmentCoordinate(Segment s, double x, double y) {
 		this.segment = s;
 		this.x = x;
 		this.y = y;

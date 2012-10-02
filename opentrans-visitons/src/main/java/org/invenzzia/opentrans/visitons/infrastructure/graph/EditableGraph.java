@@ -125,7 +125,8 @@ public class EditableGraph {
 		if(!this.existingVertices.containsValue(vertex) && !this.newVertices.contains(vertex)) {
 			throw new GraphException(String.format("The vertex %d does not belong to this graph.", vertex.getId()));
 		}
-		vertex.registerUpdate(dx, dy);
+		throw new UnsupportedOperationException("Moving by vector not implemented yet.");
+	/*	vertex.registerUpdate(null, dx, dy);
 		try {
 			if(!vertex.isUpdatePossible()) {
 				vertex.rollbackUpdate();
@@ -140,6 +141,7 @@ public class EditableGraph {
 		}
 		vertex.applyUpdate();
 		return true;
+		*/
 	}
 
 	/**
@@ -181,6 +183,8 @@ public class EditableGraph {
 	}
 	
 	private boolean moveByVectorImpl(Collection<IVertex> vertices, double dx, double dy) throws GraphException {
+		throw new UnsupportedOperationException("Moving by vector not implemented yet.");
+		/*
 		for(IVertex vertex: vertices) {
 			vertex.registerUpdate(dx, dy);
 		}
@@ -200,7 +204,7 @@ public class EditableGraph {
 				vertex.applyUpdate();
 			}
 		}
-		return true;
+		return true;*/
 	}
 
 	/**

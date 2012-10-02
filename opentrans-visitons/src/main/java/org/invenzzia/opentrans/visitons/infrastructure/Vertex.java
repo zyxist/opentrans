@@ -18,35 +18,31 @@
 package org.invenzzia.opentrans.visitons.infrastructure;
 
 import com.google.common.base.Preconditions;
-import java.util.List;
-import java.util.Map;
+import org.invenzzia.opentrans.visitons.utils.MutableSegmentCoordinate;
+import org.invenzzia.opentrans.visitons.world.Segment;
 
 /**
  * Description here.
  * 
  * @author Tomasz Jędrzejewski
  */
-public class Vertex implements IVertex<Vertex> {
+public class Vertex extends MutableSegmentCoordinate implements IVertex<Vertex> {
 	/**
 	 * Contains the references to edges coming out from this vertex.
 	 */
 	protected ITrack[] tracks;
 	/**
-	 * Actual X location in the world units.
-	 */
-	protected double x;
-	/**
-	 * Actual Y location in the world units.
-	 */
-	protected double y;
-	/**
 	 * Temporary X, used in the move operation.
 	 */
 	protected double tempX;
 	/**
-	 * Temporary U, used in the move operation.
+	 * Temporary Y, used in the move operation.
 	 */
 	protected double tempY;
+	/**
+	 * Temporary segment, used in the move operation.
+	 */
+	protected Segment tempSegment;
 	
 	protected long id;
 
@@ -57,11 +53,10 @@ public class Vertex implements IVertex<Vertex> {
 	 * @param x
 	 * @param y
 	 */
-	public Vertex(long id, int trackNum, double x, double y) {
+	public Vertex(long id, int trackNum, Segment segment, double x, double y) {
+		super(segment, x, y);
 		this.tracks = new ITrack[trackNum];
 		this.id = id;
-		this.x = x;
-		this.y = y;
 	}
 
 	@Override
@@ -75,19 +70,10 @@ public class Vertex implements IVertex<Vertex> {
 	}
 
 	@Override
-	public void registerUpdate(double x, double y) {
+	public void registerUpdate(Segment segment, double x, double y) {
 		this.tempX = x;
 		this.tempY = y;
-	}
-	
-	@Override
-	public double x() {
-		return this.x;
-	}
-	
-	@Override
-	public double y() {
-		return this.y;
+		this.tempSegment = Preconditions.checkNotNull(segment, "Attempt to set an empty segment.");
 	}
 
 	@Override
@@ -117,7 +103,7 @@ public class Vertex implements IVertex<Vertex> {
 	
 	@Override
 	public Vertex fork() {
-		Vertex nv = new Vertex(this.getId(), this.tracks.length, this.x, this.y);
+		Vertex nv = new Vertex(this.getId(), this.tracks.length, this.segment, this.x, this.y);
 		System.arraycopy(this.tracks, 0, nv.tracks, 0, this.tracks.length);
 		return nv;
 	}

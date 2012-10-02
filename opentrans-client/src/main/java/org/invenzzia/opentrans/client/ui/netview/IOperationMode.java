@@ -26,6 +26,9 @@ import org.invenzzia.helium.gui.ui.menu.MenuModel;
  * @author Tomasz Jędrzejewski
  */
 public interface IOperationMode extends IOperation {
+	public static final short CLICK_LEFT = 0;
+	public static final short CLICK_RIGHT = 1;
+	
 	public void modeActivated();
 	public void modeDeactivated();
 	public String getHelpText();
@@ -38,4 +41,22 @@ public interface IOperationMode extends IOperation {
 	 * @return Class implementing the pop-up menu actions.
 	 */
 	public Class<?> getMenuActions();
+	/**
+	 * This method is called by the command translator when we click with a mouse
+	 * on a network map. We receive information about the neighbourhood (position+segment
+	 * in world units, nearby vertices and tracks).
+	 * 
+	 * @param element Where we have clicked?
+	 * @param button Button used for clicking.
+	 */
+	public void mouseClicked(ClickedElement element, short button);
+	/**
+	 * This method is called by the command translator when we move a mouse
+	 * on a network map. We receive information about the neighbourhood (position+segment
+	 * in world units, nearby vertices and tracks).
+	 * 
+	 * @param element Where we have clicked?
+	 * @param button Button used for clicking.
+	 */	
+	public void mouseMoved(ClickedElement element);
 }

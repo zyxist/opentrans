@@ -22,6 +22,7 @@ import org.invenzzia.helium.gui.ContextManagerService;
 import org.invenzzia.helium.gui.ui.menu.MenuModel;
 import org.invenzzia.helium.gui.ui.menu.element.Position;
 import org.invenzzia.helium.gui.ui.menu.element.Separator;
+import org.invenzzia.opentrans.client.ui.netview.ClickedElement;
 import org.invenzzia.opentrans.client.ui.netview.IOperationMode;
 
 /**
@@ -76,5 +77,15 @@ public class SelectionMode implements IOperationMode {
 	@Override
 	public Class<?> getMenuActions() {
 		return SelectionMenuActions.class;
+	}
+
+	@Override
+	public void mouseClicked(ClickedElement element, short button) {
+		throw new UnsupportedOperationException("Not supported yet.");
+	}
+
+	@Override
+	public void mouseMoved(ClickedElement element) {
+		throw new UnsupportedOperationException("Not supported yet.");
 	}
 }

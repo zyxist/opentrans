@@ -81,10 +81,15 @@ public class NetviewCommandTranslator extends MouseAdapter {
 			// Right click activates the menu
 			this.togglePopupMenu(event);
 		} else {
-			
+			this.operationMode.mouseClicked(this.createClickedElementFromMouseEvent(event), IOperationMode.CLICK_LEFT);
 		}
 	}
 	
+	@Override
+	public void mouseMoved(MouseEvent event) {
+		this.operationMode.mouseMoved(this.createClickedElementFromMouseEvent(event));
+	}
+
 	/**
 	 * Shows the pop-up menu with the extra actions downloaded from the current operation mode.
 	 * 

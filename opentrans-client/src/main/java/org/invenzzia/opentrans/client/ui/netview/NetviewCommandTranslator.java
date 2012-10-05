@@ -112,9 +112,12 @@ public class NetviewCommandTranslator extends MouseAdapter {
 			this.dragging = true;
 			this.dragSnapshot = new CameraModelSnapshot(this.cameraModel);
 		}
-		this.operationMode.mouseDragged(this.createClickedElementFromMouseEvent(event, this.dragSnapshot),
-			event.getButton() == MouseEvent.BUTTON3 ? IOperationMode.CLICK_LEFT : IOperationMode.CLICK_RIGHT
-		);
+		ClickedElement element = this.createClickedElementFromMouseEvent(event, this.dragSnapshot);
+		if(null != element) {
+			this.operationMode.mouseDragged(element,
+				event.getButton() == MouseEvent.BUTTON3 ? IOperationMode.CLICK_LEFT : IOperationMode.CLICK_RIGHT
+			);
+		}
 	}
 
 	/**

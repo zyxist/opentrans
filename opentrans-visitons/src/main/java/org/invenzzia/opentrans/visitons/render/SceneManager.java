@@ -58,7 +58,11 @@ public class SceneManager {
 		}
 		try {
 			this.lock.lock();
-			this.scene.put(key, value);
+			if(null == value) {
+				this.scene.remove(key);
+			} else {
+				this.scene.put(key, value);
+			}
 		} finally {
 			this.lock.unlock();
 		}
@@ -76,7 +80,11 @@ public class SceneManager {
 		if(!this.batch) {
 			throw new IllegalStateException("Call of the batchUpdateResource() method in normal mode!");
 		}
-		this.scene.put(key, value);
+		if(null == value) {
+			this.scene.remove(key);
+		} else {
+			this.scene.put(key, value);
+		}
 		return this;
 	}
 	

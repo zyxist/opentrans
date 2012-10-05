@@ -29,9 +29,14 @@ import java.util.Map;
 import java.util.Set;
 import javax.imageio.ImageIO;
 import org.invenzzia.opentrans.visitons.VisitonsProject;
+import org.invenzzia.opentrans.visitons.infrastructure.ITrack;
+import org.invenzzia.opentrans.visitons.infrastructure.StraightTrack;
+import org.invenzzia.opentrans.visitons.infrastructure.graph.EditableGraph;
 import org.invenzzia.opentrans.visitons.render.CameraModel;
 import org.invenzzia.opentrans.visitons.render.CameraModelSnapshot;
 import org.invenzzia.opentrans.visitons.render.SceneManager;
+import org.invenzzia.opentrans.visitons.render.scene.TrackSnapshot;
+import org.invenzzia.opentrans.visitons.render.scene.TrackSnapshot.DrawableStraightTrack;
 import org.invenzzia.opentrans.visitons.render.scene.VisibleSegmentSnapshot;
 import org.invenzzia.opentrans.visitons.render.scene.VisibleSegmentSnapshot.SegmentInfo;
 import org.invenzzia.opentrans.visitons.world.Segment;
@@ -177,6 +182,20 @@ public class SceneFactory {
 		}
 		for(Segment s: previouslyVisibleSegments) {
 			this.visibleBitmapImages.remove(s.getImagePath());
+		}
+	}
+	
+	public void onEditableModelUpdate(EditableGraph eg, String key) {
+		if(null == eg) {
+			this.sceneManager.updateResource(key, null);
+		} else {
+			TrackSnapshot ts = new TrackSnapshot();
+			for(ITrack t: eg.getTracks()) {
+				if(t instanceof StraightTrack) {
+					ts.addDrawableTrack(new DrawableStraightTrack((StraightTrack) t));
+				}
+			}
+			this.sceneManager.updateResource(key, ts);
 		}
 	}
 }

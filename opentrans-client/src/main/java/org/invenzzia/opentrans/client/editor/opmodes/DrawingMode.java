@@ -17,13 +17,17 @@
  */
 package org.invenzzia.opentrans.client.editor.opmodes;
 
+import com.google.common.base.Preconditions;
 import org.invenzzia.helium.gui.ui.menu.MenuModel;
 import org.invenzzia.opentrans.client.ui.netview.ClickedElement;
 import org.invenzzia.opentrans.client.ui.netview.IOperationMode;
+import org.invenzzia.opentrans.visitons.factory.SceneFactory;
 import org.invenzzia.opentrans.visitons.infrastructure.IVertex;
 import org.invenzzia.opentrans.visitons.infrastructure.StraightTrack;
 import org.invenzzia.opentrans.visitons.infrastructure.Vertex;
 import org.invenzzia.opentrans.visitons.infrastructure.graph.EditableGraph;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Description here.
@@ -31,6 +35,7 @@ import org.invenzzia.opentrans.visitons.infrastructure.graph.EditableGraph;
  * @author Tomasz Jędrzejewski
  */
 public class DrawingMode implements IOperationMode {
+	private final Logger logger = LoggerFactory.getLogger(DrawingMode.class);
 	/**
 	 * What we are editing?
 	 */
@@ -40,6 +45,14 @@ public class DrawingMode implements IOperationMode {
 	 * cursor position until we click somewhere.
 	 */
 	private IVertex handledVertex;
+	/**
+	 * Helper for populating the scene manager.
+	 */
+	private SceneFactory sceneFactory;
+	
+	public DrawingMode(SceneFactory sf) {
+		this.sceneFactory = Preconditions.checkNotNull(sf);
+	}
 	
 	@Override
 	public void modeActivated() {
@@ -79,6 +92,7 @@ public class DrawingMode implements IOperationMode {
 	public void mouseClicked(ClickedElement element, short button) {
 		if(null == this.handledVertex) {
 			// New drawing starts
+			this.logger.info("Track drawing started.");
 			Vertex v1 = new Vertex(-1, 1, element.getSegment(), element.getX(), element.getY());
 			Vertex v2 = new Vertex(-1, 1, element.getSegment(), element.getX(), element.getY());
 			
@@ -86,7 +100,9 @@ public class DrawingMode implements IOperationMode {
 			track.setVertex(0, v1);
 			track.setVertex(1, v2);
 			v1.setTrack(0, track);
-			v2.setTrack(1, track);
+			v2.setTrack(0, track);
+			
+			this.editableGraph = new EditableGraph();
 			
 			this.editableGraph.addVertex(v1);
 			this.editableGraph.addVertex(v2);
@@ -94,7 +110,10 @@ public class DrawingMode implements IOperationMode {
 			this.handledVertex = v2;
 		} else {
 			// We finish the existing drawing.
+			this.logger.info("Track drawing finished.");
 			this.handledVertex = null;
+			this.editableGraph = null;
+			this.sceneFactory.onEditableModelUpdate(this.editableGraph, null);
 		}
 	}
 
@@ -107,11 +126,12 @@ public class DrawingMode implements IOperationMode {
 			} else {
 				this.handledVertex.rollbackUpdate();
 			}
+			this.sceneFactory.onEditableModelUpdate(this.editableGraph, "edit");
 		}
 	}
 
 	@Override
 	public void mouseDragged(ClickedElement element, short button) {
-		
+		this.logger.error("WTF?");
 	}
 }

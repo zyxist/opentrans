@@ -80,7 +80,7 @@ public class NetviewCommandTranslator extends MouseAdapter {
 	public void setCurrentOperationMode(IOperationMode operationMode) {
 		this.actionManager.unregisterAll();
 		this.operationMode = operationMode;
-		if(null != operationMode) {
+		if(null != operationMode && null != this.operationMode.getMenuActions()) {
 			Object menuActions = this.projectContext.get(this.operationMode.getMenuActions());
 			this.actionManager.registerActions(menuActions);
 		}

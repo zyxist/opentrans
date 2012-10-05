@@ -66,6 +66,7 @@ import org.invenzzia.opentrans.visitons.render.Renderer;
 import org.invenzzia.opentrans.visitons.render.SceneManager;
 import org.invenzzia.opentrans.visitons.render.stream.GridStream;
 import org.invenzzia.opentrans.visitons.render.stream.SegmentBitmapStream;
+import org.invenzzia.opentrans.visitons.render.stream.TrackStream;
 import org.invenzzia.opentrans.visitons.world.World;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -178,6 +179,7 @@ public class ProjectContext extends AbstractContext {
 			{ DrawingMode.class },
 			{ GridStream.class },
 			{ SegmentBitmapStream.class },
+			{ TrackStream.class },
 			{ Renderer.class },
 			
 			// Classes for the operation modes in the editor
@@ -392,6 +394,11 @@ public class ProjectContext extends AbstractContext {
 		Renderer r = this.get(Renderer.class);
 		r.addRenderingStream(this.get(SegmentBitmapStream.class));
 		r.addRenderingStream(this.get(GridStream.class));
+		
+		TrackStream ts = this.get(TrackStream.class);
+		ts.setRecognizedTrackSnapshotKey("edit");
+		
+		r.addRenderingStream(ts);
 		
 		return r;
 	}

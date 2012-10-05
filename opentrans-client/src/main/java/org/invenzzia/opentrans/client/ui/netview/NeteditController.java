@@ -245,6 +245,7 @@ public class NeteditController implements ComponentListener, AdjustmentListener,
 			this.currentOperationMode = (IOperationMode) op;
 			((IOperationMode)op).modeActivated();
 			this.editorView.setOperationModeState(this.currentOperationMode, true);
+			this.commandTranslator.setCurrentOperationMode(this.currentOperationMode);
 		}
 	}
 }

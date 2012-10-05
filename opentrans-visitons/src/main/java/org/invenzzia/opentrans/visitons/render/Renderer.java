@@ -21,6 +21,7 @@ import com.google.common.base.Preconditions;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.util.LinkedList;
 import java.util.List;
@@ -156,8 +157,9 @@ public final class Renderer {
 		Map<Object, Object> snapshot = this.sceneManager.getSnapshot();
 		this.updateBuffers(snapshot);
 		
-		Graphics g = this.drawnImage.getGraphics();
+		Graphics2D g = (Graphics2D) this.drawnImage.getGraphics();
 		g.setColor(Renderer.BACKGROUND_COLOR);
+		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		g.fillRect(0, 0, this.drawnImage.getWidth(), this.drawnImage.getHeight());
 		
 		// Run the rendering streams.

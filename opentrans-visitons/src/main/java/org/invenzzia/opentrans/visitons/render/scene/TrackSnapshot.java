@@ -18,9 +18,13 @@
 package org.invenzzia.opentrans.visitons.render.scene;
 
 import com.google.common.base.Preconditions;
+import java.awt.BasicStroke;
+import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.geom.Arc2D;
 import java.util.LinkedList;
 import java.util.List;
+import org.invenzzia.opentrans.visitons.infrastructure.CurvedTrack;
 import org.invenzzia.opentrans.visitons.infrastructure.IVertex;
 import org.invenzzia.opentrans.visitons.infrastructure.StraightTrack;
 import org.invenzzia.opentrans.visitons.render.CameraModelSnapshot;
@@ -71,6 +75,81 @@ public class TrackSnapshot {
 				camera.world2pixX(this.coordinates[2]),
 				camera.world2pixY(this.coordinates[3])
 			);
+		}
+	}
+	
+	public static class DrawableCurvedTrack implements IDrawableTrack {
+		private final double coordinates[];
+		private final double dbg[];
+		
+		public DrawableCurvedTrack(CurvedTrack t) {
+			this.coordinates = new double[6];
+			this.dbg = new double[8];
+			IVertex v1 = t.getVertex(0);
+			IVertex v2 = t.getVertex(1);
+			
+			double angle1 = -Math.atan2(v1.y() - t.centY(), v1.x() - t.centX());
+			if(angle1 < 0.0) {
+				angle1 += 2* Math.PI;
+			}
+			double angle2 = -Math.atan2(v2.y() - t.centY(), v2.x() - t.centX());
+			if(angle2 < 0.0) {
+				angle2 += 2* Math.PI;
+			}
+			double radius = Math.sqrt(Math.pow(v1.x() - t.centX(), 2) + Math.pow(v1.y() - t.centY(), 2));
+			if(angle2 > angle1) {
+				angle2 -= angle1;
+			} else {
+				angle2 += angle1;
+			}
+			this.coordinates[0] = t.centX() - radius;
+			this.coordinates[1] = t.centY() - radius;
+			this.coordinates[2] = 2 * radius;
+			this.coordinates[3] = 2 * radius;
+			this.coordinates[4] = Math.toDegrees(angle1);
+			this.coordinates[5] = Math.toDegrees(angle2);
+			
+			this.dbg[0] = v1.x();
+			this.dbg[1] = v1.y();
+			this.dbg[2] = v2.x();
+			this.dbg[3] = v2.y();
+			this.dbg[4] = t.centX();
+			this.dbg[5] = t.centY();
+			this.dbg[6] = t.getMiddleX();
+			this.dbg[7] = t.getMiddleY();
+		}
+
+		@Override
+		public void draw(CameraModelSnapshot camera, Graphics2D graphics) {
+			graphics.draw(new Arc2D.Double(
+				(double) camera.world2pixX(this.coordinates[0]),
+				(double) camera.world2pixY(this.coordinates[1]),
+				(double) camera.world2pix(this.coordinates[2]),
+				(double) camera.world2pix(this.coordinates[3]),
+				this.coordinates[4],
+				this.coordinates[5],
+				Arc2D.OPEN
+			));
+			
+			graphics.setColor(Color.RED);
+			graphics.setStroke(new BasicStroke(1, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+			int x, y;
+			graphics.fillRect(camera.world2pixX(this.dbg[0]), camera.world2pixY(this.dbg[1]), 2, 2);
+			graphics.fillRect(camera.world2pixX(this.dbg[2]), camera.world2pixY(this.dbg[3]), 2, 2);
+			graphics.fillRect(x = camera.world2pixX(this.dbg[4]), y = camera.world2pixY(this.dbg[5]), 2, 2);
+			
+			graphics.drawLine(camera.world2pixX(this.dbg[0]), camera.world2pixY(this.dbg[1]), camera.world2pixX(this.dbg[4]), camera.world2pixY(this.dbg[5]));
+			graphics.drawLine(camera.world2pixX(this.dbg[2]), camera.world2pixY(this.dbg[3]), camera.world2pixX(this.dbg[4]), camera.world2pixY(this.dbg[5]));
+
+			graphics.setColor(Color.DARK_GRAY);
+			graphics.drawLine(camera.world2pixX(this.dbg[0]), camera.world2pixY(this.dbg[1]), camera.world2pixX(this.dbg[6]), camera.world2pixY(this.dbg[7]));
+			graphics.drawLine(camera.world2pixX(this.dbg[2]), camera.world2pixY(this.dbg[3]), camera.world2pixX(this.dbg[6]), camera.world2pixY(this.dbg[7]));
+
+			
+			graphics.setColor(Color.BLUE);
+			
+			graphics.drawString(String.format("A1: %f, A2: %f", this.coordinates[4], this.coordinates[5]), x, y);
+			graphics.setStroke(new BasicStroke(2, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 		}
 	}
 }

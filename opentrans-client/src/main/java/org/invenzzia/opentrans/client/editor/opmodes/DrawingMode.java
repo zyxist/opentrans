@@ -22,6 +22,8 @@ import org.invenzzia.helium.gui.ui.menu.MenuModel;
 import org.invenzzia.opentrans.client.ui.netview.ClickedElement;
 import org.invenzzia.opentrans.client.ui.netview.IOperationMode;
 import org.invenzzia.opentrans.visitons.factory.SceneFactory;
+import org.invenzzia.opentrans.visitons.infrastructure.CurvedTrack;
+import org.invenzzia.opentrans.visitons.infrastructure.ITrack;
 import org.invenzzia.opentrans.visitons.infrastructure.IVertex;
 import org.invenzzia.opentrans.visitons.infrastructure.StraightTrack;
 import org.invenzzia.opentrans.visitons.infrastructure.Vertex;
@@ -49,6 +51,8 @@ public class DrawingMode implements IOperationMode {
 	 * Helper for populating the scene manager.
 	 */
 	private SceneFactory sceneFactory;
+	
+	private int paintedTracks = 0;
 	
 	public DrawingMode(SceneFactory sf) {
 		this.sceneFactory = Preconditions.checkNotNull(sf);
@@ -111,15 +115,32 @@ public class DrawingMode implements IOperationMode {
 		} else {
 			// We finish the existing drawing.
 			this.logger.info("Track drawing finished.");
-			this.handledVertex = null;
-			this.editableGraph = null;
-			this.sceneFactory.onEditableModelUpdate(this.editableGraph, null);
+			this.paintedTracks++;
+			this.handledVertex.expand(1);
+			
+			Vertex v2 = new Vertex(-1, 1, element.getSegment(), element.getX(), element.getY());
+			ITrack track;
+			if(this.paintedTracks % 2 == 0) {
+				track = new StraightTrack(-1);
+			} else {
+				track = new CurvedTrack(-1);
+			}
+			track.setVertex(0, this.handledVertex);
+			track.setVertex(1, v2);
+			this.handledVertex.setTrack(1, track);
+			v2.setTrack(0, track);
+			
+			this.editableGraph.addVertex(v2);
+			this.editableGraph.addTrack(track);
+			
+			this.handledVertex = v2;
+			this.sceneFactory.onEditableModelUpdate(this.editableGraph, "edit");
 		}
 	}
 
 	@Override
 	public void mouseMoved(ClickedElement element) {
-		if(null != this.handledVertex) {
+		if(null != this.handledVertex && null != element.getSegment()) {
 			this.handledVertex.registerUpdate(element.getSegment(), element.getX(), element.getY());
 			if(this.handledVertex.isUpdatePossible()) {
 				this.handledVertex.applyUpdate();

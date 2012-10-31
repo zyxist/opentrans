@@ -43,8 +43,30 @@ public interface ITrack<T extends ITrack> extends ICopiable<T> {
 	 * have been passed to {@link isVertexChangeAllowed} method, so that the track can vote against the change.
 	 */
 	public void verticesUpdated();
+	/**
+	 * Notification from the vertex that we cannot change the coordinates. It is guaranteed that the new vertex coordinates
+	 * have been passed to {@link isVertexChangeAllowed} method, so that the track can vote against the change.
+	 */
+	public void verticesNotUpdated();
 	
 	public void markAsDeleted();
 	
 	public boolean isDeleted();
+	
+	public void getTangentInVertex(int vertex, int from, double tan[]);
+	
+	/**
+	 * Middle point is a point that allows deciding, which side to paint the next track on (especially curves).
+	 * The actual nature of this point depends on the certain track type.
+	 * 
+	 * @return X coordinate of the middle point. 
+	 */
+	public double getMiddleX();
+	/**
+	 * Middle point is a point that allows deciding, which side to paint the next track on (especially curves).
+	 * The actual nature of this point depends on the certain track type.
+	 * 
+	 * @return Y coordinate of the middle point. 
+	 */
+	public double getMiddleY();
 }

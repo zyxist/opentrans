@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Set;
 import javax.imageio.ImageIO;
 import org.invenzzia.opentrans.visitons.VisitonsProject;
+import org.invenzzia.opentrans.visitons.infrastructure.CurvedTrack;
 import org.invenzzia.opentrans.visitons.infrastructure.ITrack;
 import org.invenzzia.opentrans.visitons.infrastructure.StraightTrack;
 import org.invenzzia.opentrans.visitons.infrastructure.graph.EditableGraph;
@@ -36,6 +37,7 @@ import org.invenzzia.opentrans.visitons.render.CameraModel;
 import org.invenzzia.opentrans.visitons.render.CameraModelSnapshot;
 import org.invenzzia.opentrans.visitons.render.SceneManager;
 import org.invenzzia.opentrans.visitons.render.scene.TrackSnapshot;
+import org.invenzzia.opentrans.visitons.render.scene.TrackSnapshot.DrawableCurvedTrack;
 import org.invenzzia.opentrans.visitons.render.scene.TrackSnapshot.DrawableStraightTrack;
 import org.invenzzia.opentrans.visitons.render.scene.VisibleSegmentSnapshot;
 import org.invenzzia.opentrans.visitons.render.scene.VisibleSegmentSnapshot.SegmentInfo;
@@ -193,6 +195,8 @@ public class SceneFactory {
 			for(ITrack t: eg.getTracks()) {
 				if(t instanceof StraightTrack) {
 					ts.addDrawableTrack(new DrawableStraightTrack((StraightTrack) t));
+				} else if(t instanceof CurvedTrack) {
+					ts.addDrawableTrack(new DrawableCurvedTrack((CurvedTrack) t));
 				}
 			}
 			this.sceneManager.updateResource(key, ts);

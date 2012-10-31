@@ -47,6 +47,10 @@ public interface IVertex<T extends IVertex> extends ICopiable<T> {
 	 * @return Y coordinate in the segment units.
 	 */
 	public double y();
+	/**
+	 * Increates the vertex degree, so that more tracks can be connected.
+	 */
+	public void expand(int by);
 	
 	public int getTrackCount();
 	
@@ -84,4 +88,10 @@ public interface IVertex<T extends IVertex> extends ICopiable<T> {
 	public void markAsDeleted();
 	
 	public boolean isDeleted();
+	/**
+	 * Tangent in this point.
+	 * 
+	 * @param tangent 
+	 */
+	public void getTangent(int from, double tangent[]);
 }

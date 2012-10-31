@@ -86,6 +86,11 @@ public class GhostVertex implements IVertex<GhostVertex> {
 	public void copyFrom(GhostVertex copy) {
 		throw new UnsupportedOperationException("Not supported yet.");
 	}
+	
+	@Override
+	public void expand(int by) {
+		throw new UnsupportedOperationException("Not supported yet.");
+	}
 
 	@Override
 	public int getTrackCount() {
@@ -115,5 +120,10 @@ public class GhostVertex implements IVertex<GhostVertex> {
 	@Override
 	public Segment getSegment() {
 		return this.delegate.getSegment();
+	}
+	
+	@Override
+	public void getTangent(int from, double tangent[]) {
+		this.delegate.getTangent(from, tangent);
 	}
 }

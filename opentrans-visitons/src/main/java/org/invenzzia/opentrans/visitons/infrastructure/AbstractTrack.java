@@ -28,6 +28,14 @@ public abstract class AbstractTrack<T extends ITrack> implements ITrack<T> {
 	private long id;
 	
 	private boolean deleted = false;
+	/**
+	 * The actual implementation shall put something here, when the coordinates are updated.
+	 */
+	protected double middleX;
+	/**
+	 * The actual implementation shall put something here, when the coordinates are updated.
+	 */
+	protected double middleY;
 	
 	protected IVertex vertices[];
 	
@@ -66,5 +74,19 @@ public abstract class AbstractTrack<T extends ITrack> implements ITrack<T> {
 	public void setVertex(int id, IVertex vertex) {
 		Preconditions.checkArgument(0 == id || 1 == id, "The vertex ID in the track can be either 0 or 1.");
 		this.vertices[id] = Preconditions.checkNotNull(vertex, "Attempt to register a NULL vertex in the edge.");
+	}
+	
+	@Override
+	public double getMiddleX() {
+		return this.middleX;
+	}
+
+	@Override
+	public double getMiddleY() {
+		return this.middleY;
+	}
+	
+	@Override
+	public void verticesNotUpdated() {
 	}
 }

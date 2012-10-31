@@ -48,4 +48,19 @@ public class DoublyCurvedTrack extends AbstractTrack<DoublyCurvedTrack> {
 	public void copyFrom(DoublyCurvedTrack copy) {
 		throw new UnsupportedOperationException("Not supported yet.");
 	}
+	
+	@Override
+	public void getTangentInVertex(int vertex, int from, double tan[]) {
+		
+	}
+
+	@Override
+	public double getMiddleX() {
+		throw new UnsupportedOperationException("Not supported yet.");
+	}
+
+	@Override
+	public double getMiddleY() {
+		throw new UnsupportedOperationException("Not supported yet.");
+	}
 }

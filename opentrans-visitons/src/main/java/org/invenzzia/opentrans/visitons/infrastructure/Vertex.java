@@ -18,6 +18,7 @@
 package org.invenzzia.opentrans.visitons.infrastructure;
 
 import com.google.common.base.Preconditions;
+import org.invenzzia.opentrans.visitons.geometry.LineOps;
 import org.invenzzia.opentrans.visitons.utils.MutableSegmentCoordinate;
 import org.invenzzia.opentrans.visitons.world.Segment;
 
@@ -31,6 +32,12 @@ public class Vertex extends MutableSegmentCoordinate implements IVertex<Vertex> 
 	 * Contains the references to edges coming out from this vertex.
 	 */
 	protected ITrack[] tracks;
+	/**
+	 * Reference to the straight track. There can be only one straight track assigned
+	 * to each vertex; otherwise geometrical calculations make no sense. Of course, it
+	 * does not have to be.
+	 */
+	protected StraightTrack straightTrack;
 	/**
 	 * Temporary X, used in the move operation.
 	 */
@@ -78,27 +85,47 @@ public class Vertex extends MutableSegmentCoordinate implements IVertex<Vertex> 
 
 	@Override
 	public boolean isUpdatePossible() {
-		return false;
+		for(ITrack track: this.tracks) {
+			if(!track.isVertexChangeAllowed(this, this.tempX, this.tempY)) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	@Override
 	public void applyUpdate() {
-		throw new UnsupportedOperationException("Not supported yet.");
+		if(null != this.tempSegment) {
+			this.x = this.tempX;
+			this.y = this.tempY;
+			this.segment = this.tempSegment;
+			for(ITrack track: this.tracks) {
+				if(null != track) {
+					track.verticesUpdated();
+				}
+			}
+		}
 	}
 
 	@Override
 	public void rollbackUpdate() {
-		throw new UnsupportedOperationException("Not supported yet.");
+		this.tempX = 0.0;
+		this.tempY = 0.0;
+		this.tempSegment = null;
+		for(ITrack track: this.tracks) {
+			if(null != track) {
+				track.verticesNotUpdated();
+			}
+		}
 	}
 
 	@Override
 	public void markAsDeleted() {
-		throw new UnsupportedOperationException("Not supported yet.");
 	}
 
 	@Override
 	public boolean isDeleted() {
-		throw new UnsupportedOperationException("Not supported yet.");
+		return false;
 	}
 	
 	@Override
@@ -117,6 +144,14 @@ public class Vertex extends MutableSegmentCoordinate implements IVertex<Vertex> 
 		this.tracks = new ITrack[copy.tracks.length];
 		System.arraycopy(copy.tracks, 0, this.tracks, 0, this.tracks.length);
 	}
+	
+	@Override
+	public void expand(int by) {
+		Preconditions.checkArgument(by > 0, "'by' argument must be greater than 0.");
+		ITrack tt[] = new ITrack[this.tracks.length + by];
+		System.arraycopy(tt, 0, this.tracks, 0, this.tracks.length);
+		this.tracks = tt;
+	}
 
 	@Override
 	public int getTrackCount() {
@@ -133,6 +168,32 @@ public class Vertex extends MutableSegmentCoordinate implements IVertex<Vertex> 
 	@Override
 	public void setTrack(int id, ITrack track) {
 		Preconditions.checkArgument(id >= 0 && id < this.tracks.length, "Invalid track index.");
+		if(track instanceof StraightTrack) {
+			if(null != this.straightTrack) {
+				throw new IllegalArgumentException(String.format("Straight track already assigned to vertex #%d", this.id));
+			}
+			this.straightTrack = (StraightTrack) track;
+		}
 		this.tracks[id] = Preconditions.checkNotNull(track);
 	}
+	
+	@Override
+	public void getTangent(int from, double tan[]) {
+		if(null != this.straightTrack) {
+			IVertex another = this.straightTrack.getVertex(0);
+			if(another == this) {
+				another = this.straightTrack.getVertex(1);
+			}
+			LineOps.toGeneral(this.x, this.y, another.x(), another.y(), from, tan);
+		} else {
+			ITrack tt = this.tracks[0];
+			IVertex another = this.straightTrack.getVertex(0);
+			if(another == this) {
+				tt.getTangentInVertex(1, from, tan);
+			} else {
+				tt.getTangentInVertex(0, from, tan);
+			}
+		}
+	}
+
 }

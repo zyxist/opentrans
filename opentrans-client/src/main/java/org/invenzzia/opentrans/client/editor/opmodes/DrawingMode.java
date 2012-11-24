@@ -116,19 +116,22 @@ public class DrawingMode implements IOperationMode {
 			// We finish the existing drawing.
 			this.logger.info("Track drawing finished.");
 			this.paintedTracks++;
-			this.handledVertex.expand(1);
-			
 			Vertex v2 = new Vertex(-1, 1, element.getSegment(), element.getX(), element.getY());
 			ITrack track;
 			if(this.paintedTracks % 2 == 0) {
 				track = new StraightTrack(-1);
 			} else {
 				track = new CurvedTrack(-1);
+				((CurvedTrack)track).setConvex(CurvedTrack.guessConvex(this.handledVertex));
 			}
+			this.handledVertex.expand(1);
 			track.setVertex(0, this.handledVertex);
 			track.setVertex(1, v2);
 			this.handledVertex.setTrack(1, track);
 			v2.setTrack(0, track);
+			if(track instanceof CurvedTrack) {
+				
+			}
 			
 			this.editableGraph.addVertex(v2);
 			this.editableGraph.addTrack(track);

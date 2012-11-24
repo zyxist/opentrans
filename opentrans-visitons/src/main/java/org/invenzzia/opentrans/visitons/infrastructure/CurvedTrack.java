@@ -36,12 +36,43 @@ public class CurvedTrack extends AbstractTrack<CurvedTrack> {
 	 */
 	protected double centY;
 	/**
-	 * Promised values of the center and middle points, if the vertex change is applied.
+	 * There are two possible ways to paint an arc from the given coordinates. This argument picks
+	 * up one of them.
+	 * 
+	 * <ul>
+	 *  <li>0 - we come to the first vertex from the left side of the world.</li>
+	 *  <li>1 - we come to the first vertex from the right side of the world.</li>
+	 * </ul>
 	 */
-	protected double promise[];
+	protected byte convex = 0;
 
 	public CurvedTrack(long id) {
 		super(id);
+	}
+	
+	/**
+	 * Sets the convex of this curved track. There are two possible ways to paint an arc from the given coordinates. This argument picks
+	 * up one of them.
+	 * 
+	 * <ul>
+	 *  <li>0 - we come to the first vertex from the left side of the world.</li>
+	 *  <li>1 - we come to the first vertex from the right side of the world.</li>
+	 * </ul>
+	 * 
+	 * @param convex New convex: 0 or 1.
+	 */
+	public void setConvex(byte convex) {
+		Preconditions.checkArgument(convex == 0 || convex == 1, "The convex can be either 0 or 1.");
+		this.convex = convex;
+	}
+	
+	/**
+	 * Returns the convex of this track.
+	 * 
+	 * @return The track convex: 0 or 1.
+	 */
+	public byte getConvex() {
+		return this.convex;
 	}
 	
 	/**
@@ -59,55 +90,7 @@ public class CurvedTrack extends AbstractTrack<CurvedTrack> {
 	}
 	
 	@Override
-	public boolean isVertexChangeAllowed(IVertex vertex, double x, double y) {
-		/*
-		IVertex anotherVertex;
-		if(vertex == this.vertices[0]) {
-			anotherVertex = this.vertices[1];
-		} else {
-			anotherVertex = this.vertices[0];
-		}
-		*/
-		IVertex v1, v2;
-		if(vertex == this.vertices[0]) {
-			v1 = this.vertices[1];
-			v2 = this.vertices[0];
-		} else {
-			v1 = this.vertices[0];
-			v2 = this.vertices[1];
-		}
-		double L1[] = new double[6];
-		v1.getTangent(0, L1);
-		LineOps.toOrthogonal(0, L1, v1.x(), v1.y());
-		double A2 = 2 * (v1.x() - v2.x());
-		double B2 = 2 * (v1.y() - v2.y());
-		double C2 = -(Math.pow(v1.x(), 2) - Math.pow(v2.x(), 2) + Math.pow(v1.y(), 2) - Math.pow(v2.y(), 2));
-		
-		this.promise = new double[4];
-		
-		// Calculate the center of the circle we cut the arc from.
-		this.promise[0] = (L1[1] * C2 - L1[2] * B2) / (B2 * L1[0] - L1[1] * A2);
-		this.promise[1] = - ((L1[2] + L1[0] * this.promise[0]) / L1[1]);
-		
-		// Now, calculate the middle point.
-		LineOps.toGeneral(v1.x(), v1.y(), x, y, 3, L1);
-		System.out.format("LA: %f, %f, %f\n", L1[3], L1[4], L1[5]);
-		LineOps.toOrthogonal(3, L1, this.promise[0], this.promise[1]);
-		System.out.format("LB: %f, %f, %f\n", L1[3], L1[4], L1[5]);
-		v1.getTangent(0, L1);
-		this.promise[2] = (L1[1] * L1[5] - L1[2] * L1[4]) / (L1[4] * L1[0] - L1[1] * L1[3]);
-		this.promise[3] = - ((L1[2] + L1[0] * this.promise[2]) / L1[1]);
-		
-		System.out.format("C: (%f, %f); M: (%f, %f)\n", this.promise[0], this.promise[1], this.promise[2], this.promise[3]);
-		
-		int middleLocation = LineOps.onWhichSide(v1.x(), v1.y(), this.promise[0], this.promise[1], this.promise[2], this.promise[3]);
-		int testedLocation = LineOps.onWhichSide(v1.x(), v1.y(), this.promise[0], this.promise[1], x, y);
-		
-		if(middleLocation != testedLocation) {
-			this.promise = null;
-			return false;
-		}
-		
+	public boolean isVertexChangeAllowed(IVertex vertex, double x, double y) {	
 		// If both vertices are connected just to our curved track, we cannot edit the curve anymore
 		// because we can't calculate the tangents.
 		return (this.vertices[0].getTrackCount() != 1 || this.vertices[1].getTrackCount() != 1);
@@ -115,13 +98,7 @@ public class CurvedTrack extends AbstractTrack<CurvedTrack> {
 	
 	@Override
 	public void verticesUpdated() {
-		this.centX = this.promise[0];
-		this.centY = this.promise[1];
-		
-		this.middleX = this.promise[2];
-		this.middleY = this.promise[3];
-		this.promise = null;
-	/*	IVertex v1, v2;
+		IVertex v1, v2;
 		if(this.vertices[0].getTrackCount() == 1) {
 			v1 = this.vertices[1];
 			v2 = this.vertices[0];
@@ -143,14 +120,6 @@ public class CurvedTrack extends AbstractTrack<CurvedTrack> {
 		// Calculate the center of the circle we cut the arc from.
 		this.centX = (L1[1] * C2 - L1[2] * B2) / (B2 * L1[0] - L1[1] * A2);
 		this.centY = - ((L1[2] + L1[0] * this.centX) / L1[1]);
-		
-		// Now, calculate the middle point.
-		LineOps.toGeneral(v1.x(), v1.y(), v2.x(), v2.y(), 3, L1);
-		LineOps.toOrthogonal(3, L1, this.centX, this.centY);
-
-		this.middleX = (L1[1] * L1[5] - L1[2] * L1[4]) / (L1[4] * L1[0] - L1[1] * L1[3]);
-		this.middleY = - ((L1[2] + L1[0] * this.middleX) / L1[1]);
-		*/
 	}
 	
 	/**
@@ -158,7 +127,6 @@ public class CurvedTrack extends AbstractTrack<CurvedTrack> {
 	 */
 	@Override
 	public void verticesNotUpdated() {
-		this.promise = null;
 	}
 
 	@Override
@@ -190,5 +158,27 @@ public class CurvedTrack extends AbstractTrack<CurvedTrack> {
 			this.vertices[vertex].getTangent(from, tan);
 			LineOps.toOrthogonal(from, tan, this.vertices[vertex].x(), this.vertices[vertex].y());
 		}
+	}
+	
+	/**
+	 * Uses some heuristics to guess the best default convex for the new curved track, by analyzing the
+	 * provided vertex.
+	 * 
+	 * @param vertex The 
+	 * @return 
+	 */
+	public static byte guessConvex(IVertex vertex) {
+		if(vertex.getTrackCount() == 1) {
+			ITrack t = vertex.getTrack(0);
+			IVertex opposite = t.getOppositeVertex(vertex);
+			if(t instanceof StraightTrack) {
+				double diff = opposite.x() - vertex.x();
+				if(Math.abs(diff) < 0.00000001) {
+					diff = vertex.y() - opposite.y();
+				}
+				return (byte)(diff > 0.0 ? 1 : 0);
+			}
+		}
+		return 0;
 	}
 }

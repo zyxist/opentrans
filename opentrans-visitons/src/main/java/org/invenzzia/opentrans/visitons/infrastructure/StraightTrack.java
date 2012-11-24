@@ -53,9 +53,6 @@ public class StraightTrack extends AbstractTrack<StraightTrack> {
 	public void verticesUpdated() {
 		this.angles[0] = Math.atan2(this.vertices[1].y() - this.vertices[0].y(), this.vertices[1].x() - this.vertices[0].y());
 		this.angles[1] = Math.atan2(this.vertices[0].y() - this.vertices[1].y(), this.vertices[0].x() - this.vertices[1].y());
-		
-		this.middleX = Math.min(this.vertices[0].x(), this.vertices[1].x()) + Math.abs(this.vertices[0].x() - this.vertices[1].x());
-		this.middleY = Math.min(this.vertices[0].y(), this.vertices[1].y()) + Math.abs(this.vertices[0].y() - this.vertices[1].y());
 	}
 	
 	@Override

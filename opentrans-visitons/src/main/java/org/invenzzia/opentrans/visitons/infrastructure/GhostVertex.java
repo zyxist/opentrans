@@ -96,6 +96,11 @@ public class GhostVertex implements IVertex<GhostVertex> {
 	public int getTrackCount() {
 		return this.delegate.getTrackCount();
 	}
+	
+	@Override
+	public ITrack getTrack(int id) {
+		return this.delegate.getTrack(id);
+	}
 
 	@Override
 	public ITrack[] getTracks() {

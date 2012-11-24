@@ -51,11 +51,32 @@ public interface IVertex<T extends IVertex> extends ICopiable<T> {
 	 * Increates the vertex degree, so that more tracks can be connected.
 	 */
 	public void expand(int by);
-	
+	/**
+	 * Returns the number of tracks bound to this vertex.
+	 * 
+	 * @return Number of tracks bound to this vertex.
+	 */
 	public int getTrackCount();
-	
+	/**
+	 * Returns an array containing all the tracks bound to this vertex.
+	 * 
+	 * @return The bound tracks.
+	 */
 	public ITrack[] getTracks();
-	
+	/**
+	 * Returns the specified track bound to this vertex. The track must exist.
+	 * 
+	 * @param id The ID of the track.
+	 * @return The track object.
+	 */
+	public ITrack getTrack(int id);
+	/**
+	 * Binds the specified track to this vertex at the given position. The position
+	 * must exist. If it does not exist, expand the vertex first.
+	 * 
+	 * @param id The Id of the vertex.
+	 * @param track The track to bind.
+	 */
 	public void setTrack(int id, ITrack track);
 	/**
 	 * Registers new coordinates of this vertex that we wish to apply. In order

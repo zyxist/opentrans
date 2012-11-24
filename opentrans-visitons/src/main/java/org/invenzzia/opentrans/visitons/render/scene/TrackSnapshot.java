@@ -24,6 +24,7 @@ import java.awt.Graphics2D;
 import java.awt.geom.Arc2D;
 import java.util.LinkedList;
 import java.util.List;
+import org.invenzzia.opentrans.visitons.geometry.Geometry;
 import org.invenzzia.opentrans.visitons.infrastructure.CurvedTrack;
 import org.invenzzia.opentrans.visitons.infrastructure.IVertex;
 import org.invenzzia.opentrans.visitons.infrastructure.StraightTrack;
@@ -80,9 +81,11 @@ public class TrackSnapshot {
 	
 	public static class DrawableCurvedTrack implements IDrawableTrack {
 		private final double coordinates[];
+		private final byte convex;
 		private final double dbg[];
 		
 		public DrawableCurvedTrack(CurvedTrack t) {
+			this.convex = t.getConvex();
 			this.coordinates = new double[6];
 			this.dbg = new double[8];
 			IVertex v1 = t.getVertex(0);
@@ -96,18 +99,15 @@ public class TrackSnapshot {
 			if(angle2 < 0.0) {
 				angle2 += 2* Math.PI;
 			}
+			double dist = Geometry.angleDist(angle1, angle2, this.convex);
 			double radius = Math.sqrt(Math.pow(v1.x() - t.centX(), 2) + Math.pow(v1.y() - t.centY(), 2));
-			if(angle2 > angle1) {
-				angle2 -= angle1;
-			} else {
-				angle2 += angle1;
-			}
+
 			this.coordinates[0] = t.centX() - radius;
 			this.coordinates[1] = t.centY() - radius;
 			this.coordinates[2] = 2 * radius;
 			this.coordinates[3] = 2 * radius;
 			this.coordinates[4] = Math.toDegrees(angle1);
-			this.coordinates[5] = Math.toDegrees(angle2);
+			this.coordinates[5] = Math.toDegrees(dist);
 			
 			this.dbg[0] = v1.x();
 			this.dbg[1] = v1.y();
@@ -115,8 +115,6 @@ public class TrackSnapshot {
 			this.dbg[3] = v2.y();
 			this.dbg[4] = t.centX();
 			this.dbg[5] = t.centY();
-			this.dbg[6] = t.getMiddleX();
-			this.dbg[7] = t.getMiddleY();
 		}
 
 		@Override
@@ -141,14 +139,6 @@ public class TrackSnapshot {
 			graphics.drawLine(camera.world2pixX(this.dbg[0]), camera.world2pixY(this.dbg[1]), camera.world2pixX(this.dbg[4]), camera.world2pixY(this.dbg[5]));
 			graphics.drawLine(camera.world2pixX(this.dbg[2]), camera.world2pixY(this.dbg[3]), camera.world2pixX(this.dbg[4]), camera.world2pixY(this.dbg[5]));
 
-			graphics.setColor(Color.DARK_GRAY);
-			graphics.drawLine(camera.world2pixX(this.dbg[0]), camera.world2pixY(this.dbg[1]), camera.world2pixX(this.dbg[6]), camera.world2pixY(this.dbg[7]));
-			graphics.drawLine(camera.world2pixX(this.dbg[2]), camera.world2pixY(this.dbg[3]), camera.world2pixX(this.dbg[6]), camera.world2pixY(this.dbg[7]));
-
-			
-			graphics.setColor(Color.BLUE);
-			
-			graphics.drawString(String.format("A1: %f, A2: %f", this.coordinates[4], this.coordinates[5]), x, y);
 			graphics.setStroke(new BasicStroke(2, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 		}
 	}

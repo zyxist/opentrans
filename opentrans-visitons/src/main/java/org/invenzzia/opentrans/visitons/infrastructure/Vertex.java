@@ -164,6 +164,12 @@ public class Vertex extends MutableSegmentCoordinate implements IVertex<Vertex> 
 		System.arraycopy(tt, 0, this.tracks, 0, this.tracks.length);
 		return tt;
 	}
+	
+	@Override
+	public ITrack getTrack(int id) {
+		Preconditions.checkArgument(id >= 0 && id < this.tracks.length, "Invalid track index.");
+		return this.tracks[id];
+	}
 
 	@Override
 	public void setTrack(int id, ITrack track) {

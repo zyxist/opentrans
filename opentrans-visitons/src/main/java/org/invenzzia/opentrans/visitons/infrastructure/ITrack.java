@@ -36,6 +36,13 @@ public interface ITrack<T extends ITrack> extends ICopiable<T> {
 	public IVertex getVertex(int id);
 	
 	public void setVertex(int id, IVertex vertex);
+	/**
+	 * Returns the opposite vertex to the specified one.
+	 * 
+	 * @param vertex The vertex we have.
+	 * @return The opposite vertex this track is bound to.
+	 */
+	public IVertex getOppositeVertex(IVertex vertex);
 	
 	public boolean isVertexChangeAllowed(IVertex vertex, double x, double y);
 	/**
@@ -54,19 +61,4 @@ public interface ITrack<T extends ITrack> extends ICopiable<T> {
 	public boolean isDeleted();
 	
 	public void getTangentInVertex(int vertex, int from, double tan[]);
-	
-	/**
-	 * Middle point is a point that allows deciding, which side to paint the next track on (especially curves).
-	 * The actual nature of this point depends on the certain track type.
-	 * 
-	 * @return X coordinate of the middle point. 
-	 */
-	public double getMiddleX();
-	/**
-	 * Middle point is a point that allows deciding, which side to paint the next track on (especially curves).
-	 * The actual nature of this point depends on the certain track type.
-	 * 
-	 * @return Y coordinate of the middle point. 
-	 */
-	public double getMiddleY();
 }

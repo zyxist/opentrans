@@ -65,8 +65,9 @@ public class EditableGraph {
 	 * graph to editable models.
 	 * 
 	 * @param vertex The vertex from the network graph to fork in this editable model.
+	 * @return The forked vertex.
 	 */
-	public void fork(IVertex vertex) {
+	public IVertex fork(IVertex vertex) {
 		IVertex ourVertex = (IVertex) vertex.fork();
 		
 		for(ITrack track: ourVertex.getTracks()) {
@@ -76,6 +77,8 @@ public class EditableGraph {
 				ourTrack = (ITrack) track.fork();
 				this.replaceVertexInTrack(ourTrack, 0);
 				this.replaceVertexInTrack(ourTrack, 1);
+				
+				this.existingTracks.put(ourTrack.getId(), ourTrack);
 			} else {
 				// OK, this track is present, but it uses ghost vertex to link to us. 
 				// We must replace the ghost vertex.
@@ -86,6 +89,8 @@ public class EditableGraph {
 				}
 			}
 		}
+		this.existingVertices.put(ourVertex.getId(), ourVertex);
+		return ourVertex;
 	}
 
 	/**

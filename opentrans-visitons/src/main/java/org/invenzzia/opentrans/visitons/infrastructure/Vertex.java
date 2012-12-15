@@ -141,6 +141,7 @@ public class Vertex extends MutableSegmentCoordinate implements IVertex<Vertex> 
 
 		this.x = copy.x;
 		this.y = copy.y;
+		this.segment = copy.segment;
 		this.tracks = new ITrack[copy.tracks.length];
 		System.arraycopy(copy.tracks, 0, this.tracks, 0, this.tracks.length);
 	}
@@ -161,7 +162,7 @@ public class Vertex extends MutableSegmentCoordinate implements IVertex<Vertex> 
 	@Override
 	public ITrack[] getTracks() {
 		ITrack tt[] = new ITrack[this.tracks.length];
-		System.arraycopy(tt, 0, this.tracks, 0, this.tracks.length);
+		System.arraycopy(this.tracks, 0, tt, 0, this.tracks.length);
 		return tt;
 	}
 	
@@ -175,7 +176,7 @@ public class Vertex extends MutableSegmentCoordinate implements IVertex<Vertex> 
 	public void setTrack(int id, ITrack track) {
 		Preconditions.checkArgument(id >= 0 && id < this.tracks.length, "Invalid track index.");
 		if(track instanceof StraightTrack) {
-			if(null != this.straightTrack) {
+			if(null != this.straightTrack && track != this.straightTrack) {
 				throw new IllegalArgumentException(String.format("Straight track already assigned to vertex #%d", this.id));
 			}
 			this.straightTrack = (StraightTrack) track;
@@ -200,6 +201,11 @@ public class Vertex extends MutableSegmentCoordinate implements IVertex<Vertex> 
 				tt.getTangentInVertex(0, from, tan);
 			}
 		}
+	}
+	
+	@Override
+	public String toString() {
+		return "#"+Long.toString(this.id)+" ("+Double.toString(this.x)+", "+Double.toString(this.y)+")";
 	}
 
 }

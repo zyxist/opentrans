@@ -17,6 +17,7 @@
  */
 package org.invenzzia.opentrans.visitons.infrastructure.graph;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -25,7 +26,16 @@ import org.invenzzia.opentrans.visitons.infrastructure.ITrack;
 import org.invenzzia.opentrans.visitons.infrastructure.IVertex;
 
 /**
- * Description here.
+ * A repository for keeping all the tracks and vertices available on the map.
+ * The content of the repository is updated through a synchronization process.
+ * Synchronization is done with {@link EditableGraph} objects which are directly
+ * editable snapshot of the pieces of the graph. Once the editing is completed,
+ * the changes are saved in the infrastructure graph in one shot.
+ * 
+ * <p>The only direct operations available on the graph are related to reading
+ * the content. The graph also emits interesting messages about adding and removing
+ * vertices, which is necessary for the {@link World} object to update the mapping
+ * of the graph contents to concrete world segments.
  * 
  * @author Tomasz Jędrzejewski
  */
@@ -56,6 +66,74 @@ public class Graph {
 		return this.nextTrackId;
 	}
 	
+	/**
+	 * Returns a track with the given ID or NULL.
+	 * 
+	 * @param id ID of the track.
+	 * @return The track or NULL.
+	 */
+	public ITrack getTrack(long id) {
+		return this.tracks.get(id);
+	}
+	
+	/**
+	 * Returns a vertex with the given ID or NULL.
+	 * 
+	 * @param id ID of the vertex.
+	 * @return The vertex or NULL.
+	 */
+	public IVertex getVertex(long id) {
+		return this.vertices.get(id);
+	}
+	
+	/**
+	 * Returns the number of vertices in the graph.
+	 * 
+	 * @return The number of vertices.
+	 */
+	public int countVertices() {
+		return this.vertices.size();
+	}
+	
+	/**
+	 * Returns the number of tracks.
+	 * 
+	 * @return Number of tracks in the graph.
+	 */
+	public int countTracks() {
+		return this.tracks.size();
+	}
+	
+	/**
+	 * Returns an immutable view of tracks.
+	 * 
+	 * @return Immutable view of tracks.
+	 */
+	public Collection<ITrack> tracks() {
+		return this.tracks.values();
+	}
+	
+	/**
+	 * Returns an immutable view of vertices.
+	 * 
+	 * @return Immutable view of vertices. 
+	 */
+	public Collection<IVertex> vertices() {
+		return this.vertices.values();
+	}
+	
+	/**
+	 * Performs a synchronization of an editable graph with the infrastructure graph. This is the only mechanism
+	 * of updating the infrastructure graph. The method must deal with the following cases:
+	 * 
+	 * <ul>
+	 *  <li>new vertices and tracks have appeared,</li>
+	 *  <li>existing vertices have changed locations,</li>
+	 *  <li>existing vertices and tracks have been removed.</li>
+	 * </ul>
+	 * 
+	 * @param eg The editable graph to synchronize.
+	 */
 	public void synchronizeWith(EditableGraph eg) {
 		Set<IVertex> mappedVertices = new HashSet<>();
 		Set<ITrack> mappedTracks = new HashSet<>();
@@ -81,7 +159,7 @@ public class Graph {
 		}
 		for(ITrack track: eg.getTracks()) {
 			if(track.getId() == -1) {
-				track.setId(this.nextVertexId++);
+				track.setId(this.nextTrackId++);
 				ITrack copy = (ITrack) track.fork();
 				
 				mappedTracks.add(copy);

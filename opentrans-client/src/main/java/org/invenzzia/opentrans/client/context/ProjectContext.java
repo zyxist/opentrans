@@ -38,7 +38,6 @@ import org.invenzzia.helium.gui.ui.dock.DockModel;
 import org.invenzzia.helium.gui.ui.dock.Dockable;
 import org.invenzzia.helium.gui.ui.dock.KnownPositions;
 import org.invenzzia.helium.gui.ui.menu.IMenuElementStorage;
-import org.invenzzia.helium.gui.ui.menu.MenuController;
 import org.invenzzia.helium.gui.ui.menu.MenuModel;
 import org.invenzzia.helium.gui.ui.menu.element.Menu;
 import org.invenzzia.helium.gui.ui.menu.element.Position;

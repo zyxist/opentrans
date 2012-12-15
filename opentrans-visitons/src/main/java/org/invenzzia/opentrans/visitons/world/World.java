@@ -21,6 +21,7 @@ import com.google.common.base.Preconditions;
 import org.invenzzia.opentrans.visitons.exception.WorldException;
 import org.invenzzia.opentrans.visitons.infrastructure.IVertex;
 import org.invenzzia.opentrans.visitons.infrastructure.Vertex;
+import org.invenzzia.opentrans.visitons.infrastructure.graph.Graph;
 
 /**
  * Description here.
@@ -56,6 +57,10 @@ public class World {
 	 * Segment database.
 	 */
 	protected Segment segments[][];
+	/**
+	 * The infrastructure graph.
+	 */
+	protected Graph graph;
 
 	/**
 	 * Initializes an empty world with the dimensions 1x1.
@@ -64,6 +69,16 @@ public class World {
 		this.dimX = 1;
 		this.dimY = 1;
 		this.createWorld();
+		this.graph = new Graph();
+	}
+	
+	/**
+	 * Returns the infrastructure graph.
+	 * 
+	 * @return Infrastructure graph
+	 */
+	public Graph getGraph() {
+		return this.graph;
 	}
 
 	/**

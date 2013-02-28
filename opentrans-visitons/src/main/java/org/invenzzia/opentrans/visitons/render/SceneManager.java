@@ -18,6 +18,7 @@
 package org.invenzzia.opentrans.visitons.render;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.inject.Singleton;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
@@ -31,6 +32,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * 
  * @author Tomasz Jędrzejewski
  */
+@Singleton
 public class SceneManager {
 	private Map<Object, Object> scene;
 	

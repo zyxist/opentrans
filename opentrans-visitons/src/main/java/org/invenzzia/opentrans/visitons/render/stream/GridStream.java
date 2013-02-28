@@ -43,21 +43,26 @@ public class GridStream extends RenderingStreamAdapter {
 		VisibleSegmentSnapshot vss = this.extract(snapshot, VisibleSegmentSnapshot.class);
 		CameraModelSnapshot camera = this.extract(snapshot, CameraModelSnapshot.class);
 		
-		double mpp = camera.getMpp();
-		for(SegmentInfo s: vss.getSegments()) {
-			int x = (int) camera.world2pixX(s.x * CameraModelSnapshot.SEGMENT_SIZE);
-			int y = (int) camera.world2pixY(s.y * CameraModelSnapshot.SEGMENT_SIZE);
-			
-			int width = (int) (CameraModelSnapshot.SEGMENT_SIZE / mpp);
-			int height = (int) (CameraModelSnapshot.SEGMENT_SIZE / mpp);
-			
-			g.setStroke(GridStream.SEGMENT_STROKE);
-			g.drawRect(x, y, width, height);
-			
-			if(width >= GridStream.MIN_SCREEN_WIDTH_FOR_SUBGRID) {
-				g.setStroke(GridStream.SUBGRID_STROKE);
-				g.drawLine(x + width / 2, y, x + width / 2, y + height);
-				g.drawLine(x, y + height / 2, x + width, y + height / 2);
+		g.drawString("posX: "+camera.getPosX()+"; posY: "+camera.getPosY(), 10, 10);
+		g.drawString("oveX: "+camera.getOverflowCenterX()+"; oveY: "+camera.getOverflowCenterY(), 10, 30);
+		
+		if(null != vss && null != camera) {
+			double mpp = camera.getMpp();
+			for(SegmentInfo s: vss.getSegments()) {
+				int x = (int) camera.world2pixX(s.x * CameraModelSnapshot.SEGMENT_SIZE);
+				int y = (int) camera.world2pixY(s.y * CameraModelSnapshot.SEGMENT_SIZE);
+
+				int width = (int) (CameraModelSnapshot.SEGMENT_SIZE / mpp);
+				int height = (int) (CameraModelSnapshot.SEGMENT_SIZE / mpp);
+
+				g.setStroke(GridStream.SEGMENT_STROKE);
+				g.drawRect(x, y, width, height);
+
+				if(width >= GridStream.MIN_SCREEN_WIDTH_FOR_SUBGRID) {
+					g.setStroke(GridStream.SUBGRID_STROKE);
+					g.drawLine(x + width / 2, y, x + width / 2, y + height);
+					g.drawLine(x, y + height / 2, x + width, y + height / 2);
+				}
 			}
 		}
 	}

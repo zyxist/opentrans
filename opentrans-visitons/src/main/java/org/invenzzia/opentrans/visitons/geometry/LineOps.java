@@ -1,20 +1,20 @@
 /*
- * Visitons - public transport simulation engine
- * Copyright (c) 2011-2012 Invenzzia Group
- * 
- * Visitons is free software: you can redistribute it and/or modify
+ * Copyright (C) 2013 Invenzzia Group <http://www.invenzzia.org/>
+ *
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Visitons is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Visitons. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package org.invenzzia.opentrans.visitons.geometry;
 
 /**
@@ -91,5 +91,32 @@ public class LineOps {
 			return 1;
 		}
 		return 0;
+	}
+	
+	/**
+	 * Calculates the length of a line.
+	 * 
+	 * @param x1 X coordinate of the first point.
+	 * @param y1 Y coordinate of the first point.
+	 * @param x2 X coordinate of the second point.
+	 * @param y2 Y coordinate of the second point.
+	 * @return Line length.
+	 */
+	public static double lineLength(double x1, double y1, double x2, double y2) {
+		return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
+	}
+	
+	/**
+	 * Calculate parametric value of X or Y point on a line, specified by t
+	 * parameter and the line starting and ending points. We need to call it
+	 * separately for X and Y to get the point.
+	 * 
+	 * @param t Position
+	 * @param x1 Starting point
+	 * @param x2 Ending point
+	 * @return The coordinate of the point on the line defined by <tt>t</tt> parameter.
+	 */
+	public static double linePoint(double t, double x1, double x2) {
+		return x1 + t * (x2 - x1);
 	}
 }

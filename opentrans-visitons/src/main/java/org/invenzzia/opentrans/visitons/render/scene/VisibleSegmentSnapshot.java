@@ -21,7 +21,7 @@ import com.google.common.base.Preconditions;
 import java.awt.Image;
 import java.util.LinkedList;
 import java.util.List;
-import org.invenzzia.opentrans.visitons.world.Segment;
+import org.invenzzia.opentrans.visitons.network.Segment;
 
 /**
  * Keeps information about visible segments in the scene manager.

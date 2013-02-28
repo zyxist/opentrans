@@ -18,13 +18,7 @@
 package org.invenzzia.opentrans.visitons.render;
 
 import com.google.common.base.Preconditions;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
-import org.invenzzia.helium.concurrency.InvocationTicket;
-import org.invenzzia.helium.concurrency.MethodInvocator;
-import org.invenzzia.opentrans.visitons.world.World;
+import com.google.inject.Singleton;
 
 /**
  * A data model of the camera. It holds all the information about the currently
@@ -36,23 +30,18 @@ import org.invenzzia.opentrans.visitons.world.World;
  * 
  * @author Tomasz Jędrzejewski
  */
+@Singleton
 public class CameraModel extends AbstractCameraModelFoundation {	
-	private Map<ICameraModelListener, InvocationTicket> invocationTickets = new LinkedHashMap<>();
-	private Set<ICameraModelListener> listeners = new HashSet<>();
-
 	/**
-	 * We grab the world size from here.
+	 * Sets a new world object that the camera cooperates with.
+	 * 
+	 * @param world 
 	 */
-	protected final World world;
-	/**
-	 * Listener notifications can exceed the thread boundaries. Method invocator assumes that each object
-	 * is notified in its own thread.
-	 */
-	private final MethodInvocator methodInvocator;
-	
-	public CameraModel(World world, MethodInvocator methodInvocator) {
-		this.world = Preconditions.checkNotNull(world, "The camera model cannot operate without a world object.");
-		this.methodInvocator = Preconditions.checkNotNull(methodInvocator);
+	public void setWorldSize(int x, int y) {
+		Preconditions.checkArgument(x >= 0, "X world size cannot be negative!");
+		Preconditions.checkArgument(y >= 0, "Y world size cannot be negative!");
+		this.worldSizeX = x;
+		this.worldSizeY = y;
 	}
 
 	/**
@@ -66,15 +55,6 @@ public class CameraModel extends AbstractCameraModelFoundation {
 		this.mpp = mpp;
 		
 		this.calculateViewport();
-		this.notifyCameraModelListeners();
-	}
-	
-	public double getSizeX() {
-		return this.world.getX() * CameraModel.SEGMENT_SIZE;
-	}
-	
-	public double getSizeY() {
-		return this.world.getY() * CameraModel.SEGMENT_SIZE;
 	}
 
 	/**
@@ -85,13 +65,10 @@ public class CameraModel extends AbstractCameraModelFoundation {
 	 * @param posX Top-level corner position on the world map (in metres).
 	 */
 	public void setPosX(double posX) {
-		if(posX > this.world.getX()) {
-			posX = this.world.getX() - CameraModel.MIN_VIEWPORT;
+		if(posX > this.getSizeX()) {
+			posX = this.getSizeX() - CameraModel.MIN_VIEWPORT;
 		}
 		this.posX = posX;
-		
-		this.calculateViewport();
-		this.notifyCameraModelListeners();
 	}
 
 	/**
@@ -102,13 +79,10 @@ public class CameraModel extends AbstractCameraModelFoundation {
 	 * @param posY Top-level corner position on the world map (in metres).
 	 */
 	public void setPosY(double posY) {
-		if(posY > this.world.getY()) {
-			posY = this.world.getY() - CameraModel.MIN_VIEWPORT;
+		if(posY > this.getSizeY()) {
+			posY = this.getSizeY() - CameraModel.MIN_VIEWPORT;
 		}
 		this.posY = posY;
-		
-		this.calculateViewport();
-		this.notifyCameraModelListeners();
 	}
 	
 	/**
@@ -129,9 +103,6 @@ public class CameraModel extends AbstractCameraModelFoundation {
 		
 		this.posX = x;
 		this.posY = y;
-		
-		this.calculateViewport();
-		this.notifyCameraModelListeners();
 	}
 	
 	/**
@@ -146,7 +117,6 @@ public class CameraModel extends AbstractCameraModelFoundation {
 		this.viewportHeightPx = (int) (viewportHeight / this.mpp);
 		
 		this.calculateViewport();
-		this.notifyCameraModelListeners();
 	}
 	
 	/**
@@ -161,7 +131,6 @@ public class CameraModel extends AbstractCameraModelFoundation {
 		this.viewportHeight = viewportHeight * this.mpp;
 		
 		this.calculateViewport();
-		this.notifyCameraModelListeners();
 	}
 
 	/**
@@ -176,7 +145,6 @@ public class CameraModel extends AbstractCameraModelFoundation {
 		this.viewportWidthPx = (int) (viewportWidth / this.mpp);
 		
 		this.calculateViewport();
-		this.notifyCameraModelListeners();
 	}
 
 	/**
@@ -191,7 +159,6 @@ public class CameraModel extends AbstractCameraModelFoundation {
 		this.viewportWidth = viewportWidth * this.mpp;
 		
 		this.calculateViewport();
-		this.notifyCameraModelListeners();
 	}
 	
 	/**
@@ -207,7 +174,6 @@ public class CameraModel extends AbstractCameraModelFoundation {
 		this.viewportHeight = height;
 		
 		this.calculateViewport();
-		this.notifyCameraModelListeners();
 	}
 	
 	/**
@@ -226,7 +192,6 @@ public class CameraModel extends AbstractCameraModelFoundation {
 		this.viewportHeight = height * this.mpp;
 		
 		this.calculateViewport();
-		this.notifyCameraModelListeners();
 	}
 	
 	/**
@@ -239,10 +204,8 @@ public class CameraModel extends AbstractCameraModelFoundation {
 	public void scrollHorizontal(double delta) {
 		if(!this.horizOverflow) {
 			double newVal = this.posX + delta;
-			if(newVal > 0.0 && (newVal + this.viewportWidth) < this.world.getX() * CameraModel.SEGMENT_SIZE) {
+			if(newVal > 0.0 && (newVal + this.viewportWidth) < this.getSizeX()) {
 				this.posX = newVal;
-				this.calculateViewport();
-				this.notifyCameraModelListeners();
 			}
 		}
 	}
@@ -257,10 +220,8 @@ public class CameraModel extends AbstractCameraModelFoundation {
 	public void scrollVertical(double delta) {
 		if(!this.vertOverflow) {
 			double newVal = this.posY + delta;
-			if(newVal > 0.0 && (newVal + this.viewportWidth) < this.world.getY() * CameraModel.SEGMENT_SIZE) {
+			if(newVal > 0.0 && (newVal + this.viewportWidth) < this.getSizeY()) {
 				this.posY = newVal;
-				this.calculateViewport();
-				this.notifyCameraModelListeners();
 			}
 		}
 	}
@@ -277,23 +238,21 @@ public class CameraModel extends AbstractCameraModelFoundation {
 		double hx = x - this.viewportWidth / 2.0;
 		double hy = y - this.viewportHeight / 2.0;
 		
-		if(hx < 0.0) {
+		if(hx < -this.viewportWidth) {
 			this.posX = 0.0;
-		} else if(hx > this.world.getX() * CameraModel.SEGMENT_SIZE) {
-			this.posX = (this.world.getX() + 1) * CameraModel.SEGMENT_SIZE - this.viewportWidth;
+		} else if(hx > this.worldSizeX * CameraModel.SEGMENT_SIZE) {
+			this.posX = (this.worldSizeX + 1) * CameraModel.SEGMENT_SIZE - this.viewportWidth;
 		} else {
 			this.posX = hx;
 		}
 		
-		if(hy < 0.0) {
+		if(hy < -viewportHeight) {
 			this.posY = 0.0;
-		} else if(hy > this.world.getY() * CameraModel.SEGMENT_SIZE) {
-			this.posY = (this.world.getY() + 1) * CameraModel.SEGMENT_SIZE - this.viewportHeight;
+		} else if(hy > this.worldSizeY * CameraModel.SEGMENT_SIZE) {
+			this.posY = (this.worldSizeY + 1) * CameraModel.SEGMENT_SIZE - this.viewportHeight;
 		} else {
 			this.posY = hy;
 		}
-		this.calculateViewport();
-		this.notifyCameraModelListeners();
 	}
 	
 	/**
@@ -307,62 +266,29 @@ public class CameraModel extends AbstractCameraModelFoundation {
 	public void zoom(double factor) {
 		if(!this.vertOverflow && !this.horizOverflow) {
 			double newVal = this.mpp * factor;
-			if(newVal >= 0.1) {
+			if(newVal >= 0.125) {
 				this.mpp = newVal;
 
 				this.calculateViewport();
-				this.notifyCameraModelListeners();
 			}
 		}
 	}
 	
 	/**
-	 * Calculates the remaining parameters of the viewport. The method is called automatically
-	 * if one of the viewport parameters changes, but the programmer is also allowed to spawn
-	 * it manually.
+	 * Positions the map on the screen, if the viewport size is changed. This is used for handling
+	 * the situation, where the world dimension is smaller than the viewport area.
 	 */
 	public void calculateViewport() {
 		double wx, wy;
-		
+	
 		this.viewportWidth = this.viewportWidthPx * this.mpp;
 		this.viewportHeight = this.viewportHeightPx * this.mpp;
 		
-		if(this.viewportWidth > (wx = (this.world.getX() * CameraModel.SEGMENT_SIZE))) {
-			this.horizOverflow = true;
-			this.overflowCenterX = (this.viewportWidth - wx) / 2.0 / this.mpp;
-		} else {
-			this.horizOverflow = false;
-			this.overflowCenterX = 0.0;
+		if(this.viewportWidth > (wx = (this.worldSizeX * CameraModel.SEGMENT_SIZE))) {
+			this.posX = (this.viewportWidth - wx) / 2.0 / this.mpp - (this.worldSizeX / 2.0 * CameraModel.SEGMENT_SIZE);
 		}
-		if(this.viewportHeight > (wy = (this.world.getY() * CameraModel.SEGMENT_SIZE))) {
-			this.vertOverflow = true;
-			this.overflowCenterY = (this.viewportHeight - wy) / 2.0 / this.mpp;
-		} else {
-			this.vertOverflow = false;
-			this.overflowCenterX = 0.0;
-		}
-	}
-
-	public void addCameraModelListener(ICameraModelListener listener) {
-		this.listeners.add(listener);
-	}
-	
-	public void removeCameraModelListener(ICameraModelListener listener) {
-		this.listeners.remove(listener);
-	}
-	
-	public void removeCameraModelListeners() {
-		this.listeners.clear();
-	}
-	
-	protected void notifyCameraModelListeners() {
-		for(ICameraModelListener listener: this.listeners) {
-			InvocationTicket ticket = this.invocationTickets.get(listener);
-			if(null == ticket) {
-				this.invocationTickets.put(listener, this.methodInvocator.executeMethod(listener, "cameraUpdated", this));
-			} else {
-				this.methodInvocator.executeMethod(listener, ticket, this);
-			}
+		if(this.viewportHeight > (wy = (this.worldSizeY * CameraModel.SEGMENT_SIZE))) {
+			this.posY = (this.viewportHeight - wy) / 2.0 / this.mpp - (this.worldSizeX / 2.0 * CameraModel.SEGMENT_SIZE);
 		}
 	}
 }

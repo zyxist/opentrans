@@ -17,7 +17,7 @@
  */
 package org.invenzzia.opentrans.visitons.exception;
 
-import org.invenzzia.opentrans.visitons.world.World;
+import org.invenzzia.opentrans.visitons.network.World;
 
 /**
  * Problems reported by the world model.

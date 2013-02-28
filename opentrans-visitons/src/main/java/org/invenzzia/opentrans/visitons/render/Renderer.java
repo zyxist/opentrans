@@ -18,6 +18,8 @@
 package org.invenzzia.opentrans.visitons.render;
 
 import com.google.common.base.Preconditions;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -26,7 +28,7 @@ import java.awt.image.BufferedImage;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import org.invenzzia.opentrans.visitons.world.Segment;
+import org.invenzzia.opentrans.visitons.network.Segment;
 
 /**
  * Active rendered which renders the world to the image buffer which can be used
@@ -39,6 +41,7 @@ import org.invenzzia.opentrans.visitons.world.Segment;
  * 
  * @author Tomasz Jędrzejewski
  */
+@Singleton
 public final class Renderer {
 	/**
 	 * The color of the background.
@@ -69,6 +72,7 @@ public final class Renderer {
 	 */
 	private List<Segment> visibleSegments = new LinkedList<>();
 	
+	@Inject
 	public Renderer(SceneManager sceneManager) {
 		this.sceneManager = Preconditions.checkNotNull(sceneManager, "The renderer cannot operate without a scene manager.");
 		this.createBuffers();

@@ -25,7 +25,7 @@ package org.invenzzia.opentrans.visitons.render;
  * @author Tomasz Jędrzejewski
  */
 public class CameraModelSnapshot extends AbstractCameraModelFoundation {
-	
+
 	public CameraModelSnapshot(AbstractCameraModelFoundation source) {
 		this.copyFrom(source);
 	}
@@ -48,5 +48,7 @@ public class CameraModelSnapshot extends AbstractCameraModelFoundation {
 		this.overflowCenterY = source.overflowCenterY;
 		this.vertOverflow = source.vertOverflow;
 		this.horizOverflow = source.horizOverflow;
+		this.worldSizeX = source.worldSizeX;
+		this.worldSizeY = source.worldSizeY;
 	}
 }

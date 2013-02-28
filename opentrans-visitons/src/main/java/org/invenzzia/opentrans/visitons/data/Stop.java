@@ -1,123 +1,121 @@
 /*
- * Visitons - public transport simulation engine
- * Copyright (c) 2011-2012 Invenzzia Group
- * 
- * Visitons is free software: you can redistribute it and/or modify
+ * Copyright (C) 2013 Invenzzia Group <http://www.invenzzia.org/>
+ *
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Visitons is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Visitons. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package org.invenzzia.opentrans.visitons.data;
 
-import com.google.common.base.Preconditions;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import org.invenzzia.helium.domain.annotation.RelationshipSize;
-import org.invenzzia.helium.domain.relation.RelationshipPerspective;
-import org.invenzzia.opentrans.visitons.exception.NoSuchConnectionException;
-import org.invenzzia.opentrans.visitons.network.Connection;
+import org.invenzzia.helium.data.interfaces.IIdentifiable;
+import org.invenzzia.helium.data.interfaces.IMemento;
+import org.invenzzia.helium.data.interfaces.IRecord;
 
-/**
- * Represents a stop, where the passenger exchange takes place after
- * the vehicle arrival.
- * 
- * @author Tomasz Jędrzejewski
- */
-public class Stop {
+class StopBase implements IIdentifiable {
+	/**
+	 * Unique internal stop ID.
+	 */
+	protected long id = -1;
+	/**
+	 * Unique stop name.
+	 */
 	private String name;
-	/**
-	 * All platforms on this stop.
-	 */
-	@RelationshipSize(max = 100)
-	private RelationshipPerspective<Stop, Platform> platforms;
-	/**
-	 * Connections with other stops defined by lines.
-	 */
-	private Map<Stop, Connection> connections = new LinkedHashMap<>();
-	
-	public String getName() {
-		return this.name;
+
+	@Override
+	public long getId() {
+		return this.id;
 	}
 
+	@Override
+	public void setId(long id) {
+		if(-1 != this.id) {
+			throw new IllegalStateException("Cannot change the previously set ID.");
+		}
+		this.id = id;
+	}
+	
+	/**
+	 * Returns the name of the stop.
+	 * 
+	 * @return Stop name.
+	 */
+	public String getName() {
+		return name;
+	}
+	
+	/**
+	 * Sets the new stop name.
+	 * 
+	 * @param name Stop name.
+	 */
 	public void setName(String name) {
 		this.name = name;
 	}
 	
+	@Override
+	public String toString() {
+		return this.name;
+	}
+}
+
+public final class Stop extends StopBase implements IMemento {
 	/**
-	 * Injector for the relationship perspective. Do not use explicitely.
-	 * @param perspective 
+	 * Previous stop name, for the purpose of updating the index.
 	 */
-	public void setPlatformsPerspective(RelationshipPerspective perspective) {
-		this.platforms = (RelationshipPerspective<Stop, Platform>) perspective;
-	}
+	private String previousName;
 	
-	public RelationshipPerspective<Stop, Platform> getPlatforms() {
-		return this.platforms;
-	}
-	
-	public boolean isConnectedWith(Stop otherStop) {
-		return this.connections.containsKey(otherStop);
+	@Override
+	public void setName(String name) {
+		this.previousName = name;
+		super.setName(name);
 	}
 	
 	/**
-	 * Returns the connection object to the given stop. An exception is
-	 * thrown, if the connection does not exist.
+	 * Returns the previous stop name.
 	 * 
-	 * @param stop
-	 * @return
-	 * @throws NoSuchConnectionException 
+	 * @return Previous stop name.
 	 */
-	public Connection getConnectionTo(Stop stop) throws NoSuchConnectionException {
-		Preconditions.checkNotNull(stop, "Passing empty stop to Stop.getConnectionTo()");
-		Connection conn = this.connections.get(stop);
-		if(null == conn) {
-			throw new NoSuchConnectionException(String.format("There is no connection to stop '%s'.", stop.getName()));
+	public String getPreviousName() {
+		return this.previousName;
+	}
+
+	@Override
+	public Object getMemento() {
+		StopRecord memento = new StopRecord();
+		memento.importData(this);
+		return memento;
+	}
+
+	@Override
+	public void restoreMemento(Object memento) {
+		if(!(memento instanceof StopRecord)) {
+			throw new IllegalArgumentException("Invalid memento for Stop class: "+memento.getClass().getCanonicalName());
 		}
-		return conn;
+		StopRecord record = (StopRecord) memento;
+		record.exportData(this);
+		this.id = record.getId();
 	}
 	
-	/**
-	 * Binds two stops with a newly created {@link Connection} object. If the
-	 * connection already exists, the method does nothing.
-	 * 
-	 * @param stop1
-	 * @param stop2 
-	 */
-	public static void bindStops(Stop stop1, Stop stop2) {
-		Preconditions.checkNotNull(stop1, "None of the stops in Stop.bindStops() can be null.");
-		Preconditions.checkNotNull(stop2, "None of the stops in Stop.bindStops() can be null.");
-		
-		if(stop1.isConnectedWith(stop2)) {
-			return;
+	public final static class StopRecord extends StopBase implements IRecord<Stop> {
+		@Override
+		public void exportData(Stop original) {
+			original.setName(this.getName());
 		}
-		
-		Connection connection = new Connection(stop1, stop2);
-		stop1.connections.put(stop2, connection);
-		stop2.connections.put(stop1, connection);
-	}
-	
-	/**
-	 * Removes the connection between two stops. Nothing happens, if such connection does
-	 * not exist.
-	 * 
-	 * @param stop1
-	 * @param stop2 
-	 */
-	public static void unbindStops(Stop stop1, Stop stop2) {
-		Preconditions.checkNotNull(stop1, "None of the stops in Stop.unbindStops() can be null.");
-		Preconditions.checkNotNull(stop2, "None of the stops in Stop.unbindStops() can be null.");
-		if(!stop1.isConnectedWith(stop2)) {
-			return;
+
+		@Override
+		public void importData(Stop original) {
+			this.setId(original.getId());
+			this.setName(original.getName());
 		}
-		stop1.connections.remove(stop2);
-		stop2.connections.remove(stop1);
 	}
 }

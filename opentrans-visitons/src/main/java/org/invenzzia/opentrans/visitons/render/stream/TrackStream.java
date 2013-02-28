@@ -25,7 +25,7 @@ import java.util.Map;
 import org.invenzzia.opentrans.visitons.render.CameraModelSnapshot;
 import org.invenzzia.opentrans.visitons.render.RenderingStreamAdapter;
 import org.invenzzia.opentrans.visitons.render.scene.TrackSnapshot;
-import org.invenzzia.opentrans.visitons.render.scene.TrackSnapshot.IDrawableTrack;
+import org.invenzzia.opentrans.visitons.render.scene.TrackSnapshot.ITrackRecord;
 
 /**
  * Description here.
@@ -56,7 +56,7 @@ public class TrackStream extends RenderingStreamAdapter {
 			
 			graphics.setColor(Color.BLUE);
 			graphics.setStroke(new BasicStroke(2, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-			for(IDrawableTrack dt: ts.getDrawableTracks()) {
+			for(ITrackRecord dt: ts.getDrawableTracks()) {
 				dt.draw(camera, graphics);
 			}
 		}

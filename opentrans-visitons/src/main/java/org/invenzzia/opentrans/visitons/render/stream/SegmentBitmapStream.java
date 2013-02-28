@@ -19,7 +19,6 @@ package org.invenzzia.opentrans.visitons.render.stream;
 
 import java.awt.Graphics2D;
 import java.util.Map;
-import org.invenzzia.opentrans.visitons.render.AbstractCameraModelFoundation;
 import org.invenzzia.opentrans.visitons.render.CameraModel;
 import org.invenzzia.opentrans.visitons.render.CameraModelSnapshot;
 import org.invenzzia.opentrans.visitons.render.RenderingStreamAdapter;
@@ -39,15 +38,16 @@ public class SegmentBitmapStream extends RenderingStreamAdapter {
 	public void render(Graphics2D graphics, Map<Object, Object> snapshot, long prevTimeFrame) {
 		VisibleSegmentSnapshot vss = this.extract(snapshot, VisibleSegmentSnapshot.class);
 		CameraModelSnapshot camera = this.extract(snapshot, CameraModelSnapshot.class);
-		
-		for(SegmentInfo segment: vss.getSegments()) {
-			if(null != segment.image) {
-				int x = (int) camera.world2pixX(segment.x * CameraModel.SEGMENT_SIZE);
-				int y = (int) camera.world2pixY(segment.y * CameraModel.SEGMENT_SIZE);
-				
-				if(camera.getMpp() < MAX_ZOOM_VISIBILITY) {
-					int newSize = (int) Math.round((CameraModel.DEFAULT_ZOOM / camera.getMpp() * CameraModel.SEGMENT_SIZE));
-					graphics.drawImage(segment.image, x, y, newSize, newSize, null);
+		if(null != vss && null != camera) {
+			for(SegmentInfo segment: vss.getSegments()) {
+				if(null != segment.image) {
+					int x = (int) camera.world2pixX(segment.x * CameraModel.SEGMENT_SIZE);
+					int y = (int) camera.world2pixY(segment.y * CameraModel.SEGMENT_SIZE);
+
+					if(camera.getMpp() < MAX_ZOOM_VISIBILITY) {
+						int newSize = (int) Math.round((CameraModel.DEFAULT_ZOOM / camera.getMpp() * CameraModel.SEGMENT_SIZE));
+						graphics.drawImage(segment.image, x, y, newSize, newSize, null);
+					}
 				}
 			}
 		}	

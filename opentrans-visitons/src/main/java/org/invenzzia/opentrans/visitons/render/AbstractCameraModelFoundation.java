@@ -18,9 +18,9 @@
 package org.invenzzia.opentrans.visitons.render;
 
 import com.vividsolutions.jts.geom.Coordinate;
+import org.invenzzia.opentrans.visitons.network.Segment;
+import org.invenzzia.opentrans.visitons.network.World;
 import org.invenzzia.opentrans.visitons.utils.SegmentCoordinate;
-import org.invenzzia.opentrans.visitons.world.Segment;
-import org.invenzzia.opentrans.visitons.world.World;
 
 /**
  * Common parts of {@link CameraModel} and {@link CameraModelSnapshot}:
@@ -31,6 +31,7 @@ import org.invenzzia.opentrans.visitons.world.World;
 abstract public class AbstractCameraModelFoundation {
 	public static final double MIN_VIEWPORT = 1.0;
 	public static final double SEGMENT_SIZE = 1000.0;
+	public static final double HALF_SEGMENT_SIZE = 500.0;
 	public static final double DEFAULT_ZOOM = 1.0;
 
 	/**
@@ -38,6 +39,12 @@ abstract public class AbstractCameraModelFoundation {
 	 */
 	protected double posX;
 	protected double posY;
+	
+	/**
+	 * Information about the world size (number of segments in each dimension).
+	 */
+	protected int worldSizeX;
+	protected int worldSizeY;
 	
 	/**
 	 * The width and height of the viewport in the world map units (metres).
@@ -94,6 +101,44 @@ abstract public class AbstractCameraModelFoundation {
 	public int getViewportWidthPx() {
 		return this.viewportWidthPx;
 	}
+	
+	
+	/**
+	 * Returns the total X size of the world in the world units (metres).
+	 * 
+	 * @return X size of the world in the world units.
+	 */
+	public double getSizeX() {
+		return this.worldSizeX * CameraModel.SEGMENT_SIZE;
+	}
+
+	/**
+	 * Returns the total Y size of the world in the world units (metres).
+	 * 
+	 * @return Y size of the world in the world units.
+	 */
+	public double getSizeY() {
+		return this.worldSizeY * CameraModel.SEGMENT_SIZE;
+	}
+	
+	/**
+	 * Returns the distance in the world units.
+	 * 
+	 * @param pixels Pixel distance.
+	 * @return World distance.
+	 */
+	public double worldDistance(long pixels) {
+		return pixels * this.mpp;
+	}
+	
+	public double getOverflowCenterX() {
+		return this.overflowCenterX;
+	}
+	
+	public double getOverflowCenterY() {
+		return this.overflowCenterY;
+	}
+
 	/**
 	 * Converts units from pixels to world meters on the X axis. Returns the
 	 * absolute value.

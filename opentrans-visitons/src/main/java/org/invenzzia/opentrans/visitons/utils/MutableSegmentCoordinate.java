@@ -17,7 +17,7 @@
  */
 package org.invenzzia.opentrans.visitons.utils;
 
-import org.invenzzia.opentrans.visitons.world.Segment;
+import org.invenzzia.opentrans.visitons.network.Segment;
 
 /**
  *

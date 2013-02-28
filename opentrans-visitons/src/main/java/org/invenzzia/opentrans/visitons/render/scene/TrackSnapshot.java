@@ -1,5 +1,4 @@
 /*
- * Visitons - public transport simulation engine
  * Copyright (c) 2011-2012 Invenzzia Group
  * 
  * Visitons is free software: you can redistribute it and/or modify
@@ -25,40 +24,73 @@ import java.awt.geom.Arc2D;
 import java.util.LinkedList;
 import java.util.List;
 import org.invenzzia.opentrans.visitons.geometry.Geometry;
-import org.invenzzia.opentrans.visitons.infrastructure.CurvedTrack;
-import org.invenzzia.opentrans.visitons.infrastructure.IVertex;
-import org.invenzzia.opentrans.visitons.infrastructure.StraightTrack;
+import org.invenzzia.opentrans.visitons.network.IVertex;
+import org.invenzzia.opentrans.visitons.network.Track;
 import org.invenzzia.opentrans.visitons.render.CameraModelSnapshot;
 
 /**
- * Keeps immutable information about the tracks to draw on the
- * screen.
+ * Element of the scene manager that describes the immutable track layout that is visible on the screen.
+ * The snapshot contains simple immutable track object snapshots. They have the geometric information
+ * necessary to draw them on the screen in the proper locations.
+ * 
+ * <p>If the scene is changed, the new track snapshot must be generated.
  * 
  * @author Tomasz Jędrzejewski
  */
 public class TrackSnapshot {
-	private final List<IDrawableTrack> tracks;
+	/**
+	 * Visible tracks to draw.
+	 */
+	private final List<ITrackRecord> tracks;
 	
+	/**
+	 * Creates a new, empty track snapshot.
+	 */
 	public TrackSnapshot() {
 		this.tracks = new LinkedList<>();
 	}
 	
-	public void addDrawableTrack(IDrawableTrack dt) {
+	/**
+	 * Adds a new drawable track object record.
+	 * 
+	 * @param dt Track object record.
+	 */
+	public void addDrawableTrack(ITrackRecord dt) {
 		this.tracks.add(Preconditions.checkNotNull(dt));
 	}
 	
-	public List<IDrawableTrack> getDrawableTracks() {
+	/**
+	 * Returns the list of all the track records kept by this snapshots. We don't care
+	 * about the mutability, this must be fast, so we assume that you won't modify the
+	 * returned list.
+	 * 
+	 * @return List of track records to draw.
+	 */
+	public List<ITrackRecord> getDrawableTracks() {
 		return this.tracks;
 	}
 	
-	public static interface IDrawableTrack {
+	/**
+	 * Generic interface that defines an immutable record with the geometrical
+	 * information about a certain track.
+	 */
+	public static interface ITrackRecord {
+		/**
+		 * Draws the given track on the screen.
+		 * 
+		 * @param camera The camera information snapshot.
+		 * @param graphics The screen to draw on.
+		 */
 		public void draw(CameraModelSnapshot camera, Graphics2D graphics);
 	}
 	
-	public static class DrawableStraightTrack implements IDrawableTrack {
+	/**
+	 * The record of the straight track: draws a straight line between two points.
+	 */
+	public static class StraightTrackRecord implements ITrackRecord {
 		private final double coordinates[];
 		
-		public DrawableStraightTrack(StraightTrack t) {
+		public StraightTrackRecord(Track t) {
 			this.coordinates = new double[4];
 			IVertex v1 = t.getVertex(0);
 			this.coordinates[0] = v1.x();
@@ -79,31 +111,36 @@ public class TrackSnapshot {
 		}
 	}
 	
-	public static class DrawableCurvedTrack implements IDrawableTrack {
+	/**
+	 * The record of a curved track: draws an arc between two points.
+	 */
+	public static class ArcTrackRecord implements ITrackRecord {
 		private final double coordinates[];
-		private final byte convex;
+		private final int convex;
 		private final double dbg[];
 		
-		public DrawableCurvedTrack(CurvedTrack t) {
-			this.convex = t.getConvex();
+		public ArcTrackRecord(Track t) {
+			double metadata[] = t.getMetadata();
+			
+			this.convex = metadata[0] > 0.0 ? 1 : -1;
 			this.coordinates = new double[6];
 			this.dbg = new double[8];
 			IVertex v1 = t.getVertex(0);
 			IVertex v2 = t.getVertex(1);
 			
-			double angle1 = -Math.atan2(v1.y() - t.centY(), v1.x() - t.centX());
+			double angle1 = -Math.atan2(v1.y() - metadata[2], v1.x() - metadata[1]);
 			if(angle1 < 0.0) {
 				angle1 += 2* Math.PI;
 			}
-			double angle2 = -Math.atan2(v2.y() - t.centY(), v2.x() - t.centX());
+			double angle2 = -Math.atan2(v2.y() - metadata[2], v2.x() - metadata[1]);
 			if(angle2 < 0.0) {
 				angle2 += 2* Math.PI;
 			}
-			double dist = Geometry.angleDist(angle1, angle2, this.convex);
-			double radius = Math.sqrt(Math.pow(v1.x() - t.centX(), 2) + Math.pow(v1.y() - t.centY(), 2));
+			double dist = Geometry.angleDist(angle1, angle2, (byte)this.convex);
+			double radius = Math.sqrt(Math.pow(v1.x() - metadata[1], 2) + Math.pow(v1.y() - metadata[2], 2));
 
-			this.coordinates[0] = t.centX() - radius;
-			this.coordinates[1] = t.centY() - radius;
+			this.coordinates[0] = metadata[1] - radius;
+			this.coordinates[1] = metadata[2] - radius;
 			this.coordinates[2] = 2 * radius;
 			this.coordinates[3] = 2 * radius;
 			this.coordinates[4] = Math.toDegrees(angle1);
@@ -113,8 +150,8 @@ public class TrackSnapshot {
 			this.dbg[1] = v1.y();
 			this.dbg[2] = v2.x();
 			this.dbg[3] = v2.y();
-			this.dbg[4] = t.centX();
-			this.dbg[5] = t.centY();
+			this.dbg[4] = metadata[1];
+			this.dbg[5] = metadata[2];
 		}
 
 		@Override
@@ -140,6 +177,17 @@ public class TrackSnapshot {
 			graphics.drawLine(camera.world2pixX(this.dbg[2]), camera.world2pixY(this.dbg[3]), camera.world2pixX(this.dbg[4]), camera.world2pixY(this.dbg[5]));
 
 			graphics.setStroke(new BasicStroke(2, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+		}
+	}
+	
+	/**
+	 * The record of a free track: draws a Bezier curve between the two points. The control points
+	 * are precomputed and cannot be freely moved.
+	 */
+	public static class FreeTrackRecord implements ITrackRecord {
+		@Override
+		public void draw(CameraModelSnapshot camera, Graphics2D graphics) {
+			throw new UnsupportedOperationException("Not supported yet.");
 		}
 	}
 }

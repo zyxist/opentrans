@@ -17,8 +17,6 @@
  */
 package org.invenzzia.opentrans.visitons.exception;
 
-import org.invenzzia.helium.exceptions.ApplicationException;
-
 /**
  * Abstract transportation network model exception indicating that
  * these two stops are not connected and we try to do something
@@ -26,7 +24,7 @@ import org.invenzzia.helium.exceptions.ApplicationException;
  * 
  * @author Tomasz Jędrzejewski
  */
-public class NoSuchConnectionException extends ApplicationException {
+public class NoSuchConnectionException extends Exception {
 	public NoSuchConnectionException(String message) {
 		super(message);
 	}

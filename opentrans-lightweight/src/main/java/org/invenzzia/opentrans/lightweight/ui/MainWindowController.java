@@ -22,11 +22,9 @@ import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
-import java.awt.event.ActionEvent;
 import org.invenzzia.opentrans.lightweight.IProjectHolder;
 import org.invenzzia.opentrans.lightweight.events.ProjectEvent;
 import org.invenzzia.opentrans.lightweight.model.branding.BrandingModel;
-import org.invenzzia.opentrans.lightweight.ui.dialogs.resize.ResizeDialog;
 import org.invenzzia.opentrans.lightweight.ui.dialogs.resize.ResizeDialogController;
 import org.invenzzia.opentrans.visitons.Project.ProjectRecord;
 
@@ -60,7 +58,6 @@ public class MainWindowController {
 	 */
 	public void setMainWindow(MainWindow mainWindow) {
 		if(null != this.mainWindow) {
-			this.mainWindow.setController(null);
 			this.eventBus.unregister(this);
 		}
 		this.mainWindow = mainWindow;
@@ -69,7 +66,6 @@ public class MainWindowController {
 			ProjectRecord record = new ProjectRecord();
 			record.importData(this.projectHolder.getCurrentProject());
 			this.createWindowTitle(record);
-			this.mainWindow.setController(this);
 			this.eventBus.register(this);
 		}
 	}
@@ -101,18 +97,5 @@ public class MainWindowController {
 	@Subscribe
 	public void notifyAboutProjectEvents(ProjectEvent event) {
 		this.createWindowTitle(event.getProject());
-	}
-	
-	
-	/**
-	 * Action called on clicking 'resize world' from the menu.
-	 * 
-	 * @param event 
-	 */
-	public void resizeWorldMenuAction(ActionEvent event) {
-		ResizeDialog resizeDialog = new ResizeDialog(this.mainWindow);
-		ResizeDialogController controller = this.resizeDialogControllerProvider.get();
-		controller.setView(resizeDialog);
-		resizeDialog.setVisible(true);
 	}
 }

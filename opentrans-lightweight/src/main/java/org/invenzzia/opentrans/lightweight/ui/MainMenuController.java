@@ -15,53 +15,73 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.invenzzia.opentrans.lightweight.ui.toolbars;
+package org.invenzzia.opentrans.lightweight.ui;
 
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
+import com.google.inject.Provider;
+import java.awt.Toolkit;
+import java.awt.event.WindowEvent;
 import org.invenzzia.helium.events.HistoryChangedEvent;
 import org.invenzzia.helium.exception.CommandExecutionException;
 import org.invenzzia.helium.history.History;
 import org.invenzzia.opentrans.lightweight.annotations.Action;
 import org.invenzzia.opentrans.lightweight.controllers.IActionScanner;
-import org.invenzzia.opentrans.lightweight.ui.IDialogBuilder;
+import org.invenzzia.opentrans.lightweight.ui.dialogs.resize.ResizeDialog;
+import org.invenzzia.opentrans.lightweight.ui.dialogs.resize.ResizeDialogController;
 import org.invenzzia.opentrans.visitons.editing.ICommand;
 
 /**
- * The controller manages the two buttons 'Undo' and 'Redo' visible on the
- * history toolbar.
+ * Implementation for all actions found in the main application menu.
  * 
  * @author Tomasz Jędrzejewski
  */
-@Singleton
-public class HistoryToolbarController {
+public class MainMenuController {
+	/**
+	 * For managing the state of 'undo' and 'redo' buttons.
+	 */
 	@Inject
 	private History<ICommand> history;
-	@Inject
-	private IDialogBuilder dialogBuilder;
+	/**
+	 * Used for binding actions to menu items.
+	 */
 	@Inject
 	private IActionScanner actionScanner;
 	/**
-	 * The current view.
+	 * We need to open dialogs somehow.
 	 */
-	private HistoryToolbar view;
-
-	/**
-	 * Sets the toolbar view.
-	 * 
-	 * @param toolbar 
-	 */
-	public void setView(HistoryToolbar toolbar) {
-		this.view = toolbar;
-		this.actionScanner.discoverActions(HistoryToolbarController.class, this);
-		this.actionScanner.bindComponents(HistoryToolbar.class, this.view);
-
-		this.updateButtonStates();
-	}
+	@Inject
+	private IDialogBuilder dialogBuilder;
 	
-	public HistoryToolbar getView() {
-		return this.view;
+	@Inject
+	private Provider<ResizeDialogController> resizeDialogControllerProvider;
+	/**
+	 * The view scanned for menu items.
+	 */
+	private MainWindow view;
+	
+	/**
+	 * Assigns the view to the controller and binds the actions.
+	 * 
+	 * @param mainWindow The view.
+	 */
+	public void setView(MainWindow mainWindow) {
+		if(null != this.view) {
+			this.actionScanner.clear(MainWindow.class, this.view);
+		}
+		this.view = mainWindow;
+		if(null != this.view) {
+			this.actionScanner.discoverActions(MainMenuController.class, this);
+			this.actionScanner.bindComponents(MainWindow.class, this.view);
+			this.updateButtonStates();
+		}
+	}
+
+	@Action("quit")
+	public void quitAction() {
+		this.view.setVisible(false);
+		WindowEvent wev = new WindowEvent(this.view, WindowEvent.WINDOW_CLOSING);
+		Toolkit.getDefaultToolkit().getSystemEventQueue().postEvent(wev);
 	}
 	
 	@Action("undo")
@@ -84,11 +104,22 @@ public class HistoryToolbarController {
 		}
 	}
 	
+	/**
+	 * Shows the 'resize world' dialog.
+	 */
+	@Action("resizeWorld")
+	public void resizeWorldAction() {
+		ResizeDialog theDialog = this.dialogBuilder.createModalDialog(ResizeDialog.class);
+		ResizeDialogController controller = this.resizeDialogControllerProvider.get();
+		controller.setView(theDialog);
+		theDialog.setVisible(true);
+	}
+	
 	@Subscribe
 	public void notifyHistoryChanges(HistoryChangedEvent<ICommand> event) {
 		this.updateButtonStates();
 	}
-
+	
 	/**
 	 * Manages the 'undo' and 'redo' button states.
 	 * 

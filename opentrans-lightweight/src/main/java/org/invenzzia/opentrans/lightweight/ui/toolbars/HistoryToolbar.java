@@ -19,7 +19,7 @@ package org.invenzzia.opentrans.lightweight.ui.toolbars;
 
 import java.awt.Dimension;
 import javax.swing.JButton;
-import org.invenzzia.opentrans.lightweight.annotations.ToolbarAction;
+import org.invenzzia.opentrans.lightweight.annotations.Action;
 import org.invenzzia.opentrans.lightweight.lf.icons.IconService;
 
 /**
@@ -28,9 +28,9 @@ import org.invenzzia.opentrans.lightweight.lf.icons.IconService;
  * @author Tomasz Jędrzejewski
  */
 public class HistoryToolbar extends AbstractToolbar {
-	@ToolbarAction("undo")
+	@Action("undo")
 	private JButton undoButton;
-	@ToolbarAction("redo")
+	@Action("redo")
 	private JButton redoButton;
 
 	public HistoryToolbar() {

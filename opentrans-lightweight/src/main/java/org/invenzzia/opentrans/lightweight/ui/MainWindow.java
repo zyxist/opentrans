@@ -20,7 +20,9 @@ import com.google.inject.Singleton;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JFrame;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import org.invenzzia.opentrans.lightweight.annotations.Action;
 
 /**
  * Represents the main application window, with a menu, toolbar, workspace
@@ -30,21 +32,11 @@ import javax.swing.JPanel;
  */
 @Singleton
 public class MainWindow extends JFrame {
-	private MainWindowController controller;
-
 	/**
 	 * Creates new form MainWindow
 	 */
 	public MainWindow() {
 		this.initComponents();
-	}
-	
-	/**
-	 * Injects the controler which can be bound to the menus.
-	 * @param controller 
-	 */
-	public void setController(MainWindowController controller) {
-		this.controller = controller;
 	}
 
 	/**
@@ -63,6 +55,24 @@ public class MainWindow extends JFrame {
 	 */
 	public JPanel getWorkspacePanel() {
 		return this.workspacePanel;
+	}
+	
+	/**
+	 * Allows enabling or disabling the 'undo' button.
+	 * 
+	 * @param enabled 
+	 */
+	public void setUndoEnabled(boolean enabled) {
+		this.undoMenuItem.setEnabled(enabled);
+	}
+	
+	/**
+	 * Allows enabling or disabling the 'redo' button.
+	 * 
+	 * @param enabled 
+	 */
+	public void setRedoEnabled(boolean enabled) {
+		this.redoMenuItem.setEnabled(enabled);
 	}
 	
 	/**
@@ -86,9 +96,14 @@ public class MainWindow extends JFrame {
             jSeparator1 = new javax.swing.JPopupMenu.Separator();
             quitMenuItem = new javax.swing.JMenuItem();
             editMenu = new javax.swing.JMenu();
+            undoMenuItem = new javax.swing.JMenuItem();
+            redoMenuItem = new javax.swing.JMenuItem();
             viewMenu = new javax.swing.JMenu();
             projectMenu = new javax.swing.JMenu();
             resizeWorldMenuItem = new javax.swing.JMenuItem();
+            jSeparator2 = new javax.swing.JPopupMenu.Separator();
+            meanOfTransportMenuItem = new javax.swing.JMenuItem();
+            vehicleTypeMenuItem = new javax.swing.JMenuItem();
             simulationMenu = new javax.swing.JMenu();
             toolsMenu = new javax.swing.JMenu();
             windowMenu = new javax.swing.JMenu();
@@ -111,12 +126,15 @@ public class MainWindow extends JFrame {
 
             fileMenu.setText("File");
 
+            newProjectMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_N, java.awt.event.InputEvent.CTRL_MASK));
             newProjectMenuItem.setText("New project");
             fileMenu.add(newProjectMenuItem);
 
+            openProjectMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_O, java.awt.event.InputEvent.CTRL_MASK));
             openProjectMenuItem.setText("Open project");
             fileMenu.add(openProjectMenuItem);
 
+            saveProjectMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, java.awt.event.InputEvent.CTRL_MASK));
             saveProjectMenuItem.setText("Save project");
             fileMenu.add(saveProjectMenuItem);
 
@@ -124,12 +142,22 @@ public class MainWindow extends JFrame {
             fileMenu.add(saveAsMenuItem);
             fileMenu.add(jSeparator1);
 
+            quitMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Q, java.awt.event.InputEvent.CTRL_MASK));
             quitMenuItem.setText("Quit");
             fileMenu.add(quitMenuItem);
 
             jMenuBar1.add(fileMenu);
 
             editMenu.setText("Edit");
+
+            undoMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Z, java.awt.event.InputEvent.CTRL_MASK));
+            undoMenuItem.setText("Undo");
+            editMenu.add(undoMenuItem);
+
+            redoMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Y, java.awt.event.InputEvent.CTRL_MASK));
+            redoMenuItem.setText("Redo");
+            editMenu.add(redoMenuItem);
+
             jMenuBar1.add(editMenu);
 
             viewMenu.setText("View");
@@ -138,13 +166,14 @@ public class MainWindow extends JFrame {
             projectMenu.setText("Project");
 
             resizeWorldMenuItem.setText("Resize world...");
-            this.resizeWorldMenuItem.addActionListener(new ActionListener() {
-                  @Override
-                  public void actionPerformed(ActionEvent evt) {
-                        controller.resizeWorldMenuAction(evt);
-                  }
-            });
             projectMenu.add(resizeWorldMenuItem);
+            projectMenu.add(jSeparator2);
+
+            meanOfTransportMenuItem.setText("Means of transport");
+            projectMenu.add(meanOfTransportMenuItem);
+
+            vehicleTypeMenuItem.setText("Vehicle types");
+            projectMenu.add(vehicleTypeMenuItem);
 
             jMenuBar1.add(projectMenu);
 
@@ -189,11 +218,17 @@ public class MainWindow extends JFrame {
       private javax.swing.JMenu helpMenu;
       private javax.swing.JMenuBar jMenuBar1;
       private javax.swing.JPopupMenu.Separator jSeparator1;
+      private javax.swing.JPopupMenu.Separator jSeparator2;
+      private javax.swing.JMenuItem meanOfTransportMenuItem;
       private javax.swing.JMenuItem newProjectMenuItem;
       private javax.swing.JMenuItem openProjectMenuItem;
       private javax.swing.JMenu projectMenu;
       private org.invenzzia.opentrans.lightweight.ui.toolbars.ProjectToolbar projectToolbar1;
+      @Action("quit")
       private javax.swing.JMenuItem quitMenuItem;
+      @Action("redo")
+      private javax.swing.JMenuItem redoMenuItem;
+      @Action("resizeWorld")
       private javax.swing.JMenuItem resizeWorldMenuItem;
       private javax.swing.JMenuItem saveAsMenuItem;
       private javax.swing.JMenuItem saveProjectMenuItem;
@@ -201,6 +236,9 @@ public class MainWindow extends JFrame {
       private javax.swing.JToolBar statusPanel;
       private javax.swing.JPanel toolbarPanel;
       private javax.swing.JMenu toolsMenu;
+      @Action("undo")
+      private javax.swing.JMenuItem undoMenuItem;
+      private javax.swing.JMenuItem vehicleTypeMenuItem;
       private javax.swing.JMenu viewMenu;
       private javax.swing.JMenu windowMenu;
       private javax.swing.JPanel workspacePanel;

@@ -26,7 +26,7 @@ import java.util.Map;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
-import org.invenzzia.opentrans.lightweight.annotations.ToolbarAction;
+import org.invenzzia.opentrans.lightweight.annotations.Action;
 
 /**
  * Simplifies writing toolbar controllers by using annotations to tie view
@@ -44,7 +44,7 @@ public abstract class AbstractToolbarController {
 		
 		// Discover all toolbar actions in this controller
 		for(Method method: this.getClass().getMethods()) {
-			ToolbarAction toolbarAction = method.getAnnotation(ToolbarAction.class);
+			Action toolbarAction = method.getAnnotation(Action.class);
 			if(null != toolbarAction && method.getParameterTypes().length == 0) {
 				this.actions.put(toolbarAction.value(), method);
 			}
@@ -59,7 +59,7 @@ public abstract class AbstractToolbarController {
 	 */
 	protected void installListeners(JToolBar panel) {
 		for(Field field: panel.getClass().getDeclaredFields()) {
-			ToolbarAction action = field.getAnnotation(ToolbarAction.class);
+			Action action = field.getAnnotation(Action.class);
 			
 			if(null != action && field.getType() == JButton.class) {
 				if(!this.actions.containsKey(action.value())) {

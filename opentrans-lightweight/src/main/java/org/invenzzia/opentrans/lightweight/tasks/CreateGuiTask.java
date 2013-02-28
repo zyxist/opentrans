@@ -26,6 +26,7 @@ import javax.swing.SwingUtilities;
 import org.invenzzia.helium.history.History;
 import org.invenzzia.opentrans.lightweight.exception.TaskException;
 import org.invenzzia.opentrans.lightweight.lf.icons.IconService;
+import org.invenzzia.opentrans.lightweight.ui.MainMenuController;
 import org.invenzzia.opentrans.lightweight.ui.MainWindow;
 import org.invenzzia.opentrans.lightweight.ui.MainWindowController;
 import org.invenzzia.opentrans.lightweight.ui.tabs.WorldTab;
@@ -71,6 +72,8 @@ public class CreateGuiTask implements ITask {
 	private History<ICommand> history;
 	@Inject
 	private HistoryToolbarController historyToolbarController;
+	@Inject
+	private MainMenuController mainMenuController;
 
 	@Override
 	public void startup() throws TaskException {
@@ -90,6 +93,9 @@ public class CreateGuiTask implements ITask {
 
 	@Override
 	public void shutdown() {
+		this.mainWindowController.setMainWindow(null);
+		this.mainMenuController.setView(null);
+		this.eventBus.unregister(this.mainMenuController);
 	}
 	
 	public final void doStartup() {
@@ -98,6 +104,8 @@ public class CreateGuiTask implements ITask {
 		// Create the main GUI object
 		MainWindow window = this.mainWindowProvider.get();
 		this.mainWindowController.setMainWindow(window);
+		this.mainMenuController.setView(window);
+		this.eventBus.register(this.mainMenuController);
 		
 		WorkspacePanel workspacePanel = this.workspacePanelProvider.get();
 		workspacePanel.getDesktopTab().setCloseButtonIcon(this.iconService.getIcon("ui-close-small"));

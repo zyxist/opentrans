@@ -32,7 +32,6 @@ import javax.swing.SwingUtilities;
 import org.invenzzia.opentrans.lightweight.events.NewProjectEvent;
 import org.invenzzia.opentrans.lightweight.exception.TaskException;
 import org.invenzzia.opentrans.lightweight.model.branding.BrandingModel;
-import org.invenzzia.opentrans.lightweight.modules.OpentransModule;
 import org.invenzzia.opentrans.lightweight.tasks.*;
 import org.invenzzia.opentrans.lightweight.ui.splash.SplashScreen;
 import org.invenzzia.opentrans.visitons.Project;

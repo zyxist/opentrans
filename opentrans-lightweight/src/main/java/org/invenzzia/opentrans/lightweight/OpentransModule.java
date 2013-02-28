@@ -15,21 +15,26 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.invenzzia.opentrans.lightweight.modules;
+package org.invenzzia.opentrans.lightweight;
 
 import com.google.common.eventbus.EventBus;
 import com.google.inject.AbstractModule;
 import com.google.inject.Singleton;
 import com.google.inject.TypeLiteral;
 import com.google.inject.matcher.Matchers;
+import com.google.inject.multibindings.MapBinder;
 import com.google.inject.multibindings.Multibinder;
+import javax.swing.JButton;
+import javax.swing.JMenuItem;
 import org.invenzzia.helium.history.History;
 import org.invenzzia.helium.history.IHistoryStrategy;
-import org.invenzzia.opentrans.lightweight.Application;
-import org.invenzzia.opentrans.lightweight.IProjectHolder;
 import org.invenzzia.opentrans.lightweight.annotations.InModelThread;
 import org.invenzzia.opentrans.lightweight.annotations.InSwingThread;
 import org.invenzzia.opentrans.lightweight.app.VisitonsHistoryStrategy;
+import org.invenzzia.opentrans.lightweight.controllers.ActionButtonHandler;
+import org.invenzzia.opentrans.lightweight.controllers.DefaultActionScanner;
+import org.invenzzia.opentrans.lightweight.controllers.IActionScanner;
+import org.invenzzia.opentrans.lightweight.controllers.IActionScannerComponentHandler;
 import org.invenzzia.opentrans.lightweight.interceptor.ModelThreadInterceptor;
 import org.invenzzia.opentrans.lightweight.interceptor.SwingThreadInterceptor;
 import org.invenzzia.opentrans.lightweight.lf.icons.IconService;
@@ -44,7 +49,6 @@ import org.invenzzia.opentrans.lightweight.ui.tabs.ProjectTabFactory;
 import org.invenzzia.opentrans.lightweight.ui.tabs.WorldTabFactory;
 import org.invenzzia.opentrans.lightweight.ui.tabs.infrastructure.InfrastructureTabFactory;
 import org.invenzzia.opentrans.lightweight.ui.tabs.vehicles.VehicleTabFactory;
-import org.invenzzia.opentrans.lightweight.ui.toolbars.ProjectToolbar;
 import org.invenzzia.opentrans.lightweight.ui.toolbars.ToolbarManager;
 import org.invenzzia.opentrans.lightweight.ui.workspace.DesktopManager;
 import org.invenzzia.opentrans.lightweight.ui.workspace.IDesktopPaneFactory;
@@ -86,6 +90,13 @@ public class OpentransModule extends AbstractModule {
 		SwingThreadInterceptor sti = new SwingThreadInterceptor();
 		this.bindInterceptor(Matchers.any(), Matchers.annotatedWith(InSwingThread.class), sti);
 
+		// Bind controller utils
+		this.bind(IActionScanner.class).to(DefaultActionScanner.class);
+		MapBinder<Class, IActionScannerComponentHandler> componentHandlerBinder =
+			MapBinder.newMapBinder(this.binder(), Class.class, IActionScannerComponentHandler.class);
+		componentHandlerBinder.addBinding(JButton.class).to(ActionButtonHandler.class).in(Singleton.class);
+		componentHandlerBinder.addBinding(JMenuItem.class).to(ActionButtonHandler.class).in(Singleton.class);
+		
 		// Models
 		this.bind(BrandingModel.class);
 

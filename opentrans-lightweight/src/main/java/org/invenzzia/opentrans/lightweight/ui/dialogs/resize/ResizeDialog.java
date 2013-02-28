@@ -19,6 +19,7 @@ package org.invenzzia.opentrans.lightweight.ui.dialogs.resize;
 
 import com.google.common.base.Preconditions;
 import java.awt.Dimension;
+import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -30,7 +31,6 @@ import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
@@ -71,8 +71,8 @@ public class ResizeDialog extends JDialog {
 	 */
 	private Set<IResizeListener> listeners;
 	
-	public ResizeDialog(JFrame parent) {
-		super(parent, true);
+	public ResizeDialog(Frame parent, boolean modal) {
+		super(parent, modal);
 		
 		this.listeners = new LinkedHashSet<>();
 		this.setTitle("Resize world");

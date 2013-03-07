@@ -102,6 +102,11 @@ class MeanOfTransportBase implements IIdentifiable {
 	public void setOvertakingAllowed(boolean value) {
 		this.overtakingAllowed = value;
 	}
+	
+	@Override
+	public String toString() {
+		return this.name;
+	}
 }
 
 /**

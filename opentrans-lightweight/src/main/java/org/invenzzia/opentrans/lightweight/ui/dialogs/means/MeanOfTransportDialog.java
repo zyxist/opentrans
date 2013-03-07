@@ -16,11 +16,28 @@
  */
 package org.invenzzia.opentrans.lightweight.ui.dialogs.means;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
+import javax.swing.ListModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import org.invenzzia.opentrans.lightweight.annotations.Action;
+import org.invenzzia.opentrans.lightweight.annotations.FormField;
+import org.invenzzia.opentrans.visitons.data.MeanOfTransport.MeanOfTransportRecord;
+
 /**
  *
  * @author Tomasz Jędrzejewski
  */
 public class MeanOfTransportDialog extends javax.swing.JDialog {
+	/**
+	 * Currently selected mean of transport.
+	 */
+	private MeanOfTransportRecord selectedRecord;
+	/**
+	 * Listeners for the selection events.
+	 */
+	private Set<IItemListener> listeners = new LinkedHashSet<>();
 
 	/**
 	 * Creates new form MeanOfTransportDialog
@@ -28,6 +45,105 @@ public class MeanOfTransportDialog extends javax.swing.JDialog {
 	public MeanOfTransportDialog(java.awt.Frame parent, boolean modal) {
 		super(parent, modal);
 		initComponents();
+	}
+	
+	/**
+	 * Adds a new listener of item events.
+	 * 
+	 * @param listener 
+	 */
+	public void addItemListener(IItemListener listener) {
+		this.listeners.add(listener);
+	}
+	
+	/**
+	 * Removes an existing listener of item events.
+	 * 
+	 * @param listener 
+	 */
+	public void removeItemListener(IItemListener listener) {
+		this.listeners.remove(listener);
+	}
+	
+	/**
+	 * Clears all item event listeners.
+	 */
+	public void removeItemListeners() {
+		this.listeners.clear();
+	}
+	
+	/**
+	 * Sets the management model for the item list.
+	 * 
+	 * @param model 
+	 */
+	public void setModel(ListModel<MeanOfTransportRecord> model) {
+		this.itemList.setModel(model);
+	}
+	
+	/**
+	 * Returns the current management model for the item list.
+	 * 
+	 * @return Current management model.
+	 */
+	public ListModel<MeanOfTransportRecord> getModel() {
+		return this.itemList.getModel();
+	}
+	
+	/**
+	 * Returns the currently selected item or NULL, if no item is selected.
+	 * 
+	 * @return Selected item.
+	 */
+	public MeanOfTransportRecord getSelectedRecord() {
+		return this.selectedRecord;
+	}
+	
+	/**
+	 * Disables the content of the form - no item is selected.
+	 */
+	public void disableForm() {
+		this.nameField.setEnabled(false);
+		this.maxSafeSpeedField.setEnabled(false);
+		this.allowVehicleOvertakingCheckbox.setEnabled(false);
+		this.overtakingSpeedPunishmentField.setEnabled(false);
+		this.rollingFrictionCoefficientField.setEnabled(false);
+		
+		this.nameField.setText("");
+		this.maxSafeSpeedField.setText("");
+		this.overtakingSpeedPunishmentField.setText("");
+		this.rollingFrictionCoefficientField.setText("");
+		this.allowVehicleOvertakingCheckbox.setSelected(false);
+		this.hasVehicleTypesCheckbox.setSelected(false);
+	}
+	
+	/**
+	 * Enables the content of the form for editing.
+	 */
+	public void enableForm() {
+		this.nameField.setEnabled(true);
+		this.maxSafeSpeedField.setEnabled(true);
+		this.allowVehicleOvertakingCheckbox.setEnabled(true);
+		this.overtakingSpeedPunishmentField.setEnabled(true);
+		this.rollingFrictionCoefficientField.setEnabled(true);
+	}
+	
+	/**
+	 * Sets the new error message to display.
+	 * 
+	 * @param message New error message.
+	 */
+	public void setErrorMessage(String message) {
+		this.errorLabel.setText(message);
+	}
+	
+	/**
+	 * Returns the currently displayed error message.
+	 * 
+	 * @return 
+	 */
+	public String getErrorMessage() {
+		return this.errorLabel.getText();
 	}
 
 	/**
@@ -39,55 +155,62 @@ public class MeanOfTransportDialog extends javax.swing.JDialog {
       private void initComponents() {
 
             jScrollPane1 = new javax.swing.JScrollPane();
-            jList1 = new javax.swing.JList();
+            itemList = new javax.swing.JList();
             jPanel1 = new javax.swing.JPanel();
             jLabel1 = new javax.swing.JLabel();
-            jTextField1 = new javax.swing.JTextField();
+            nameField = new javax.swing.JTextField();
             jLabel2 = new javax.swing.JLabel();
-            jTextField2 = new javax.swing.JTextField();
+            rollingFrictionCoefficientField = new javax.swing.JTextField();
             jLabel3 = new javax.swing.JLabel();
-            jTextField3 = new javax.swing.JTextField();
-            jCheckBox1 = new javax.swing.JCheckBox();
+            maxSafeSpeedField = new javax.swing.JTextField();
+            allowVehicleOvertakingCheckbox = new javax.swing.JCheckBox();
             jLabel4 = new javax.swing.JLabel();
-            jTextField4 = new javax.swing.JTextField();
-            jCheckBox2 = new javax.swing.JCheckBox();
-            jButton1 = new javax.swing.JButton();
-            jButton2 = new javax.swing.JButton();
-            jButton3 = new javax.swing.JButton();
-            jButton4 = new javax.swing.JButton();
+            overtakingSpeedPunishmentField = new javax.swing.JTextField();
+            hasVehicleTypesCheckbox = new javax.swing.JCheckBox();
+            errorLabel = new javax.swing.JLabel();
+            addButton = new javax.swing.JButton();
+            removeButton = new javax.swing.JButton();
+            cancelButton = new javax.swing.JButton();
+            helpButton = new javax.swing.JButton();
+            okButton = new javax.swing.JButton();
 
             setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
             setTitle("Manage means of transport");
 
-            jList1.setModel(new javax.swing.AbstractListModel() {
+            itemList.setModel(new javax.swing.AbstractListModel() {
                   String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
                   public int getSize() { return strings.length; }
                   public Object getElementAt(int i) { return strings[i]; }
             });
-            jScrollPane1.setViewportView(jList1);
+            itemList.addListSelectionListener(new ItemSelectionListener());
+            jScrollPane1.setViewportView(itemList);
 
             jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Properties"));
 
             jLabel1.setText("Name:");
 
-            jTextField1.setText("jTextField1");
+            nameField.setEnabled(false);
 
             jLabel2.setText("Rolling friction coefficient:");
 
-            jTextField2.setText("jTextField2");
+            rollingFrictionCoefficientField.setEnabled(false);
 
             jLabel3.setText("Max. safe speed/radius coefficient:");
 
-            jTextField3.setText("jTextField3");
+            maxSafeSpeedField.setEnabled(false);
 
-            jCheckBox1.setText("Allow vehicle overtaking");
+            allowVehicleOvertakingCheckbox.setText("Allow vehicle overtaking");
+            allowVehicleOvertakingCheckbox.setEnabled(false);
 
             jLabel4.setText("Overtaking speed punishment:");
 
-            jTextField4.setText("jTextField4");
+            overtakingSpeedPunishmentField.setEnabled(false);
 
-            jCheckBox2.setText("Has vehicle types");
-            jCheckBox2.setEnabled(false);
+            hasVehicleTypesCheckbox.setText("Has vehicle types");
+            hasVehicleTypesCheckbox.setEnabled(false);
+
+            errorLabel.setForeground(new java.awt.Color(204, 0, 0));
+            errorLabel.setText(" ");
 
             javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
             jPanel1.setLayout(jPanel1Layout);
@@ -96,19 +219,20 @@ public class MeanOfTransportDialog extends javax.swing.JDialog {
                   .addGroup(jPanel1Layout.createSequentialGroup()
                         .addContainerGap()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                              .addComponent(jTextField1)
-                              .addComponent(jTextField2)
-                              .addComponent(jTextField3)
-                              .addComponent(jTextField4)
+                              .addComponent(nameField)
+                              .addComponent(rollingFrictionCoefficientField)
+                              .addComponent(maxSafeSpeedField)
+                              .addComponent(overtakingSpeedPunishmentField)
                               .addGroup(jPanel1Layout.createSequentialGroup()
                                     .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                          .addComponent(jCheckBox2)
+                                          .addComponent(hasVehicleTypesCheckbox)
                                           .addComponent(jLabel1)
                                           .addComponent(jLabel2)
                                           .addComponent(jLabel3)
                                           .addComponent(jLabel4)
-                                          .addComponent(jCheckBox1))
-                                    .addGap(0, 207, Short.MAX_VALUE)))
+                                          .addComponent(allowVehicleOvertakingCheckbox)
+                                          .addComponent(errorLabel))
+                                    .addGap(0, 0, Short.MAX_VALUE)))
                         .addContainerGap())
             );
             jPanel1Layout.setVerticalGroup(
@@ -117,34 +241,41 @@ public class MeanOfTransportDialog extends javax.swing.JDialog {
                         .addContainerGap()
                         .addComponent(jLabel1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(nameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jLabel2)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(rollingFrictionCoefficientField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jLabel3)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(maxSafeSpeedField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jLabel4)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 75, Short.MAX_VALUE)
-                        .addComponent(jCheckBox1)
+                        .addComponent(overtakingSpeedPunishmentField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jCheckBox2)
+                        .addComponent(allowVehicleOvertakingCheckbox)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(hasVehicleTypesCheckbox)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 52, Short.MAX_VALUE)
+                        .addComponent(errorLabel)
                         .addContainerGap())
             );
 
-            jButton1.setText("Add");
+            addButton.setText("Add");
 
-            jButton2.setText("Remove");
-            jButton2.setToolTipText("");
+            removeButton.setText("Remove");
+            removeButton.setToolTipText("");
 
-            jButton3.setText("Close");
+            cancelButton.setText("Cancel");
+            cancelButton.setPreferredSize(new java.awt.Dimension(100, 25));
 
-            jButton4.setText("Help");
+            helpButton.setText("Help");
+            helpButton.setPreferredSize(new java.awt.Dimension(100, 25));
+
+            okButton.setText("OK");
+            okButton.setPreferredSize(new java.awt.Dimension(100, 25));
 
             javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
             getContentPane().setLayout(layout);
@@ -154,18 +285,20 @@ public class MeanOfTransportDialog extends javax.swing.JDialog {
                         .addContainerGap()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                               .addGroup(layout.createSequentialGroup()
-                                    .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(addButton, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addComponent(removeButton, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
                               .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                               .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                               .addGroup(layout.createSequentialGroup()
-                                    .addGap(0, 0, Short.MAX_VALUE)
-                                    .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addGap(0, 177, Short.MAX_VALUE)
+                                    .addComponent(helpButton, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                    .addComponent(okButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(cancelButton, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addContainerGap())
             );
             layout.setVerticalGroup(
@@ -174,77 +307,79 @@ public class MeanOfTransportDialog extends javax.swing.JDialog {
                         .addContainerGap()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                               .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                              .addComponent(jScrollPane1))
+                              .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 349, Short.MAX_VALUE))
                         .addGap(7, 7, 7)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                              .addComponent(jButton1)
-                              .addComponent(jButton2)
-                              .addComponent(jButton3)
-                              .addComponent(jButton4))
+                              .addComponent(addButton)
+                              .addComponent(removeButton)
+                              .addComponent(cancelButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                              .addComponent(helpButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                              .addComponent(okButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addContainerGap())
             );
 
             pack();
       }// </editor-fold>//GEN-END:initComponents
-
-	/**
-	 * @param args the command line arguments
-	 */
-	public static void main(String args[]) {
-		/* Set the Nimbus look and feel */
-		//<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-		 * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-		 */
-		try {
-			for(javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-				if("Nimbus".equals(info.getName())) {
-					javax.swing.UIManager.setLookAndFeel(info.getClassName());
-					break;
-				}
-			}
-		} catch(ClassNotFoundException ex) {
-			java.util.logging.Logger.getLogger(MeanOfTransportDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-		} catch(InstantiationException ex) {
-			java.util.logging.Logger.getLogger(MeanOfTransportDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-		} catch(IllegalAccessException ex) {
-			java.util.logging.Logger.getLogger(MeanOfTransportDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-		} catch(javax.swing.UnsupportedLookAndFeelException ex) {
-			java.util.logging.Logger.getLogger(MeanOfTransportDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-		}
-		//</editor-fold>
-
-		/* Create and display the dialog */
-		java.awt.EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				MeanOfTransportDialog dialog = new MeanOfTransportDialog(new javax.swing.JFrame(), true);
-				dialog.addWindowListener(new java.awt.event.WindowAdapter() {
-					@Override
-					public void windowClosing(java.awt.event.WindowEvent e) {
-						System.exit(0);
-					}
-				});
-				dialog.setVisible(true);
-			}
-		});
-	}
       // Variables declaration - do not modify//GEN-BEGIN:variables
-      private javax.swing.JButton jButton1;
-      private javax.swing.JButton jButton2;
-      private javax.swing.JButton jButton3;
-      private javax.swing.JButton jButton4;
-      private javax.swing.JCheckBox jCheckBox1;
-      private javax.swing.JCheckBox jCheckBox2;
+      @Action("addAction")
+      private javax.swing.JButton addButton;
+      private javax.swing.JCheckBox allowVehicleOvertakingCheckbox;
+      @Action("cancelAction")
+      private javax.swing.JButton cancelButton;
+      private javax.swing.JLabel errorLabel;
+      private javax.swing.JCheckBox hasVehicleTypesCheckbox;
+      @Action("helpAction")
+      private javax.swing.JButton helpButton;
+      private javax.swing.JList itemList;
       private javax.swing.JLabel jLabel1;
       private javax.swing.JLabel jLabel2;
       private javax.swing.JLabel jLabel3;
       private javax.swing.JLabel jLabel4;
-      private javax.swing.JList jList1;
       private javax.swing.JPanel jPanel1;
       private javax.swing.JScrollPane jScrollPane1;
-      private javax.swing.JTextField jTextField1;
-      private javax.swing.JTextField jTextField2;
-      private javax.swing.JTextField jTextField3;
-      private javax.swing.JTextField jTextField4;
+      private javax.swing.JTextField maxSafeSpeedField;
+      @FormField(name="name")
+      private javax.swing.JTextField nameField;
+      @Action("okAction")
+      private javax.swing.JButton okButton;
+      private javax.swing.JTextField overtakingSpeedPunishmentField;
+      @Action("removeAction")
+      private javax.swing.JButton removeButton;
+      private javax.swing.JTextField rollingFrictionCoefficientField;
       // End of variables declaration//GEN-END:variables
+
+	class ItemSelectionListener implements ListSelectionListener {
+
+		@Override
+		public void valueChanged(ListSelectionEvent e) {
+			MeanOfTransportRecord record = (MeanOfTransportRecord) itemList.getSelectedValue();
+			selectedRecord = record;
+			
+			final ItemEvent event = new ItemEvent(record);
+			for(IItemListener listener: listeners) {
+				listener.onItemSelected(event);
+			}
+		}
+		
+	}
+	
+	public static class ItemEvent {
+		private final MeanOfTransportRecord record;
+		
+		public ItemEvent(MeanOfTransportRecord record) {
+			this.record = record;
+		}
+		
+		public MeanOfTransportRecord getRecord() {
+			return this.record;
+		}
+		
+		public boolean hasRecord() {
+			return null != this.record;
+		}
+	}
+	
+	public static interface IItemListener {
+		public void onItemSelected(ItemEvent event);
+	}
 }

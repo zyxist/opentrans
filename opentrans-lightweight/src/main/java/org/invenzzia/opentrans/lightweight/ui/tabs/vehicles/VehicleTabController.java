@@ -17,6 +17,14 @@
 
 package org.invenzzia.opentrans.lightweight.ui.tabs.vehicles;
 
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+import org.invenzzia.opentrans.lightweight.annotations.Action;
+import org.invenzzia.opentrans.lightweight.controllers.IActionScanner;
+import org.invenzzia.opentrans.lightweight.ui.IDialogBuilder;
+import org.invenzzia.opentrans.lightweight.ui.dialogs.means.MeanOfTransportController;
+import org.invenzzia.opentrans.lightweight.ui.dialogs.means.MeanOfTransportDialog;
+
 /**
  * Responds for the high-level user events from the vehicle tab.
  * In the controller, we have an access to the dependency injection etc.
@@ -24,6 +32,13 @@ package org.invenzzia.opentrans.lightweight.ui.tabs.vehicles;
  * @author Tomasz Jędrzejewski
  */
 public class VehicleTabController {
+	@Inject
+	private IActionScanner actionScanner;
+	@Inject
+	private IDialogBuilder dialogBuilder;
+	@Inject
+	private Provider<MeanOfTransportController> meanOfTransportControllerProvider;
+
 	/**
 	 * The view managed by this controller.
 	 */
@@ -31,6 +46,16 @@ public class VehicleTabController {
 
 	public void setView(VehicleTab view) {
 		this.view = view;
+		this.actionScanner.discoverActions(VehicleTabController.class, this);
+		this.actionScanner.bindComponents(VehicleTab.class, this.view);
+	}
+	
+	@Action("manageMeans")
+	public void manageMeansAction() {
+		MeanOfTransportDialog dialog = this.dialogBuilder.createModalDialog(MeanOfTransportDialog.class);
+		MeanOfTransportController controller = this.meanOfTransportControllerProvider.get();
+		controller.setView(dialog);
+		dialog.setVisible(true);
 	}
 
 }

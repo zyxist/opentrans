@@ -17,10 +17,7 @@
 package org.invenzzia.opentrans.lightweight.ui;
 
 import com.google.inject.Singleton;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import javax.swing.JFrame;
-import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import org.invenzzia.opentrans.lightweight.annotations.Action;
 
@@ -219,6 +216,7 @@ public class MainWindow extends JFrame {
       private javax.swing.JMenuBar jMenuBar1;
       private javax.swing.JPopupMenu.Separator jSeparator1;
       private javax.swing.JPopupMenu.Separator jSeparator2;
+      @Action("meansOfTransport")
       private javax.swing.JMenuItem meanOfTransportMenuItem;
       private javax.swing.JMenuItem newProjectMenuItem;
       private javax.swing.JMenuItem openProjectMenuItem;

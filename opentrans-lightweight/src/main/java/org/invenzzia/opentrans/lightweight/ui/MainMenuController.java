@@ -27,6 +27,8 @@ import org.invenzzia.helium.exception.CommandExecutionException;
 import org.invenzzia.helium.history.History;
 import org.invenzzia.opentrans.lightweight.annotations.Action;
 import org.invenzzia.opentrans.lightweight.controllers.IActionScanner;
+import org.invenzzia.opentrans.lightweight.ui.dialogs.means.MeanOfTransportController;
+import org.invenzzia.opentrans.lightweight.ui.dialogs.means.MeanOfTransportDialog;
 import org.invenzzia.opentrans.lightweight.ui.dialogs.resize.ResizeDialog;
 import org.invenzzia.opentrans.lightweight.ui.dialogs.resize.ResizeDialogController;
 import org.invenzzia.opentrans.visitons.editing.ICommand;
@@ -55,6 +57,8 @@ public class MainMenuController {
 	
 	@Inject
 	private Provider<ResizeDialogController> resizeDialogControllerProvider;
+	@Inject
+	private Provider<MeanOfTransportController> meanOfTransportControllerProvider;
 	/**
 	 * The view scanned for menu items.
 	 */
@@ -113,6 +117,17 @@ public class MainMenuController {
 		ResizeDialogController controller = this.resizeDialogControllerProvider.get();
 		controller.setView(theDialog);
 		theDialog.setVisible(true);
+	}
+	
+	/**
+	 * Shows the dialog for managing means of transport.
+	 */
+	@Action("meansOfTransport")
+	public void meansOfTransportAction() {
+		MeanOfTransportDialog dialog = this.dialogBuilder.createModalDialog(MeanOfTransportDialog.class);
+		MeanOfTransportController controller = this.meanOfTransportControllerProvider.get();
+		controller.setView(dialog);
+		dialog.setVisible(true);
 	}
 	
 	@Subscribe

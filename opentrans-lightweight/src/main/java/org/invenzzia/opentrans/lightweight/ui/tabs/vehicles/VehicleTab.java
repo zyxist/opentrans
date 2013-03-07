@@ -16,6 +16,7 @@
  */
 package org.invenzzia.opentrans.lightweight.ui.tabs.vehicles;
 
+import org.invenzzia.opentrans.lightweight.annotations.Action;
 import org.invenzzia.opentrans.lightweight.ui.dialogs.vehicletype.VehicleTypeDialog;
 
 /**
@@ -113,7 +114,7 @@ public class VehicleTab extends javax.swing.JPanel {
             jPanel1Layout.setVerticalGroup(
                   jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                   .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 451, Short.MAX_VALUE)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 452, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                               .addComponent(addVehicleButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -168,6 +169,7 @@ public class VehicleTab extends javax.swing.JPanel {
       private javax.swing.JPanel jPanel1;
       private javax.swing.JScrollPane jScrollPane1;
       private javax.swing.JButton locateVehicleButton;
+      @Action("manageMeans")
       private javax.swing.JButton meanOfTransportManageButton;
       private javax.swing.JComboBox meanOfTransportSelector;
       private javax.swing.JButton removeVehicleButton;

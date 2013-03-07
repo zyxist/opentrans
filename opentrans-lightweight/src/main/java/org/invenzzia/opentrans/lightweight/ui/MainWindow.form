@@ -106,6 +106,9 @@
               <Properties>
                 <Property name="text" type="java.lang.String" value="Means of transport"/>
               </Properties>
+              <AuxValues>
+                <AuxValue name="JavaCodeGenerator_DeclarationPre" type="java.lang.String" value="@Action(&quot;meansOfTransport&quot;)"/>
+              </AuxValues>
             </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="vehicleTypeMenuItem">
               <Properties>

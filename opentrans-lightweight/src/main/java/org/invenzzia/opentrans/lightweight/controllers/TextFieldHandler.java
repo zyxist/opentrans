@@ -17,6 +17,7 @@
 
 package org.invenzzia.opentrans.lightweight.controllers;
 
+import java.awt.Color;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import javax.swing.JTextField;
@@ -24,41 +25,62 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 /**
- * Description here.
+ * Provides a support for text fields.
  * 
  * @author Tomasz Jędrzejewski
  */
-public class TextFieldHandler implements IFormScannerComponentHandler {
+public class TextFieldHandler extends AbstractFormScannerComponentHandler {
+	private static final Color ERROR_INDICATION_COLOR = new Color(255, 204, 204);
 
 	@Override
 	public void bindEvent(Field field, Method validator, Object viewInstance, Object controllerInstance) throws Exception {
-		field.setAccessible(true);
-		JTextField textField = (JTextField) field.get(viewInstance);
+		JTextField textField = this.extract(JTextField.class, field, viewInstance);
 		textField.getDocument().addDocumentListener(new TextFieldDocumentListener(validator, controllerInstance));
 	}
 
 	@Override
 	public void clear(Field field, Object viewInstance) throws Exception {
-		field.setAccessible(true);
-		JTextField textField = (JTextField) field.get(viewInstance);
+		JTextField textField = this.extract(JTextField.class, field, viewInstance);
 		textField.setText("");
 	}
 
 	@Override
-	public Object getValue(Field field, Object viewInstance) throws Exception {
-		field.setAccessible(true);
-		JTextField textField = (JTextField) field.get(viewInstance);
-		return textField.getText();
+	public <T> T getValue(Field field, Object viewInstance, Class<T> expectedType) throws Exception {
+		JTextField textField = this.extract(JTextField.class, field, viewInstance);
+		try {
+			if(expectedType == String.class) {
+				return (T) textField.getText();
+			} else if(expectedType == Integer.class) {
+				return (T) Integer.valueOf(Integer.parseInt(textField.getText()));
+			} else if(expectedType == Double.class) {
+				return (T) Double.valueOf(Double.parseDouble(textField.getText()));
+			}
+		} catch(NumberFormatException exception) {
+			return null;
+		}
+		return null;
 	}
 
 	@Override
 	public void setValue(Field field, Object viewInstance, Object value) throws Exception {
-		field.setAccessible(true);
-		if(!(value instanceof String)) {
-			throw new IllegalArgumentException("The value inserted into the field must be a string.");
+		JTextField textField = this.extract(JTextField.class, field, viewInstance);
+		if(value instanceof String) {
+			textField.setText((String) value);
+		} else if(value instanceof Integer) {
+			textField.setText(Integer.toString(((Integer)value).intValue()));
+		} else if(value instanceof Double) {
+			textField.setText(Double.toString(((Double) value).doubleValue()));
 		}
-		JTextField textField = (JTextField) field.get(viewInstance);
-		textField.setText((String) value);
+	}
+	
+	@Override
+	public void setValid(Field field, Object viewInstance, boolean valid) throws Exception {
+		JTextField textField = this.extract(JTextField.class, field, viewInstance);
+		if(!valid) {
+			textField.setBackground(ERROR_INDICATION_COLOR);
+		} else {
+			textField.setBackground(Color.WHITE);
+		}
 	}
 }
 

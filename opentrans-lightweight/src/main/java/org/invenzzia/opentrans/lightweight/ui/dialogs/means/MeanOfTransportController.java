@@ -19,6 +19,8 @@ package org.invenzzia.opentrans.lightweight.ui.dialogs.means;
 
 import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
+import org.invenzzia.helium.data.UnitOfWork;
+import org.invenzzia.helium.exception.CommandExecutionException;
 import org.invenzzia.helium.history.History;
 import org.invenzzia.opentrans.lightweight.IProjectHolder;
 import org.invenzzia.opentrans.lightweight.annotations.Action;
@@ -27,8 +29,10 @@ import org.invenzzia.opentrans.lightweight.controllers.IActionScanner;
 import org.invenzzia.opentrans.lightweight.controllers.IFormScanner;
 import org.invenzzia.opentrans.lightweight.ui.IDialogBuilder;
 import org.invenzzia.opentrans.lightweight.ui.dialogs.means.MeanOfTransportDialog.IItemListener;
+import org.invenzzia.opentrans.lightweight.validator.Validators;
 import org.invenzzia.opentrans.visitons.data.MeanOfTransport.MeanOfTransportRecord;
 import org.invenzzia.opentrans.visitons.editing.ICommand;
+import org.invenzzia.opentrans.visitons.editing.operations.UpdateMeansOfTransportCmd;
 
 /**
  * Description here.
@@ -83,6 +87,14 @@ public class MeanOfTransportController implements IItemListener {
 	@Action("okAction")
 	public void okAction() {
 		this.view.setVisible(false);
+		UnitOfWork<MeanOfTransportRecord> unitOfWork = this.model.getUnitOfWork();
+		try {
+			if(!unitOfWork.isEmpty()) {
+				this.history.execute(new UpdateMeansOfTransportCmd(unitOfWork));
+			}
+		} catch(CommandExecutionException exception) {
+			this.dialogBuilder.showError("Cannot save means of transport", exception);
+		}
 	}
 	
 	@Action("cancelAction")
@@ -118,15 +130,71 @@ public class MeanOfTransportController implements IItemListener {
 
 	@Action("removeAction")
 	public void removeAction() {
-
+		MeanOfTransportRecord record = this.view.getSelectedRecord();
+		if(record.hasVehicleTypes()) {
+			this.dialogBuilder.showInformation("Cannot remove", "This mean of transport has vehicle types assigned. Remove the vehicle types first.");
+		} else {
+			this.model.removeRecord(record);
+		}
 	}
 	
 	@FormField(name="name")
 	public void onNameChanged() {
+		if(this.formScanner.validate("name", Validators.lengthBetween(3, 30))) {
+			MeanOfTransportRecord record = this.view.getSelectedRecord();
+			if(null != record) {
+				record.setName(this.formScanner.getString("name"));
+				this.model.updateRecord(record);
+				this.model.fireContentChanged();
+			}
+		}
+	}
+	
+	@FormField(name="rollingFrictionCoefficient")
+	public void onRollingFrictionCoefficientChanged() {
+		if(this.formScanner.validate("rollingFrictionCoefficient", Validators.isDouble())) {
+			MeanOfTransportRecord record = this.view.getSelectedRecord();
+			if(null != record) {
+				record.setRollingFrictionCoefficient(this.formScanner.getDouble("rollingFrictionCoefficient"));
+				this.model.updateRecord(record);
+			}
+		}		
+	}
+	
+	@FormField(name="maxSafeSpeedCoefficient")
+	public void onMaxSafeSpeedCoefficientChanged() {
+		if(this.formScanner.validate("maxSafeSpeedCoefficient", Validators.isDouble())) {
+			MeanOfTransportRecord record = this.view.getSelectedRecord();
+			if(null != record) {
+				record.setMaxSafeSpeedRadiusCoefficient(this.formScanner.getDouble("maxSafeSpeedCoefficient"));
+				this.model.updateRecord(record);
+			}
+		}
+	}
+	
+	@FormField(name="overtakingSpeedPunishment")
+	public void onOvertakingSpeedPunishmentChanged() {
+		if(this.formScanner.validate("overtakingSpeedPunishment", Validators.isDouble())) {
+			MeanOfTransportRecord record = this.view.getSelectedRecord();
+			if(null != record) {
+				record.setOvertakingPunishment(this.formScanner.getDouble("overtakingSpeedPunishment"));
+				this.model.updateRecord(record);
+			}
+		}
+	}
+	
+	@FormField(name="allowVehicleOvertaking")
+	public void onAllowVehicleOvertakingChanged() {
+		boolean value = this.formScanner.getBoolean("allowVehicleOvertaking");
+		if(!value) {
+			this.view.setOvertakingSpeedPunishmentEnabled(false);
+		} else {
+			this.view.setOvertakingSpeedPunishmentEnabled(true);
+		}
 		MeanOfTransportRecord record = this.view.getSelectedRecord();
 		if(null != record) {
-			record.setName(this.formScanner.getString("name"));
-			this.model.fireContentChanged();
+			record.setOvertakingAllowed(value);
+			this.model.updateRecord(record);
 		}
 	}
 
@@ -136,6 +204,14 @@ public class MeanOfTransportController implements IItemListener {
 			MeanOfTransportRecord record = event.getRecord();
 			this.view.enableForm();
 			this.formScanner.setString("name", record.getName());
+			this.formScanner.setDouble("rollingFrictionCoefficient", record.getRollingFrictionCoefficient());
+			this.formScanner.setDouble("maxSafeSpeedCoefficient", record.getMaxSafeSpeedRadiusCoefficient());
+			this.formScanner.setDouble("overtakingSpeedPunishment", record.getOvertakingPunishment());
+			this.formScanner.setBoolean("allowVehicleOvertaking", record.isOvertakingAllowed());
+			if(!record.isOvertakingAllowed()) {
+				this.view.setOvertakingSpeedPunishmentEnabled(false);
+			}
+			this.view.setHasVehicleTypes(record.hasVehicleTypes());
 		} else {
 			this.view.disableForm();
 		}

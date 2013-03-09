@@ -25,6 +25,7 @@ import com.google.inject.matcher.Matchers;
 import com.google.inject.multibindings.MapBinder;
 import com.google.inject.multibindings.Multibinder;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JMenuItem;
 import javax.swing.JTextField;
 import org.invenzzia.helium.history.History;
@@ -32,14 +33,7 @@ import org.invenzzia.helium.history.IHistoryStrategy;
 import org.invenzzia.opentrans.lightweight.annotations.InModelThread;
 import org.invenzzia.opentrans.lightweight.annotations.InSwingThread;
 import org.invenzzia.opentrans.lightweight.app.VisitonsHistoryStrategy;
-import org.invenzzia.opentrans.lightweight.controllers.ActionButtonHandler;
-import org.invenzzia.opentrans.lightweight.controllers.DefaultActionScanner;
-import org.invenzzia.opentrans.lightweight.controllers.DefaultFormScanner;
-import org.invenzzia.opentrans.lightweight.controllers.IActionScanner;
-import org.invenzzia.opentrans.lightweight.controllers.IActionScannerComponentHandler;
-import org.invenzzia.opentrans.lightweight.controllers.IFormScanner;
-import org.invenzzia.opentrans.lightweight.controllers.IFormScannerComponentHandler;
-import org.invenzzia.opentrans.lightweight.controllers.TextFieldHandler;
+import org.invenzzia.opentrans.lightweight.controllers.*;
 import org.invenzzia.opentrans.lightweight.interceptor.ModelThreadInterceptor;
 import org.invenzzia.opentrans.lightweight.interceptor.SwingThreadInterceptor;
 import org.invenzzia.opentrans.lightweight.lf.icons.IconService;
@@ -107,6 +101,7 @@ public class OpentransModule extends AbstractModule {
 		MapBinder<Class, IFormScannerComponentHandler> fieldHandlerBinder =
 			MapBinder.newMapBinder(this.binder(), Class.class, IFormScannerComponentHandler.class);
 		fieldHandlerBinder.addBinding(JTextField.class).to(TextFieldHandler.class).in(Singleton.class);
+		fieldHandlerBinder.addBinding(JCheckBox.class).to(CheckboxHandler.class).in(Singleton.class);
 		
 		// Models
 		this.bind(BrandingModel.class);

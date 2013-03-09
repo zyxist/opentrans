@@ -21,11 +21,7 @@ import com.google.common.base.Preconditions;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.invenzzia.helium.data.UnitOfWork;
-import org.invenzzia.helium.data.interfaces.ICRUDManager;
-import org.invenzzia.helium.data.interfaces.IIdentifiable;
-import org.invenzzia.helium.data.interfaces.IManagerMemento;
-import org.invenzzia.helium.data.interfaces.IMemento;
-import org.invenzzia.helium.data.interfaces.IRecord;
+import org.invenzzia.helium.data.interfaces.*;
 import org.invenzzia.helium.exception.ModelException;
 import org.invenzzia.opentrans.visitons.Project;
 import org.invenzzia.opentrans.visitons.editing.ICommand;
@@ -63,9 +59,7 @@ public abstract class AbstractUnitOfWorkCmd <
 	@Override
 	public void execute(Project project) throws Exception {
 		M mgr = this.getManager(project);
-		if(this.unitOfWork.isUpdatingExistingState()) {
-			this.mementos = new LinkedHashMap<>();
-		}
+		this.mementos = new LinkedHashMap<>();
 		
 		for(R record: this.unitOfWork.getInsertedRecords()) {
 			T item = this.createNewDataObject();
@@ -99,6 +93,7 @@ public abstract class AbstractUnitOfWorkCmd <
 				T item = mgr.findById(record.getId());
 				Object memento = this.mementos.get(record);
 				item.restoreMemento(memento);
+				mgr.updateItem(item);
 				this.mementos.remove(record);
 			}
 			for(R record: this.unitOfWork.getRemovedRecords()) {
@@ -122,9 +117,9 @@ public abstract class AbstractUnitOfWorkCmd <
 			}
 			for(R record: this.unitOfWork.getUpdatedRecords()) {
 				T item = mgr.findById(record.getId());
-				Object memento = this.mementos.get(record);
-				item.restoreMemento(memento);
-				this.mementos.remove(record);
+				this.mementos.put(record, item.getMemento());
+				record.exportData(item);
+				mgr.updateItem(item);
 			}
 			for(R record: this.unitOfWork.getRemovedRecords()) {
 				T item = mgr.findById(record.getId());

@@ -31,8 +31,10 @@ public interface IFormScannerComponentHandler {
 
 	public void clear(Field field, Object viewInstance) throws Exception;
 
-	public Object getValue(Field field, Object viewInstance) throws Exception;
+	public <T> T getValue(Field field, Object viewInstance, Class<T> expectedType) throws Exception;
 
 	public void setValue(Field field, Object viewInstance, Object value) throws Exception;
+	
+	public void setValid(Field field, Object viewInstance, boolean state) throws Exception;
 
 }

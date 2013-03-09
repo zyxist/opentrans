@@ -19,6 +19,8 @@ package org.invenzzia.opentrans.lightweight.interceptor;
 
 import com.google.common.base.Preconditions;
 import org.aopalliance.intercept.MethodInvocation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Carries the method invocation to another thread and remembers the
@@ -27,28 +29,31 @@ import org.aopalliance.intercept.MethodInvocation;
  * @author Tomasz Jędrzejewski
  */
 class InterceptionRunnable implements Runnable {
+	private final Logger logger = LoggerFactory.getLogger(InterceptionRunnable.class);
+
 	private final MethodInvocation invocation;
 	private Throwable throwable;
 	private Object result;
-	
+
 	public InterceptionRunnable(MethodInvocation invocation) {
 		this.invocation = Preconditions.checkNotNull(invocation);
 	}
-	
+
 	public Throwable getThrowable() {
 		return this.throwable;
 	}
-	
+
 	public Object getResult() {
 		return this.result;
 	}
-	
+
 	@Override
 	public void run() {
 		try {
 			this.result = this.invocation.proceed();
 		} catch(Throwable thr) {
 			this.throwable = thr;
+			logger.error("An exception occurred in the thread queue.", thr);
 		}
 	}
 }

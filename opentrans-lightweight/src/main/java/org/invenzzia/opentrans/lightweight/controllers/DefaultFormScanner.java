@@ -24,6 +24,7 @@ import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.invenzzia.opentrans.lightweight.annotations.FormField;
+import org.invenzzia.opentrans.lightweight.validator.IValidator;
 
 /**
  * Default implementation of the form scanner, which binds the fields
@@ -99,6 +100,24 @@ public class DefaultFormScanner implements IFormScanner {
 			}
 		}
 	}
+	
+	@Override
+	public boolean validate(String fieldName, IValidator ... validators) {
+		try {
+			String value = (String) this.getString(fieldName);
+			IFormScannerComponentHandler handler = this.getHandler(fieldName);
+			for(IValidator validator: validators) {
+				if(!validator.validate(value)) {
+					handler.setValid(this.fields.get(fieldName), this.viewInstance, false);
+					return false;
+				}
+			}
+			handler.setValid(this.fields.get(fieldName), this.viewInstance, true);
+			return true;
+		} catch(Exception exception) {
+			throw new IllegalStateException("Cannot validate the field '"+fieldName+"'.", exception);
+		}
+	}
 
 	@Override
 	public String getString(String fieldName) {
@@ -109,7 +128,7 @@ public class DefaultFormScanner implements IFormScanner {
 		IFormScannerComponentHandler handler = this.fieldHandlers.get(field.getType());
 		Object value = null;
 		try {
-			value = handler.getValue(field, this.viewInstance);
+			value = handler.getValue(field, this.viewInstance, String.class);
 		} catch(Exception exception) {
 			throw new IllegalStateException("Cannot get the String value of form field '"+fieldName+"'.", exception);
 		}
@@ -128,7 +147,7 @@ public class DefaultFormScanner implements IFormScanner {
 		IFormScannerComponentHandler handler = this.fieldHandlers.get(field.getType());
 		Object value = null;
 		try {
-			value = handler.getValue(field, this.viewInstance);
+			value = handler.getValue(field, this.viewInstance, Integer.class);
 		} catch(Exception exception) {
 			throw new IllegalStateException("Cannot get the Integer value of form field '"+fieldName+"'.", exception);
 		}
@@ -147,7 +166,7 @@ public class DefaultFormScanner implements IFormScanner {
 		IFormScannerComponentHandler handler = this.fieldHandlers.get(field.getType());
 		Object value = null;
 		try {
-			value = handler.getValue(field, this.viewInstance);
+			value = handler.getValue(field, this.viewInstance, Boolean.class);
 		} catch(Exception exception) {
 			throw new IllegalStateException("Cannot get the Boolean value of form field '"+fieldName+"'.", exception);
 		}
@@ -166,11 +185,11 @@ public class DefaultFormScanner implements IFormScanner {
 		IFormScannerComponentHandler handler = this.fieldHandlers.get(field.getType());
 		Object value = null;
 		try {
-			value = handler.getValue(field, this.viewInstance);
+			value = handler.getValue(field, this.viewInstance, Double.class);
 		} catch(Exception exception) {
 			throw new IllegalStateException("Cannot get the Double value of form field '"+fieldName+"'.", exception);
 		}
-		if(null != value && !(value instanceof Boolean)) {
+		if(null != value && !(value instanceof Double)) {
 			throw new IllegalStateException("The component type of field '"+fieldName+"' does not handle double values. Use different method.");
 		}
 		return (Double) value;
@@ -185,7 +204,7 @@ public class DefaultFormScanner implements IFormScanner {
 		IFormScannerComponentHandler handler = this.fieldHandlers.get(field.getType());
 		Object value = null;
 		try {
-			value = handler.getValue(field, this.viewInstance);
+			value = handler.getValue(field, this.viewInstance, itemType);
 		} catch(Exception exception) {
 			throw new IllegalStateException("Cannot get the Double value of form field '"+fieldName+"'.", exception);
 		}
@@ -273,5 +292,9 @@ public class DefaultFormScanner implements IFormScanner {
 		} catch(Exception exception) {
 			throw new IllegalStateException("Cannot set the '"+value.getClass().getSimpleName()+"' value for form field '"+fieldName+"'.", exception);
 		}
+	}
+	
+	private IFormScannerComponentHandler getHandler(String fieldName) {
+		return this.fieldHandlers.get(this.fields.get(fieldName).getType());
 	}
 }

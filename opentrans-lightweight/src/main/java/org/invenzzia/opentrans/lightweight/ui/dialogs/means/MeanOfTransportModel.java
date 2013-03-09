@@ -108,4 +108,33 @@ public class MeanOfTransportModel implements ListModel<MeanOfTransportRecord> {
 		this.unitOfWork.insert(record);
 		this.fireContentChanged();
 	}
+	
+	/**
+	 * Updates the record in the model.
+	 * 
+	 * @param record 
+	 */
+	public void updateRecord(MeanOfTransportRecord record) {
+		this.unitOfWork.update(record);
+	}
+	
+	/**
+	 * Removes the record from the model.
+	 * 
+	 * @param record 
+	 */
+	public void removeRecord(MeanOfTransportRecord record) {
+		this.records.remove(record);
+		this.unitOfWork.remove(record);
+		this.fireContentChanged();
+	}
+	
+	/**
+	 * Returns the unit of work created by this model during the modification.
+	 * 
+	 * @return Produced unit of work. 
+	 */
+	public UnitOfWork<MeanOfTransportRecord> getUnitOfWork() {
+		return this.unitOfWork;
+	}
 }

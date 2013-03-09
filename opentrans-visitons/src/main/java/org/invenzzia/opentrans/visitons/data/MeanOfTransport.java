@@ -17,6 +17,7 @@
 
 package org.invenzzia.opentrans.visitons.data;
 
+import com.google.common.base.Preconditions;
 import org.invenzzia.helium.data.Relation;
 import org.invenzzia.helium.data.interfaces.IIdentifiable;
 import org.invenzzia.helium.data.interfaces.IMemento;
@@ -132,16 +133,17 @@ public final class MeanOfTransport extends MeanOfTransportBase implements IMemen
 	public Relation<VehicleType> getVehicleTypes() {
 		return this.vehicleTypes;
 	}
-	
+
 	@Override
 	public Object getMemento() {
 		MeanOfTransportRecord record = new MeanOfTransportRecord();
 		record.importData(this);
 		return record;
 	}
-	
+
 	@Override
 	public void restoreMemento(Object memento) {
+		Preconditions.checkNotNull(memento, "The memento is NULL!");
 		if(!(memento instanceof MeanOfTransportRecord)) {
 			throw new IllegalArgumentException("Invalid memento for MeanOfTransport class: "+memento.getClass().getCanonicalName());
 		}
@@ -149,11 +151,13 @@ public final class MeanOfTransport extends MeanOfTransportBase implements IMemen
 		record.exportData(this);
 		this.id = record.id;
 	}
-	
+
 	/**
 	 * For carrying the data.
 	 */
 	public final static class MeanOfTransportRecord extends MeanOfTransportBase implements IRecord<MeanOfTransport> {
+		private boolean hasVehicleTypes;
+		
 		@Override
 		public void importData(MeanOfTransport mot) {
 			this.setId(mot.getId());
@@ -162,8 +166,9 @@ public final class MeanOfTransport extends MeanOfTransportBase implements IMemen
 			this.setMaxSafeSpeedRadiusCoefficient(mot.getMaxSafeSpeedRadiusCoefficient());
 			this.setOvertakingPunishment(mot.getOvertakingPunishment());
 			this.setOvertakingAllowed(mot.isOvertakingAllowed());
+			this.hasVehicleTypes = (!mot.getVehicleTypes().isEmpty());
 		}
-		
+
 		@Override
 		public void exportData(MeanOfTransport mot) {
 			mot.setName(this.getName());
@@ -171,6 +176,15 @@ public final class MeanOfTransport extends MeanOfTransportBase implements IMemen
 			mot.setMaxSafeSpeedRadiusCoefficient(this.getMaxSafeSpeedRadiusCoefficient());
 			mot.setOvertakingPunishment(this.getOvertakingPunishment());
 			mot.setOvertakingAllowed(this.isOvertakingAllowed());
+		}
+	
+		/**
+		 * Returns true, if there are vehicle types assigned to this mean of transport.
+		 * 
+		 * @return 
+		 */
+		public boolean hasVehicleTypes() {
+			return this.hasVehicleTypes;
 		}
 	}
 }

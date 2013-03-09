@@ -17,6 +17,8 @@
 
 package org.invenzzia.opentrans.lightweight.controllers;
 
+import org.invenzzia.opentrans.lightweight.validator.IValidator;
+
 /**
  * Scans the given panel for the form annotations and provides
  * the methods for managing the form controls remotely.
@@ -31,6 +33,16 @@ public interface IFormScanner {
 	 */
 	public void clear();
 	
+	/**\
+	 * Performs the validation of the given form field. The method shall
+	 * change the state of the field, if the field is invalid, and display
+	 * the error somehow.
+	 * 
+	 * @param fieldName The name of the form field
+	 * @param validators List of validators to apply.
+	 * @return True, if the field is valid.
+	 */
+	public boolean validate(String fieldName, IValidator ... validators);
 	/**
 	 * Returns the string value of the form field.
 	 * 

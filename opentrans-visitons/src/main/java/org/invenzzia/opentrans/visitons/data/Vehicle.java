@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-
 package org.invenzzia.opentrans.visitons.data;
 
 import org.invenzzia.helium.data.interfaces.IIdentifiable;
@@ -22,13 +21,17 @@ import org.invenzzia.helium.data.interfaces.IMemento;
 import org.invenzzia.helium.data.interfaces.IRecord;
 import org.invenzzia.opentrans.visitons.Project;
 
-class StopBase implements IIdentifiable {
+
+/**
+ * Common data of a vehicle.
+ */
+class VehicleBase implements IIdentifiable {
 	/**
-	 * Unique internal stop ID.
+	 * Unique, internal, non-modifiable vehicle ID.
 	 */
-	protected long id = -1;
+	protected long id;
 	/**
-	 * Unique stop name.
+	 * Name of this vehicle.
 	 */
 	private String name;
 
@@ -46,7 +49,7 @@ class StopBase implements IIdentifiable {
 	}
 	
 	/**
-	 * Returns the name of the stop.
+	 * Returns the name of the vehicle.
 	 * 
 	 * @return Stop name.
 	 */
@@ -55,9 +58,9 @@ class StopBase implements IIdentifiable {
 	}
 	
 	/**
-	 * Sets the new stop name.
+	 * Sets the new vehicle name.
 	 * 
-	 * @param name Stop name.
+	 * @param name Vehicle name.
 	 */
 	public void setName(String name) {
 		this.name = name;
@@ -69,52 +72,30 @@ class StopBase implements IIdentifiable {
 	}
 }
 
-public final class Stop extends StopBase implements IMemento<Project> {
-	/**
-	 * Previous stop name, for the purpose of updating the index.
-	 */
-	private String previousName;
-	
-	@Override
-	public void setName(String name) {
-		this.previousName = name;
-		super.setName(name);
-	}
-	
-	/**
-	 * Returns the previous stop name.
-	 * 
-	 * @return Previous stop name.
-	 */
-	public String getPreviousName() {
-		return this.previousName;
-	}
-
+/**
+ * Represents a single vehicle.
+ * 
+ * @author zyxist
+ */
+public class Vehicle extends VehicleBase implements IMemento<Project> {
 	@Override
 	public Object getMemento(Project domainModel) {
-		StopRecord memento = new StopRecord();
-		memento.importData(this, domainModel);
-		return memento;
+		throw new UnsupportedOperationException("Not supported yet.");
 	}
 
 	@Override
-	public void restoreMemento(Object memento, Project domainModel) {
-		if(!(memento instanceof StopRecord)) {
-			throw new IllegalArgumentException("Invalid memento for Stop class: "+memento.getClass().getCanonicalName());
-		}
-		StopRecord record = (StopRecord) memento;
-		record.exportData(this, domainModel);
-		this.id = record.getId();
+	public void restoreMemento(Object object, Project domainModel) {
+		throw new UnsupportedOperationException("Not supported yet.");
 	}
 	
-	public final static class StopRecord extends StopBase implements IRecord<Stop, Project> {
+	public static final class VehicleRecord extends VehicleBase implements IRecord<Vehicle, Project> {
 		@Override
-		public void exportData(Stop original, Project domainModel) {
+		public void exportData(Vehicle original, Project domainModel) {
 			original.setName(this.getName());
 		}
 
 		@Override
-		public void importData(Stop original, Project domainModel) {
+		public void importData(Vehicle original, Project domainModel) {
 			this.setId(original.getId());
 			this.setName(original.getName());
 		}

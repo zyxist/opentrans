@@ -32,8 +32,8 @@ import org.invenzzia.opentrans.visitons.editing.ICommand;
  * @author Tomasz Jędrzejewski
  */
 public abstract class AtomicRemoveCmd<
-		T extends IIdentifiable & IMemento,
-		R extends IIdentifiable & IRecord<T>,
+		T extends IIdentifiable & IMemento<Project>,
+		R extends IIdentifiable & IRecord<T, Project>,
 		M extends ICRUDManager<T> & IManagerMemento
 	>
 	implements ICommand
@@ -64,7 +64,7 @@ public abstract class AtomicRemoveCmd<
 		if(null == item) {
 			throw new IllegalStateException("Attempt to execute a command that removes a non-existent object.");
 		}
-		this.memento = item.getMemento();
+		this.memento = item.getMemento(project);
 		mgr.removeItem(item);
 	}
 

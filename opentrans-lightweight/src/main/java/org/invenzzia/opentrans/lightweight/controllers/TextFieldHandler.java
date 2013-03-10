@@ -51,9 +51,9 @@ public class TextFieldHandler extends AbstractFormScannerComponentHandler {
 			if(expectedType == String.class) {
 				return (T) textField.getText();
 			} else if(expectedType == Integer.class) {
-				return (T) Integer.valueOf(Integer.parseInt(textField.getText()));
+				return (T) Integer.valueOf(Integer.parseInt(textField.getText().trim()));
 			} else if(expectedType == Double.class) {
-				return (T) Double.valueOf(Double.parseDouble(textField.getText()));
+				return (T) Double.valueOf(Double.parseDouble(textField.getText().trim()));
 			}
 		} catch(NumberFormatException exception) {
 			return null;

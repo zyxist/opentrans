@@ -34,6 +34,7 @@ import org.invenzzia.opentrans.lightweight.ui.dialogs.FormDialogCloser;
 import org.invenzzia.opentrans.lightweight.ui.forms.FormController;
 import org.invenzzia.opentrans.lightweight.ui.tabs.infrastructure.InfrastructureTab.IInfrastructureTabListener;
 import org.invenzzia.opentrans.lightweight.ui.tabs.infrastructure.InfrastructureTab.InfrastructureTabEvent;
+import org.invenzzia.opentrans.visitons.Project;
 import org.invenzzia.opentrans.visitons.data.Stop;
 import org.invenzzia.opentrans.visitons.data.Stop.StopRecord;
 import org.invenzzia.opentrans.visitons.data.manager.StopManager;
@@ -67,11 +68,12 @@ public class InfrastructureTabController implements IInfrastructureTabListener {
 	 */
 	@InModelThread(asynchronous = true)
 	public void refreshStopList() {
-		StopManager stopManager = this.projectHolder.getCurrentProject().getStopManager();
+		Project project = this.projectHolder.getCurrentProject();
+		StopManager stopManager = project.getStopManager();
 		List<StopRecord> records = new ArrayList<>(stopManager.size());
 		for(Stop stop: stopManager) {
 			StopRecord record = new StopRecord();
-			record.importData(stop);
+			record.importData(stop, project);
 			records.add(record);
 		}
 		this.populateStopListTable(records);

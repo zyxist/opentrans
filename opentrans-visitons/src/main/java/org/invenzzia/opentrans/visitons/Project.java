@@ -90,7 +90,7 @@ class ProjectBase {
  * 
  * @author Tomasz Jędrzejewski
  */
-public class Project extends ProjectBase implements IMemento {
+public class Project extends ProjectBase implements IMemento<Project> {
 
 	
 	/**
@@ -116,9 +116,9 @@ public class Project extends ProjectBase implements IMemento {
 		this.description = "Transportation network simulation project.";
 		
 		this.world = new World();
-		this.stopManager = new StopManager();
-		this.meanOfTransportManager = new MeanOfTransportManager();
-		this.vehicleTypeManager = new VehicleTypeManager();
+		this.stopManager = new StopManager(this);
+		this.meanOfTransportManager = new MeanOfTransportManager(this);
+		this.vehicleTypeManager = new VehicleTypeManager(this);
 	}
 	
 	/**
@@ -158,26 +158,26 @@ public class Project extends ProjectBase implements IMemento {
 	}
 
 	@Override
-	public Object getMemento() {
+	public Object getMemento(Project project) {
 		ProjectRecord record = new ProjectRecord();
-		record.importData(this);
+		record.importData(this, this);
 		return record;
 	}
 
 	@Override
-	public void restoreMemento(Object object) {
+	public void restoreMemento(Object object, Project project) {
 		if(!(object instanceof ProjectRecord)) {
 			throw new IllegalArgumentException("Invalid memento for Project class: "+object.getClass().getCanonicalName());
 		}
 		ProjectRecord record = (ProjectRecord) object;
-		record.exportData(this);
+		record.exportData(this, this);
 	}
 
 	/**
 	 * The instances of this class can be used in GUI for manipulation, and then
 	 * synchronized with the actual project.
 	 */
-	public static class ProjectRecord extends ProjectBase implements IRecord<Project> {
+	public static class ProjectRecord extends ProjectBase implements IRecord<Project, Project> {
 		/**
 		 * World size in X axis (number of segments).
 		 */
@@ -206,14 +206,14 @@ public class Project extends ProjectBase implements IMemento {
 		}
 
 		@Override
-		public void exportData(Project original) {
+		public void exportData(Project original, Project domainModel) {
 			original.setName(this.getName());
 			original.setAuthor(this.getAuthor());
 			original.setDescription(this.getDescription());
 		}
 
 		@Override
-		public void importData(Project original) {
+		public void importData(Project original, Project domainModel) {
 			this.setName(original.getName());
 			this.setAuthor(original.getAuthor());
 			this.setDescription(original.getDescription());

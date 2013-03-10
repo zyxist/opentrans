@@ -33,8 +33,8 @@ import org.invenzzia.opentrans.visitons.editing.ICommand;
  * @author Tomasz Jędrzejewski
  */
 public abstract class AtomicAddCmd<
-		T extends IIdentifiable & IMemento,
-		R extends IIdentifiable & IRecord<T>,
+		T extends IIdentifiable & IMemento<Project>,
+		R extends IIdentifiable & IRecord<T, Project>,
 		M extends ICRUDManager<T> & IManagerMemento
 	>
 	implements ICommand
@@ -61,9 +61,9 @@ public abstract class AtomicAddCmd<
 	public void execute(Project project) throws Exception {
 		M mgr = this.getManager(project);
 		T item = this.createNewItem();
-		this.record.exportData(item);
+		this.record.exportData(item, project);
 		mgr.addItem(item);
-		this.record.importData(item);
+		this.record.importData(item, project);
 	}
 
 	@Override
@@ -71,7 +71,7 @@ public abstract class AtomicAddCmd<
 		try {
 			M mgr = this.getManager(project);
 			T object = mgr.findById(this.record.getId());
-			this.memento = object.getMemento();
+			this.memento = object.getMemento(project);
 			mgr.removeItem(this.record.getId());
 		} catch(ModelException exception) {
 			throw new IllegalStateException("Undo operation failed.", exception);

@@ -17,6 +17,7 @@
 
 package org.invenzzia.opentrans.visitons.data.manager;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Ordering;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -25,6 +26,7 @@ import java.util.TreeSet;
 import org.invenzzia.helium.data.AbstractDataManager;
 import org.invenzzia.helium.data.interfaces.IManagerMemento;
 import org.invenzzia.helium.exception.ModelException;
+import org.invenzzia.opentrans.visitons.Project;
 import org.invenzzia.opentrans.visitons.data.Stop;
 
 /**
@@ -41,9 +43,14 @@ public class StopManager extends AbstractDataManager<Stop> implements IManagerMe
 	 * Set of used stop names, which must be unique.
 	 */
 	private Set<String> stopNames;
+	/**
+	 * The managing project.
+	 */
+	private final Project project;
 	
-	public StopManager() {
+	public StopManager(Project project) {
 		super();
+		this.project = Preconditions.checkNotNull(project);
 		this.stops = new TreeSet<>(Ordering.usingToString());
 		this.stopNames = new LinkedHashSet<>();
 	}
@@ -83,7 +90,7 @@ public class StopManager extends AbstractDataManager<Stop> implements IManagerMe
 	@Override
 	public void restoreMemento(Object memento) {
 		Stop stop = new Stop();
-		stop.restoreMemento(memento);
+		stop.restoreMemento(memento, this.project);
 		this.addObject(stop.getId(), stop);
 		this.stops.add(stop);
 		this.stopNames.add(stop.getName());

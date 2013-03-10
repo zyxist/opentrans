@@ -24,10 +24,7 @@ import com.google.inject.TypeLiteral;
 import com.google.inject.matcher.Matchers;
 import com.google.inject.multibindings.MapBinder;
 import com.google.inject.multibindings.Multibinder;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JMenuItem;
-import javax.swing.JTextField;
+import javax.swing.*;
 import org.invenzzia.helium.history.History;
 import org.invenzzia.helium.history.IHistoryStrategy;
 import org.invenzzia.opentrans.lightweight.annotations.InModelThread;
@@ -43,6 +40,7 @@ import org.invenzzia.opentrans.lightweight.tasks.*;
 import org.invenzzia.opentrans.lightweight.ui.DefaultDialogBuilder;
 import org.invenzzia.opentrans.lightweight.ui.IDialogBuilder;
 import org.invenzzia.opentrans.lightweight.ui.MainWindowController;
+import org.invenzzia.opentrans.lightweight.ui.component.JReportingSlider;
 import org.invenzzia.opentrans.lightweight.ui.providers.WorkspacePanelProvider;
 import org.invenzzia.opentrans.lightweight.ui.tabs.ProjectTabFactory;
 import org.invenzzia.opentrans.lightweight.ui.tabs.WorldTabFactory;
@@ -102,30 +100,32 @@ public class OpentransModule extends AbstractModule {
 			MapBinder.newMapBinder(this.binder(), Class.class, IFormScannerComponentHandler.class);
 		fieldHandlerBinder.addBinding(JTextField.class).to(TextFieldHandler.class).in(Singleton.class);
 		fieldHandlerBinder.addBinding(JCheckBox.class).to(CheckboxHandler.class).in(Singleton.class);
-		
+		fieldHandlerBinder.addBinding(JComboBox.class).to(ComboBoxHandler.class).in(Singleton.class);
+		fieldHandlerBinder.addBinding(JReportingSlider.class).to(ReportingSliderHandler.class).in(Singleton.class);
+
 		// Models
 		this.bind(BrandingModel.class);
 
 		// Controllers
 		this.bind(MainWindowController.class);
 		this.bind(WorkspaceController.class);
-		
+
 		// Toolbars
 		this.bind(WorkspacePanel.class).toProvider(WorkspacePanelProvider.class);
-		
+
 		// Bind the startup tasks.
 		this.bind(CreateGuiTask.class);
 		this.bind(IconServiceTask.class);
 		this.bind(ProjectTask.class);
 		this.bind(LoadConfigurationTask.class);
-		
+
 		// Bind desktop pane factories
 		Multibinder<IDesktopPaneFactory> factoryBinder = Multibinder.newSetBinder(this.binder(), IDesktopPaneFactory.class);
 		factoryBinder.addBinding().to(ProjectTabFactory.class);
 		factoryBinder.addBinding().to(WorldTabFactory.class);
 		factoryBinder.addBinding().to(InfrastructureTabFactory.class);
 		factoryBinder.addBinding().to(VehicleTabFactory.class);
-		
+
 		// Bind visitons items
 		this.bind(World.class).toProvider(WorldProvider.class);
 	}

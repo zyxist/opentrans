@@ -17,10 +17,12 @@
 
 package org.invenzzia.opentrans.visitons.data.manager;
 
+import com.google.common.base.Preconditions;
 import net.jcip.annotations.NotThreadSafe;
 import org.invenzzia.helium.data.AbstractDataManager;
 import org.invenzzia.helium.data.interfaces.IManagerMemento;
 import org.invenzzia.helium.exception.ModelException;
+import org.invenzzia.opentrans.visitons.Project;
 import org.invenzzia.opentrans.visitons.data.MeanOfTransport;
 import org.invenzzia.opentrans.visitons.data.VehicleType;
 
@@ -31,6 +33,16 @@ import org.invenzzia.opentrans.visitons.data.VehicleType;
  */
 @NotThreadSafe
 public class VehicleTypeManager extends AbstractDataManager<VehicleType> implements IManagerMemento {
+	/**
+	 * The managing project.
+	 */
+	private final Project project;
+	
+	public VehicleTypeManager(Project project) {
+		super();
+		this.project = Preconditions.checkNotNull(project);
+	}
+
 	@Override
 	protected void beforeCreate(VehicleType vh) throws ModelException {
 		if(!vh.getMeanOfTransport().isDefined()) {
@@ -74,7 +86,7 @@ public class VehicleTypeManager extends AbstractDataManager<VehicleType> impleme
 	@Override
 	public void restoreMemento(Object object) {
 		VehicleType vt = new VehicleType();
-		vt.restoreMemento(object);
+		vt.restoreMemento(object, this.project);
 		this.addObject(vt.getId(), vt);
 	}
 }

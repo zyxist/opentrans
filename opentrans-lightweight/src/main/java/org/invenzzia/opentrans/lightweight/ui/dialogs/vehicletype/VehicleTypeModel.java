@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Invenzzia Group <http://www.invenzzia.org/>
+ * Copyright (C) 2013 zyxist
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,14 +12,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-package org.invenzzia.opentrans.lightweight.ui.dialogs.means;
+package org.invenzzia.opentrans.lightweight.ui.dialogs.vehicletype;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import javax.swing.ListModel;
@@ -29,23 +27,22 @@ import org.invenzzia.helium.data.UnitOfWork;
 import org.invenzzia.opentrans.lightweight.annotations.InModelThread;
 import org.invenzzia.opentrans.lightweight.annotations.InSwingThread;
 import org.invenzzia.opentrans.visitons.Project;
-import org.invenzzia.opentrans.visitons.data.MeanOfTransport;
-import org.invenzzia.opentrans.visitons.data.MeanOfTransport.MeanOfTransportRecord;
+import org.invenzzia.opentrans.visitons.data.VehicleType;
+import org.invenzzia.opentrans.visitons.data.VehicleType.VehicleTypeRecord;
 
 /**
- * Description here.
- * 
- * @author Tomasz Jędrzejewski
+ *
+ * @author zyxist
  */
-public class MeanOfTransportModel implements ListModel<MeanOfTransportRecord> {
+public class VehicleTypeModel implements ListModel<VehicleTypeRecord> {
 	/**
 	 * List of the visible records.
 	 */
-	private List<MeanOfTransportRecord> records;
+	private List<VehicleTypeRecord> records;
 	/**
 	 * The storage for the updated entities.
 	 */
-	private UnitOfWork<MeanOfTransportRecord> unitOfWork;
+	private UnitOfWork<VehicleTypeRecord> unitOfWork;
 	/**
 	 * Listeners notified about model changes.
 	 */
@@ -54,16 +51,16 @@ public class MeanOfTransportModel implements ListModel<MeanOfTransportRecord> {
 	/**
 	 * Initializes the internal data structures.
 	 */
-	public MeanOfTransportModel() {
+	public VehicleTypeModel() {
 		this.listeners = new LinkedHashSet<>();
 		this.unitOfWork = new UnitOfWork<>();
 	}
 
 	@InModelThread(asynchronous = false)
 	public void loadData(Project project) {
-		List<MeanOfTransportRecord> records = new ArrayList<>(project.getMeanOfTransportManager().size());
-		for(MeanOfTransport mot: project.getMeanOfTransportManager().getRecords()) {
-			MeanOfTransport.MeanOfTransportRecord record = new MeanOfTransport.MeanOfTransportRecord();
+		List<VehicleTypeRecord> records = new ArrayList<>(project.getMeanOfTransportManager().size());
+		for(VehicleType mot: project.getVehicleTypeManager().getRecords()) {
+			VehicleTypeRecord record = new VehicleTypeRecord();
 			record.importData(mot, project);
 			records.add(record);
 		}
@@ -84,7 +81,7 @@ public class MeanOfTransportModel implements ListModel<MeanOfTransportRecord> {
 	}
 
 	@Override
-	public MeanOfTransportRecord getElementAt(int index) {
+	public VehicleTypeRecord getElementAt(int index) {
 		return this.records.get(index);
 	}
 
@@ -103,7 +100,7 @@ public class MeanOfTransportModel implements ListModel<MeanOfTransportRecord> {
 	 * 
 	 * @param record 
 	 */
-	public void insertRecord(MeanOfTransportRecord record) {
+	public void insertRecord(VehicleTypeRecord record) {
 		this.records.add(record);
 		this.unitOfWork.insert(record);
 		this.fireContentChanged();
@@ -114,7 +111,7 @@ public class MeanOfTransportModel implements ListModel<MeanOfTransportRecord> {
 	 * 
 	 * @param record 
 	 */
-	public void updateRecord(MeanOfTransportRecord record) {
+	public void updateRecord(VehicleTypeRecord record) {
 		this.unitOfWork.update(record);
 	}
 	
@@ -123,7 +120,7 @@ public class MeanOfTransportModel implements ListModel<MeanOfTransportRecord> {
 	 * 
 	 * @param record 
 	 */
-	public void removeRecord(MeanOfTransportRecord record) {
+	public void removeRecord(VehicleTypeRecord record) {
 		this.records.remove(record);
 		this.unitOfWork.remove(record);
 		this.fireContentChanged();
@@ -134,7 +131,7 @@ public class MeanOfTransportModel implements ListModel<MeanOfTransportRecord> {
 	 * 
 	 * @return Produced unit of work. 
 	 */
-	public UnitOfWork<MeanOfTransportRecord> getUnitOfWork() {
+	public UnitOfWork<VehicleTypeRecord> getUnitOfWork() {
 		return this.unitOfWork;
 	}
 }

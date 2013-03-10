@@ -74,7 +74,7 @@ public class ProjectTabController {
 	@InModelThread(asynchronous = false)
 	public ProjectRecord getUpdatedRecord(Project project) {
 		ProjectRecord record = new ProjectRecord();
-		record.importData(project);
+		record.importData(project, project);
 		return record;
 	}
 }

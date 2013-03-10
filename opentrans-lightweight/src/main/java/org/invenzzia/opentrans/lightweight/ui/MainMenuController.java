@@ -31,6 +31,8 @@ import org.invenzzia.opentrans.lightweight.ui.dialogs.means.MeanOfTransportContr
 import org.invenzzia.opentrans.lightweight.ui.dialogs.means.MeanOfTransportDialog;
 import org.invenzzia.opentrans.lightweight.ui.dialogs.resize.ResizeDialog;
 import org.invenzzia.opentrans.lightweight.ui.dialogs.resize.ResizeDialogController;
+import org.invenzzia.opentrans.lightweight.ui.dialogs.vehicletype.VehicleTypeController;
+import org.invenzzia.opentrans.lightweight.ui.dialogs.vehicletype.VehicleTypeDialog;
 import org.invenzzia.opentrans.visitons.editing.ICommand;
 
 /**
@@ -59,6 +61,8 @@ public class MainMenuController {
 	private Provider<ResizeDialogController> resizeDialogControllerProvider;
 	@Inject
 	private Provider<MeanOfTransportController> meanOfTransportControllerProvider;
+	@Inject
+	private Provider<VehicleTypeController> vehicleTypeControllerProvider;
 	/**
 	 * The view scanned for menu items.
 	 */
@@ -126,6 +130,14 @@ public class MainMenuController {
 	public void meansOfTransportAction() {
 		MeanOfTransportDialog dialog = this.dialogBuilder.createModalDialog(MeanOfTransportDialog.class);
 		MeanOfTransportController controller = this.meanOfTransportControllerProvider.get();
+		controller.setView(dialog);
+		dialog.setVisible(true);
+	}
+	
+	@Action("vehicleTypes")
+	public void vehicleTypesAction() {
+		VehicleTypeDialog dialog = this.dialogBuilder.createModalDialog(VehicleTypeDialog.class);
+		VehicleTypeController controller = this.vehicleTypeControllerProvider.get();
 		controller.setView(dialog);
 		dialog.setVisible(true);
 	}

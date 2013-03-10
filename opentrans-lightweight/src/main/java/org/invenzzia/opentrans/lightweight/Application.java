@@ -175,7 +175,7 @@ public class Application implements IProjectHolder {
 		this.currentProject = Preconditions.checkNotNull(project);
 		
 		ProjectRecord record = new ProjectRecord();
-		record.importData(project);
+		record.importData(project, project);
 		this.eventBus.post(new NewProjectEvent(record));
 	}
 	

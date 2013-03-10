@@ -16,31 +16,22 @@
  */
 package org.invenzzia.opentrans.lightweight.validator;
 
+import java.util.regex.Pattern;
+
 /**
- * Quick access to most common validators.
- * 
+ * Checks if the value is a valid integer.
  * @author zyxist
  */
-public class Validators {
-	private static final DoubleValidator doubleValidator = new DoubleValidator();
-	private static final IntegerValidator integerValidator = new IntegerValidator();
-	
-	private Validators() {
+public class IntegerValidator implements IValidator<String> {
+	private static final Pattern INTEGER_PATTERN = Pattern.compile("^\\s*[0-9]+\\s*$");
+
+	@Override
+	public String getErrorMessage() {
+		return "Must be an integer";
 	}
-	
-	public static IValidator lengthBetween(int from, int to) {
-		return new LengthValidator(from, to);
-	}
-	
-	public static IValidator range(int from, int to) {
-		return new IntegerRangeValidator(from, to);
-	}
-	
-	public static IValidator isInteger() {
-		return integerValidator;
-	}
-	
-	public static IValidator isDouble() {
-		return doubleValidator;
+
+	@Override
+	public boolean validate(String value) {
+		return INTEGER_PATTERN.matcher(value).matches();
 	}
 }

@@ -16,31 +16,31 @@
  */
 package org.invenzzia.opentrans.lightweight.validator;
 
+import com.google.common.base.Preconditions;
+
 /**
- * Quick access to most common validators.
+ * Validates if an integer is within the given range.
  * 
  * @author zyxist
  */
-public class Validators {
-	private static final DoubleValidator doubleValidator = new DoubleValidator();
-	private static final IntegerValidator integerValidator = new IntegerValidator();
+public class IntegerRangeValidator implements IValidator<String> {
+	private final int from;
+	private final int to;
 	
-	private Validators() {
+	public IntegerRangeValidator(int from, int to) {
+		Preconditions.checkArgument(from < to, "'from' value must be lower than 'to'.");
+		this.from = from;
+		this.to = to;
 	}
-	
-	public static IValidator lengthBetween(int from, int to) {
-		return new LengthValidator(from, to);
+
+	@Override
+	public String getErrorMessage() {
+		return "Must be from range "+this.from+"-"+this.to;
 	}
-	
-	public static IValidator range(int from, int to) {
-		return new IntegerRangeValidator(from, to);
-	}
-	
-	public static IValidator isInteger() {
-		return integerValidator;
-	}
-	
-	public static IValidator isDouble() {
-		return doubleValidator;
+
+	@Override
+	public boolean validate(String value) {
+		int intval = Integer.parseInt(value.trim());
+		return (intval >= this.from && intval < this.to);
 	}
 }

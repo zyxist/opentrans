@@ -24,6 +24,8 @@ import org.invenzzia.opentrans.lightweight.controllers.IActionScanner;
 import org.invenzzia.opentrans.lightweight.ui.IDialogBuilder;
 import org.invenzzia.opentrans.lightweight.ui.dialogs.means.MeanOfTransportController;
 import org.invenzzia.opentrans.lightweight.ui.dialogs.means.MeanOfTransportDialog;
+import org.invenzzia.opentrans.lightweight.ui.dialogs.vehicletype.VehicleTypeController;
+import org.invenzzia.opentrans.lightweight.ui.dialogs.vehicletype.VehicleTypeDialog;
 
 /**
  * Responds for the high-level user events from the vehicle tab.
@@ -38,6 +40,8 @@ public class VehicleTabController {
 	private IDialogBuilder dialogBuilder;
 	@Inject
 	private Provider<MeanOfTransportController> meanOfTransportControllerProvider;
+	@Inject
+	private Provider<VehicleTypeController> vehicleTypeControllerProvider;
 
 	/**
 	 * The view managed by this controller.
@@ -58,4 +62,11 @@ public class VehicleTabController {
 		dialog.setVisible(true);
 	}
 
+	@Action("manageVehicleTypes")
+	public void manageVehicleTypesAction() {
+		VehicleTypeDialog dialog = this.dialogBuilder.createModalDialog(VehicleTypeDialog.class);
+		VehicleTypeController controller = this.vehicleTypeControllerProvider.get();
+		controller.setView(dialog);
+		dialog.setVisible(true);
+	}
 }

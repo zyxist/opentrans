@@ -26,6 +26,7 @@ import org.invenzzia.opentrans.lightweight.IProjectHolder;
 import org.invenzzia.opentrans.lightweight.events.ProjectEvent;
 import org.invenzzia.opentrans.lightweight.model.branding.BrandingModel;
 import org.invenzzia.opentrans.lightweight.ui.dialogs.resize.ResizeDialogController;
+import org.invenzzia.opentrans.visitons.Project;
 import org.invenzzia.opentrans.visitons.Project.ProjectRecord;
 
 /**
@@ -64,7 +65,8 @@ public class MainWindowController {
 		if(null != this.mainWindow) {
 			// Here we do not have to pay attention to the concurrency (I hope so).
 			ProjectRecord record = new ProjectRecord();
-			record.importData(this.projectHolder.getCurrentProject());
+			Project currentProject = this.projectHolder.getCurrentProject();
+			record.importData(currentProject, currentProject);
 			this.createWindowTitle(record);
 			this.eventBus.register(this);
 		}

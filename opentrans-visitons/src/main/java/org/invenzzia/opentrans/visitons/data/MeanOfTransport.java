@@ -22,6 +22,7 @@ import org.invenzzia.helium.data.Relation;
 import org.invenzzia.helium.data.interfaces.IIdentifiable;
 import org.invenzzia.helium.data.interfaces.IMemento;
 import org.invenzzia.helium.data.interfaces.IRecord;
+import org.invenzzia.opentrans.visitons.Project;
 
 class MeanOfTransportBase implements IIdentifiable {
 	/**
@@ -117,7 +118,7 @@ class MeanOfTransportBase implements IIdentifiable {
  * 
  * @author Tomasz Jędrzejewski
  */
-public final class MeanOfTransport extends MeanOfTransportBase implements IMemento {
+public final class MeanOfTransport extends MeanOfTransportBase implements IMemento<Project> {
 
 	/**
 	 * All vehicle types assigned to this mean of transport.
@@ -135,31 +136,31 @@ public final class MeanOfTransport extends MeanOfTransportBase implements IMemen
 	}
 
 	@Override
-	public Object getMemento() {
+	public Object getMemento(Project project) {
 		MeanOfTransportRecord record = new MeanOfTransportRecord();
-		record.importData(this);
+		record.importData(this, project);
 		return record;
 	}
 
 	@Override
-	public void restoreMemento(Object memento) {
+	public void restoreMemento(Object memento, Project project) {
 		Preconditions.checkNotNull(memento, "The memento is NULL!");
 		if(!(memento instanceof MeanOfTransportRecord)) {
 			throw new IllegalArgumentException("Invalid memento for MeanOfTransport class: "+memento.getClass().getCanonicalName());
 		}
 		MeanOfTransportRecord record = (MeanOfTransportRecord) memento;
-		record.exportData(this);
+		record.exportData(this, project);
 		this.id = record.id;
 	}
 
 	/**
 	 * For carrying the data.
 	 */
-	public final static class MeanOfTransportRecord extends MeanOfTransportBase implements IRecord<MeanOfTransport> {
+	public final static class MeanOfTransportRecord extends MeanOfTransportBase implements IRecord<MeanOfTransport, Project> {
 		private boolean hasVehicleTypes;
 		
 		@Override
-		public void importData(MeanOfTransport mot) {
+		public void importData(MeanOfTransport mot, Project project) {
 			this.setId(mot.getId());
 			this.setName(mot.getName());
 			this.setRollingFrictionCoefficient(mot.getRollingFrictionCoefficient());
@@ -170,7 +171,7 @@ public final class MeanOfTransport extends MeanOfTransportBase implements IMemen
 		}
 
 		@Override
-		public void exportData(MeanOfTransport mot) {
+		public void exportData(MeanOfTransport mot, Project project) {
 			mot.setName(this.getName());
 			mot.setRollingFrictionCoefficient(this.getRollingFrictionCoefficient());
 			mot.setMaxSafeSpeedRadiusCoefficient(this.getMaxSafeSpeedRadiusCoefficient());

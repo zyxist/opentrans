@@ -18,9 +18,11 @@
 package org.invenzzia.opentrans.visitons.data;
 
 import org.invenzzia.helium.data.Parent;
+import org.invenzzia.helium.data.Relation;
 import org.invenzzia.helium.data.interfaces.IIdentifiable;
 import org.invenzzia.helium.data.interfaces.IMemento;
 import org.invenzzia.helium.data.interfaces.IRecord;
+import org.invenzzia.opentrans.visitons.Project;
 
 /**
  * Base class shared by the actual data object and the record.
@@ -129,6 +131,11 @@ class VehicleTypeBase implements IIdentifiable {
 	public void setPassengerExchangeRatio(int passengerExchangeRatio) {
 		this.passengerExchangeRatio = passengerExchangeRatio;
 	}
+
+	@Override
+	public String toString() {
+		return this.name;
+	}
 }
 
 /**
@@ -137,11 +144,15 @@ class VehicleTypeBase implements IIdentifiable {
  * 
  * @author Tomasz Jędrzejewski
  */
-public final class VehicleType extends VehicleTypeBase implements IMemento {
+public final class VehicleType extends VehicleTypeBase implements IMemento<Project> {
 	/**
 	 * Mean of transport represented by this type.
 	 */
 	private final Parent<MeanOfTransport> meanOfTransport = new Parent<>();
+	/**
+	 * Vehicles that belong to this class.
+	 */
+	private Relation<Vehicle> vehicles = new Relation<>();
 
 	/**
 	 * Returns the object for storing the information about a parent mean of transport.
@@ -151,50 +162,74 @@ public final class VehicleType extends VehicleTypeBase implements IMemento {
 	public Parent<MeanOfTransport> getMeanOfTransport() {
 		return this.meanOfTransport;
 	}
+	
+	/**
+	 * Returns the vehicles that belong to this vehicle type.
+	 * 
+	 * @return Vehicle relation. 
+	 */
+	public Relation<Vehicle> getVehicles() {
+		return this.vehicles;
+	}
 
 	@Override
-	public Object getMemento() {
+	public Object getMemento(Project project) {
 		VehicleTypeRecord memento = new VehicleTypeRecord();
-		memento.importData(this);
+		memento.importData(this, project);
 		return memento;
 	}
 
 	@Override
-	public void restoreMemento(Object memento) {
+	public void restoreMemento(Object memento, Project project) {
 		if(!(memento instanceof VehicleTypeRecord)) {
 			throw new IllegalArgumentException("Invalid memento for VehicleType class: "+memento.getClass().getCanonicalName());
 		}
 		VehicleTypeRecord record = (VehicleTypeRecord) memento;
-		record.exportData(this);
+		record.exportData(this, project);
 		this.id = record.id;
 	}
 
-	public final static class VehicleTypeRecord extends VehicleTypeBase implements IRecord<VehicleType> {
+	public final static class VehicleTypeRecord extends VehicleTypeBase implements IRecord<VehicleType, Project> {
 		/**
 		 * Mean of transport this vehicle type belongs to.
 		 */
-		private MeanOfTransport meanOfTransport;
+		private long meanOfTransportId;
+		/**
+		 * Notifies that there are vehicles assigned to this vehicle type.
+		 */
+		private boolean hasVehicles;
 		
 		/**
 		 * Returns the mean of transport this vehicle type is assigned to.
 		 * 
 		 * @return 
 		 */
-		public MeanOfTransport getMeanOfTransport() {
-			return this.meanOfTransport;
+		public long getMeanOfTransportId() {
+			return this.meanOfTransportId;
 		}
 		
 		/**
 		 * Sets the new mean of transport assignment.
 		 * 
-		 * @param mot 
+		 * @param id The ID of the mean of transport.
 		 */
-		public void setMeanOfTransport(MeanOfTransport mot) {
-			this.meanOfTransport = mot;
+		public void setMeanOfTransport(long id) {
+			this.meanOfTransportId = id;
+		}
+		
+		/**
+		 * Returns true, if there are vehicles assigned to this vehicle type.
+		 * @return Whether there are vehicles assigned.
+		 */
+		public boolean hasVehicles() {
+			return this.hasVehicles;
 		}
 		
 		@Override
-		public void exportData(VehicleType original) {
+		public void exportData(VehicleType original, Project project) {
+			if(this.meanOfTransportId < 0) {
+				throw new IllegalStateException("Invalid mean of transport");
+			}
 			original.setName(this.getName());
 			original.setLength(this.getLength());
 			original.setMass(this.getMass());
@@ -202,11 +237,11 @@ public final class VehicleType extends VehicleTypeBase implements IMemento {
 			original.setMaximumCapacity(this.getMaximumCapacity());
 			original.setNumberOfSegments(this.getNumberOfSegments());
 			original.setPassengerExchangeRatio(this.getPassengerExchangeRatio());
-			original.getMeanOfTransport().set(this.meanOfTransport);
+			original.getMeanOfTransport().set(project.getMeanOfTransportManager().findById(this.meanOfTransportId));
 		}
 
 		@Override
-		public void importData(VehicleType original) {
+		public void importData(VehicleType original, Project project) {
 			this.setName(original.getName());
 			this.setLength(original.getLength());
 			this.setMass(original.getMass());
@@ -214,7 +249,8 @@ public final class VehicleType extends VehicleTypeBase implements IMemento {
 			this.setMaximumCapacity(original.getMaximumCapacity());
 			this.setNumberOfSegments(original.getNumberOfSegments());
 			this.setPassengerExchangeRatio(original.getPassengerExchangeRatio());
-			this.meanOfTransport = original.getMeanOfTransport().get();
+			this.meanOfTransportId = original.getMeanOfTransport().get().getId();
+			this.hasVehicles = !original.getVehicles().isEmpty();
 		}
 	}
 }

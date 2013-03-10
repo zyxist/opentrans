@@ -19,54 +19,52 @@ package org.invenzzia.opentrans.lightweight.controllers;
 import java.awt.Color;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import javax.swing.JCheckBox;
-
+import javax.swing.JComboBox;
 
 /**
- * Provides a support for checkboxes in the forms.
+ * Provides support for combo boxes.
  * 
  * @author zyxist
  */
-public class CheckboxHandler extends AbstractFormScannerComponentHandler {
+public class ComboBoxHandler extends AbstractFormScannerComponentHandler {
 	private static final Color ERROR_INDICATION_COLOR = new Color(255, 204, 204);
 
 	@Override
 	public void bindEvent(Field field, Method validator, Object viewInstance, Object controllerInstance) throws Exception {
-		JCheckBox checkbox = this.extract(JCheckBox.class, field, viewInstance);
-		checkbox.addActionListener(new FormActionListener(validator, controllerInstance));
+		JComboBox combo = this.extract(JComboBox.class, field, viewInstance);
+		combo.addActionListener(new FormActionListener(validator, controllerInstance));
 	}
 
 	@Override
 	public void clear(Field field, Object viewInstance) throws Exception {
-		JCheckBox checkbox = this.extract(JCheckBox.class, field, viewInstance);
-		checkbox.setSelected(false);
+		JComboBox combo = this.extract(JComboBox.class, field, viewInstance);
+		combo.setSelectedItem(null);
 	}
 
 	@Override
 	public <T> T getValue(Field field, Object viewInstance, Class<T> expectedType) throws Exception {
-		if(expectedType != Boolean.class) {
-			throw new IllegalArgumentException("Checkbox fields supports only boolean values.");
+		JComboBox combo = this.extract(JComboBox.class, field, viewInstance);
+		Object value = combo.getSelectedItem();
+		if(expectedType.isAssignableFrom(value.getClass())) {
+			return (T) value;
 		}
-		JCheckBox checkbox = this.extract(JCheckBox.class, field, viewInstance);
-		return (T) Boolean.valueOf(checkbox.isSelected());
+		return null;
 	}
 
 	@Override
 	public void setValue(Field field, Object viewInstance, Object value) throws Exception {
-		if(!(value instanceof Boolean)) {
-			throw new IllegalArgumentException("The value inserted into the checkbox must be a boolean.");
-		}
-		JCheckBox checkbox = this.extract(JCheckBox.class, field, viewInstance);
-		checkbox.setSelected(((Boolean) value).booleanValue());
+		JComboBox combo = this.extract(JComboBox.class, field, viewInstance);
+		combo.setSelectedItem(value);
 	}
 
 	@Override
 	public void setValid(Field field, Object viewInstance, boolean valid) throws Exception {
-		JCheckBox checkbox = this.extract(JCheckBox.class, field, viewInstance);
-		if(!valid) {
-			checkbox.setBackground(ERROR_INDICATION_COLOR);
+		JComboBox combo = this.extract(JComboBox.class, field, viewInstance);
+		if(valid) {
+			combo.setBackground(Color.WHITE);
 		} else {
-			checkbox.setBackground(Color.WHITE);
+			combo.setBackground(ERROR_INDICATION_COLOR);
 		}
 	}
+	
 }

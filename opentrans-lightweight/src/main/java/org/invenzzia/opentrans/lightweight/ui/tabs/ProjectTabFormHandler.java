@@ -65,7 +65,7 @@ public class ProjectTabFormHandler implements IFormHandler {
 	
 	@InModelThread(asynchronous = true)
 	public void collectData(Project project, ProjectRecord record, IFormAccessor accessor) {
-		record.importData(project);
+		record.importData(project, project);
 		this.updateGUI(record, accessor);
 	}
 
@@ -112,7 +112,7 @@ public class ProjectTabFormHandler implements IFormHandler {
 	@InModelThread(asynchronous = false)
 	public ProjectRecord getValidRecord(Project project) {
 		ProjectRecord record = new ProjectRecord();
-		record.importData(project);
+		record.importData(project, project);
 		return record;
 	}
 

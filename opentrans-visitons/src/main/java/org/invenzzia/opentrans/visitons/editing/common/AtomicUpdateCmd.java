@@ -33,8 +33,8 @@ import org.invenzzia.opentrans.visitons.editing.ICommand;
  * @author Tomasz Jędrzejewski
  */
 public abstract class AtomicUpdateCmd<
-		T extends IIdentifiable & IMemento,
-		R extends IIdentifiable & IRecord<T>,
+		T extends IIdentifiable & IMemento<Project>,
+		R extends IIdentifiable & IRecord<T, Project>,
 		M extends ICRUDManager<T> & IManagerMemento
 	>
 	implements ICommand
@@ -62,8 +62,8 @@ public abstract class AtomicUpdateCmd<
 	public void execute(Project project) throws Exception {
 		M mgr = this.getManager(project);
 		T item = mgr.findById(this.record.getId());
-		this.memento = item.getMemento();
-		this.record.exportData(item);
+		this.memento = item.getMemento(project);
+		this.record.exportData(item, project);
 		mgr.updateItem(item);
 	}
 
@@ -72,7 +72,7 @@ public abstract class AtomicUpdateCmd<
 		try {
 			M mgr = this.getManager(project);
 			T item = mgr.findById(this.record.getId());
-			item.restoreMemento(this.memento);
+			item.restoreMemento(this.memento, project);
 			mgr.updateItem(item);
 		} catch(ModelException exception) {
 			throw new IllegalStateException("The undo operation failed.", exception);
@@ -84,8 +84,8 @@ public abstract class AtomicUpdateCmd<
 		try {
 			M mgr = this.getManager(project);
 			T item = mgr.findById(this.record.getId());
-			this.memento = item.getMemento();
-			this.record.exportData(item);
+			this.memento = item.getMemento(project);
+			this.record.exportData(item, project);
 			mgr.updateItem(item);
 		} catch(ModelException exception) {
 			throw new IllegalStateException("The undo operation failed.", exception);

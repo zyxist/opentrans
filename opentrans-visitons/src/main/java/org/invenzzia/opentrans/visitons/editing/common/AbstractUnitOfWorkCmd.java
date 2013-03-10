@@ -32,8 +32,8 @@ import org.invenzzia.opentrans.visitons.editing.ICommand;
  * @author Tomasz Jędrzejewski
  */
 public abstract class AbstractUnitOfWorkCmd <
-		T extends IIdentifiable & IMemento,
-		R extends IIdentifiable & IRecord<T>,
+		T extends IIdentifiable & IMemento<Project>,
+		R extends IIdentifiable & IRecord<T, Project>,
 		M extends ICRUDManager<T> & IManagerMemento
 	>
 	implements ICommand
@@ -63,19 +63,19 @@ public abstract class AbstractUnitOfWorkCmd <
 		
 		for(R record: this.unitOfWork.getInsertedRecords()) {
 			T item = this.createNewDataObject();
-			record.exportData(item);
+			record.exportData(item, project);
 			mgr.addItem(item);
 			record.setId(item.getId());
 		}
 		for(R record: this.unitOfWork.getUpdatedRecords()) {
 			T item = mgr.findById(record.getId());
-			this.mementos.put(record, item.getMemento());
-			record.exportData(item);
+			this.mementos.put(record, item.getMemento(project));
+			record.exportData(item, project);
 			mgr.updateItem(item);
 		}
 		for(R record: this.unitOfWork.getRemovedRecords()) {
 			T item = mgr.findById(record.getId());
-			this.mementos.put(record, item.getMemento());
+			this.mementos.put(record, item.getMemento(project));
 			mgr.removeItem(item);
 		}
 	}
@@ -87,12 +87,12 @@ public abstract class AbstractUnitOfWorkCmd <
 			for(R record: this.unitOfWork.getInsertedRecords()) {
 				T item = mgr.findById(record.getId());
 				mgr.removeItem(record.getId());
-				this.mementos.put(record, item.getMemento());
+				this.mementos.put(record, item.getMemento(project));
 			}
 			for(R record: this.unitOfWork.getUpdatedRecords()) {
 				T item = mgr.findById(record.getId());
 				Object memento = this.mementos.get(record);
-				item.restoreMemento(memento);
+				item.restoreMemento(memento, project);
 				mgr.updateItem(item);
 				this.mementos.remove(record);
 			}
@@ -117,13 +117,13 @@ public abstract class AbstractUnitOfWorkCmd <
 			}
 			for(R record: this.unitOfWork.getUpdatedRecords()) {
 				T item = mgr.findById(record.getId());
-				this.mementos.put(record, item.getMemento());
-				record.exportData(item);
+				this.mementos.put(record, item.getMemento(project));
+				record.exportData(item, project);
 				mgr.updateItem(item);
 			}
 			for(R record: this.unitOfWork.getRemovedRecords()) {
 				T item = mgr.findById(record.getId());
-				this.mementos.put(record, item.getMemento());
+				this.mementos.put(record, item.getMemento(project));
 				mgr.removeItem(item);
 			}
 		} catch(ModelException exception) {

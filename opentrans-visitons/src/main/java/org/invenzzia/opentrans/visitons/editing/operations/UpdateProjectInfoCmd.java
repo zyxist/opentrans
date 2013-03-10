@@ -42,17 +42,17 @@ public class UpdateProjectInfoCmd implements ICommand {
 
 	@Override
 	public void execute(Project project) throws Exception {
-		this.memento = project.getMemento();
-		this.record.exportData(project);
+		this.memento = project.getMemento(project);
+		this.record.exportData(project, project);
 	}
 
 	@Override
 	public void undo(Project project) {
-		project.restoreMemento(this.memento);
+		project.restoreMemento(this.memento, project);
 	}
 
 	@Override
 	public void redo(Project project) {
-		this.record.exportData(project);
+		this.record.exportData(project, project);
 	}
 }

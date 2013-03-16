@@ -117,25 +117,31 @@ public class VehicleTypeController implements IItemListener {
 	
 	@Action("addAction")
 	public void addAction() {
-		NewVehicleTypeDialog subDialog = this.dialogBuilder.createModalDialog(NewVehicleTypeDialog.class);
-		subDialog.setMeanOfTransportModel(this.buildMeanSelectionModel());
-		subDialog.setVisible(true);
-		if(subDialog.isConfirmed()) {
-			String enteredName = subDialog.getEnteredName();
-			if(enteredName.isEmpty() || enteredName.length() > 30) {
-				this.dialogBuilder.showError("Invalid name", "Invalid name of the new vehicleType.");
-			} else {
-				VehicleTypeRecord record = new VehicleTypeRecord();
-				record.setName(subDialog.getEnteredName());
-				record.setMeanOfTransport(subDialog.getEnteredMeanOfTransport().getId());
-				record.setLength(12.0);
-				record.setMass(10000);
-				record.setEnginePower(300000);
-				record.setMaximumCapacity(180);
-				record.setNumberOfSegments(1);
-				record.setPassengerExchangeRatio(110);
-				
-				this.model.insertRecord(record);
+		MeanSelectionModel msm = this.buildMeanSelectionModel();
+		if(msm.getSize() == 0) {
+			this.dialogBuilder.showWarning("No means of transport", "Please add some means of transport first.");
+		} else {
+		
+			NewVehicleTypeDialog subDialog = this.dialogBuilder.createModalDialog(NewVehicleTypeDialog.class);
+			subDialog.setMeanOfTransportModel(msm);
+			subDialog.setVisible(true);
+			if(subDialog.isConfirmed()) {
+				String enteredName = subDialog.getEnteredName();
+				if(enteredName.isEmpty() || enteredName.length() > 30) {
+					this.dialogBuilder.showError("Invalid name", "Invalid name of the new vehicleType.");
+				} else {
+					VehicleTypeRecord record = new VehicleTypeRecord();
+					record.setName(subDialog.getEnteredName());
+					record.setMeanOfTransport(subDialog.getEnteredMeanOfTransport().getId());
+					record.setLength(12.0);
+					record.setMass(10000);
+					record.setEnginePower(300000);
+					record.setMaximumCapacity(180);
+					record.setNumberOfSegments(1);
+					record.setPassengerExchangeRatio(110);
+
+					this.model.insertRecord(record);
+				}
 			}
 		}
 	}
@@ -172,7 +178,12 @@ public class VehicleTypeController implements IItemListener {
 	
 	@FormField(name="length")
 	public void onLengthChange() {
-
+		if(this.formScanner.validate("length", Validators.isDouble(), Validators.range(0.0, 100.0))) {
+			VehicleTypeRecord record = this.view.getSelectedRecord();
+			if(null != record) {
+				record.setLength(this.formScanner.getDouble("length"));
+			}
+		}
 	}
 	
 	@FormField(name="mass")
@@ -197,17 +208,28 @@ public class VehicleTypeController implements IItemListener {
 	
 	@FormField(name="maximumCapacity")
 	public void onMaximumCapacityChanged() {
-		
+		if(this.formScanner.validate("maximumCapacity", Validators.isInteger(), Validators.range(0, 1000))) {
+			VehicleTypeRecord record = this.view.getSelectedRecord();
+			if(null != record) {
+				record.setMaximumCapacity(this.formScanner.getInt("maximumCapacity"));
+			}
+		}
 	}
 	
 	@FormField(name="numberOfSegments")
 	public void onNumberOfSegmentsChanged() {
-		
+		VehicleTypeRecord record = this.view.getSelectedRecord();
+		if(null != record) {
+			record.setNumberOfSegments(this.formScanner.getInt("numberOfSegments"));
+		}
 	}
 	
 	@FormField(name="exchangeRatio")
 	public void onExchangeRatioChanged() {
-		
+		VehicleTypeRecord record = this.view.getSelectedRecord();
+		if(null != record) {
+			record.setPassengerExchangeRatio(this.formScanner.getInt("exchangeRatio"));
+		}
 	}
 	
 	@Override

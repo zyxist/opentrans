@@ -19,9 +19,23 @@ package org.invenzzia.opentrans.lightweight.validator;
 /**
  * Validates the field value.
  * 
+ * @param T Type of the validated values.
  * @author zyxist
  */
 public interface IValidator<T> {
+	/**
+	 * Returns the error message that should be displayed, if the validation
+	 * fails.
+	 * 
+	 * @return Error message for this validator.
+	 */
 	public String getErrorMessage();
+	/**
+	 * Validates the value. The method shall return <strong>true</strong>, if the value is
+	 * valid.
+	 * 
+	 * @param value The value to check.
+	 * @return True, if the value is valid.
+	 */
 	public boolean validate(T value);
 }

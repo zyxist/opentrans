@@ -43,6 +43,7 @@ public class NewVehicleTypeDialog extends javax.swing.JDialog {
 	 */
 	public void setMeanOfTransportModel(ComboBoxModel<MeanOfTransportRecord> recordModel) {
 		this.meanOfTransportField.setModel(recordModel);
+		this.meanOfTransportField.setSelectedIndex(0);
 	}
 
 	/**

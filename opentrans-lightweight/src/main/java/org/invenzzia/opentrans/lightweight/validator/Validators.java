@@ -28,18 +28,53 @@ public class Validators {
 	private Validators() {
 	}
 	
+	/**
+	 * Checks whether the text has length within the given range.
+	 * 
+	 * @param from Minimum length of the string.
+	 * @param to Maximum length of the string.
+	 * @return String length validator.
+	 */
 	public static IValidator lengthBetween(int from, int to) {
 		return new LengthValidator(from, to);
 	}
 	
+	/**
+	 * Validates whether a number falls into the given range <tt>from &lt;= x &lt; to</tt>.
+	 * 
+	 * @param from Start of the range.
+	 * @param to End of the range.
+	 * @return Range validator.
+	 */
 	public static IValidator range(int from, int to) {
 		return new IntegerRangeValidator(from, to);
 	}
 	
+	/**
+	 * Validates whether a number falls into the given range <tt>from &lt;= x &lt; to</tt>.
+	 * 
+	 * @param from Start of the range.
+	 * @param to End of the range.
+	 * @return Range validator.
+	 */
+	public static IValidator range(double from, double to) {
+		return new DoubleRangeValidator(from, to);
+	}
+	
+	/**
+	 * Checks whether the number is an integer.
+	 * 
+	 * @return Integer validator.
+	 */
 	public static IValidator isInteger() {
 		return integerValidator;
 	}
 	
+	/**
+	 * Checks whether the number is a double value.
+	 * 
+	 * @return Double validator.
+	 */
 	public static IValidator isDouble() {
 		return doubleValidator;
 	}

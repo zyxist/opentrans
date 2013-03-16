@@ -147,7 +147,7 @@ public class MeanOfTransportDialog extends javax.swing.JDialog {
 	 * @param value The new value of the field.
 	 */
 	public void setHasVehicleTypes(boolean value) {
-		this.hasVehicleTypesCheckbox.setEnabled(value);
+		this.hasVehicleTypesCheckbox.setSelected(value);
 	}
 	
 	/**

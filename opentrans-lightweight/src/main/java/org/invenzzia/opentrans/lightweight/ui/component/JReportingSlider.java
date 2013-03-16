@@ -234,7 +234,7 @@ public class JReportingSlider extends JComponent {
 	}
 	
 	
-	public static abstract class ReportingSliderUI extends ComponentUI {
+	public static abstract class ReportingSliderUI extends ComponentUI {	
 	}
 	
 	/**
@@ -312,6 +312,7 @@ public class JReportingSlider extends JComponent {
 					slider.setMinimum(reportingSlider.getModel().getMinValue());
 					slider.setMaximum(reportingSlider.getModel().getMaxValue());
 					textField.setText(Integer.toString(reportingSlider.getModel().getValue()));
+					slider.setValue(reportingSlider.getModel().getValue());
 					reportingSlider.repaint();
 				}
 			};
@@ -337,9 +338,11 @@ public class JReportingSlider extends JComponent {
 		
 		@Override
 		public void paint(Graphics g, JComponent c) {
+			this.textField.setEnabled(this.reportingSlider.isEnabled());
+			this.slider.setEnabled(this.reportingSlider.isEnabled());
 			super.paint(g, c);
 		}
-		
+	/*	
 		protected void paintTextField(Graphics g, Rectangle rectangle) {
 			int width = (rectangle.width < TEXT_AREA_SIZE ? TEXT_AREA_SIZE : rectangle.width);
 			this.cellRendererPane.paintComponent(g, this.textField, this.reportingSlider,
@@ -352,7 +355,7 @@ public class JReportingSlider extends JComponent {
 					rectangle.x + TEXT_AREA_SIZE, rectangle.y, rectangle.width - TEXT_AREA_SIZE, rectangle.height, true);
 			}
 		}
-		
+	*/	
 		protected int modelValueToSliderValue(int modelValue) {
 			return modelValue;
 		}

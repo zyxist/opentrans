@@ -17,6 +17,7 @@
 
 package org.invenzzia.opentrans.visitons.data;
 
+import com.google.common.base.Preconditions;
 import org.invenzzia.helium.data.Parent;
 import org.invenzzia.helium.data.Relation;
 import org.invenzzia.helium.data.interfaces.IIdentifiable;
@@ -181,6 +182,7 @@ public final class VehicleType extends VehicleTypeBase implements IMemento<Proje
 
 	@Override
 	public void restoreMemento(Object memento, Project project) {
+		Preconditions.checkNotNull(memento, "Attempt to restore an empty memento.");
 		if(!(memento instanceof VehicleTypeRecord)) {
 			throw new IllegalArgumentException("Invalid memento for VehicleType class: "+memento.getClass().getCanonicalName());
 		}
@@ -242,6 +244,7 @@ public final class VehicleType extends VehicleTypeBase implements IMemento<Proje
 
 		@Override
 		public void importData(VehicleType original, Project project) {
+			this.setId(original.getId());
 			this.setName(original.getName());
 			this.setLength(original.getLength());
 			this.setMass(original.getMass());

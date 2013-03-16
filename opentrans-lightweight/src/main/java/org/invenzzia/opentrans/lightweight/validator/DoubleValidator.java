@@ -19,7 +19,9 @@ package org.invenzzia.opentrans.lightweight.validator;
 import java.util.regex.Pattern;
 
 /**
- *
+ * Checks whether a string represents a valid double value, so that it
+ * could be casted.
+ * 
  * @author zyxist
  */
 public class DoubleValidator implements IValidator<String> {

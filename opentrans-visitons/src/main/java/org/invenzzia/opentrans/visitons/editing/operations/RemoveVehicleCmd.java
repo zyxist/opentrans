@@ -15,15 +15,28 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.invenzzia.opentrans.visitons.exception;
+package org.invenzzia.opentrans.visitons.editing.operations;
+
+import org.invenzzia.helium.annotations.CommandDetails;
+import org.invenzzia.opentrans.visitons.Project;
+import org.invenzzia.opentrans.visitons.data.Vehicle;
+import org.invenzzia.opentrans.visitons.data.Vehicle.VehicleRecord;
+import org.invenzzia.opentrans.visitons.data.manager.VehicleManager;
+import org.invenzzia.opentrans.visitons.editing.common.AtomicRemoveCmd;
 
 /**
- * Represents a problem with the data model.
+ * Represents an action of removing a vehicle.
  * 
  * @author Tomasz Jędrzejewski
  */
-public class ModelException extends Exception {
-	public ModelException(String message) {
-		super(message);
+@CommandDetails(name = "Remove vehicle")
+public class RemoveVehicleCmd extends AtomicRemoveCmd<Vehicle, VehicleRecord, VehicleManager> {
+	public RemoveVehicleCmd(VehicleRecord record) {
+		super(record);
+	}
+	
+	@Override
+	protected VehicleManager getManager(Project project) {
+		return project.getVehicleManager();
 	}
 }

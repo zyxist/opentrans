@@ -55,7 +55,7 @@ public abstract class AtomicUpdateCmd<
 	 */
 	public AtomicUpdateCmd(R record) {
 		this.record = Preconditions.checkNotNull(record, "The record cannot be empty.");
-		Preconditions.checkArgument(record.getId() > 0, "The record must have the ID greater than 0.");
+		Preconditions.checkArgument(record.getId() >= 0, "The record must have the ID greater than or equal to 0.");
 	}
 
 	@Override

@@ -16,6 +16,8 @@
  */
 package org.invenzzia.opentrans.visitons.data;
 
+import com.google.common.base.Preconditions;
+import org.invenzzia.helium.data.Parent;
 import org.invenzzia.helium.data.interfaces.IIdentifiable;
 import org.invenzzia.helium.data.interfaces.IMemento;
 import org.invenzzia.helium.data.interfaces.IRecord;
@@ -29,7 +31,7 @@ class VehicleBase implements IIdentifiable {
 	/**
 	 * Unique, internal, non-modifiable vehicle ID.
 	 */
-	protected long id;
+	protected long id = -1;
 	/**
 	 * Name of this vehicle.
 	 */
@@ -78,26 +80,117 @@ class VehicleBase implements IIdentifiable {
  * @author zyxist
  */
 public class Vehicle extends VehicleBase implements IMemento<Project> {
+	/**
+	 * The vehicle type that describes the attributes of this vehicle.
+	 */
+	private final Parent<VehicleType> vehicleType = new Parent<>();
+	/**
+	 * New name that should be set after formal verification.
+	 */
+	private String newName = null;
+	
+	/**
+	 * Returns the reference to the parent vehicle type.
+	 * @return Parent vehicle type reference.
+	 */
+	public Parent<VehicleType> getVehicleType() {
+		return this.vehicleType;
+	}
+	
+	/**
+	 * Returns the new name for verification.
+	 * 
+	 * @return New name.
+	 */
+	public String getNewName() {
+		return this.newName;
+	}
+	
+	/**
+	 * Sets the new name that should be verified before applying.
+	 * 
+	 * @param name 
+	 */
+	public void setNewName(String name) {
+		this.newName = name;
+	}
+	
+	/**
+	 * Applies the new name - it is correct and unique.
+	 */
+	public void applyName() {
+		this.setName(this.newName);
+		this.newName = null;
+	}
+	
+	/**
+	 * Reject the new name, and clear the memory.
+	 */
+	public void rejectName() {
+		this.newName = null;
+	}
+	
+	
 	@Override
 	public Object getMemento(Project domainModel) {
-		throw new UnsupportedOperationException("Not supported yet.");
+		VehicleRecord memento = new VehicleRecord();
+		memento.importData(this, domainModel);
+		return memento;
 	}
 
 	@Override
-	public void restoreMemento(Object object, Project domainModel) {
-		throw new UnsupportedOperationException("Not supported yet.");
+	public void restoreMemento(Object memento, Project domainModel) {
+		Preconditions.checkNotNull(memento, "Attempt to restore an empty memento.");
+		if(!(memento instanceof VehicleRecord)) {
+			throw new IllegalArgumentException("Invalid memento for Vehicle class: "+memento.getClass().getCanonicalName());
+		}
+		VehicleRecord record = (VehicleRecord) memento;
+		record.exportData(this, domainModel);
+		this.id = record.id;
 	}
 	
 	public static final class VehicleRecord extends VehicleBase implements IRecord<Vehicle, Project> {
+		/**
+		 * The Id of the vehicle type that describes the attributes of this vehicle.
+		 */
+		private long vehicleTypeId;
+		
+		/**
+		 * Returns the ID of the vehicle type.
+		 * 
+		 * @return Vehicle type ID.
+		 */
+		public long getVehicleTypeId() {
+			return this.vehicleTypeId;
+		}
+		
+		/**
+		 * Sets the Id of the vehicle type.
+		 * 
+		 * @param id Vehicle type ID.
+		 */
+		public void setVehicleTypeId(long id) {
+			this.vehicleTypeId = id;
+		}
+		
 		@Override
 		public void exportData(Vehicle original, Project domainModel) {
-			original.setName(this.getName());
+			if(this.vehicleTypeId < 0) {
+				throw new IllegalStateException("Invalid vehicle type ID.");
+			}
+			if(null == original.getName() && -1 == original.getId()) {
+				original.setName(this.getName());
+			} else if(!this.getName().equals(original.getName())) {
+				original.setNewName(this.getName());
+			}
+			original.getVehicleType().set(domainModel.getVehicleTypeManager().findById(this.vehicleTypeId));
 		}
 
 		@Override
 		public void importData(Vehicle original, Project domainModel) {
-			this.setId(original.getId());
+			this.id = original.getId();
 			this.setName(original.getName());
+			this.setVehicleTypeId(original.getVehicleType().get().getId());
 		}
 	}
 }

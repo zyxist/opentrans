@@ -64,13 +64,14 @@ public abstract class AtomicAddCmd<
 		this.record.exportData(item, project);
 		mgr.addItem(item);
 		this.record.importData(item, project);
+		Preconditions.checkState(this.record.getId() >= 0, "The ID should not be negative after executing the add() operation.");
 	}
 
 	@Override
 	public void undo(Project project) {
 		try {
 			M mgr = this.getManager(project);
-			T object = mgr.findById(this.record.getId());
+			T object = Preconditions.checkNotNull(mgr.findById(this.record.getId()), "findById() cannot return NULL in the undo() operation!");
 			this.memento = object.getMemento(project);
 			mgr.removeItem(this.record.getId());
 		} catch(ModelException exception) {

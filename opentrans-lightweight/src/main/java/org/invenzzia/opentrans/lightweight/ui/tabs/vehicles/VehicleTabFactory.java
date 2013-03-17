@@ -17,6 +17,7 @@
 
 package org.invenzzia.opentrans.lightweight.ui.tabs.vehicles;
 
+import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import org.invenzzia.opentrans.lightweight.ui.workspace.DesktopItem;
@@ -30,6 +31,8 @@ import org.invenzzia.opentrans.lightweight.ui.workspace.IDesktopPaneFactory;
 public class VehicleTabFactory implements IDesktopPaneFactory<VehicleTab> {
 	@Inject
 	private Provider<VehicleTabController> controllerProvider;
+	@Inject
+	private EventBus eventBus;
 
 	@Override
 	public Class<VehicleTab> getContentType() {
@@ -41,11 +44,13 @@ public class VehicleTabFactory implements IDesktopPaneFactory<VehicleTab> {
 		VehicleTab tab = new VehicleTab();
 		VehicleTabController ctrl =  this.controllerProvider.get();
 		ctrl.setView(tab);
+		this.eventBus.register(ctrl);
 		
-		return new DesktopItem("Vehicles", tab);
+		return new DesktopItem("Vehicles", tab, ctrl);
 	}
 
 	@Override
 	public void destroyDesktopItem(DesktopItem desktopItem) {
+		this.eventBus.unregister(desktopItem.getMetadata(VehicleTabController.class));
 	}
 }

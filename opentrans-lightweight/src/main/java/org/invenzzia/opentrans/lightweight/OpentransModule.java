@@ -45,6 +45,8 @@ import org.invenzzia.opentrans.lightweight.ui.providers.WorkspacePanelProvider;
 import org.invenzzia.opentrans.lightweight.ui.tabs.ProjectTabFactory;
 import org.invenzzia.opentrans.lightweight.ui.tabs.WorldTabFactory;
 import org.invenzzia.opentrans.lightweight.ui.tabs.infrastructure.InfrastructureTabFactory;
+import org.invenzzia.opentrans.lightweight.ui.tabs.vehicles.VehicleEditorController;
+import org.invenzzia.opentrans.lightweight.ui.tabs.vehicles.VehicleTabController;
 import org.invenzzia.opentrans.lightweight.ui.tabs.vehicles.VehicleTabFactory;
 import org.invenzzia.opentrans.lightweight.ui.toolbars.ToolbarManager;
 import org.invenzzia.opentrans.lightweight.ui.workspace.DesktopManager;
@@ -109,6 +111,8 @@ public class OpentransModule extends AbstractModule {
 		// Controllers
 		this.bind(MainWindowController.class);
 		this.bind(WorkspaceController.class);
+		this.bind(VehicleTabController.class);
+		this.bind(VehicleEditorController.class);
 
 		// Toolbars
 		this.bind(WorkspacePanel.class).toProvider(WorkspacePanelProvider.class);

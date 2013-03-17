@@ -20,6 +20,7 @@ import org.invenzzia.helium.data.interfaces.IMemento;
 import org.invenzzia.helium.data.interfaces.IRecord;
 import org.invenzzia.opentrans.visitons.data.manager.MeanOfTransportManager;
 import org.invenzzia.opentrans.visitons.data.manager.StopManager;
+import org.invenzzia.opentrans.visitons.data.manager.VehicleManager;
 import org.invenzzia.opentrans.visitons.data.manager.VehicleTypeManager;
 import org.invenzzia.opentrans.visitons.network.World;
 
@@ -109,6 +110,10 @@ public class Project extends ProjectBase implements IMemento<Project> {
 	 * Manages the available vehicle types.
 	 */
 	private final VehicleTypeManager vehicleTypeManager;
+	/**
+	 * Manages the available vehicles.
+	 */
+	private final VehicleManager vehicleManager;
 
 	public Project() {
 		this.name = "New project";
@@ -119,6 +124,7 @@ public class Project extends ProjectBase implements IMemento<Project> {
 		this.stopManager = new StopManager(this);
 		this.meanOfTransportManager = new MeanOfTransportManager(this);
 		this.vehicleTypeManager = new VehicleTypeManager(this);
+		this.vehicleManager = new VehicleManager(this);
 	}
 	
 	/**
@@ -155,6 +161,15 @@ public class Project extends ProjectBase implements IMemento<Project> {
 	 */
 	public VehicleTypeManager getVehicleTypeManager() {
 		return this.vehicleTypeManager;
+	}
+	
+	/**
+	 * Returns the object that manages the vehicles within the project.
+	 * 
+	 * @return Vehicle manager.
+	 */
+	public VehicleManager getVehicleManager() {
+		return this.vehicleManager;
 	}
 
 	@Override

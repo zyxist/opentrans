@@ -29,6 +29,12 @@ public interface IFormScanner {
 	public <T> void discoverValidators(Class<T> controllerClass, T controllerInstance);
 	public <T> void bindFields(Class<T> viewClass, T viewInstance);
 	/**
+	 * Have we performed the discovery task?
+	 * 
+	 * @return True, if the scanner has been fully initialized.
+	 */
+	public boolean isDiscovered();
+	/**
 	 * Clears all the bindings.
 	 */
 	public void clear();

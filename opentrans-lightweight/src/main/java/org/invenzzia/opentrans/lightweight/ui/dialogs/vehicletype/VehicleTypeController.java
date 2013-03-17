@@ -18,6 +18,7 @@ package org.invenzzia.opentrans.lightweight.ui.dialogs.vehicletype;
 
 import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import org.invenzzia.helium.data.UnitOfWork;
 import org.invenzzia.helium.exception.CommandExecutionException;
 import org.invenzzia.helium.history.History;
@@ -32,6 +33,7 @@ import org.invenzzia.opentrans.lightweight.ui.IDialogBuilder;
 import org.invenzzia.opentrans.lightweight.ui.dialogs.vehicletype.VehicleTypeDialog.IItemListener;
 import org.invenzzia.opentrans.lightweight.ui.dialogs.vehicletype.VehicleTypeDialog.ItemEvent;
 import org.invenzzia.opentrans.lightweight.validator.Validators;
+import org.invenzzia.opentrans.visitons.Project;
 import org.invenzzia.opentrans.visitons.data.MeanOfTransport.MeanOfTransportRecord;
 import org.invenzzia.opentrans.visitons.data.VehicleType.VehicleTypeRecord;
 import org.invenzzia.opentrans.visitons.editing.ICommand;
@@ -63,6 +65,8 @@ public class VehicleTypeController implements IItemListener {
 	private VehicleTypeModel model;
 	@Inject
 	private IProjectHolder projectHolder;
+	@Inject
+	private Provider<MeanSelectionModel> meanSelectionModelProvider;
 	/**
 	 * The managed view.
 	 */
@@ -85,9 +89,14 @@ public class VehicleTypeController implements IItemListener {
 		this.formScanner.discoverValidators(VehicleTypeController.class, this);
 		this.formScanner.bindFields(VehicleTypeDialog.class, dialog);
 		
+		Project project = this.projectHolder.getCurrentProject();
+		
+		this.meanSelectionModel = this.meanSelectionModelProvider.get();
+		this.meanSelectionModel.loadData(project);		
 		this.model.loadData(this.projectHolder.getCurrentProject());
+		
 		this.view.setModel(this.model);
-		this.view.setMeanSelectionModel(this.meanSelectionModel = this.buildMeanSelectionModel());
+		this.view.setMeanSelectionModel(this.meanSelectionModel);
 		this.view.addItemListener(this);
 		this.view.disableForm();
 	}
@@ -117,7 +126,8 @@ public class VehicleTypeController implements IItemListener {
 	
 	@Action("addAction")
 	public void addAction() {
-		MeanSelectionModel msm = this.buildMeanSelectionModel();
+		MeanSelectionModel msm = this.meanSelectionModelProvider.get();
+		msm.loadData(this.projectHolder.getCurrentProject());
 		if(msm.getSize() == 0) {
 			this.dialogBuilder.showWarning("No means of transport", "Please add some means of transport first.");
 		} else {
@@ -248,17 +258,5 @@ public class VehicleTypeController implements IItemListener {
 		} else {
 			this.view.disableForm();
 		}
-	}
-
-	/**
-	 * Constructs the model for the mean of transport selection. This must
-	 * be done in the model thread, because we need access to the mean
-	 * of transport data. This model does not update the project itself.
-	 * 
-	 * @return Constructed mean selection model.
-	 */
-	@InModelThread(asynchronous = false)
-	public MeanSelectionModel buildMeanSelectionModel() {
-		return new MeanSelectionModel(this.projectHolder.getCurrentProject());
 	}
 }

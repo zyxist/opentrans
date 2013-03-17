@@ -18,29 +18,30 @@ package org.invenzzia.opentrans.lightweight.model.visitons;
 
 import java.util.List;
 import org.invenzzia.opentrans.visitons.Project;
-import org.invenzzia.opentrans.visitons.data.MeanOfTransport;
-import org.invenzzia.opentrans.visitons.data.MeanOfTransport.MeanOfTransportRecord;
+import org.invenzzia.opentrans.visitons.data.VehicleType;
+import org.invenzzia.opentrans.visitons.data.VehicleType.VehicleTypeRecord;
 
 /**
- * Handles the combo boxes that allow selecting the mean of transport.
+ * Allows displaying the list of vehicle types in a combo box.
  * 
- * @author zyxist
+ * @author Tomasz Jędrzejewski
  */
-public class MeanSelectionModel extends VisitonsSelectionModel<MeanOfTransport, MeanOfTransportRecord> {
+public class VehicleTypeSelectionModel extends VisitonsSelectionModel<VehicleType, VehicleTypeRecord> {
+
 	@Override
-	protected List<MeanOfTransport> getRecordsFromManager(final Project project) {
-		return project.getMeanOfTransportManager().getRecords();
+	protected List<VehicleType> getRecordsFromManager(final Project project) {
+		return project.getVehicleTypeManager().getRecords();
 	}
 
 	@Override
-	protected MeanOfTransportRecord createNewRecord() {
-		return new MeanOfTransportRecord();
+	protected VehicleTypeRecord createNewRecord() {
+		return new VehicleTypeRecord();
 	}
 
 	@Override
 	protected void checkCasting(Object suspectedRecord) {
-		if(!(suspectedRecord instanceof MeanOfTransportRecord)) {
-			throw new IllegalArgumentException("The selected item must be a record of mean of transport.");
+		if(!(suspectedRecord instanceof VehicleTypeRecord)) {
+			throw new IllegalArgumentException("The selected item must be a record of vehicle type.");
 		}
 	}
 }

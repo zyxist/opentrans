@@ -50,6 +50,10 @@ public class DefaultFormScanner implements IFormScanner {
 	 */
 	private Object viewInstance;
 	/**
+	 * Have we performed the discovery operation?
+	 */
+	private boolean discovered;
+	/**
 	 * Component handlers know, how to handle certain component types.
 	 */
 	@Inject
@@ -64,6 +68,7 @@ public class DefaultFormScanner implements IFormScanner {
 			}
 		}
 		this.controllerInstance = Preconditions.checkNotNull(controllerInstance);
+		this.discovered = true;
 	}
 
 	@Override
@@ -87,6 +92,11 @@ public class DefaultFormScanner implements IFormScanner {
 				this.fields.put(annotation.name(), field);
 			}
 		}
+	}
+	
+	@Override
+	public boolean isDiscovered() {
+		return this.discovered;
 	}
 
 	@Override

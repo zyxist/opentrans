@@ -15,16 +15,28 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.invenzzia.opentrans.visitons.exception;
+package org.invenzzia.opentrans.visitons.editing.operations;
+
+import org.invenzzia.helium.annotations.CommandDetails;
+import org.invenzzia.opentrans.visitons.Project;
+import org.invenzzia.opentrans.visitons.data.Vehicle;
+import org.invenzzia.opentrans.visitons.data.Vehicle.VehicleRecord;
+import org.invenzzia.opentrans.visitons.data.manager.VehicleManager;
+import org.invenzzia.opentrans.visitons.editing.common.AtomicUpdateCmd;
 
 /**
- * Informs that the command execution failed. The model shall be left in
- * a consistent state by the command.
+ * Represents an action of updating the vehicle data.
  * 
  * @author Tomasz Jędrzejewski
  */
-public class CommandExecutionException extends Exception {
-	public CommandExecutionException(Throwable failure) {
-		super(failure);
+@CommandDetails(name = "Edit vehicle")
+public class EditVehicleCmd extends AtomicUpdateCmd<Vehicle, VehicleRecord, VehicleManager> {
+	public EditVehicleCmd(VehicleRecord record) {
+		super(record);
+	}
+	
+	@Override
+	protected VehicleManager getManager(Project project) {
+		return project.getVehicleManager();
 	}
 }

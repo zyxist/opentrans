@@ -71,10 +71,10 @@ public class StopManager extends AbstractDataManager<Stop> implements IManagerMe
 	@Override
 	public void updateItem(Stop item) throws ModelException {
 		if(null != item.getPreviousName() && !item.getPreviousName().equals(item.getName())) {
-			this.stops.remove(item);
 			if(this.stopNames.contains(item.getName())) {
 				throw new ModelException("The stop name '"+item+"' is already in use.");
 			}
+			this.stops.remove(item);
 			this.stopNames.remove(item.getPreviousName());
 			this.stopNames.add(item.getName());
 			this.stops.add(item);

@@ -101,7 +101,7 @@
               <Group type="102" alignment="0" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Component id="jScrollPane1" max="32767" attributes="0"/>
+                      <Component id="vehicleTableScroller" max="32767" attributes="0"/>
                       <Group type="102" attributes="0">
                           <Component id="addVehicleButton" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
@@ -120,7 +120,7 @@
         <DimensionLayout dim="1">
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" alignment="1" attributes="0">
-                  <Component id="jScrollPane1" pref="453" max="32767" attributes="0"/>
+                  <Component id="vehicleTableScroller" pref="455" max="32767" attributes="0"/>
                   <EmptySpace type="unrelated" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
                       <Component id="addVehicleButton" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -141,6 +141,9 @@
               <Dimension value="[100, 25]"/>
             </Property>
           </Properties>
+          <AuxValues>
+            <AuxValue name="JavaCodeGenerator_DeclarationPre" type="java.lang.String" value="@Action(&quot;addAction&quot;)"/>
+          </AuxValues>
         </Component>
         <Component class="javax.swing.JButton" name="editVehicleButton">
           <Properties>
@@ -149,6 +152,9 @@
               <Dimension value="[100, 25]"/>
             </Property>
           </Properties>
+          <AuxValues>
+            <AuxValue name="JavaCodeGenerator_DeclarationPre" type="java.lang.String" value="@Action(&quot;editAction&quot;)"/>
+          </AuxValues>
         </Component>
         <Component class="javax.swing.JButton" name="removeVehicleButton">
           <Properties>
@@ -157,6 +163,9 @@
               <Dimension value="[100, 25]"/>
             </Property>
           </Properties>
+          <AuxValues>
+            <AuxValue name="JavaCodeGenerator_DeclarationPre" type="java.lang.String" value="@Action(&quot;removeAction&quot;)"/>
+          </AuxValues>
         </Component>
         <Component class="javax.swing.JButton" name="locateVehicleButton">
           <Properties>
@@ -165,8 +174,11 @@
               <Dimension value="[100, 25]"/>
             </Property>
           </Properties>
+          <AuxValues>
+            <AuxValue name="JavaCodeGenerator_DeclarationPre" type="java.lang.String" value="@Action(&quot;locateAction&quot;)"/>
+          </AuxValues>
         </Component>
-        <Container class="javax.swing.JScrollPane" name="jScrollPane1">
+        <Container class="javax.swing.JScrollPane" name="vehicleTableScroller">
           <AuxValues>
             <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
           </AuxValues>
@@ -184,6 +196,9 @@
                   </Table>
                 </Property>
               </Properties>
+              <AuxValues>
+                <AuxValue name="JavaCodeGenerator_CreateCodePost" type="java.lang.String" value="VehicleSelectionListener lst = new VehicleSelectionListener();&#xa;vehicleTable.getSelectionModel().addListSelectionListener(lst);&#xa;vehicleTable.addMouseListener(lst);"/>
+              </AuxValues>
             </Component>
           </SubComponents>
         </Container>

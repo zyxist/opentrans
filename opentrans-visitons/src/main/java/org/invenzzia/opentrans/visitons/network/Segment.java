@@ -17,9 +17,6 @@
  */
 package org.invenzzia.opentrans.visitons.network;
 
-import java.awt.Image;
-import org.invenzzia.opentrans.visitons.network.IVertex;
-
 /**
  * Represents a single world segment, a mechanism of partitioning the space in order to speed up rendering and finding objects. A segment
  * represents a square area of 1 km^2. It contains the references to all the vertices located inside it.
@@ -60,21 +57,21 @@ public class Segment {
 		this.positionX = x;
 		this.positionY = y;
 		return this;
-	} // end setPosition();
+	}
 
 	/**
 	 * @return Returns the X-location of the segment.
 	 */
 	public int getX() {
 		return this.positionX;
-	} // end getX();
+	}
 
 	/**
 	 * @return Returns the Y-location of the segment.
 	 */
 	public int getY() {
 		return this.positionY;
-	} // end getY();
+	}
 	
 	/**
 	 * @return True, if the segment contains some infrastructural data or 'false' if it is empty.
@@ -100,7 +97,7 @@ public class Segment {
 	 * @param vertex
 	 * @return Fluent interface.
 	 */
-	Segment addVertex(IVertex vertex) {
+	Segment addVertex(Vertex vertex) {
 		return this;
 	}
 }

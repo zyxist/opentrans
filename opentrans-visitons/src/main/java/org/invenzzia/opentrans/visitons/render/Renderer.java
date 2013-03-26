@@ -167,8 +167,9 @@ public final class Renderer {
 		g.fillRect(0, 0, this.drawnImage.getWidth(), this.drawnImage.getHeight());
 		
 		// Run the rendering streams.
+		long current = System.currentTimeMillis();
 		for(IRenderingStream stream: this.renderingStreams) {
-			stream.render((Graphics2D) g, snapshot, prevFrameTime);
+			stream.render((Graphics2D) g, snapshot, current);
 		}
 		this.swapBuffers(snapshot);
 	}

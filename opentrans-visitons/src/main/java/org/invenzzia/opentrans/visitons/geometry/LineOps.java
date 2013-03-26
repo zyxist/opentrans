@@ -23,13 +23,36 @@ package org.invenzzia.opentrans.visitons.geometry;
  * @author Tomasz Jędrzejewski
  */
 public class LineOps {
+	private static final double EPSILON = 0.0000000001;
+	
 	private LineOps() {
 	}
 	
 	public static void toGeneral(double x1, double y1, double x2, double y2, int from, double general[]) {
-		general[from] = y2 - y1;
-		general[from + 1] = - (x2 - x1);
-		general[from + 2] = - general[from] * x1 - general[from + 1] * y1;
+		general[from] = y1 - y2;
+		general[from + 1] = x2 - x1;
+		general[from + 2] = y2 * x1 - y1 * x2;
+	}
+	
+	/**
+	 * Calculates the general parameters of the line from the tangent and a single point.
+	 * 
+	 * @param x
+	 * @param y
+	 * @param tangent Line tangent.
+	 * @param from
+	 * @param general 
+	 */
+	public static void toGeneral(double x, double y, double tangent, int from, double general[]) {
+		if(Math.abs(tangent - Math.PI / 2) < EPSILON || Math.abs(tangent - (Math.PI + Math.PI / 2)) < EPSILON) {
+			general[from] = x;
+			general[from + 1] = 0.0;
+			general[from + 2] = 0.0;
+		} else {
+			general[from] = Math.tan(tangent);
+			general[from + 1] = -1.0;
+			general[from + 2] = y - general[from] * x;
+		}
 	}
 	
 	/**
@@ -118,5 +141,9 @@ public class LineOps {
 	 */
 	public static double linePoint(double t, double x1, double x2) {
 		return x1 + t * (x2 - x1);
+	}
+	
+	public static double getTangent(double x1, double y1, double x2, double y2) {
+		return Math.atan2(x2 - x1, y2 - y1);
 	}
 }

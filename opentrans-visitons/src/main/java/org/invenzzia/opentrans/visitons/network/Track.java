@@ -38,11 +38,11 @@ public class Track {
 	/**
 	 * First connected vertex.
 	 */
-	private IVertex v1;
+	private Vertex v1;
 	/**
 	 * Second connected vertex.
 	 */
-	private IVertex v2;
+	private Vertex v2;
 	/**
 	 * Track length in world units (metres).
 	 */
@@ -102,7 +102,7 @@ public class Track {
 	 * @param i The number of the vertex to return: 0 or 1.
 	 * @return The vertex or NULL if the vertex is not assigned yet.
 	 */
-	public IVertex getVertex(int i) {
+	public Vertex getVertex(int i) {
 		if(i == 0) {
 			return this.v1;
 		} else {
@@ -116,7 +116,7 @@ public class Track {
 	 * @param i The ID of the vertex to store: 0 or 1.
 	 * @param vertex The vertex to assign.
 	 */
-	public void setVertex(int i, IVertex vertex) {
+	public void setVertex(int i, Vertex vertex) {
 		if(i == 0) {
 			this.v1 = vertex;
 		} else {
@@ -130,7 +130,7 @@ public class Track {
 	 * @param vertex The vertex we know.
 	 * @return The opposite vertex.
 	 */
-	public IVertex getOppositeVertex(IVertex vertex) {
+	public Vertex getOppositeVertex(Vertex vertex) {
 		if(vertex == this.v1) {
 			return this.v2;
 		}
@@ -143,7 +143,7 @@ public class Track {
 	 * 
 	 * @param vertex The vertex to set.
 	 */
-	public boolean setFreeVertex(IVertex vertex) {
+	public boolean setFreeVertex(Vertex vertex) {
 		if(null == this.v1) {
 			this.v1 = vertex;
 			return true;
@@ -161,7 +161,7 @@ public class Track {
 	 * @param vertex The vertex to check.
 	 * @return True, if this vertex is connected.
 	 */
-	public boolean isConnectedToVertex(IVertex vertex) {
+	public boolean isConnectedToVertex(Vertex vertex) {
 		if(null == vertex) {
 			 return false;
 		}

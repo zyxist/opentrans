@@ -18,24 +18,21 @@
 package org.invenzzia.opentrans.visitons.network;
 
 /**
- * This kind of vertex can be freely moved around the map.
+ * A collection of constants related to the network structure. We do not use
+ * enums here, because the network graph can be quite huge and we must save
+ * the memory a bit.
  * 
  * @author Tomasz Jędrzejewski
  */
-public class FreeVertex implements IVertex {
+public class NetworkConst {
+	public static final byte TRACK_STRAIGHT = 0;
+	public static final byte TRACK_CURVED = 1;
+	public static final byte TRACK_FREE = 2;
 	
-	@Override
-	public double x() {
-		return 0.0;
-	}
-	
-	@Override
-	public double y() {
-		return 0.0;
-	}
+	public static final byte VERTEX_FREE = 0;
+	public static final byte VERTEX_HALFFREE = 1;
+	public static final byte VERTEX_SLAVE = 2;
 
-	@Override
-	public Segment getSegment() {
-		return null;
+	private NetworkConst() {
 	}
 }

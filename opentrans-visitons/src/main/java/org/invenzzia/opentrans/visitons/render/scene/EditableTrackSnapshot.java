@@ -15,15 +15,37 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.invenzzia.opentrans.visitons.network;
+package org.invenzzia.opentrans.visitons.render.scene;
+
+import org.invenzzia.opentrans.visitons.render.painters.ITrackPainter;
 
 /**
- * This vertex lies on some track and is defined by a position on that track. The assigned
- * track is aligned to provide a smooth transition between it and the master track. The
- * half-free vertex can be moved around the master track.
+ * Contains the information about the currently edited network unit of work,
+ * that is manipulated directly by GUI code.
  * 
  * @author Tomasz Jędrzejewski
  */
-public class HalfFreeVertex {
+public class EditableTrackSnapshot {
+	private ITrackPainter tracks[];
+	private double[] vertices;
 
+	public EditableTrackSnapshot(int trackNum) {
+		this.tracks = new ITrackPainter[trackNum];
+	}
+	
+	public void setTrackPainter(int idx, ITrackPainter ptr) {
+		this.tracks[idx] = ptr;
+	}
+	
+	public void setVertexArray(double array[]) {
+		this.vertices = array;
+	}
+	
+	public ITrackPainter[] getTracks() {
+		return this.tracks;
+	}
+
+	public double[] getVertices() {
+		return this.vertices;
+	}
 }

@@ -140,17 +140,4 @@ public class WorldTest {
 	public void testShrinkingTheWorldVerticallyIfSomeSegmentsAreUnused() {
 		
 	}
-	
-	@Test
-	public void testIncrementors() {
-		World world = new World();
-		Assert.assertEquals(0, world.getCurrentTrackId());
-		Assert.assertEquals(0, world.getCurrentVertexId());
-		
-		Assert.assertEquals(0, world.getNextTrackId());
-		Assert.assertEquals(0, world.getNextVertexId());
-		
-		Assert.assertEquals(1, world.getCurrentTrackId());
-		Assert.assertEquals(1, world.getCurrentVertexId());
-	}
 }

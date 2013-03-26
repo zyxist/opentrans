@@ -15,28 +15,30 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.invenzzia.opentrans.visitons.network;
+package org.invenzzia.opentrans.visitons.render.painters;
+
+import java.awt.Graphics2D;
+import org.invenzzia.opentrans.visitons.render.CameraModelSnapshot;
 
 /**
- * Vertex is a distinguished point in the network infrastructure. It is identified by its coordinates
- * in the world, and an unique numeric ID.
+ * Draws a straight track.
  * 
  * @author Tomasz Jędrzejewski
  */
-public interface IVertex {
-	/**
-	 * Returns the X coordinate of the vertex.
-	 * @return X coordinate in world units, since the beginning of the segment.
-	 */
-	public double x();
-	/**
-	 * Returns the Y coordinate of the vertex.
-	 * @return Y coordinate in world units, since the beginning of the segment.
-	 */
-	public double y();
-	/**
-	 * Returns the segment, where the vertex is located.
-	 * @return Segment this vertex is assigned to.
-	 */
-	public Segment getSegment();
+public class StraightTrackPainter implements ITrackPainter {
+	private final double coordinates[];
+		
+	public StraightTrackPainter(double metadata[]) {
+		this.coordinates = metadata;
+	}
+
+	@Override
+	public void draw(CameraModelSnapshot camera, Graphics2D graphics, boolean editable) {
+		graphics.drawLine(
+			camera.world2pixX(this.coordinates[0]),
+			camera.world2pixY(this.coordinates[1]),
+			camera.world2pixX(this.coordinates[2]),
+			camera.world2pixY(this.coordinates[3])
+		);
+	}
 }

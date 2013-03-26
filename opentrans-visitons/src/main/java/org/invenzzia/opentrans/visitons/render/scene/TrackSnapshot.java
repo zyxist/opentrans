@@ -24,7 +24,7 @@ import java.awt.geom.Arc2D;
 import java.util.LinkedList;
 import java.util.List;
 import org.invenzzia.opentrans.visitons.geometry.Geometry;
-import org.invenzzia.opentrans.visitons.network.IVertex;
+import org.invenzzia.opentrans.visitons.network.Vertex;
 import org.invenzzia.opentrans.visitons.network.Track;
 import org.invenzzia.opentrans.visitons.render.CameraModelSnapshot;
 
@@ -37,6 +37,7 @@ import org.invenzzia.opentrans.visitons.render.CameraModelSnapshot;
  * 
  * @author Tomasz Jędrzejewski
  */
+@Deprecated
 public class TrackSnapshot {
 	/**
 	 * Visible tracks to draw.
@@ -92,7 +93,7 @@ public class TrackSnapshot {
 		
 		public StraightTrackRecord(Track t) {
 			this.coordinates = new double[4];
-			IVertex v1 = t.getVertex(0);
+			Vertex v1 = t.getVertex(0);
 			this.coordinates[0] = v1.x();
 			this.coordinates[1] = v1.y();
 			v1 = t.getVertex(1);
@@ -125,8 +126,8 @@ public class TrackSnapshot {
 			this.convex = metadata[0] > 0.0 ? 1 : -1;
 			this.coordinates = new double[6];
 			this.dbg = new double[8];
-			IVertex v1 = t.getVertex(0);
-			IVertex v2 = t.getVertex(1);
+			Vertex v1 = t.getVertex(0);
+			Vertex v2 = t.getVertex(1);
 			
 			double angle1 = -Math.atan2(v1.y() - metadata[2], v1.x() - metadata[1]);
 			if(angle1 < 0.0) {

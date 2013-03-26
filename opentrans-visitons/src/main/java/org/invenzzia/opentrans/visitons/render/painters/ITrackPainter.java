@@ -15,14 +15,22 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.invenzzia.opentrans.visitons.network;
+package org.invenzzia.opentrans.visitons.render.painters;
+
+import java.awt.Graphics2D;
+import org.invenzzia.opentrans.visitons.render.CameraModelSnapshot;
 
 /**
- * Tied vertex position is defined by an intersection of two tracks and
- * therefore cannot be moved manually. Its location is calculated automatically.
+ * Painters tell the scene snapshots, how to paint certain types of tracks.
  * 
  * @author Tomasz Jędrzejewski
  */
-public class TiedVertex {
-
+public interface ITrackPainter {
+	/**
+	 * Draws the given track on the screen.
+	 * 
+	 * @param camera The camera information snapshot.
+	 * @param graphics The screen to draw on.
+	 */
+	public void draw(CameraModelSnapshot camera, Graphics2D graphics, boolean editable);
 }

@@ -19,7 +19,9 @@ package org.invenzzia.opentrans.visitons.network;
 
 import com.google.common.base.Preconditions;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.Map;
 import org.invenzzia.opentrans.visitons.exception.WorldException;
 import org.invenzzia.opentrans.visitons.render.AbstractCameraModelFoundation;
 
@@ -42,17 +44,15 @@ public class World {
 	 * A helper enumerator to specify the vertical directions.
 	 */
 	public static enum VerticalDir {
-
 		UP, DOWN;
-	} // end VerticalDir;
+	}
 
 	/**
 	 * A helper enumerator to specify the horizontal directions.
 	 */
 	public static enum HorizontalDir {
-
 		LEFT, RIGHT;
-	} // end HorizontalDir;
+	}
 	/**
 	 * World dimension X
 	 */
@@ -73,6 +73,14 @@ public class World {
 	 * Incrementator for generating the track ID.
 	 */
 	private long nextTrackId = 0;
+	/**
+	 * All the vertices managed by the project.
+	 */
+	private Map<Long, Vertex> vertices;
+	/**
+	 * All the tracks managed by the project.
+	 */
+	private Map<Long, Track> tracks;
 
 	/**
 	 * Initializes an empty world with the dimensions 1x1.
@@ -80,6 +88,8 @@ public class World {
 	public World() {
 		this.dimX = 1;
 		this.dimY = 1;
+		this.vertices = new LinkedHashMap<>();
+		this.tracks = new LinkedHashMap<>();
 		this.createWorld();
 	}
 
@@ -90,7 +100,7 @@ public class World {
 	 */
 	public int getX() {
 		return this.dimX;
-	} // end getX();
+	}
 
 	/**
 	 * Returns the number of segments on the vertical axis.
@@ -301,7 +311,7 @@ public class World {
 	 * @param vertex The network vertex.
 	 * @return The owning segment.
 	 */
-	public Segment segmentFor(IVertex vertex) {
+	public Segment segmentFor(Vertex vertex) {
 		int x = (int) Math.ceil(vertex.x() / Segment.SIZE);
 		int y = (int) Math.ceil(vertex.y() / Segment.SIZE);
 
@@ -314,8 +324,13 @@ public class World {
 	 * @param vertex The vertex to add.
 	 * @return Fluent interface.
 	 */
-	public World addVertex(IVertex vertex) {
-		this.segmentFor(vertex).addVertex(vertex);
+	public World addVertex(Vertex vertex) {
+		if(vertex.getId() != -1) {
+			throw new IllegalArgumentException("Cannot add a previously added vertex.");
+		}
+		vertex.setId(this.nextVertexId++);
+		this.vertices.put(Long.valueOf(this.nextVertexId), vertex);
+		vertex.getSegment().addVertex(vertex);
 		return this;
 	}
 
@@ -325,7 +340,7 @@ public class World {
 	 * @param vertex
 	 * @return Fluent interface.
 	 */
-	public World removeVertex(IVertex vertex) {
+	public World removeVertex(Vertex vertex) {
 		return this;
 	}
 	
@@ -376,41 +391,6 @@ public class World {
 		return collection;
 	}
 	
-	/**
-	 * Returns the current value of the vertex ID incrementator.
-	 * 
-	 * @return Current value of the vertex ID incrementator.
-	 */
-	public long getCurrentVertexId() {
-		return this.nextVertexId;
-	}
+	
 
-	/**
-	 * Returns the current value of the track ID incrementator.
-	 * 
-	 * @return Current value of the track ID incrementator.
-	 */
-	public long getCurrentTrackId() {
-		return this.nextTrackId;
-	}
-	
-	/**
-	 * Returns the current value of the vertex ID incrementator, and
-	 * then increments it.
-	 * 
-	 * @return Current value of the vertex ID incrementator.
-	 */
-	public long getNextVertexId() {
-		return this.nextVertexId++;
-	}
-	
-	/**
-	 * Returns the current value of the track ID incrementator, and
-	 * then increments it.
-	 * 
-	 * @return Current value of the track ID incrementator.
-	 */
-	public long getNextTrackId() {
-		return this.nextTrackId++;
-	}
 }

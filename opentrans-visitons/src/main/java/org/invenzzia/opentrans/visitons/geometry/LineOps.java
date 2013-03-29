@@ -117,6 +117,24 @@ public class LineOps {
 	}
 	
 	/**
+	 * Finds the intersection of the two lines. The input data are read from <tt>data</tt> parameter,
+	 * and the result is also written there. The first argument specifies the position of the first
+	 * line parameters: A1, B1, C1. The second argument specifies the position of the second line
+	 * parameters: A2, B2, C2. The third argument specifies, where the output values X and Y shall
+	 * be written in the output array.
+	 * 
+	 * @param line1 Index of A1 parameter.
+	 * @param line2 Index of A2 parameter.
+	 * @param out Index of X parameter.
+	 * @param data Input/output computation data tablice.
+	 */
+	public static void intersection(int line1, int line2, int out, double data[]) {
+		data[out] = (data[line2 + 1] * data[line1 + 2] / data[line1 + 1] - data[line2 + 2]) /
+			(data[line2] - data[line2 + 1] * data[line1] / data[line1 + 1]);
+		data[out + 1] = - (data[line1] * data[out] + data[line1 + 2]) / data[line1 + 1];
+	}
+	
+	/**
 	 * Calculates the length of a line.
 	 * 
 	 * @param x1 X coordinate of the first point.

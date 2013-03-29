@@ -128,4 +128,15 @@ public class VertexRecord {
 		Preconditions.checkElementIndex(i, this.tracks.length);
 		return this.tracks[i];
 	}
+	
+	/**
+	 * Returns the track connected to this vertex that leads to the given vertex.
+	 * The track must exist and be imported.
+	 * 
+	 * @param v Opposite vertex.
+	 * @return Track that connect this vertex with the specified vertex.
+	 */
+	public TrackRecord getTrackTo(VertexRecord v) {
+		return null;
+	}
 }

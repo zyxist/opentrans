@@ -129,11 +129,36 @@ public class Transformations {
 	public boolean createFreeTrack(VertexRecord v1, VertexRecord v2) {
 		return false;
 	}
-	
-	public boolean moveVertex(VertexRecord v, double dx, double dy) {
-		return false;
-	}
 
+	/**
+	 * This operation shall be applied to three vertices connected by:
+	 * 
+	 * <ul>
+	 *  <li>(v1, v2) - straight line</li>
+	 *  <li>(v2, v3) - curved line</li>
+	 * </ul>
+	 * 
+	 * We assume that v1 has been freely moved and we must adjust the location of v2 vertex
+	 * to match the constraints of both straight line and a curved line. We do this by putting
+	 * v2 and v3 on a virtual circle, with the middle in the intersection point of (v3 tangent line,
+	 * v1 tangent line) and move v2 along this circle.
+	 * 
+	 * @param v1
+	 * @param v2
+	 * @param v3 
+	 */
+	private void adjustJoiningVertexOnCircle(VertexRecord v1, VertexRecord v2, VertexRecord v3) {
+		double buf[] = new double[12];
+		TrackRecord curve = v2.getTrackTo(v3);
+		TrackRecord straight = v2.getTrackTo(v1);
+		
+		LineOps.toGeneral(v1.x(), v1.y(), v1.tangent(), 0, buf);
+		LineOps.toGeneral(v3.x(), v3.y(), v3.tangent(), 3, buf);
+		LineOps.intersection(0, 3, 6, buf);
+		
+		
+	}
+	
 	private void createCurvedToStraigtConnection(VertexRecord v1, VertexRecord v3, TrackRecord track) {
 		VertexRecord v4 = track.getOppositeVertex(v3);
 		VertexRecord v2 = ((TrackRecord) v1.getTrack(0)).getOppositeVertex(v1);
@@ -171,10 +196,6 @@ public class Transformations {
 		x2 = (buf[4] * buf[8] / buf[7] - buf[5]) / (buf[3] - buf[4] * buf[6] / buf[7]);
 		y2 = - ((buf[6] * x2 + buf[8]) / buf[7]);
 		
-		System.out.println("WTF: "+(buf[3] * x2 + buf[4] * y2 + buf[5]));
-		System.out.println("WTF: "+(buf[6] * x2 + buf[7] * y2 + buf[8]));
-		System.out.println("X: "+x2+"; Y: "+y2);
-		
 		// temporary variable to solve the right part of (1)
 		buf[11] = buf[9] * x2 + buf[10] * y2;
 		x1 = (buf[11] + buf[10] * buf[2] / buf[1]) / (buf[9] - buf[10] * buf[0] / buf[1]);
@@ -188,7 +209,7 @@ public class Transformations {
 		v3.addTrack(tr);
 		tr.setType(NetworkConst.TRACK_CURVED);
 		track.setMetadata(new double[] { v3.x(), v3.y(), v4.x(), v4.y() });
-		if(v3.y() > v4.y()) {
+		if(this.orientationOf(track, v4)) {
 			tr.setMetadata(this.prepareCurveMetadata(x1, y1, v1.x(), v1.y(), x2, y2));
 		} else {
 			tr.setMetadata(this.prepareCurveMetadata(v1.x(), v1.y(), x1, y1, x2, y2));
@@ -235,5 +256,26 @@ public class Transformations {
 			Math.toDegrees(diff),
 			x3, y3
 		};
+	}
+	
+	/**
+	 * To perform proper calculations, we often need to know the direction, which the given track
+	 * comes to the vertex from. We use a horizontal line as a marker that delimits the orientation
+	 * of the track relative to one of its vertex.
+	 *  
+	 * @param tr Track to analyze
+	 * @param distinguisher One of the vertices of this track.
+	 * @return True, if the track comes to the vertex from the bottom.
+	 */
+	private boolean orientationOf(TrackRecord tr, VertexRecord distinguisher) {
+		switch(tr.getType()) {
+			case NetworkConst.TRACK_STRAIGHT:
+				return distinguisher.y() < tr.getOppositeVertex(distinguisher).y();
+			case NetworkConst.TRACK_CURVED:
+				return false;
+			case NetworkConst.TRACK_FREE:
+				return false;
+		}
+		throw new IllegalArgumentException("Invalid track type: "+tr.getType());
 	}
 }

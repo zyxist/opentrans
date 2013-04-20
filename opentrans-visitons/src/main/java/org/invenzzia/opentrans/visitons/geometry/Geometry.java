@@ -24,8 +24,13 @@ package org.invenzzia.opentrans.visitons.geometry;
  */
 public class Geometry {
 	private static final double PI_2 = Math.PI * 2.0;
+	static final double EPSILON = 1.0E-10;
 	
 	private Geometry() {
+	}
+	
+	public static boolean isZero(double value) {
+		return Math.abs(value) < EPSILON;
 	}
 	
 	/**

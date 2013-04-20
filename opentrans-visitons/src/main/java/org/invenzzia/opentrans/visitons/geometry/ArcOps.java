@@ -17,6 +17,8 @@
 
 package org.invenzzia.opentrans.visitons.geometry;
 
+import com.google.common.base.Preconditions;
+
 /**
  * Utility class for performing mathematical operations on cubic Bezier curves
  * with two control points.
@@ -27,7 +29,7 @@ public class ArcOps {
 	public static double arcPoint(double t, double angle, double r) {
 		return 0.0;
 	}
-	
+
 	/**
 	 * Calculates the arc length.
 	 * 
@@ -38,7 +40,60 @@ public class ArcOps {
 	public static double arcLength(double angle, double r) {
 		return angle * r;
 	}
+
+	/**
+	 * Finds a circle with center in point {@link #p1} that crosses through points
+	 * {@link #p2}.
+	 * 
+	 * @param p1 Center of a circle.
+	 * @param p2 Control point.
+	 * @param out Where to save the parameters of a circle.
+	 * @param buf Data buffer.
+	 */
+	public static void circleThroughPoint(int p1, int p2, int out, double buf[]) {
+		buf[out] = Math.pow(buf[p1] - buf[p2], 2) + Math.pow(buf[p1+1] - buf[p2+1], 2);
+	}
 	
+	/**
+	 * Finds the intersection of the line with a circle. The line crosses the center
+	 * of the circle. The result are four numbers that represent the two intersection
+	 * points.
+	 * 
+	 * @param c1 Circle equation.
+	 * @param l1 Line equation.
+	 * @param out Where to save the coordinates.
+	 * @param buf Data buffer.
+	 */
+	public static void circleLineIntersection(int c1, int l1, int out, double buf[]) {
+		// If the line is vertical, we must use somehow different equations. What a pity.
+		// Note that buf[c1+2] = r^2, so we do not have to power it.
+		if(Geometry.isZero(buf[l1+1])) {
+			double x = - buf[l1+2] / buf[l1];
+			// Now we have a nice quadratic equation which we know by definition
+			// that has two solutions.
+			double A = 1.0;
+			double B = -2 * buf[c1+1];
+			double C = Math.pow(buf[c1+1], 2) - buf[c1+2] + Math.pow(x - buf[c1], 2);
+			double delta = Math.pow(B, 2) - 4 * A * C;
+			Preconditions.checkState(delta > 0.0, "The line does not cross the center of the circle.");			
+			buf[out] = x;
+			buf[out+1] = (- B + Math.sqrt(delta)) / (2 * A);
+			buf[out+2] = x;
+			buf[out+3] = (- B - Math.sqrt(delta)) / (2 * A);
+		} else {
+			double ci = -buf[l1] / buf[l1+1];
+			double si = buf[l1+2] / buf[l1+1] + buf[c1+1];
+			double A = 1.0 + Math.pow(ci, 2);
+			double B = - 2 * ci * si - 2 * buf[c1];
+			double C = Math.pow(buf[c1], 2) + Math.pow(si, 2) - buf[c1+2];
+			double delta = Math.pow(B, 2) - 4 * A * C;
+			buf[out] = (- B + Math.sqrt(delta)) / (2 * A);
+			buf[out+1] = (-buf[l1] * buf[out] - buf[l1+2]) / buf[l1+1];
+			buf[out+2] = (- B - Math.sqrt(delta)) / (2 * A);
+			buf[out+3] = (-buf[l1] * buf[out+2] - buf[l1+2]) / buf[l1+1];
+		}
+	}
+
 	/**
 	 * Calculates the center of the arc.
 	 * 

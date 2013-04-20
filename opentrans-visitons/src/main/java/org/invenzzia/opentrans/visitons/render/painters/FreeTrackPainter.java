@@ -18,11 +18,11 @@
 package org.invenzzia.opentrans.visitons.render.painters;
 
 import java.awt.Graphics2D;
-import java.awt.geom.CubicCurve2D;
+import java.awt.geom.Arc2D;
 import org.invenzzia.opentrans.visitons.render.CameraModelSnapshot;
 
 /**
- * Draws a free track (cubic Bezier curve).
+ * Draws a free track (two curved tracks).
  * 
  * @author Tomasz Jędrzejewski
  */
@@ -35,15 +35,32 @@ public class FreeTrackPainter implements ITrackPainter {
 	
 	@Override
 	public void draw(CameraModelSnapshot camera, Graphics2D graphics, boolean editable) {
-		graphics.draw(new CubicCurve2D.Double(
+		graphics.draw(new Arc2D.Double(
 			(double) camera.world2pixX(this.coordinates[0]),
-			(double) camera.world2pixX(this.coordinates[1]),
-			(double) camera.world2pixX(this.coordinates[2]),
-			(double) camera.world2pixX(this.coordinates[3]),
-			(double) camera.world2pixX(this.coordinates[4]),
-			(double) camera.world2pixX(this.coordinates[5]),
-			(double) camera.world2pixX(this.coordinates[6]),
-			(double) camera.world2pixX(this.coordinates[7])
+			(double) camera.world2pixY(this.coordinates[1]),
+			(double) camera.world2pix(this.coordinates[2]),
+			(double) camera.world2pix(this.coordinates[3]),
+			this.coordinates[4],
+			this.coordinates[5],
+			Arc2D.OPEN
 		));
+		graphics.draw(new Arc2D.Double(
+			(double) camera.world2pixX(this.coordinates[8]),
+			(double) camera.world2pixY(this.coordinates[9]),
+			(double) camera.world2pix(this.coordinates[10]),
+			(double) camera.world2pix(this.coordinates[11]),
+			this.coordinates[12],
+			this.coordinates[13],
+			Arc2D.OPEN
+		));
+		
+		int x = camera.world2pixX(this.coordinates[28]);
+		int y = camera.world2pixY(this.coordinates[29]);
+		graphics.drawString("E", x+4, y+4);
+		graphics.fillOval(x - 1, y - 1, 3, 3);
+		x = camera.world2pixX(this.coordinates[30]);
+		y = camera.world2pixY(this.coordinates[31]);
+		graphics.drawString("F", x+4, y+4);
+		graphics.fillOval(x - 1, y - 1, 3, 3);
 	}
 }

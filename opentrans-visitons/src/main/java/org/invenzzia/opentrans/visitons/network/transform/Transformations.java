@@ -18,6 +18,7 @@
 package org.invenzzia.opentrans.visitons.network.transform;
 
 import com.google.common.base.Preconditions;
+import org.invenzzia.opentrans.visitons.geometry.ArcOps;
 import org.invenzzia.opentrans.visitons.geometry.LineOps;
 import org.invenzzia.opentrans.visitons.network.NetworkConst;
 import org.invenzzia.opentrans.visitons.network.TrackRecord;
@@ -126,8 +127,73 @@ public class Transformations {
 		return false;
 	}
 	
+	/**
+	 * Connects two tracks with a double curve, which is a universal way
+	 * of connecting them in case we can't produce a single curve.
+	 * @param v1
+	 * @param v2
+	 * @return 
+	 */
 	public boolean createFreeTrack(VertexRecord v1, VertexRecord v2) {
-		return false;
+		double buf[] = new double[60];
+		// Find points E and F
+		LineOps.toGeneral(v1.x(), v1.y(), v1.tangent(), 0, buf);
+		LineOps.toGeneral(v2.x(), v2.y(), v2.tangent(), 3, buf);
+		LineOps.toOrthogonal(0, 6, buf, v1.x(), v1.y());
+		LineOps.toOrthogonal(3, 9, buf, v2.x(), v2.y());
+		LineOps.intersection(0, 3, 12, buf); // I'm E: 12 (generals)
+		LineOps.intersection(6, 9, 14, buf); // I'm F: 14 (orthogonals)
+		
+		// Find G point
+		LineOps.middlePoint(v1.x(), v1.y(), v2.x(), v2.y(), 16, buf); // I'm G: 16
+		
+		// Find angle bisections in point E
+		LineOps.angleBisector(0, 3, 18, 21, buf); // bisections in point E
+		
+		// Find I and H point
+		LineOps.toOrthogonal(v1.x(), v1.y(), buf[16], buf[17], 24, buf); // this is 'h' line (blue)
+		LineOps.intersection(21, 24, 27, buf); // I'm I: 27 - this is the middle of a circle.
+		LineOps.intersection(18, 24, 30, buf); // I'm H: 30 - this is the middle of a circle.
+		buf[33] = v1.x();
+		buf[34] = v1.y();
+		buf[35] = v2.x();
+		buf[36] = v2.y();
+		
+		// Wir haben diese Circlen
+		ArcOps.circleThroughPoint(27, 33, 29, buf);
+		ArcOps.circleThroughPoint(30, 35, 32, buf);
+
+		// Find intersection of these circles with the blue line
+		ArcOps.circleLineIntersection(27, 24, 35, buf);
+		ArcOps.circleLineIntersection(30, 24, 39, buf);
+		
+		// Choose one of these intersections.
+		LineOps.reorder(buf, 35, 37, 39, 41);
+		int selectedPt = 37;	// temporarily hardcoded - TODO
+		LineOps.middlePoint(v1.x(), v1.y(), selectedPt, 41, buf);	// K
+		LineOps.middlePoint(v2.x(), v2.y(), selectedPt, 43, buf);	// L
+
+		LineOps.toOrthogonal(v1.x(), v1.y(), 41, 50, buf);
+		LineOps.toOrthogonal(v2.x(), v2.y(), 43, 53, buf);
+		LineOps.intersection(6, 50, 56, buf); // M point - center of the first arc
+		LineOps.intersection(9, 53, 58, buf); // N point - center of the second arc
+		
+		double metadata[] = new double[76];
+		this.prepareCurveMetadata(buf[selectedPt], buf[selectedPt+1], v1.x(), v1.y(), buf[56], buf[57], 0, metadata);
+		this.prepareCurveMetadata(buf[selectedPt], buf[selectedPt+1], v2.x(), v2.y(), buf[58], buf[59], 8, metadata);
+		
+		System.arraycopy(buf, 0, metadata, 16, 60);
+		
+		TrackRecord tr = new TrackRecord();
+		tr.setFreeVertex(v1);
+		tr.setFreeVertex(v2);
+		v1.addTrack(tr);
+		v2.addTrack(tr);
+		tr.setType(NetworkConst.TRACK_FREE);
+		tr.setMetadata(metadata);
+		this.unitOfWork.addTrack(tr);
+		
+		return true;
 	}
 
 	/**
@@ -156,7 +222,12 @@ public class Transformations {
 		LineOps.toGeneral(v3.x(), v3.y(), v3.tangent(), 3, buf);
 		LineOps.intersection(0, 3, 6, buf);
 		
-		
+		double t = LineOps.getTangent(buf[6], buf[7], v1.x(), v1.y());
+
+		v2.setPosition(
+			buf[6] + Math.cos(t),
+			buf[7] + Math.sin(t)
+		);
 	}
 	
 	private void createCurvedToStraigtConnection(VertexRecord v1, VertexRecord v3, TrackRecord track) {
@@ -210,9 +281,9 @@ public class Transformations {
 		tr.setType(NetworkConst.TRACK_CURVED);
 		track.setMetadata(new double[] { v3.x(), v3.y(), v4.x(), v4.y() });
 		if(this.orientationOf(track, v4)) {
-			tr.setMetadata(this.prepareCurveMetadata(x1, y1, v1.x(), v1.y(), x2, y2));
+			tr.setMetadata(this.prepareCurveMetadata(x1, y1, v1.x(), v1.y(), x2, y2, 0, null));
 		} else {
-			tr.setMetadata(this.prepareCurveMetadata(v1.x(), v1.y(), x1, y1, x2, y2));
+			tr.setMetadata(this.prepareCurveMetadata(v1.x(), v1.y(), x1, y1, x2, y2, 0, null));
 		}
 		
 		this.unitOfWork.addTrack(tr);
@@ -230,7 +301,11 @@ public class Transformations {
 	 * @param y3
 	 * @return Arc metadata
 	 */
-	private double[] prepareCurveMetadata(double x1, double y1, double x2, double y2, double x3, double y3) {
+	private double[] prepareCurveMetadata(double x1, double y1, double x2, double y2, double x3, double y3, int from, double buf[]) {
+		if(null == buf) {
+			buf = new double[8];
+			from = 0;
+		}
 		double angle1 = -Math.atan2(y1 - y3, x1 - x3);
 		if(angle1 < 0.0) {
 			angle1 += 2* Math.PI;
@@ -239,7 +314,7 @@ public class Transformations {
 		if(angle2 < 0.0) {
 			angle2 += 2* Math.PI;
 		}
-		double diff = 0.0;
+		double diff;
 		if(angle1 < angle2) {
 			diff = angle2 - angle1;
 		} else {
@@ -247,15 +322,15 @@ public class Transformations {
 		}
 		double radius = Math.sqrt(Math.pow(x1 - x3, 2) + Math.pow(y1 - y3, 2));
 		
-		return new double[] {
-			x3 - radius,
-			y3 - radius,
-			2 * radius,
-			2 * radius,
-			Math.toDegrees(angle1),
-			Math.toDegrees(diff),
-			x3, y3
-		};
+		buf[from] = x3 - radius;
+		buf[from+1] = y3 - radius;
+		buf[from+2] = 2 * radius;
+		buf[from+3] = 2 * radius;
+		buf[from+4] = Math.toDegrees(angle1);
+		buf[from+5] = Math.toDegrees(diff);
+		buf[from+6] = x3;
+		buf[from+7] = y3;
+		return buf;
 	}
 	
 	/**
@@ -277,5 +352,66 @@ public class Transformations {
 				return false;
 		}
 		throw new IllegalArgumentException("Invalid track type: "+tr.getType());
+	}
+	
+	/**
+	 * Determines whether two vertices can be connected by a single curve and
+	 * (optional) adjusting the position of one of the vertices, or by a double
+	 * curve.
+	 * 
+	 * @param v1
+	 * @param v2
+	 * @return 
+	 */
+	private boolean useSingleCurve(VertexRecord v1, VertexRecord v2) {
+		double sl1 = Math.tan(v1.tangent());
+		double sl2 = Math.tan(v2.tangent());
+		double sl3;
+		
+		double tangentBetweenLines;
+		double tangentBetweenPositions;
+		if(Math.abs(v1.x() - v2.x()) < EPSILON) {
+			sl3 = Double.POSITIVE_INFINITY;
+		} else {
+			sl3 = (v2.y() - v1.y()) / (v2.x() - v1.x());
+		}
+		if(sl1 == Double.POSITIVE_INFINITY) {
+			if(sl2 == Double.POSITIVE_INFINITY) {
+				tangentBetweenLines = Math.PI / 2.0;
+			} else {
+				tangentBetweenLines = Math.atan(Math.abs(1 / sl2));
+			}
+			if(sl3 == Double.POSITIVE_INFINITY) {
+				tangentBetweenPositions = Math.PI / 2.0;
+			} else {
+				tangentBetweenPositions = Math.atan(Math.abs(1 / sl3));
+			}
+		} else {
+			if(sl2 == Double.POSITIVE_INFINITY) {
+				tangentBetweenLines = Math.atan(Math.abs(1 / sl1));
+			} else {
+				tangentBetweenLines = Math.atan(
+					Math.abs(
+						(sl1 - sl2) /
+						(1.0 + sl1 * sl2)
+					)
+				);
+			}
+			if(sl3 == Double.POSITIVE_INFINITY) {
+				tangentBetweenPositions = Math.atan(Math.abs(1 / sl1));
+			} else {
+				tangentBetweenPositions = Math.atan(
+					Math.abs(
+						(sl1 - sl3) /
+						(1.0 + sl1 * sl3)
+					)
+				);
+			}
+		}
+		double diff = tangentBetweenLines - tangentBetweenPositions;
+		if(diff > 0.0) {
+			return true;
+		}
+		return false;
 	}
 }

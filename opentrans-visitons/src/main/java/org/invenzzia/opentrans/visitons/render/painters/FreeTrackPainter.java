@@ -53,14 +53,5 @@ public class FreeTrackPainter implements ITrackPainter {
 			this.coordinates[13],
 			Arc2D.OPEN
 		));
-		
-		int x = camera.world2pixX(this.coordinates[28]);
-		int y = camera.world2pixY(this.coordinates[29]);
-		graphics.drawString("E", x+4, y+4);
-		graphics.fillOval(x - 1, y - 1, 3, 3);
-		x = camera.world2pixX(this.coordinates[30]);
-		y = camera.world2pixY(this.coordinates[31]);
-		graphics.drawString("F", x+4, y+4);
-		graphics.fillOval(x - 1, y - 1, 3, 3);
 	}
 }

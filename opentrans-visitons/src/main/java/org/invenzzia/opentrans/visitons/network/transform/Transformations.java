@@ -135,55 +135,70 @@ public class Transformations {
 	 * @return 
 	 */
 	public boolean createFreeTrack(VertexRecord v1, VertexRecord v2) {
-		double buf[] = new double[60];
-		// Find points E and F
-		LineOps.toGeneral(v1.x(), v1.y(), v1.tangent(), 0, buf);
-		LineOps.toGeneral(v2.x(), v2.y(), v2.tangent(), 3, buf);
-		LineOps.toOrthogonal(0, 6, buf, v1.x(), v1.y());
-		LineOps.toOrthogonal(3, 9, buf, v2.x(), v2.y());
-		LineOps.intersection(0, 3, 12, buf); // I'm E: 12 (generals)
-		LineOps.intersection(6, 9, 14, buf); // I'm F: 14 (orthogonals)
-		
-		// Find G point
-		LineOps.middlePoint(v1.x(), v1.y(), v2.x(), v2.y(), 16, buf); // I'm G: 16
-		
-		// Find angle bisections in point E
-		LineOps.angleBisector(0, 3, 18, 21, buf); // bisections in point E
-		
-		// Find I and H point
-		LineOps.toOrthogonal(v1.x(), v1.y(), buf[16], buf[17], 24, buf); // this is 'h' line (blue)
-		LineOps.intersection(21, 24, 27, buf); // I'm I: 27 - this is the middle of a circle.
-		LineOps.intersection(18, 24, 30, buf); // I'm H: 30 - this is the middle of a circle.
-		buf[33] = v1.x();
-		buf[34] = v1.y();
-		buf[35] = v2.x();
-		buf[36] = v2.y();
-		
-		// Wir haben diese Circlen
-		ArcOps.circleThroughPoint(27, 33, 29, buf);
-		ArcOps.circleThroughPoint(30, 35, 32, buf);
+		double metadata[] = new double[16];
+		if(Math.abs(v1.tangent() - v2.tangent()) < EPSILON) {
+			// If the lines are parallel, we need a special handling.
+			double buf[] = new double[22];
+			LineOps.toGeneral(v1.x(), v1.y(), v1.tangent(), 0, buf);
+			LineOps.toGeneral(v2.x(), v2.y(), v2.tangent(), 3, buf);
+			LineOps.toOrthogonal(0, 6, buf, v1.x(), v1.y());
+			LineOps.toOrthogonal(3, 9, buf, v2.x(), v2.y());
+			
+			LineOps.middlePoint(v1.x(), v1.y(), v2.x(), v2.y(), 13, buf); // I'm G: 13
+			LineOps.toParallel(0, 15, buf, buf[13], buf[14]);
+			LineOps.intersection(15, 6, 18, buf);
+			LineOps.intersection(15, 9, 20, buf);
+			
+			this.prepareCurveMetadata(buf[13], buf[14], v1.x(), v1.y(), buf[18], buf[19], 0, metadata);
+			this.prepareCurveMetadata(buf[13], buf[14], v2.x(), v2.y(), buf[20], buf[21], 8, metadata);
+		} else {
+			double buf[] = new double[60];
+			// Find points E and F
+			LineOps.toGeneral(v1.x(), v1.y(), v1.tangent(), 0, buf);
+			LineOps.toGeneral(v2.x(), v2.y(), v2.tangent(), 3, buf);
+			LineOps.toOrthogonal(0, 6, buf, v1.x(), v1.y());
+			LineOps.toOrthogonal(3, 9, buf, v2.x(), v2.y());
+			LineOps.intersection(0, 3, 12, buf); // I'm E: 12 (generals)
+			LineOps.intersection(6, 9, 14, buf); // I'm F: 14 (orthogonals)
 
-		// Find intersection of these circles with the blue line
-		ArcOps.circleLineIntersection(27, 24, 35, buf);
-		ArcOps.circleLineIntersection(30, 24, 39, buf);
-		
-		// Choose one of these intersections.
-		LineOps.reorder(buf, 35, 37, 39, 41);
-		int selectedPt = 37;	// temporarily hardcoded - TODO
-		LineOps.middlePoint(v1.x(), v1.y(), selectedPt, 41, buf);	// K
-		LineOps.middlePoint(v2.x(), v2.y(), selectedPt, 43, buf);	// L
+			// Find G point
+			LineOps.middlePoint(v1.x(), v1.y(), v2.x(), v2.y(), 16, buf); // I'm G: 16
 
-		LineOps.toOrthogonal(v1.x(), v1.y(), 41, 50, buf);
-		LineOps.toOrthogonal(v2.x(), v2.y(), 43, 53, buf);
-		LineOps.intersection(6, 50, 56, buf); // M point - center of the first arc
-		LineOps.intersection(9, 53, 58, buf); // N point - center of the second arc
-		
-		double metadata[] = new double[76];
-		this.prepareCurveMetadata(buf[selectedPt], buf[selectedPt+1], v1.x(), v1.y(), buf[56], buf[57], 0, metadata);
-		this.prepareCurveMetadata(buf[selectedPt], buf[selectedPt+1], v2.x(), v2.y(), buf[58], buf[59], 8, metadata);
-		
-		System.arraycopy(buf, 0, metadata, 16, 60);
-		
+			// Find angle bisections in point E
+			LineOps.angleBisector(0, 3, 18, 21, buf); // bisections in point E
+
+			// Find I and H point
+			LineOps.toOrthogonal(v1.x(), v1.y(), buf[16], buf[17], 24, buf); // this is 'h' line (blue)
+			LineOps.intersection(21, 24, 27, buf); // I'm I: 27 - this is the middle of a circle.
+			LineOps.intersection(18, 24, 30, buf); // I'm H: 30 - this is the middle of a circle.
+			buf[33] = v1.x();
+			buf[34] = v1.y();
+			buf[35] = v2.x();
+			buf[36] = v2.y();
+
+			// Wir haben diese Circlen
+			ArcOps.circleThroughPoint(27, 33, 29, buf);
+			ArcOps.circleThroughPoint(30, 35, 32, buf);
+
+			// Find intersection of these circles with the blue line
+			ArcOps.circleLineIntersection(27, 24, 35, buf);
+			ArcOps.circleLineIntersection(30, 24, 39, buf);
+
+			// Choose one of these intersections.
+			LineOps.reorder(buf, 35, 37, 39, 41);
+			int selectedPt = 37;	// temporarily hardcoded - TODO
+			LineOps.middlePoint(v1.x(), v1.y(), selectedPt, 41, buf);	// K
+			LineOps.middlePoint(v2.x(), v2.y(), selectedPt, 43, buf);	// L
+
+			LineOps.toOrthogonal(v1.x(), v1.y(), 41, 50, buf);
+			LineOps.toOrthogonal(v2.x(), v2.y(), 43, 53, buf);
+			LineOps.intersection(6, 50, 56, buf); // M point - center of the first arc
+			LineOps.intersection(9, 53, 58, buf); // N point - center of the second arc
+
+			
+			this.prepareCurveMetadata(buf[selectedPt], buf[selectedPt+1], v1.x(), v1.y(), buf[56], buf[57], 0, metadata);
+			this.prepareCurveMetadata(buf[selectedPt], buf[selectedPt+1], v2.x(), v2.y(), buf[58], buf[59], 8, metadata);
+		}
 		TrackRecord tr = new TrackRecord();
 		tr.setFreeVertex(v1);
 		tr.setFreeVertex(v2);

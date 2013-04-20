@@ -127,6 +127,20 @@ public class LineOps {
 		data[to + 1] = data[from];
 		data[to + 2] = - data[to] * x - data[to + 1] * y;
 	}
+	
+	/**
+	 * Finds a parallel line to <tt>from</tt>, that crosses point P
+	 * @param from
+	 * @param to
+	 * @param data
+	 * @param x P point: X
+	 * @param y P point: Y
+	 */
+	public static void toParallel(int from, int to, double data[], double x, double y) {
+		data[to] = data[from];
+		data[to + 1] = data[from+1];
+		data[to + 2] = - data[to] * x - data[to + 1] * y;
+	}
 
 	/**
 	 * Calculates a determinant which tells, on which side of the line AB (A = (x1, y1), B = (x2, y2))

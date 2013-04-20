@@ -15,9 +15,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.invenzzia.opentrans.lightweight.ui.tabs;
+package org.invenzzia.opentrans.lightweight.ui.tabs.world;
 
 import com.google.inject.Inject;
+import org.invenzzia.opentrans.lightweight.lf.icons.IconService;
 import org.invenzzia.opentrans.lightweight.ui.workspace.DesktopItem;
 import org.invenzzia.opentrans.lightweight.ui.workspace.IDesktopPaneFactory;
 
@@ -29,6 +30,8 @@ import org.invenzzia.opentrans.lightweight.ui.workspace.IDesktopPaneFactory;
 public class WorldTabFactory implements IDesktopPaneFactory<WorldTab> {
 	@Inject
 	private WorldTabController controller;
+	@Inject
+	private IconService iconService;
 
 	@Override
 	public Class getContentType() {
@@ -38,8 +41,9 @@ public class WorldTabFactory implements IDesktopPaneFactory<WorldTab> {
 	@Override
 	public DesktopItem createDesktopItem() {
 		WorldTab worldTab = new WorldTab();
+		worldTab.importIcons(this.iconService);
 		this.controller.setWorldTab(worldTab);
-		return new DesktopItem("World", worldTab);
+		return new DesktopItem("World", worldTab, this.controller);
 	}
 
 	@Override

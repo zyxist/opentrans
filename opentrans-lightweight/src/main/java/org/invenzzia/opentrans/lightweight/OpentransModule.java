@@ -43,7 +43,7 @@ import org.invenzzia.opentrans.lightweight.ui.MainWindowController;
 import org.invenzzia.opentrans.lightweight.ui.component.JReportingSlider;
 import org.invenzzia.opentrans.lightweight.ui.providers.WorkspacePanelProvider;
 import org.invenzzia.opentrans.lightweight.ui.tabs.ProjectTabFactory;
-import org.invenzzia.opentrans.lightweight.ui.tabs.WorldTabFactory;
+import org.invenzzia.opentrans.lightweight.ui.tabs.world.WorldTabFactory;
 import org.invenzzia.opentrans.lightweight.ui.tabs.infrastructure.InfrastructureTabFactory;
 import org.invenzzia.opentrans.lightweight.ui.tabs.vehicles.VehicleEditorController;
 import org.invenzzia.opentrans.lightweight.ui.tabs.vehicles.VehicleTabController;

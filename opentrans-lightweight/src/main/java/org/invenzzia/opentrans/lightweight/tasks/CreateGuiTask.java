@@ -29,7 +29,7 @@ import org.invenzzia.opentrans.lightweight.lf.icons.IconService;
 import org.invenzzia.opentrans.lightweight.ui.MainMenuController;
 import org.invenzzia.opentrans.lightweight.ui.MainWindow;
 import org.invenzzia.opentrans.lightweight.ui.MainWindowController;
-import org.invenzzia.opentrans.lightweight.ui.tabs.WorldTab;
+import org.invenzzia.opentrans.lightweight.ui.tabs.world.WorldTab;
 import org.invenzzia.opentrans.lightweight.ui.toolbars.AbstractToolbar;
 import org.invenzzia.opentrans.lightweight.ui.toolbars.HistoryToolbar;
 import org.invenzzia.opentrans.lightweight.ui.toolbars.HistoryToolbarController;

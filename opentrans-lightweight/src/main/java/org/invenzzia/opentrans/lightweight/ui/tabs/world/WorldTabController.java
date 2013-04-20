@@ -15,7 +15,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.invenzzia.opentrans.lightweight.ui.tabs;
+package org.invenzzia.opentrans.lightweight.ui.tabs.world;
 
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
@@ -28,7 +28,6 @@ import java.awt.event.AdjustmentListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseWheelEvent;
 import javax.swing.event.MouseInputAdapter;
 import org.invenzzia.opentrans.lightweight.concurrent.ModelThread;
 import org.invenzzia.opentrans.lightweight.concurrent.RenderingThread;
@@ -37,17 +36,14 @@ import org.invenzzia.opentrans.lightweight.events.WorldSizeChangedEvent;
 import org.invenzzia.opentrans.lightweight.ui.component.ZoomField.IZoomListener;
 import org.invenzzia.opentrans.lightweight.ui.component.ZoomField.ZoomChangeEvent;
 import org.invenzzia.opentrans.lightweight.ui.netview.NetworkView;
-import org.invenzzia.opentrans.visitons.network.Segment;
 import org.invenzzia.opentrans.visitons.network.World;
 import org.invenzzia.opentrans.visitons.render.CameraModel;
 import org.invenzzia.opentrans.visitons.render.CameraModelSnapshot;
 import org.invenzzia.opentrans.visitons.render.Renderer;
 import org.invenzzia.opentrans.visitons.render.SceneManager;
-import org.invenzzia.opentrans.visitons.render.scene.VisibleSegmentSnapshot;
-import org.invenzzia.opentrans.visitons.render.scene.VisibleSegmentSnapshot.SegmentInfo;
 
 /**
- * Description here.
+ * Handles user input for the world tab.
  * 
  * @author Tomasz Jędrzejewski
  */

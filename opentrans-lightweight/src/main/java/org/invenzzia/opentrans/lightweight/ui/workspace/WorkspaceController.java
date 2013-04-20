@@ -17,6 +17,7 @@
 
 package org.invenzzia.opentrans.lightweight.ui.workspace;
 
+import org.invenzzia.opentrans.lightweight.ui.tabs.world.WorldTab;
 import com.google.inject.Inject;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

@@ -20,6 +20,7 @@ package org.invenzzia.opentrans.visitons.network.transform;
 import com.google.common.base.Preconditions;
 import org.invenzzia.opentrans.visitons.geometry.ArcOps;
 import org.invenzzia.opentrans.visitons.geometry.LineOps;
+import org.invenzzia.opentrans.visitons.geometry.Point;
 import org.invenzzia.opentrans.visitons.network.NetworkConst;
 import org.invenzzia.opentrans.visitons.network.TrackRecord;
 import org.invenzzia.opentrans.visitons.network.VertexRecord;
@@ -95,7 +96,20 @@ public class Transformations {
 		double buf[] = new double[3];
 		this.findSingleCurveCentre(v1, v2.x(), v2.y(), 0, buf);
 		v2.setTangent(buf[2]);
-		tr.setMetadata(this.prepareCurveMetadata(v1.x(), v1.y(), v2.x(), v2.y(), buf[0], buf[1], 0, null));
+		
+		Point c = v1.getOppositeTrack(tr).controlPoint(v1);
+		System.out.format("Testing: (%f,%f) -> (%f,%f) -> (%f,%f)\n", c.x(), c.y(), v1.x(), v1.y(), v2.x(), v2.y());
+		if(LineOps.onWhichSide(c.x(), c.y(), v1.x(), v1.y(), v2.x(), v2.y()) < 0) {
+			double metadata[] = this.prepareCurveMetadata(v1.x(), v1.y(), v2.x(), v2.y(), buf[0], buf[1], 0, null);
+			this.prepareCurveControlPoint(v1.x(), v1.y(), v1.tangent(), v2.x(), v2.y(), buf[0], buf[1], 8, metadata);
+			this.prepareCurveControlPoint(v2.x(), v2.y(), v2.tangent(), v1.x(), v1.y(), buf[0], buf[1], 10, metadata);
+			tr.setMetadata(metadata);
+		} else {
+			double metadata[] = this.prepareCurveMetadata(v2.x(), v2.y(), v1.x(), v1.y(), buf[0], buf[1], 0, null);
+			this.prepareCurveControlPoint(v1.x(), v1.y(), v1.tangent(), v2.x(), v2.y(), buf[0], buf[1], 10, metadata);
+			this.prepareCurveControlPoint(v2.x(), v2.y(), v2.tangent(), v1.x(), v1.y(), buf[0], buf[1], 8, metadata);
+			tr.setMetadata(metadata);
+		}
 	}
 	
 	/**
@@ -196,7 +210,19 @@ public class Transformations {
 			double buf[] = new double[3];
 			this.findSingleCurveCentre(v1, v2.x(), v2.y(), 0, buf);
 			v2.setTangent(buf[2]);
-			tr.setMetadata(this.prepareCurveMetadata(v1.x(), v1.y(), v2.x(), v2.y(), buf[0], buf[1], 0, null));
+			
+			Point c = v1.getOppositeTrack(tr).controlPoint(v1);
+			if(LineOps.onWhichSide(c.x(), c.y(), v1.x(), v1.y(), v2.x(), v2.y()) < 0) {
+				double metadata[] = this.prepareCurveMetadata(v1.x(), v1.y(), v2.x(), v2.y(), buf[0], buf[1], 0, null);
+				this.prepareCurveControlPoint(v1.x(), v1.y(), v1.tangent(), v2.x(), v2.y(), buf[0], buf[1], 8, metadata);
+				this.prepareCurveControlPoint(v2.x(), v2.y(), v2.tangent(), v1.x(), v1.y(), buf[0], buf[1], 10, metadata);
+				tr.setMetadata(metadata);
+			} else {
+				double metadata[] = this.prepareCurveMetadata(v2.x(), v2.y(), v1.x(), v1.y(), buf[0], buf[1], 0, null);
+				this.prepareCurveControlPoint(v1.x(), v1.y(), v1.tangent(), v2.x(), v2.y(), buf[0], buf[1], 10, metadata);
+				this.prepareCurveControlPoint(v2.x(), v2.y(), v2.tangent(), v1.x(), v1.y(), buf[0], buf[1], 8, metadata);
+				tr.setMetadata(metadata);
+			}
 			
 			this.unitOfWork.addTrack(tr);
 		}
@@ -212,7 +238,7 @@ public class Transformations {
 	 * @return 
 	 */
 	public boolean createFreeTrack(VertexRecord v1, VertexRecord v2) {
-		double metadata[] = new double[16];
+		double metadata[] = new double[24];
 		if(Math.abs(v1.tangent() - v2.tangent()) < EPSILON) {
 			// If the lines are parallel, we need a special handling.
 			double buf[] = new double[22];
@@ -227,7 +253,7 @@ public class Transformations {
 			LineOps.intersection(15, 9, 20, buf);
 			
 			this.prepareCurveMetadata(buf[13], buf[14], v1.x(), v1.y(), buf[18], buf[19], 0, metadata);
-			this.prepareCurveMetadata(buf[13], buf[14], v2.x(), v2.y(), buf[20], buf[21], 8, metadata);
+			this.prepareCurveMetadata(buf[13], buf[14], v2.x(), v2.y(), buf[20], buf[21], 12, metadata);
 		} else {
 			double buf[] = new double[60];
 			// Find points E and F
@@ -274,7 +300,7 @@ public class Transformations {
 
 			
 			this.prepareCurveMetadata(buf[selectedPt], buf[selectedPt+1], v1.x(), v1.y(), buf[56], buf[57], 0, metadata);
-			this.prepareCurveMetadata(buf[selectedPt], buf[selectedPt+1], v2.x(), v2.y(), buf[58], buf[59], 8, metadata);
+			this.prepareCurveMetadata(buf[selectedPt], buf[selectedPt+1], v2.x(), v2.y(), buf[58], buf[59], 12, metadata);
 		}
 		TrackRecord tr = new TrackRecord();
 		tr.setFreeVertex(v1);
@@ -408,19 +434,22 @@ public class Transformations {
 	
 	/**
 	 * Prepares the metadata for the curves. The points are: first vertex, second vertex, the center
-	 * of the arc. The arc is always drawn from the first vertex to the second vertex.
+	 * of the arc. The arc is always drawn from the first vertex to the second vertex. If the buffer
+	 * is not provided, it is automatically created with 12 slots. 8 are occupied by the results of
+	 * this methods, and the next 4 are for the control points, that must be calculated with a separate
+	 * method.
 	 * 
-	 * @param x1
-	 * @param y1
-	 * @param x2
-	 * @param y2
-	 * @param x3
-	 * @param y3
+	 * @param x1 X coordinate of the first point on a circle.
+	 * @param y1 Y coordinate of the first point on a circle.
+	 * @param x2 X coordinate of the second point on a circle.
+	 * @param y2 Y coordinate of the second point on a circle.
+	 * @param x3 Circle centre: X
+	 * @param y3 Circle centre: Y
 	 * @return Arc metadata
 	 */
 	private double[] prepareCurveMetadata(double x1, double y1, double x2, double y2, double x3, double y3, int from, double buf[]) {
 		if(null == buf) {
-			buf = new double[8];
+			buf = new double[12];
 			from = 0;
 		}
 		double angle1 = -Math.atan2(y1 - y3, x1 - x3);
@@ -448,6 +477,41 @@ public class Transformations {
 		buf[from+6] = x3;
 		buf[from+7] = y3;
 		return buf;
+	}
+	
+	/**
+	 * Calculates the arc control point for the given vertex position. This is necessary for proper orientation
+	 * calculations.
+	 * 
+	 * @param x1 Point on a circle.
+	 * @param y1 Point on a circle.
+	 * @param tangent Tangent in that point.
+	 * @param x3 Circle centre.
+	 * @param y3 Circle centre.
+	 * @param to Where to store output values?
+	 * @param buf Output data buffer.
+	 */
+	private void prepareCurveControlPoint(double x1, double y1, double tangent, double x2, double y2, double x3, double y3, int to, double buf[]) {
+		double angle1 = -Math.atan2(y1 - y3, x1 - x3);
+		if(angle1 < 0.0) {
+			angle1 += 2* Math.PI;
+		}
+		double angle2 = -Math.atan2(y2 - y3, x2 - x3);
+		if(angle2 < 0.0) {
+			angle2 += 2* Math.PI;
+		}
+		double diff;
+		if(angle1 < angle2) {
+			diff = -0.01;
+		} else {
+			diff = 0.01;
+		}
+		double tmp[] = new double[8];
+		LineOps.toGeneral(x1, y1, tangent, 0, tmp);
+		LineOps.toGeneral(x3, y3, Math.toRadians(angle1+diff), 3, tmp);
+		LineOps.intersection(0, 3, 6, tmp);
+		buf[to] = tmp[6];
+		buf[to+1] = tmp[7];
 	}
 	
 	/**

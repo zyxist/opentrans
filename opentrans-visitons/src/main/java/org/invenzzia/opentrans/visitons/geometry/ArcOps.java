@@ -113,6 +113,34 @@ public class ArcOps {
 		}
 		return Math.atan(- buf[tmpLoc] / buf[tmpLoc+1]);
 	}
+	
+	/**
+	 * Finds the angle difference. 
+	 *
+	 * @param x1 P1 point
+	 * @param y1 P1 point
+	 * @param x2 P2 point
+	 * @param y2 P2 point
+	 * @param x3 Circle centre
+	 * @param y3 Circle centre.
+	 * @return Angle difference from P1 to P2.
+	 */
+	public static double getAngleDifference(double x1, double y1, double x2, double y2, double x3, double y3) {
+		double angle1 = -Math.atan2(y1 - y3, x1 - x3);
+		if(angle1 < 0.0) {
+			angle1 += 2* Math.PI;
+		}
+		double angle2 = -Math.atan2(y2 - y3, x2 - x3);
+		if(angle2 < 0.0) {
+			angle2 += 2* Math.PI;
+		}
+		double diff;
+		if(angle1 < angle2) {
+			return angle2 - angle1;
+		} else {
+			return angle2 + (2 * Math.PI - angle1);
+		}
+	}
 
 	/**
 	 * Calculates the center of the arc.

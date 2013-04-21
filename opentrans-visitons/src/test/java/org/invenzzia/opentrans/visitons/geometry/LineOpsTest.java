@@ -106,4 +106,15 @@ public class LineOpsTest {
 		LineOps.toOrthogonal(0, 3, buffer, 50.0, 125.0);
 		Assert.assertEquals(0.0, buffer[3] * 50.0 + buffer[4] * 125.0 + buffer[5], 0.01);
 	}
+	
+	@Test
+	public void testFindingDirection() {
+		Assert.assertEquals(1, LineOps.onWhichSide(0.0, 0.0, 1.0, 0.0, 2.0, 2.0));
+		Assert.assertEquals(-1, LineOps.onWhichSide(0.0, 0.0, 1.0, 0.0, 2.0, -2.0));
+		Assert.assertEquals(0, LineOps.onWhichSide(0.0, 0.0, 1.0, 0.0, 2.0, 0.0));
+		
+		Assert.assertEquals(1, LineOps.onWhichSide(3.0, 3.0, 4.0, 4.0, 5.0, 6.0));
+		Assert.assertEquals(-1, LineOps.onWhichSide(3.0, 3.0, 4.0, 4.0, 5.0, 4.0));
+		Assert.assertEquals(0, LineOps.onWhichSide(3.0, 3.0, 4.0, 4.0, 5.0, 5.0));
+	}
 }

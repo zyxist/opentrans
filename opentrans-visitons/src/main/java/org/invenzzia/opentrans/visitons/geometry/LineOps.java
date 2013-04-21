@@ -155,7 +155,13 @@ public class LineOps {
 	 * @return The determinant value
 	 */
 	public static byte onWhichSide(double x1, double y1, double x2, double y2, double x3, double y3) {
-		double result = x1 * y2 + y1 * x3 + x2 * y3 - y2 * x3 - x1 * y3 - y1 * x2;
+		x2 -= x1;
+		y2 -= y1;
+		x3 -= x1;
+		y3 -= y1;
+		double result = x2*y3 - y2*x3;
+		
+	//	double result = x1 * y2 + y1 * x3 + x2 * y3 - y2 * x3 - x1 * y3 - y1 * x2;
 		if(result < 0.0) {
 			return -1;
 		} else if(result > 0.0) {

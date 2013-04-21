@@ -168,6 +168,23 @@ public class VertexRecord {
 	}
 	
 	/**
+	 * Returns the opposite track connected to the vertex. The method throws an exception,
+	 * if no opposite track is found.
+	 * 
+	 * @throws IllegalStateException If no opposite track exists.
+	 * @param tested Tested track
+	 * @return Opposite track to the tested track in this vertex.
+	 */
+	public TrackRecord getOppositeTrack(TrackRecord tested) {
+		if(this.firstTrack == tested) {
+			return this.secondTrack;
+		} else if(this.secondTrack == tested) {
+			return this.firstTrack;
+		}
+		throw new IllegalStateException("No opposite track to '"+tested.getId()+"' in vertex '"+this.getId()+"'");
+	}
+	
+	/**
 	 * Returns the track connected to this vertex that leads to the given vertex.
 	 * The track must exist and be imported.
 	 * 

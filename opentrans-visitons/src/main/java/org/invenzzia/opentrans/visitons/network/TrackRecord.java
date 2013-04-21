@@ -17,6 +17,9 @@
 
 package org.invenzzia.opentrans.visitons.network;
 
+import com.google.common.base.Preconditions;
+import org.invenzzia.opentrans.visitons.geometry.Point;
+
 /**
  * Description here.
  * 
@@ -55,11 +58,23 @@ public class TrackRecord {
 		this.id = id;
 	}
 	
+	/**
+	 * Return the type of the vertex: straight, curved or free.
+	 * 
+	 * @return Track type. See {@link NetworkConst} constants.
+	 */
 	public byte getType() {
 		return this.type;
 	}
 	
+	/**
+	 * Sets the track type: {@link NetworkConst#TRACK_STRAIGHT},
+	 * {@link NetworkConst#TRACK_CURVED} or {@link NetworkConst#TRACK_FREE}.
+	 * 
+	 * @param type Track type.
+	 */
 	public void setType(byte type) {
+		Preconditions.checkArgument(type >= 0 && type <= 2, "Invalid track type: "+type);
 		this.type = type;
 	}
 	
@@ -128,5 +143,39 @@ public class TrackRecord {
 	 */
 	public double[] getMetadata() {
 		return this.metadata;
+	}
+	
+	/**
+	 * Returns the control point for vertex <tt>vr</tt>, and this track. Control points
+	 * help finding the proper orientation of some geometrical shapes.
+	 * 
+	 * @param vr Vertex belonging to this track.
+	 * @return X coordinate of the control point for this vertex.
+	 */
+	public Point controlPoint(VertexRecord vr) {
+		switch(this.type) {
+			// In the straight track, we take the opposite vertex as a control point.
+			case NetworkConst.TRACK_STRAIGHT:
+				if(vr == this.v1) {
+					return new Point(this.v2.x(), this.v2.y());
+				} else {
+					return new Point(this.v1.x(), this.v1.y());
+				}
+			// In other track types, control points must be calculated and provided in the
+			// metadata.
+			case NetworkConst.TRACK_CURVED:
+				if(vr == this.v1) {
+					return new Point(this.metadata[8], this.metadata[9]);
+				} else {
+					return new Point(this.metadata[10], this.metadata[11]);
+				}
+			case NetworkConst.TRACK_FREE:
+				if(vr == this.v1) {
+					return new Point(this.metadata[8], this.metadata[9]);
+				} else {
+					return new Point(this.metadata[22], this.metadata[23]);
+				}
+		}
+		throw new IllegalStateException("Invalid track type: "+this.type);
 	}
 }

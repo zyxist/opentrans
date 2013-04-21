@@ -17,9 +17,6 @@
 
 package org.invenzzia.opentrans.visitons.geometry;
 
-import com.google.common.base.Preconditions;
-import java.util.Arrays;
-
 /**
  * Analytical geometry operations on a straight line.
  * 
@@ -293,6 +290,19 @@ public class LineOps {
 	public static void middlePoint(double x1, double y1, int p2, int to, double buf[]) {
 		buf[to] = (x1 + buf[p2]) / 2.0;
 		buf[to+1] = (y1 + buf[p2+1]) / 2.0;
+	}
+	
+	/**
+	 * Finds a distance between two points.
+	 * 
+	 * @param x1
+	 * @param y1
+	 * @param x2
+	 * @param y2
+	 * @return Distance between two points.
+	 */
+	public static double distance(double x1, double y1, double x2, double y2) {
+		return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
 	}
 	
 	/**

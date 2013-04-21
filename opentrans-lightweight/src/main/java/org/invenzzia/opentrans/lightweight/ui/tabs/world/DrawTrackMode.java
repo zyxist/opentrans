@@ -111,7 +111,13 @@ public class DrawTrackMode extends AbstractEditMode {
 		} else {
 			TrackRecord tr = this.boundVertex.getTrackTo(this.previousBoundVertex);
 			if(this.nextType == 0) {
-				this.transformer.updateStraightTrack(tr, this.boundVertex, worldX, worldY, Transformations.STR_MODE_LENGHTEN);
+				this.transformer.updateStraightTrack(
+					tr,
+					this.boundVertex,
+					worldX,
+					worldY,
+					(ctrlDown ? Transformations.STR_MODE_FREE : Transformations.STR_MODE_LENGHTEN)
+				);
 			} else {
 				this.transformer.updateCurvedTrack(tr, this.boundVertex, worldX, worldY);
 			}

@@ -90,7 +90,8 @@ public class Transformations {
 					case NetworkConst.TRACK_STRAIGHT:
 						return false;
 					case NetworkConst.TRACK_CURVED:
-						this.adjustJoiningVertexOnCircle(previousTrack.getOppositeVertex(v1), v1, v2);
+						v2.setPosition(x, y);
+						this.adjustJoiningVertexOnCircle(v2, v1, previousTrack.getOppositeVertex(v1));
 						break;
 					case NetworkConst.TRACK_FREE:
 						v2.setPosition(x, y);
@@ -267,18 +268,21 @@ public class Transformations {
 		Preconditions.checkState(curve.getType() == NetworkConst.TRACK_CURVED, "(v2,v3) do not create a curve.");
 		Preconditions.checkState(straight.getType() == NetworkConst.TRACK_STRAIGHT, "(v1,v2) do not create a straight line.");
 		
-		LineOps.toGeneral(v1.x(), v1.y(), v1.tangent(), 0, buf);
+		LineOps.toGeneral(v2.x(), v2.y(), v2.tangent(), 0, buf);
 		LineOps.toGeneral(v3.x(), v3.y(), v3.tangent(), 3, buf);
 		LineOps.intersection(0, 3, 6, buf);
 		
 		double t = LineOps.getTangent(buf[6], buf[7], v1.x(), v1.y());
+		double r = LineOps.distance(buf[6], buf[7], v3.x(), v3.y());
 
 		v2.setPosition(
-			buf[6] + Math.cos(t),
-			buf[7] + Math.sin(t)
+			buf[6] + r * Math.cos(t),
+			buf[7] + r * Math.sin(t)
 		);
 		
-		this.calculateStraightLine(straight, v2, v3);
+		this.calculateStraightLine(straight, v1, v2);
+		this.prepareCurveFreeMovement(v3, v2.x(), v2.y(), 0, buf);
+		this.findCurveDirection(curve, v2, v3, buf);
 	}
 	
 	/**
@@ -311,22 +315,8 @@ public class Transformations {
 		double buf[] = new double[3];
 		this.prepareCurveFreeMovement(v1, v2.x(), v2.y(), 0, buf);
 		v2.setTangent(buf[2]);
-
-		Point c = v1.getOppositeTrack(tr).controlPoint(v1);
-		if(LineOps.onWhichSide(c.x(), c.y(), v1.x(), v1.y(), v2.x(), v2.y()) < 0) {
-			double metadata[] = this.prepareCurveMetadata(v1.x(), v1.y(), v2.x(), v2.y(), buf[0], buf[1], 0, null);
-			this.prepareCurveControlPoint(v1.x(), v1.y(), v1.tangent(), v2.x(), v2.y(), buf[0], buf[1], 8, metadata);
-			this.prepareCurveControlPoint(v2.x(), v2.y(), v2.tangent(), v1.x(), v1.y(), buf[0], buf[1], 10, metadata);
-			tr.setMetadata(metadata);
-		} else {
-			double metadata[] = this.prepareCurveMetadata(v2.x(), v2.y(), v1.x(), v1.y(), buf[0], buf[1], 0, null);
-			this.prepareCurveControlPoint(v1.x(), v1.y(), v1.tangent(), v2.x(), v2.y(), buf[0], buf[1], 10, metadata);
-			this.prepareCurveControlPoint(v2.x(), v2.y(), v2.tangent(), v1.x(), v1.y(), buf[0], buf[1], 8, metadata);
-			tr.setMetadata(metadata);
-		}
+		this.findCurveDirection(tr, v1, v2, buf);
 	}
-	
-
 	
 	/**
 	 * Performs the calculations that find the parameters of the free (doubly-curved) track
@@ -652,5 +642,20 @@ public class Transformations {
 			return true;
 		}
 		return false;
+	}
+
+	private void findCurveDirection(TrackRecord tr, VertexRecord v1, VertexRecord v2, double[] buf) {
+		Point c = v1.getOppositeTrack(tr).controlPoint(v1);
+		if(LineOps.onWhichSide(c.x(), c.y(), v1.x(), v1.y(), v2.x(), v2.y()) < 0) {
+			double metadata[] = this.prepareCurveMetadata(v1.x(), v1.y(), v2.x(), v2.y(), buf[0], buf[1], 0, null);
+			this.prepareCurveControlPoint(v1.x(), v1.y(), v1.tangent(), v2.x(), v2.y(), buf[0], buf[1], 8, metadata);
+			this.prepareCurveControlPoint(v2.x(), v2.y(), v2.tangent(), v1.x(), v1.y(), buf[0], buf[1], 10, metadata);
+			tr.setMetadata(metadata);
+		} else {
+			double metadata[] = this.prepareCurveMetadata(v2.x(), v2.y(), v1.x(), v1.y(), buf[0], buf[1], 0, null);
+			this.prepareCurveControlPoint(v1.x(), v1.y(), v1.tangent(), v2.x(), v2.y(), buf[0], buf[1], 10, metadata);
+			this.prepareCurveControlPoint(v2.x(), v2.y(), v2.tangent(), v1.x(), v1.y(), buf[0], buf[1], 8, metadata);
+			tr.setMetadata(metadata);
+		}
 	}
 }

@@ -62,10 +62,22 @@ public class VertexRecord {
 	 */
 	private long secondTrackId = -1;
 	
+	/**
+	 * Returns the vertex ID. The value <tt>-1</tt> is returned, if the vertex is not exported
+	 * to the network model, and thus - no ID is given to it yet.
+	 * 
+	 * @return Vertex ID.
+	 */
 	public long getId() {
 		return this.id;
 	}
 	
+	/**
+	 * Sets the ID of this vertex. The method shall be called only by the import/export code.
+	 * Once set, the ID cannot be changed, as it uniquely identifies this vertex.
+	 * 
+	 * @param id Vertex ID
+	 */
 	public void setId(long id) {
 		if(-1 != this.id) {
 			throw new IllegalStateException("The vertex record ID cannot be changed.");
@@ -81,15 +93,34 @@ public class VertexRecord {
 		return this.y;
 	}
 	
+	/**
+	 * Sets the new position of the vertex. The position is given in the global units, and
+	 * should not exceed the boundaries of the world.
+	 * 
+	 * @param x
+	 * @param y 
+	 */
 	public void setPosition(double x, double y) {
 		this.x = x;
 		this.y = y;
 	}
 	
+	/**
+	 * Tangent specifies the slope of the tangent line given in this vertex. It is calculated
+	 * from the tracks connected to it.
+	 * 
+	 * @return Tangent in this point.
+	 */
 	public double tangent() {
 		return this.tangent;
 	}
 	
+	/**
+	 * Tangent specifies the slope of the tangent line given in this vertex. It is calculated
+	 * from the tracks connected to it.
+	 * 
+	 * @param tangent New tangent value.
+	 */
 	public void setTangent(double tangent) {
 		this.tangent = tangent;
 	}

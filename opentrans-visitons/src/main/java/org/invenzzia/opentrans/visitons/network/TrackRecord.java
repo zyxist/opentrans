@@ -21,7 +21,10 @@ import com.google.common.base.Preconditions;
 import org.invenzzia.opentrans.visitons.geometry.Point;
 
 /**
- * Description here.
+ * Track record can be used by the GUI thread to represent the currently edited
+ * tracks. It has a slightly different structure and API than a regular {@link Track},
+ * oriented towards editing. Track record and {@link Track} can be synchronized
+ * in both directions. The ID is used to match these two types of objects.
  * 
  * @author Tomasz Jędrzejewski
  */

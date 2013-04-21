@@ -35,15 +35,14 @@ public abstract class AbstractEditMode implements IEditMode {
 	}
 
 	@Override
-	public void mouseMoves(double worldX, double worldY) {
+	public void mouseMoves(double worldX, double worldY, boolean altDown, boolean ctrlDown) {
 	}
 	
 	@Override
-	public void leftActionPerformed(double worldX, double worldY) {
+	public void leftActionPerformed(double worldX, double worldY, boolean altDown, boolean ctrlDown) {
 	}
 
 	@Override
-	public void rightActionPerformed(double worldX, double worldY) {
+	public void rightActionPerformed(double worldX, double worldY, boolean altDown, boolean ctrlDown) {
 	}
-
 }

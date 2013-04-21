@@ -68,7 +68,7 @@ public class DrawTrackMode extends AbstractEditMode {
 	}
 
 	@Override
-	public void leftActionPerformed(double worldX, double worldY) {
+	public void leftActionPerformed(double worldX, double worldY, boolean altDown, boolean ctrlDown) {
 		if(null == this.currentUnit) {
 			this.currentUnit = this.unitOfWorkProvider.get();
 			this.transformer = new Transformations(this.currentUnit);
@@ -89,7 +89,7 @@ public class DrawTrackMode extends AbstractEditMode {
 	}
 
 	@Override
-	public void rightActionPerformed(double worldX, double worldY) {
+	public void rightActionPerformed(double worldX, double worldY, boolean altDown, boolean ctrlDown) {
 		this.currentUnit = null;
 		this.transformer = null;
 		this.track = null;
@@ -100,7 +100,7 @@ public class DrawTrackMode extends AbstractEditMode {
 	}
 	
 	@Override
-	public void mouseMoves(double worldX, double worldY) {
+	public void mouseMoves(double worldX, double worldY, boolean altDown, boolean ctrlDown) {
 		if(null == this.boundVertex) {
 			this.boundVertex = new VertexRecord();
 			if(this.nextType == 0) {
@@ -111,7 +111,7 @@ public class DrawTrackMode extends AbstractEditMode {
 		} else {
 			TrackRecord tr = this.boundVertex.getTrackTo(this.previousBoundVertex);
 			if(this.nextType == 0) {
-				this.transformer.updateStraightTrack(tr, this.boundVertex, worldX, worldY);
+				this.transformer.updateStraightTrack(tr, this.boundVertex, worldX, worldY, Transformations.STR_MODE_LENGHTEN);
 			} else {
 				this.transformer.updateCurvedTrack(tr, this.boundVertex, worldX, worldY);
 			}

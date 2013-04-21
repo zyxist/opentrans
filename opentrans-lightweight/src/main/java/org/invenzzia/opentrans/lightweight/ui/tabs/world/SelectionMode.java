@@ -30,12 +30,4 @@ public class SelectionMode extends AbstractEditMode {
 	@Override
 	public void modeDisabled() {
 	}
-
-	@Override
-	public void leftActionPerformed(double worldX, double worldY) {
-	}
-
-	@Override
-	public void rightActionPerformed(double worldX, double worldY) {
-	}
 }

@@ -186,6 +186,7 @@ public class WorldTabController implements AdjustmentListener, IZoomListener, IW
 		private int draggedY;
 		private double posX;
 		private double posY;
+		private boolean draggingEnabled = false;
 		
 		private int button;
 		
@@ -207,6 +208,7 @@ public class WorldTabController implements AdjustmentListener, IZoomListener, IW
 				cameraModel.setPos(this.posX - cameraModel.worldDistance(distX), this.posY - cameraModel.worldDistance(distY));
 				eventBus.post(new CameraUpdatedEvent(new CameraModelSnapshot(cameraModel)));
 				worldTab.getNetworkView().updateScrollbarPositions();
+				this.draggingEnabled = true;
 			} else if(this.button == MouseEvent.BUTTON1) {
 				if(currentEditMode.captureDragEvents()) {
 					
@@ -217,20 +219,29 @@ public class WorldTabController implements AdjustmentListener, IZoomListener, IW
 		@Override
 		public void mouseMoved(MouseEvent e) {
 			if(currentEditMode.captureMotionEvents()) {
-				currentEditMode.mouseMoves(cameraModel.pix2worldX(e.getX()), cameraModel.pix2worldY(e.getY()));
+				currentEditMode.mouseMoves(
+					cameraModel.pix2worldX(e.getX()),
+					cameraModel.pix2worldY(e.getY()),
+					e.isAltDown(),
+					e.isControlDown()
+				);
 			}
 		}
 
 		@Override
 		public void mouseReleased(MouseEvent e) {
-			if(e.getButton() == MouseEvent.BUTTON3) {
-				currentEditMode.rightActionPerformed(cameraModel.pix2worldX(e.getX()), cameraModel.pix2worldY(e.getY()));
+			// We do not want to emit dragging-related events to the edit mode, because this event
+			// has already been consumed by the scroll process and it could distrupt the edition.
+			if(e.getButton() == MouseEvent.BUTTON3 && !this.draggingEnabled) {
+				currentEditMode.rightActionPerformed(cameraModel.pix2worldX(e.getX()),
+					cameraModel.pix2worldY(e.getY()), e.isAltDown(), e.isControlDown());
 			}
 			if(e.getButton() == MouseEvent.BUTTON1) {
-				currentEditMode.leftActionPerformed(cameraModel.pix2worldX(e.getX()), cameraModel.pix2worldY(e.getY()));
+				currentEditMode.leftActionPerformed(cameraModel.pix2worldX(e.getX()),
+					cameraModel.pix2worldY(e.getY()), e.isAltDown(), e.isControlDown());
 			}
+			this.draggingEnabled = false;
 			this.button = 0;
-			
 		}
 	}
 }

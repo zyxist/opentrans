@@ -28,11 +28,11 @@ public interface IEditMode {
 	
 	public boolean captureDragEvents();
 	
-	public void mouseMoves(double worldX, double worldY);
+	public void mouseMoves(double worldX, double worldY, boolean altDown, boolean ctrlDown);
 	
-	public void leftActionPerformed(double worldX, double worldY);
+	public void leftActionPerformed(double worldX, double worldY, boolean altDown, boolean ctrlDown);
 	
-	public void rightActionPerformed(double worldX, double worldY);
+	public void rightActionPerformed(double worldX, double worldY, boolean altDown, boolean ctrlDown);
 	/**
 	 * The method is called, when the mode is becoming enabled and starts capturing
 	 * the input events.

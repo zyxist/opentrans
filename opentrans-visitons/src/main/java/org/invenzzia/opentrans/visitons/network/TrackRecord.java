@@ -100,6 +100,16 @@ public class TrackRecord {
 	}
 	
 	/**
+	 * Returns true, if the given vertex belongs to this track.
+	 * 
+	 * @param vr Vertex to check.
+	 * @return True, if it belongs to this track.
+	 */
+	public boolean hasVertex(VertexRecord vr) {
+		return this.v1 == vr || this.v2 == vr;
+	}
+	
+	/**
 	 * Sets the track geometry metadata. The exact array structure and size depend on the track
 	 * type.
 	 * 

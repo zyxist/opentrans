@@ -130,6 +130,15 @@ public class WorldTab extends JPanel {
 		this.listeners.clear();
 	}
 	
+	/**
+	 * Returns the index of the selected mode.
+	 * 
+	 * @return Selected mode.
+	 */
+	public int getSelectedMode() {
+		return this.selectedMode;
+	}
+	
 	public NetworkView getNetworkView() {
 		return this.networkView;
 	}

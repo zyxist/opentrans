@@ -28,6 +28,7 @@ import java.awt.event.AdjustmentListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.MouseEvent;
+import java.util.List;
 import javax.swing.event.MouseInputAdapter;
 import org.invenzzia.opentrans.lightweight.concurrent.ModelThread;
 import org.invenzzia.opentrans.lightweight.concurrent.RenderingThread;
@@ -36,6 +37,7 @@ import org.invenzzia.opentrans.lightweight.events.WorldSizeChangedEvent;
 import org.invenzzia.opentrans.lightweight.ui.component.ZoomField.IZoomListener;
 import org.invenzzia.opentrans.lightweight.ui.component.ZoomField.ZoomChangeEvent;
 import org.invenzzia.opentrans.lightweight.ui.netview.NetworkView;
+import org.invenzzia.opentrans.lightweight.ui.tabs.world.WorldTab.IWorldTabListener;
 import org.invenzzia.opentrans.visitons.network.World;
 import org.invenzzia.opentrans.visitons.render.CameraModel;
 import org.invenzzia.opentrans.visitons.render.CameraModelSnapshot;
@@ -48,7 +50,7 @@ import org.invenzzia.opentrans.visitons.render.SceneManager;
  * @author Tomasz Jędrzejewski
  */
 @Singleton
-public class WorldTabController implements AdjustmentListener, IZoomListener {
+public class WorldTabController implements AdjustmentListener, IZoomListener, IWorldTabListener {
 	@Inject
 	private CameraModel cameraModel;
 	@Inject
@@ -64,6 +66,15 @@ public class WorldTabController implements AdjustmentListener, IZoomListener {
 	@Inject
 	private Provider<World> worldProvider;
 	/**
+	 * Supported edit modes.
+	 */
+	@Inject
+	private List<IEditMode> editModes;
+	/**
+	 * Currently active edit mode.
+	 */
+	private IEditMode currentEditMode;
+	/**
 	 * The managed tab.
 	 */
 	private WorldTab worldTab;
@@ -74,6 +85,10 @@ public class WorldTabController implements AdjustmentListener, IZoomListener {
 	
 	public void setWorldTab(WorldTab worldTab) {
 		if(null != this.worldTab) {
+			if(null != this.currentEditMode) {
+				this.currentEditMode.modeDisabled();
+			}
+			this.worldTab.removeWorldTabListener(this);
 			this.worldTab.getNetworkView().removeAdjustmentListener(this);
 			this.worldTab.getNetworkView().getCameraView().removeMouseListener(mouseListener);
 			this.worldTab.getNetworkView().getCameraView().removeMouseMotionListener(mouseListener);
@@ -88,6 +103,7 @@ public class WorldTabController implements AdjustmentListener, IZoomListener {
 			}
 			
 			this.thread.setCameraView(this.worldTab.getNetworkView().getCameraView());
+			this.worldTab.addWorldTabListener(this);
 			this.worldTab.getNetworkView().addAdjustmentListener(this);
 			this.worldTab.getNetworkView().getCameraView().setRenderer(this.renderer);
 			this.worldTab.getNetworkView().getCameraView().addComponentListener(new CameraViewListener());
@@ -99,38 +115,14 @@ public class WorldTabController implements AdjustmentListener, IZoomListener {
 			
 			this.worldTab.getNetworkView().updateScrollbars();
 			this.eventBus.register(this);
-		}
-	}
-	/*
-	public void cameraNeedsRefresh() {
-		final CameraModelSnapshot snapshot = new CameraModelSnapshot(cameraModel);
-		final VisibleSegmentSnapshot vss = new VisibleSegmentSnapshot();
-		
-		try {
-			final World world = this.worldProvider.get();
-			if(null != world) {
-				this.modelThread.enqueueAndWait(new Runnable() {
-					@Override
-					public void run() {
-						for(Segment segment: world.getVisibleSegments(snapshot)) {
-							vss.addSegmentInfo(new SegmentInfo(segment, null));
-						}
-					}
-				});
-			}
-			sceneManager.guard();
-			try {
-				sceneManager.batchUpdateResource(CameraModelSnapshot.class, snapshot);
-				sceneManager.batchUpdateResource(VisibleSegmentSnapshot.class, vss);
-			} finally {
-				sceneManager.unguard();
-			}
-
-		} catch(InterruptedException exception) {
 			
+			this.currentEditMode = this.editModes.get(this.worldTab.getSelectedMode());
+			if(null == this.currentEditMode) {
+				throw new IllegalStateException("Unknown edit mode: "+this.worldTab.getSelectedMode());
+			}
+			this.currentEditMode.modeEnabled();
 		}
 	}
-	*/
 
 	@Override
 	public void adjustmentValueChanged(AdjustmentEvent e) {
@@ -160,6 +152,18 @@ public class WorldTabController implements AdjustmentListener, IZoomListener {
 		this.worldTab.getNetworkView().updateScrollbarPositions();
 	}
 
+	@Override
+	public void modeChanged(WorldTab.WorldTabEvent event) {
+		if(null != this.currentEditMode) {
+			this.currentEditMode.modeDisabled();
+			this.currentEditMode = null;
+		}
+		this.currentEditMode = this.editModes.get(event.getMode());
+		if(null != this.currentEditMode) {
+			this.currentEditMode.modeEnabled();
+		}
+	}
+
 	/**
 	 * When the window changes its dimensions, we must update the camera view as well.
 	 */
@@ -183,31 +187,50 @@ public class WorldTabController implements AdjustmentListener, IZoomListener {
 		private double posX;
 		private double posY;
 		
+		private int button;
+		
 		@Override
 		public void mousePressed(MouseEvent e) {
 			this.draggedX = e.getX();
 			this.draggedY = e.getY();
 			this.posX = cameraModel.getPosX();
 			this.posY = cameraModel.getPosY();
+			this.button = e.getButton();
 		}
 		
 		@Override
 		public void mouseDragged(MouseEvent e) {
-			int distX = e.getX() - this.draggedX;
-			int distY = e.getY() - this.draggedY;
-			
-			cameraModel.setPos(this.posX - cameraModel.worldDistance(distX), this.posY - cameraModel.worldDistance(distY));
-			eventBus.post(new CameraUpdatedEvent(new CameraModelSnapshot(cameraModel)));
-			worldTab.getNetworkView().updateScrollbarPositions();
+			if(this.button == MouseEvent.BUTTON3) {
+				int distX = e.getX() - this.draggedX;
+				int distY = e.getY() - this.draggedY;
+
+				cameraModel.setPos(this.posX - cameraModel.worldDistance(distX), this.posY - cameraModel.worldDistance(distY));
+				eventBus.post(new CameraUpdatedEvent(new CameraModelSnapshot(cameraModel)));
+				worldTab.getNetworkView().updateScrollbarPositions();
+			} else if(this.button == MouseEvent.BUTTON1) {
+				if(currentEditMode.captureDragEvents()) {
+					
+				}
+			}
 		}
 		
 		@Override
+		public void mouseMoved(MouseEvent e) {
+			if(currentEditMode.captureMotionEvents()) {
+				currentEditMode.mouseMoves(cameraModel.pix2worldX(e.getX()), cameraModel.pix2worldY(e.getY()));
+			}
+		}
+
+		@Override
 		public void mouseReleased(MouseEvent e) {
 			if(e.getButton() == MouseEvent.BUTTON3) {
-				cameraModel.setPos(this.posX, this.posY);
-				eventBus.post(new CameraUpdatedEvent(new CameraModelSnapshot(cameraModel)));
-				worldTab.getNetworkView().updateScrollbarPositions();
+				currentEditMode.rightActionPerformed(cameraModel.pix2worldX(e.getX()), cameraModel.pix2worldY(e.getY()));
 			}
+			if(e.getButton() == MouseEvent.BUTTON1) {
+				currentEditMode.leftActionPerformed(cameraModel.pix2worldX(e.getX()), cameraModel.pix2worldY(e.getY()));
+			}
+			this.button = 0;
+			
 		}
 	}
 }

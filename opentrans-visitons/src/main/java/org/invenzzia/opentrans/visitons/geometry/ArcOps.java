@@ -93,6 +93,26 @@ public class ArcOps {
 			buf[out+3] = (-buf[l1] * buf[out+2] - buf[l1+2]) / buf[l1+1];
 		}
 	}
+	
+	/**
+	 * Finds a tangent angle of a given point on a circle. The method requires three
+	 * temporary cells in the data buffer to store its internal calculation data.
+	 * 
+	 * @param pos Circle equation position in the data buffer.
+	 * @param tmpLoc Temporary data location in the data buffer.
+	 * @param buf Data buffer.
+	 * @param x Point on a circle
+	 * @param y Point on a circle
+	 * @return Tangent in this point.
+	 */
+	public static double getTangent(int pos, int tmpLoc, double buf[], double x, double y) {
+		LineOps.toGeneral(buf[pos], buf[pos+1], x, y, tmpLoc, buf);
+		LineOps.toOrthogonal(tmpLoc, buf, x, y);
+		if(Geometry.isZero(buf[tmpLoc+1])) {
+			return Math.PI / 2.0;
+		}
+		return Math.atan(- buf[tmpLoc] / buf[tmpLoc+1]);
+	}
 
 	/**
 	 * Calculates the center of the arc.

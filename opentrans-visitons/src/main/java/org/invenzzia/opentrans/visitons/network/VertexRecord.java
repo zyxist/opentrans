@@ -17,8 +17,6 @@
 
 package org.invenzzia.opentrans.visitons.network;
 
-import com.google.common.base.Preconditions;
-
 /**
  * Vertex record can be used by the GUI thread to represent the currently edited
  * vertices. It has a slightly different structure and API than a normal vertex,
@@ -48,15 +46,21 @@ public class VertexRecord {
 	 */
 	private double tangent;
 	/**
-	 * Connected tracks. In case of a record, this array can contain two types of objects:
-	 * <ul>
-	 *  <li>{@link TrackRecord} - reference to an imported track record,</li>
-	 *  <li>{@link Long} - the ID of the track that has not been imported to the editable model (proxy).</li>
-	 * </ul>
-	 * Note that certain geometrical transformations cannot pass through vertex records that contain
-	 * proxies. In this case proxies must be replaced by the imported records.</li>
+	 * First connected track.
 	 */
-	private Object tracks[];
+	private TrackRecord firstTrack;
+	/**
+	 * Second connected track
+	 */
+	private TrackRecord secondTrack;
+	/**
+	 * For the import from the domain model: ID of the connected, but unimported first track.
+	 */
+	private long firstTrackId = -1;
+	/**
+	 * For the import from the domain model: ID of the connected, but unimported second track.
+	 */
+	private long secondTrackId = -1;
 	
 	public long getId() {
 		return this.id;
@@ -90,43 +94,77 @@ public class VertexRecord {
 		this.tangent = tangent;
 	}
 	
-	public int getTrackNum() {
-		if(null == this.tracks) {
-			return 0;
-		}
-		return this.tracks.length;
+	public boolean hasAllTracks() {
+		return (this.firstTrack != null || this.firstTrackId != -1) &&
+			(this.secondTrack != null || this.secondTrackId != -1);
+	}
+	
+	public boolean hasOneTrack() {
+		return (this.firstTrack != null || this.firstTrackId != -1) ^
+			(this.secondTrack != null || this.secondTrackId != -1);
+	}
+	
+	public boolean hasNoTracks() {
+		return (this.firstTrack == null && this.firstTrackId == -1) &&
+			(this.secondTrack == null && this.secondTrackId == -1);
 	}
 	
 	public void addTrack(TrackRecord record) {
-		if(null == this.tracks) {
-			this.tracks = new Object[1];
-			this.tracks[0] = record;
+		if(null == this.firstTrack && -1 == this.firstTrackId) {
+			this.firstTrack = record;
+		} else if(null == this.secondTrack && -1 == this.secondTrackId) {
+			this.secondTrack = record;
 		} else {
-			Object newTracks[] = new Object[this.tracks.length + 1];
-			System.arraycopy(this.tracks, 0, newTracks, 0, this.tracks.length);
-			newTracks[this.tracks.length] = record;
-			this.tracks = newTracks;
+			throw new IllegalStateException("Cannot connect more than two tracks to a vertex.");
 		}
 	}
 	
 	public void addTrack(long trackId) {
-		if(null == this.tracks) {
-			this.tracks = new Object[1];
-			this.tracks[0] = Long.valueOf(trackId);
+		if(null == this.firstTrack && -1 == this.firstTrackId) {
+			this.firstTrackId = trackId;
+		} else if(null == this.secondTrack && -1 == this.secondTrackId) {
+			this.secondTrackId = trackId;
 		} else {
-			Object newTracks[] = new Object[this.tracks.length + 1];
-			System.arraycopy(this.tracks, 0, newTracks, 0, this.tracks.length);
-			newTracks[this.tracks.length] = Long.valueOf(trackId);
-			this.tracks = newTracks;
+			throw new IllegalStateException("Cannot connect more than two tracks to a vertex.");
 		}
 	}
 
-	public Object getTrack(int i) {
-		if(null == this.tracks) {
-			throw new IllegalArgumentException("Invalid index: "+i);
+	public TrackRecord getFirstTrack() {
+		return this.firstTrack;
+	}
+	
+	public TrackRecord getSecondTrack() {
+		return this.secondTrack;
+	}
+	
+	/**
+	 * If only one track is connected, the method returns it.
+	 */
+	public TrackRecord getTrack() {
+		if(this.firstTrack == null) {
+			return this.secondTrack;
 		}
-		Preconditions.checkElementIndex(i, this.tracks.length);
-		return this.tracks[i];
+		return this.firstTrack;
+	}
+	
+	public long getFirstTrackId() {
+		return this.firstTrackId;
+	}
+	
+	public long getSecondTrackId() {
+		return this.secondTrackId;
+	}
+	
+	public void removeTrack(TrackRecord tr) {
+		if(this.firstTrack == tr) {
+			this.firstTrack = null;
+			this.firstTrackId = -1;
+		} else if(this.secondTrack == tr) {
+			this.secondTrack = null;
+			this.secondTrackId = -1;
+		} else {
+			throw new IllegalArgumentException("The track '"+tr.getId()+"' is not connected to vertex '"+this.getId()+"'");
+		}
 	}
 	
 	/**
@@ -137,6 +175,11 @@ public class VertexRecord {
 	 * @return Track that connect this vertex with the specified vertex.
 	 */
 	public TrackRecord getTrackTo(VertexRecord v) {
+		if(null != this.firstTrack && this.firstTrack.hasVertex(v)) {
+			return this.firstTrack;
+		} else if(null != this.secondTrack && this.secondTrack.hasVertex(v)) {
+			return this.secondTrack;
+		}
 		return null;
 	}
 }

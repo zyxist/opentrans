@@ -48,6 +48,8 @@ import org.invenzzia.opentrans.lightweight.ui.tabs.infrastructure.Infrastructure
 import org.invenzzia.opentrans.lightweight.ui.tabs.vehicles.VehicleEditorController;
 import org.invenzzia.opentrans.lightweight.ui.tabs.vehicles.VehicleTabController;
 import org.invenzzia.opentrans.lightweight.ui.tabs.vehicles.VehicleTabFactory;
+import org.invenzzia.opentrans.lightweight.ui.tabs.world.DrawTrackMode;
+import org.invenzzia.opentrans.lightweight.ui.tabs.world.SelectionMode;
 import org.invenzzia.opentrans.lightweight.ui.toolbars.ToolbarManager;
 import org.invenzzia.opentrans.lightweight.ui.workspace.DesktopManager;
 import org.invenzzia.opentrans.lightweight.ui.workspace.IDesktopPaneFactory;
@@ -129,6 +131,12 @@ public class OpentransModule extends AbstractModule {
 		factoryBinder.addBinding().to(WorldTabFactory.class);
 		factoryBinder.addBinding().to(InfrastructureTabFactory.class);
 		factoryBinder.addBinding().to(VehicleTabFactory.class);
+		
+		// Bind edit modes.
+		OpentransExtensions.bindEditModes(this.binder(),
+			SelectionMode.class,
+			DrawTrackMode.class
+		);
 
 		// Bind visitons items
 		this.bind(World.class).toProvider(WorldProvider.class);

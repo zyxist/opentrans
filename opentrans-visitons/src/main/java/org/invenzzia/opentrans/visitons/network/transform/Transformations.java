@@ -39,6 +39,66 @@ public class Transformations {
 	}
 	
 	/**
+	 * Updates the meta-data of the straight track.
+	 * @param tr 
+	 */
+	public void updateStraightTrack(TrackRecord tr, VertexRecord boundVertex, double x, double y) {
+		Preconditions.checkNotNull(tr, "Track record cannot be empty.");
+		Preconditions.checkNotNull(boundVertex, "Bound vertex cannot be empty.");
+		VertexRecord v1 = tr.getFirstVertex();
+		VertexRecord v2 = tr.getSecondVertex();
+		if(boundVertex == v1) {
+			VertexRecord tmp = v1;
+			v1 = v2;
+			v2 = tmp;
+		} else if(boundVertex != v2) {
+			throw new IllegalArgumentException("Bound vertex does not belong to the specified track.");
+		}
+		if(v1.hasOneTrack() && v2.hasOneTrack()) {
+			v2.setPosition(x, y);
+			double tangent = LineOps.getTangent(v1.x(), v1.y(), v2.x(), v2.y());
+			v1.setTangent(tangent);
+			v2.setTangent(tangent);
+			tr.setMetadata(new double[] { v1.x(), v1.y(), v2.x(), v2.y() } );
+		} else if(boundVertex.hasOneTrack()) {
+			VertexRecord opposite = tr.getOppositeVertex(boundVertex);
+			
+			double buf[] = new double[8];
+			LineOps.toGeneral(opposite.x(), opposite.y(), boundVertex.x(), boundVertex.y(), 0, buf);
+			LineOps.toOrthogonal(0, 3, buf, x, y);
+			LineOps.intersection(0, 3, 6, buf);
+			boundVertex.setPosition(buf[6], buf[7]);
+			tr.setMetadata(new double[] { v1.x(), v1.y(), v2.x(), v2.y() } );
+		}
+	}
+	
+	/**
+	 * Updates the metadata of the curved track.
+	 * 
+	 * @param tr
+	 * @param boundVertex
+	 * @param x
+	 * @param y 
+	 */
+	public void updateCurvedTrack(TrackRecord tr, VertexRecord boundVertex, double x, double y) {
+		VertexRecord v1 = tr.getFirstVertex();
+		VertexRecord v2 = tr.getSecondVertex();
+		if(boundVertex == v1) {
+			VertexRecord tmp = v1;
+			v1 = v2;
+			v2 = tmp;
+		} else if(boundVertex != v2) {
+			throw new IllegalArgumentException("Bound vertex does not belong to the specified track.");
+		}
+		
+		v2.setPosition(x, y);
+		double buf[] = new double[3];
+		this.findSingleCurveCentre(v1, v2.x(), v2.y(), 0, buf);
+		v2.setTangent(buf[2]);
+		tr.setMetadata(this.prepareCurveMetadata(v1.x(), v1.y(), v2.x(), v2.y(), buf[0], buf[1], 0, null));
+	}
+	
+	/**
 	 * Creates a straight track between the two points. This generally works well for
 	 * 0-degree points, but for the rest of the cases, the two points must satisfy
 	 * certain conditions in order to succeed.
@@ -48,7 +108,9 @@ public class Transformations {
 	 * @return 
 	 */
 	public boolean createStraightTrack(VertexRecord v1, VertexRecord v2) {
-		if(v1.getTrackNum() == 0 && v2.getTrackNum() == 0) {
+		Preconditions.checkState(!v1.hasAllTracks(), "Cannot create a straight track to a full vertex.");
+		Preconditions.checkState(!v2.hasAllTracks(), "Cannot create a straight track to a full vertex.");
+		if(v1.hasNoTracks() && v2.hasNoTracks()) {
 			TrackRecord track = new TrackRecord();
 			track.setFreeVertex(v1);
 			track.setFreeVertex(v2);
@@ -63,34 +125,38 @@ public class Transformations {
 			
 			track.setMetadata(new double[] { v1.x(), v1.y(), v2.x(), v2.y() } );
 			this.unitOfWork.addTrack(track);
-		} else {
-			if(v1.getTrackNum() == 0) {
-				VertexRecord temp = v2;
-				v2 = v1;
-				v1 = temp;
-			} else if(v2.getTrackNum() == 0) {
-				// It's okay.
-			} else {
-				if(Math.abs(v1.tangent() - v2.tangent()) > EPSILON) {
-					// It's impossible - not a chance to lie in the same line.
-					return false;
-				}
-			}
-			double lineTangent = LineOps.getTangent(v1.x(), v1.y(), v2.x(), v2.y());
-			if(Math.abs(v1.tangent() - lineTangent) > EPSILON) {
+		} else if(v1.hasOneTrack() && v2.hasOneTrack()) {
+			if(Math.abs(v1.tangent() - v2.tangent()) > EPSILON) {
+				// It's impossible - not a chance to lie in the same line.
 				return false;
 			}
-			
 			TrackRecord track = new TrackRecord();
 			track.setFreeVertex(v1);
 			track.setFreeVertex(v2);
 			track.setType(NetworkConst.TRACK_STRAIGHT);
 			v1.addTrack(track);
 			v2.addTrack(track);
+			track.setMetadata(new double[] { v1.x(), v1.y(), v2.x(), v2.y() } );
+			this.unitOfWork.addTrack(track);
+		} else {
+			if(v1.hasNoTracks()) {
+				VertexRecord temp = v2;
+				v2 = v1;
+				v1 = temp;
+			}
+			TrackRecord track = new TrackRecord();
+			track.setFreeVertex(v1);
+			track.setFreeVertex(v2);
+			track.setType(NetworkConst.TRACK_STRAIGHT);
+			v1.addTrack(track);
+			v2.addTrack(track);
+			v2.setTangent(v1.tangent());
 			
-			v1.setTangent(lineTangent);
-			v2.setTangent(lineTangent);
-			
+			double buf[] = new double[8];
+			LineOps.toGeneral(v1.x(), v1.y(), v1.tangent(), 0, buf);
+			LineOps.toOrthogonal(0, 3, buf, v2.x(), v2.y());
+			LineOps.intersection(0, 3, 6, buf);
+			v2.setPosition(buf[6], buf[7]);
 			track.setMetadata(new double[] { v1.x(), v1.y(), v2.x(), v2.y() } );
 			this.unitOfWork.addTrack(track);
 		}
@@ -106,13 +172,9 @@ public class Transformations {
 	 * @return 
 	 */
 	public boolean createCurvedTrack(VertexRecord v1, VertexRecord v2) {
-		if(v1.getTrackNum() != 0 && v2.getTrackNum() != 0) {
-			if(v2.getTrackNum() != 1) {
-				// We can't move the more complex vertices right now.
-				return false;
-			}
+		if(v1.hasOneTrack() && v2.hasOneTrack()) {
 			this.unitOfWork.importAllMissingNeighbors(v2);
-			TrackRecord track = (TrackRecord) v2.getTrack(0);
+			TrackRecord track = v2.getTrackTo(v1);
 			switch(track.getType()) {
 				case NetworkConst.TRACK_STRAIGHT:
 					this.createCurvedToStraigtConnection(v1, v2, track);
@@ -122,6 +184,21 @@ public class Transformations {
 				case NetworkConst.TRACK_FREE:
 					break;
 			}
+		} else if(v1.hasOneTrack() && v2.hasNoTracks()) {
+			this.unitOfWork.importAllMissingNeighbors(v1);
+			TrackRecord tr = new TrackRecord();
+			tr.setType(NetworkConst.TRACK_CURVED);
+			tr.setFreeVertex(v1);
+			tr.setFreeVertex(v2);
+			v1.addTrack(tr);
+			v2.addTrack(tr);
+			
+			double buf[] = new double[3];
+			this.findSingleCurveCentre(v1, v2.x(), v2.y(), 0, buf);
+			v2.setTangent(buf[2]);
+			tr.setMetadata(this.prepareCurveMetadata(v1.x(), v1.y(), v2.x(), v2.y(), buf[0], buf[1], 0, null));
+			
+			this.unitOfWork.addTrack(tr);
 		}
 		
 		return false;
@@ -247,7 +324,7 @@ public class Transformations {
 	
 	private void createCurvedToStraigtConnection(VertexRecord v1, VertexRecord v3, TrackRecord track) {
 		VertexRecord v4 = track.getOppositeVertex(v3);
-		VertexRecord v2 = ((TrackRecord) v1.getTrack(0)).getOppositeVertex(v1);
+		VertexRecord v2 = ((TrackRecord) v1.getTrack()).getOppositeVertex(v1);
 		double buf[] = new double[12];
 		// First line: Dx + Ey + F = 0
 		LineOps.toGeneral(v3.x(), v3.y(), v4.x(), v4.y(), 0, buf);
@@ -302,6 +379,31 @@ public class Transformations {
 		}
 		
 		this.unitOfWork.addTrack(tr);
+	}
+	
+	/**
+	 * These calculations are used for drawing curve, where one of the vertices has only one track connected:
+	 * the curve we are currently drawing. In this case, we must apply a bit different transformation to search
+	 * the curve centre point.
+	 * 
+	 * @param x1 First point
+	 * @param y1 First point
+	 * @param x2 Second point, that is free.
+	 * @param y2 Second point, that is free.
+	 * @param to
+	 * @param buf 
+	 */
+	private void findSingleCurveCentre(VertexRecord v1, double x2, double y2, int to, double buf[]) {
+		double tmp[] = new double[5];
+		LineOps.toGeneral(v1.x(), v1.y(), v1.tangent(), 0, tmp);
+		LineOps.toOrthogonal(0, tmp, v1.x(), v1.y());
+		double A2 = 2 * (v1.x() - x2);
+		double B2 = 2 * (v1.y() - y2);
+		double C2 = -(Math.pow(v1.x(), 2) - Math.pow(x2, 2) + Math.pow(v1.y(), 2) - Math.pow(y2, 2));
+		tmp[3] = buf[to] = (tmp[1] * C2 - tmp[2] * B2) / (B2 * tmp[0] - tmp[1] * A2);
+		tmp[4] = buf[to+1] = - ((tmp[2] + tmp[0] * buf[to]) / tmp[1]);
+		// Find tangent
+		buf[to+2] = ArcOps.getTangent(3, 0, tmp, x2, y2);
 	}
 	
 	/**

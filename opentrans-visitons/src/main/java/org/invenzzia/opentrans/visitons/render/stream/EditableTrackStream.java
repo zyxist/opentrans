@@ -42,6 +42,10 @@ public class EditableTrackStream extends RenderingStreamAdapter {
 		if(null != payload) {
 			EditableTrackSnapshot trackSnapshot = (EditableTrackSnapshot) payload;
 			CameraModelSnapshot camera = this.extract(scene, CameraModelSnapshot.class);
+			if(trackSnapshot.needsRefresh()) {
+				trackSnapshot.refreshTrackPainters(camera);
+			}
+			
 			graphics.setStroke(TRACK_STROKE);
 			graphics.setColor(Color.BLUE);
 			for(ITrackPainter painter: trackSnapshot.getTracks()) {

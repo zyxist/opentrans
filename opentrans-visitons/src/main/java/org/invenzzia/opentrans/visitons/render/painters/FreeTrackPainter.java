@@ -28,6 +28,8 @@ import org.invenzzia.opentrans.visitons.render.CameraModelSnapshot;
  */
 public class FreeTrackPainter implements ITrackPainter {
 	private double coordinates[];
+	private Arc2D.Double firstArc;
+	private Arc2D.Double secondArc;
 	
 	public FreeTrackPainter(double metadata[]) {
 		this.coordinates = metadata;
@@ -35,7 +37,15 @@ public class FreeTrackPainter implements ITrackPainter {
 	
 	@Override
 	public void draw(CameraModelSnapshot camera, Graphics2D graphics, boolean editable) {
-		graphics.draw(new Arc2D.Double(
+		if(null != this.firstArc) {
+			graphics.draw(this.firstArc);
+			graphics.draw(this.secondArc);
+		}
+	}
+
+	@Override
+	public void refreshData(CameraModelSnapshot camera) {
+		this.firstArc = new Arc2D.Double(
 			(double) camera.world2pixX(this.coordinates[0]),
 			(double) camera.world2pixY(this.coordinates[1]),
 			(double) camera.world2pix(this.coordinates[2]),
@@ -43,8 +53,8 @@ public class FreeTrackPainter implements ITrackPainter {
 			this.coordinates[4],
 			this.coordinates[5],
 			Arc2D.OPEN
-		));
-		graphics.draw(new Arc2D.Double(
+		);
+		this.secondArc = new Arc2D.Double(
 			(double) camera.world2pixX(this.coordinates[8]),
 			(double) camera.world2pixY(this.coordinates[9]),
 			(double) camera.world2pix(this.coordinates[10]),
@@ -52,6 +62,6 @@ public class FreeTrackPainter implements ITrackPainter {
 			this.coordinates[12],
 			this.coordinates[13],
 			Arc2D.OPEN
-		));
+		);
 	}
 }

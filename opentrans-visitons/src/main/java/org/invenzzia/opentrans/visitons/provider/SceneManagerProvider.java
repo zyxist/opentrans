@@ -15,28 +15,34 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.invenzzia.opentrans.visitons.render.painters;
+package org.invenzzia.opentrans.visitons.provider;
 
-import java.awt.Graphics2D;
-import org.invenzzia.opentrans.visitons.render.CameraModelSnapshot;
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+import java.util.Set;
+import org.invenzzia.opentrans.visitons.render.ISceneManagerListener;
+import org.invenzzia.opentrans.visitons.render.SceneManager;
 
 /**
- * Painters tell the scene snapshots, how to paint certain types of tracks.
+ * Registers the scene manager listeners within the scene manager.
  * 
  * @author Tomasz Jędrzejewski
  */
-public interface ITrackPainter {
-	/**
-	 * Draws the given track on the screen.
-	 * 
-	 * @param camera The camera information snapshot.
-	 * @param graphics The screen to draw on.
-	 */
-	public void draw(CameraModelSnapshot camera, Graphics2D graphics, boolean editable);
-	/**
-	 * Refreshes the painter data due to the changes in the camera model.
-	 * 
-	 * @param camera 
-	 */
-	public void refreshData(CameraModelSnapshot camera);
+public class SceneManagerProvider implements Provider<SceneManager> {
+	@Inject
+	private Set<ISceneManagerListener> listeners;
+
+	@Override
+	public SceneManager get() {
+		SceneManager sceneManager = new SceneManager();
+		
+		for(ISceneManagerListener listener: this.listeners) {
+			for(Object key: listener.getListenKeyHints()) {
+				sceneManager.addSceneManagerListener(key, listener);
+			}
+		}
+		
+		return sceneManager;
+	}
+
 }

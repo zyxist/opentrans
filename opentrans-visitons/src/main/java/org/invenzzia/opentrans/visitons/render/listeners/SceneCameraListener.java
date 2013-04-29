@@ -15,39 +15,31 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.invenzzia.opentrans.visitons.render.painters;
+package org.invenzzia.opentrans.visitons.render.listeners;
 
-import java.awt.Graphics2D;
-import java.awt.geom.Line2D;
 import org.invenzzia.opentrans.visitons.render.CameraModelSnapshot;
+import org.invenzzia.opentrans.visitons.render.ISceneManagerListener;
+import org.invenzzia.opentrans.visitons.render.ISceneManagerOperations;
+import org.invenzzia.opentrans.visitons.render.scene.EditableTrackSnapshot;
 
 /**
- * Draws a straight track.
+ * When the camera model is being updated, we need to notify track snapshots
+ * to recalculate the snape objects at the beginning of the next rendering
+ * iteration.
  * 
  * @author Tomasz Jędrzejewski
  */
-public class StraightTrackPainter implements ITrackPainter {
-	private final double coordinates[];
-	private Line2D.Double line;
-		
-	public StraightTrackPainter(double metadata[]) {
-		this.coordinates = metadata;
-	}
-
+public class SceneCameraListener implements ISceneManagerListener {
 	@Override
-	public void draw(CameraModelSnapshot camera, Graphics2D graphics, boolean editable) {
-		if(null != this.line) {
-			graphics.draw(this.line);
+	public Object[] getListenKeyHints() {
+		return new Object[] { CameraModelSnapshot.class };
+	}
+	
+	@Override
+	public void notifyObjectChanged(ISceneManagerOperations ops, Object key) {
+		EditableTrackSnapshot tracks = ops.getSceneResource(EditableTrackSnapshot.class, EditableTrackSnapshot.class);
+		if(null != tracks) {
+			tracks.markToRefresh();
 		}
-	}
-
-	@Override
-	public void refreshData(CameraModelSnapshot camera) {
-		this.line = new Line2D.Double(
-			camera.world2pixX(this.coordinates[0]),
-			camera.world2pixY(this.coordinates[1]),
-			camera.world2pixX(this.coordinates[2]),
-			camera.world2pixY(this.coordinates[3])
-		);
 	}
 }

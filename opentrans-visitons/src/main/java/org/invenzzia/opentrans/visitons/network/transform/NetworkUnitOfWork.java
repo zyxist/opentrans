@@ -30,12 +30,21 @@ import org.invenzzia.opentrans.visitons.render.painters.StraightTrackPainter;
 import org.invenzzia.opentrans.visitons.render.scene.EditableTrackSnapshot;
 
 /**
- * Description here.
+ * Network unit of work is similar in its purpose to ordinary {@link UnitOfWork}
+ * from Helium library. It keeps the local changes made by the GUI thread that
+ * have not been synchronized with the model yet. It also provides all the necessary
+ * data to undo the changes.
  * 
  * @author Tomasz Jędrzejewski
  */
 public class NetworkUnitOfWork {
+	/**
+	 * List of the tracks modified or added in this session.
+	 */
 	private List<TrackRecord> tracks;
+	/**
+	 * List of vertices modified or added in this session.
+	 */
 	private List<VertexRecord> vertices;
 	
 	public NetworkUnitOfWork() {

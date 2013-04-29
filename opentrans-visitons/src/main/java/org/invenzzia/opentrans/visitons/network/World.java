@@ -137,6 +137,64 @@ public class World {
 			}
 		}
 	}
+	
+	/**
+	 * Sets the next track ID for automatic generation. The method shall be used only when reading
+	 * the state from the disk.
+	 * 
+	 * @param nextId 
+	 */
+	public final void setNextTrackId(long nextId) {
+		this.nextTrackId = nextId;
+	}
+
+	/**
+	 * Retrieves the current value of the next track ID. The method shall be used only when
+	 * writing the state to the disk.
+	 * 
+	 * @return Next ID value.
+	 */
+	public final long getNextTrackId() {
+		return this.nextTrackId;
+	}
+
+	/**
+	 * Sets the next vertex ID for automatic generation. The method shall be used only when reading
+	 * the state from the disk.
+	 * 
+	 * @param nextId 
+	 */
+	public final void setNextVertexId(long nextId) {
+		this.nextVertexId = nextId;
+	}
+
+	/**
+	 * Returns the current and increments the track ID.
+	 * 
+	 * @return Current track ID, before the incrementation.
+	 */
+	public final long nextTrackId() {
+		return this.nextTrackId++;
+	}
+
+	/**
+	 * Returns the current and increments the vertex ID.
+	 * 
+	 * @return Current vertex ID, before the incrementation.
+	 */
+	public final long nextVertexId() {
+		return this.nextVertexId++;
+	}
+
+	/**
+	 * Retrieves the current value of the next vertex ID. The method shall be used only when
+	 * writing the state to the disk.
+	 * 
+	 * @return Next ID value.
+	 */
+	public final long getNextVertexId() {
+		return this.nextVertexId;
+	}
 
 	public World extendHorizontally(HorizontalDir where) {
 		Segment[][] newSegments = new Segment[dimX + 1][dimY];

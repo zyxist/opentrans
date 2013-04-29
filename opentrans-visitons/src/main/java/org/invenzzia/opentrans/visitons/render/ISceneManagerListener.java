@@ -15,28 +15,27 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.invenzzia.opentrans.visitons.render.painters;
-
-import java.awt.Graphics2D;
-import org.invenzzia.opentrans.visitons.render.CameraModelSnapshot;
+package org.invenzzia.opentrans.visitons.render;
 
 /**
- * Painters tell the scene snapshots, how to paint certain types of tracks.
+ * Scene manager listeners allow performing certain additional operations
+ * on the given objects, when they are being modified.
  * 
  * @author Tomasz Jędrzejewski
  */
-public interface ITrackPainter {
+public interface ISceneManagerListener {
 	/**
-	 * Draws the given track on the screen.
+	 * Returns the hints, where to register this listener (for autoregistration).
 	 * 
-	 * @param camera The camera information snapshot.
-	 * @param graphics The screen to draw on.
+	 * @return Keys, where we should be registered.
 	 */
-	public void draw(CameraModelSnapshot camera, Graphics2D graphics, boolean editable);
+	public Object[] getListenKeyHints();
 	/**
-	 * Refreshes the painter data due to the changes in the camera model.
+	 * Called, when the given key is being updated. The method is executed within
+	 * the scene manager lock, so it should finish fast.
 	 * 
-	 * @param camera 
+	 * @param ops Allowed operations on the scene manager.
+	 * @param key Key being updated.
 	 */
-	public void refreshData(CameraModelSnapshot camera);
+	public void notifyObjectChanged(ISceneManagerOperations ops, Object key);
 }

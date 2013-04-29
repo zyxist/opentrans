@@ -15,28 +15,25 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.invenzzia.opentrans.visitons.render.painters;
+package org.invenzzia.opentrans.visitons;
 
-import java.awt.Graphics2D;
-import org.invenzzia.opentrans.visitons.render.CameraModelSnapshot;
+import com.google.inject.Binder;
+import com.google.inject.multibindings.Multibinder;
+import org.invenzzia.opentrans.visitons.render.ISceneManagerListener;
 
 /**
- * Painters tell the scene snapshots, how to paint certain types of tracks.
+ * Guice extension points for Visitons library.
  * 
  * @author Tomasz Jędrzejewski
  */
-public interface ITrackPainter {
-	/**
-	 * Draws the given track on the screen.
-	 * 
-	 * @param camera The camera information snapshot.
-	 * @param graphics The screen to draw on.
-	 */
-	public void draw(CameraModelSnapshot camera, Graphics2D graphics, boolean editable);
-	/**
-	 * Refreshes the painter data due to the changes in the camera model.
-	 * 
-	 * @param camera 
-	 */
-	public void refreshData(CameraModelSnapshot camera);
+public class VisitonsExtensions {
+	private VisitonsExtensions() {
+	}
+	
+	public static void bindSceneManagerListeners(Binder binder, Class<? extends ISceneManagerListener> ... listeners) {
+		Multibinder<ISceneManagerListener> lst = Multibinder.newSetBinder(binder, ISceneManagerListener.class);
+		for(Class<? extends ISceneManagerListener> listenerClass: listeners) {
+			lst.addBinding().to(listenerClass);
+		}
+	}
 }

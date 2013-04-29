@@ -27,7 +27,14 @@ import org.invenzzia.opentrans.visitons.render.CameraModelSnapshot;
  * @author Tomasz Jędrzejewski
  */
 public class CurvedTrackPainter implements ITrackPainter {
+	/**
+	 * Data coordinates.
+	 */
 	private double coordinates[];
+	/**
+	 * Precomputed arc object.
+	 */
+	private Arc2D.Double arc;
 	
 	public CurvedTrackPainter(double metadata[]) {
 		this.coordinates = metadata;
@@ -35,7 +42,14 @@ public class CurvedTrackPainter implements ITrackPainter {
 
 	@Override
 	public void draw(CameraModelSnapshot camera, Graphics2D graphics, boolean editable) {
-		graphics.draw(new Arc2D.Double(
+		if(null != this.arc) {
+			graphics.draw(this.arc);
+		}
+	}
+
+	@Override
+	public void refreshData(CameraModelSnapshot camera) {
+		this.arc = new Arc2D.Double(
 			(double) camera.world2pixX(this.coordinates[0]),
 			(double) camera.world2pixY(this.coordinates[1]),
 			(double) camera.world2pix(this.coordinates[2]),
@@ -43,6 +57,6 @@ public class CurvedTrackPainter implements ITrackPainter {
 			this.coordinates[4],
 			this.coordinates[5],
 			Arc2D.OPEN
-		));
+		);
 	}
 }

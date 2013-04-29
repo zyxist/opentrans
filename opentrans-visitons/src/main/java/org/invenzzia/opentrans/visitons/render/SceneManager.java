@@ -17,12 +17,16 @@
  */
 package org.invenzzia.opentrans.visitons.render;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.LinkedListMultimap;
+import com.google.common.collect.Multimap;
 import com.google.inject.Singleton;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import net.jcip.annotations.ThreadSafe;
 
 /**
  * Scene manager serves as a bridge between the renderer and the other
@@ -33,16 +37,46 @@ import java.util.concurrent.locks.ReentrantLock;
  * @author Tomasz Jędrzejewski
  */
 @Singleton
-public class SceneManager {
+@ThreadSafe
+public class SceneManager implements ISceneManagerOperations {
+	/**
+	 * List of objects on the scene.
+	 */
 	private Map<Object, Object> scene;
-	
+	/**
+	 * Is batch mode for updating data enabled? Batch mode allows updating
+	 * several objects within a single lock.
+	 */
 	private boolean batch = false;
-	
+	/**
+	 * Data structure lock for synchronization between the rendering thread
+	 * and the other threads.
+	 */
 	private Lock lock;
-	
+	/**
+	 * Listeners that are activated, when a certain key is updated.
+	 */
+	private Multimap<Object, ISceneManagerListener> listeners;
+
 	public SceneManager() {
 		this.lock = new ReentrantLock();
 		this.scene = new LinkedHashMap<>();
+		this.listeners = LinkedListMultimap.create();
+	}
+	
+	/**
+	 * Registers a new scene manager listener.
+	 * 
+	 * @param key The key that will be updated in order to activate the listener.
+	 * @param listener The registered listener.
+	 */
+	public void addSceneManagerListener(Object key, ISceneManagerListener listener) {
+		try {
+			this.lock.lock();
+			this.listeners.put(key, Preconditions.checkNotNull(listener, "The listener cannot be empty."));
+		} finally {
+			this.lock.unlock();
+		}
 	}
 	
 	/**
@@ -54,6 +88,15 @@ public class SceneManager {
 		this.batch = true;
 	}
 	
+	/**
+	 * Puts a new value into a given key. This is the primary method of passing data
+	 * into the rendering thread. It is thread-safe. If you want to pass several
+	 * objects within a single lock, use {@link #guard()}, {@link #batchUpdateResource} and
+	 * {@link #unguard()} methods.
+	 * 
+	 * @param key
+	 * @param value 
+	 */
 	public void updateResource(Object key, Object value) {
 		if(this.batch) {
 			throw new IllegalStateException("Call of the updateResource() method in batch mode!");
@@ -65,6 +108,7 @@ public class SceneManager {
 			} else {
 				this.scene.put(key, value);
 			}
+			this.notifyListenersForKey(key);
 		} finally {
 			this.lock.unlock();
 		}
@@ -72,7 +116,8 @@ public class SceneManager {
 	
 	/**
 	 * The updating method used during the batch update. It implements the fluent
-	 * interface.
+	 * interface. Note that you should keep your {@link #unguard()} method within
+	 * a <tt>try ... finally ... </tt> block.
 	 * 
 	 * @param key The key to update.
 	 * @param value The new value.
@@ -87,6 +132,7 @@ public class SceneManager {
 		} else {
 			this.scene.put(key, value);
 		}
+		this.notifyListenersForKey(key);
 		return this;
 	}
 	
@@ -126,6 +172,27 @@ public class SceneManager {
 			return this.scene.get(key);
 		} finally {
 			this.lock.unlock();
+		}
+	}
+	
+	@Override
+	public Object getSceneResource(Object key) {
+		return this.scene.get(key);
+	}
+	
+	@Override
+	public <T> T getSceneResource(Object key, Class<T> cast) {
+		return (T) this.scene.get(key);
+	}
+	
+	/**
+	 * Sends object update notifications for the given key.
+	 * 
+	 * @param key 
+	 */
+	private void notifyListenersForKey(Object key) {
+		for(ISceneManagerListener listener: this.listeners.get(key)) {
+			listener.notifyObjectChanged(this, key);
 		}
 	}
 }

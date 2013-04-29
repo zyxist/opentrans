@@ -17,6 +17,7 @@
 
 package org.invenzzia.opentrans.visitons.render.scene;
 
+import org.invenzzia.opentrans.visitons.render.CameraModelSnapshot;
 import org.invenzzia.opentrans.visitons.render.painters.ITrackPainter;
 
 /**
@@ -28,9 +29,11 @@ import org.invenzzia.opentrans.visitons.render.painters.ITrackPainter;
 public class EditableTrackSnapshot {
 	private ITrackPainter tracks[];
 	private double[] vertices;
+	private boolean refresh;
 
 	public EditableTrackSnapshot(int trackNum) {
 		this.tracks = new ITrackPainter[trackNum];
+		this.refresh = true;
 	}
 	
 	public void setTrackPainter(int idx, ITrackPainter ptr) {
@@ -47,5 +50,35 @@ public class EditableTrackSnapshot {
 
 	public double[] getVertices() {
 		return this.vertices;
+	}
+	
+	/**
+	 * Marks that the painters need to refresh their data.
+	 */
+	public void markToRefresh() {
+		this.refresh = true;
+	}
+	
+	/**
+	 * Returns <strong>true</strong>, if the track painters need to refresh
+	 * their data before starting the rendering due to the change in the camera
+	 * model.
+	 * 
+	 * @return 
+	 */
+	public boolean needsRefresh() {
+		return this.refresh;
+	}
+	
+	/**
+	 * Refreshes the painter data.
+	 * 
+	 * @param camera 
+	 */
+	public void refreshTrackPainters(CameraModelSnapshot camera) {
+		for(ITrackPainter painter: this.tracks) {
+			painter.refreshData(camera);
+		}
+		this.refresh = false;
 	}
 }

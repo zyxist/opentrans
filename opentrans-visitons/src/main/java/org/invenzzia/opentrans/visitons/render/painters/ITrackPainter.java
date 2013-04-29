@@ -18,6 +18,7 @@
 package org.invenzzia.opentrans.visitons.render.painters;
 
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import org.invenzzia.opentrans.visitons.render.CameraModelSnapshot;
 
 /**
@@ -26,6 +27,13 @@ import org.invenzzia.opentrans.visitons.render.CameraModelSnapshot;
  * @author Tomasz Jędrzejewski
  */
 public interface ITrackPainter {
+	/**
+	 * Checks whether the mouse hits this object.
+	 * 
+	 * @param rect Mouse mouse rectangle.
+	 * @return True, if this object is hit.
+	 */
+	public boolean hits(Graphics2D graphics, Rectangle rect);
 	/**
 	 * Draws the given track on the screen.
 	 * 

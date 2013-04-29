@@ -18,6 +18,7 @@
 package org.invenzzia.opentrans.visitons.render.painters;
 
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.geom.Line2D;
 import org.invenzzia.opentrans.visitons.render.CameraModelSnapshot;
 
@@ -49,5 +50,13 @@ public class StraightTrackPainter implements ITrackPainter {
 			camera.world2pixX(this.coordinates[2]),
 			camera.world2pixY(this.coordinates[3])
 		);
+	}
+	
+	@Override
+	public boolean hits(Graphics2D graphics, Rectangle rect) {
+		if(null != rect && null != this.line) {
+			return graphics.hit(rect, this.line, true) || graphics.hit(rect, this.line, true);
+		}
+		return false;
 	}
 }

@@ -43,6 +43,7 @@ import org.invenzzia.opentrans.visitons.render.CameraModel;
 import org.invenzzia.opentrans.visitons.render.CameraModelSnapshot;
 import org.invenzzia.opentrans.visitons.render.Renderer;
 import org.invenzzia.opentrans.visitons.render.SceneManager;
+import org.invenzzia.opentrans.visitons.render.scene.MouseSnapshot;
 
 /**
  * Handles user input for the world tab.
@@ -218,6 +219,7 @@ public class WorldTabController implements AdjustmentListener, IZoomListener, IW
 		
 		@Override
 		public void mouseMoved(MouseEvent e) {
+			sceneManager.updateResource(MouseSnapshot.class, new MouseSnapshot(e.getX(), e.getY()));
 			if(currentEditMode.captureMotionEvents()) {
 				currentEditMode.mouseMoves(
 					cameraModel.pix2worldX(e.getX()),

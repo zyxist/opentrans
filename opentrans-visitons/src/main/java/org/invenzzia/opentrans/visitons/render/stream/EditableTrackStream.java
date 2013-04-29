@@ -20,11 +20,13 @@ package org.invenzzia.opentrans.visitons.render.stream;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.util.Map;
 import org.invenzzia.opentrans.visitons.render.CameraModelSnapshot;
 import org.invenzzia.opentrans.visitons.render.RenderingStreamAdapter;
 import org.invenzzia.opentrans.visitons.render.painters.ITrackPainter;
 import org.invenzzia.opentrans.visitons.render.scene.EditableTrackSnapshot;
+import org.invenzzia.opentrans.visitons.render.scene.MouseSnapshot;
 
 /**
  * Draws the currently edited network unit of work, managed directly by GUI.
@@ -38,18 +40,27 @@ public class EditableTrackStream extends RenderingStreamAdapter {
 
 	@Override
 	public void render(Graphics2D graphics, Map<Object, Object> scene, long prevTimeFrame) {
-		Object payload = scene.get(EditableTrackSnapshot.class);
-		if(null != payload) {
-			EditableTrackSnapshot trackSnapshot = (EditableTrackSnapshot) payload;
+		EditableTrackSnapshot trackSnapshot = this.extract(scene, EditableTrackSnapshot.class);
+		if(null != trackSnapshot) {
 			CameraModelSnapshot camera = this.extract(scene, CameraModelSnapshot.class);
+			Rectangle mouse = this.getMousePosition(scene);
 			if(trackSnapshot.needsRefresh()) {
 				trackSnapshot.refreshTrackPainters(camera);
 			}
 			
 			graphics.setStroke(TRACK_STROKE);
 			graphics.setColor(Color.BLUE);
+			boolean restore = false;
 			for(ITrackPainter painter: trackSnapshot.getTracks()) {
+				if(painter.hits(graphics, mouse)) {
+					graphics.setColor(Color.ORANGE);
+					restore = true;
+				}
 				painter.draw(camera, graphics, true);
+				if(restore) {
+					graphics.setColor(Color.BLUE);
+					restore = false;
+				}
 			}
 			graphics.setColor(Color.RED);
 			double points[] = trackSnapshot.getVertices();

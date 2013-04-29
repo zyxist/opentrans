@@ -17,7 +17,9 @@
  */
 package org.invenzzia.opentrans.visitons.render;
 
+import java.awt.Rectangle;
 import java.util.Map;
+import org.invenzzia.opentrans.visitons.render.scene.MouseSnapshot;
 
 /**
  * Abstract class that provides default implementations of the setters
@@ -27,7 +29,31 @@ import java.util.Map;
  * @author Tomasz Jędrzejewski
  */
 public abstract class RenderingStreamAdapter implements IRenderingStream {
+	/**
+	 * Helps extracting the data from the scene manager snapshot by casting
+	 * them to the destination object. The method assumes that the key is
+	 * the class.
+	 * 
+	 * @param snapshot
+	 * @param key
+	 * @return Casted object or NULL.
+	 */
 	public <T> T extract(Map<Object, Object> snapshot, Class<T> key) {
 		return (T) snapshot.get(key);
 	}
+	
+	/**
+	 * Gets the mouse position for the purpose of testing the hitting.
+	 * 
+	 * @param snapshot
+	 * @return 
+	 */
+	public Rectangle getMousePosition(Map<Object, Object> snapshot) {
+		MouseSnapshot ms = this.extract(snapshot, MouseSnapshot.class);
+		if(null != ms) {
+			return ms.hitRect();
+		}
+		return null;
+	}
+	
 }

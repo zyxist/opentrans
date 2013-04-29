@@ -18,6 +18,7 @@
 package org.invenzzia.opentrans.visitons.render.painters;
 
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.geom.Arc2D;
 import org.invenzzia.opentrans.visitons.render.CameraModelSnapshot;
 
@@ -63,5 +64,13 @@ public class FreeTrackPainter implements ITrackPainter {
 			this.coordinates[13],
 			Arc2D.OPEN
 		);
+	}
+	
+	@Override
+	public boolean hits(Graphics2D graphics, Rectangle rect) {
+		if(null != rect && null != this.firstArc) {
+			return graphics.hit(rect, this.firstArc, true) || graphics.hit(rect, this.secondArc, true);
+		}
+		return false;
 	}
 }

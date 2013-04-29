@@ -18,6 +18,7 @@
 package org.invenzzia.opentrans.visitons.render.painters;
 
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.geom.Arc2D;
 import org.invenzzia.opentrans.visitons.render.CameraModelSnapshot;
 
@@ -58,5 +59,13 @@ public class CurvedTrackPainter implements ITrackPainter {
 			this.coordinates[5],
 			Arc2D.OPEN
 		);
+	}
+
+	@Override
+	public boolean hits(Graphics2D graphics, Rectangle rect) {
+		if(null != rect && null != this.arc) {
+			return graphics.hit(rect, this.arc, true);
+		}
+		return false;
 	}
 }

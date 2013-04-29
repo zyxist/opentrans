@@ -17,7 +17,6 @@
 
 package org.invenzzia.opentrans.lightweight.model.visitons;
 
-import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -109,8 +108,12 @@ public abstract class VisitonsSelectionModel<P, R extends IRecord<P, Project> & 
 	
 	@Override
 	public void setSelectedItem(Object record) {
-		this.checkCasting(record);
-		this.selectedRecord = (R) record;
+		if(null == record) {
+			this.selectedRecord = null;
+		} else {
+			this.checkCasting(record);
+			this.selectedRecord = (R) record;
+		}
 		final ListDataEvent evt = new ListDataEvent(this, ListDataEvent.CONTENTS_CHANGED, 0, this.records.size());
 		for(ListDataListener listener: this.listeners) {
 			listener.contentsChanged(evt);

@@ -20,6 +20,7 @@ package org.invenzzia.opentrans.visitons.render.listeners;
 import org.invenzzia.opentrans.visitons.render.CameraModelSnapshot;
 import org.invenzzia.opentrans.visitons.render.ISceneManagerListener;
 import org.invenzzia.opentrans.visitons.render.ISceneManagerOperations;
+import org.invenzzia.opentrans.visitons.render.scene.CommittedTrackSnapshot;
 import org.invenzzia.opentrans.visitons.render.scene.EditableTrackSnapshot;
 
 /**
@@ -40,6 +41,10 @@ public class SceneCameraListener implements ISceneManagerListener {
 		EditableTrackSnapshot tracks = ops.getSceneResource(EditableTrackSnapshot.class, EditableTrackSnapshot.class);
 		if(null != tracks) {
 			tracks.markToRefresh();
+		}
+		CommittedTrackSnapshot world = ops.getSceneResource(CommittedTrackSnapshot.class, CommittedTrackSnapshot.class);
+		if(null != world) {
+			world.markToRefresh();
 		}
 	}
 }

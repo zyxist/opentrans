@@ -18,13 +18,13 @@
 package org.invenzzia.opentrans.visitons.render.scene;
 
 /**
- * Contains the information about the currently edited network unit of work,
- * that is manipulated directly by GUI code.
+ * Contains the drawing instructions for the part of tracks that belong to this
+ * world.
  * 
  * @author Tomasz Jędrzejewski
  */
-public class EditableTrackSnapshot extends AbstractTrackSnapshot {
-	public EditableTrackSnapshot(int trackNum) {
+public class CommittedTrackSnapshot extends AbstractTrackSnapshot {
+	public CommittedTrackSnapshot(int trackNum) {
 		super(trackNum);
 	}
 }

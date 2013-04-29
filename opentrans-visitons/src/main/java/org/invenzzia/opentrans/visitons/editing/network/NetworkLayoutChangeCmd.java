@@ -52,7 +52,7 @@ public class NetworkLayoutChangeCmd implements ICommand {
 		Iterator<TrackRecord> tri = this.uw.overTracks();
 		while(tri.hasNext()) {
 			TrackRecord tr = tri.next();
-			if(tr.getId() == IIdentifiable.NEUTRAL_ID) {
+			if(tr.getId() < IIdentifiable.NEUTRAL_ID) {
 				// New track
 				Track track = new Track(tr);
 			} else {
@@ -62,7 +62,7 @@ public class NetworkLayoutChangeCmd implements ICommand {
 		Iterator<VertexRecord> vri = this.uw.overVertices();
 		while(vri.hasNext()) {
 			VertexRecord vr = vri.next();
-			if(vr.getId() == IIdentifiable.NEUTRAL_ID) {
+			if(vr.getId() < IIdentifiable.NEUTRAL_ID) {
 				// New vertex
 			} else {
 				// Existing vertex

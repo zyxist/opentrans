@@ -25,21 +25,21 @@ import java.util.Map;
 import org.invenzzia.opentrans.visitons.render.CameraModelSnapshot;
 import org.invenzzia.opentrans.visitons.render.RenderingStreamAdapter;
 import org.invenzzia.opentrans.visitons.render.painters.ITrackPainter;
-import org.invenzzia.opentrans.visitons.render.scene.EditableTrackSnapshot;
+import org.invenzzia.opentrans.visitons.render.scene.CommittedTrackSnapshot;
 
 /**
- * Draws the currently edited network unit of work, managed directly by GUI.
- * Because these are the tracks the user edits, we want to draw some additional
- * guidelines etc.
+ * Draws a piece of the simulation world. The class is pretty similar to
+ * {@link EditableTrackStream}, but handles the vertices and tracks that
+ * are already added to the world, not the ones being drawn. 
  * 
  * @author Tomasz Jędrzejewski
  */
-public class EditableTrackStream extends RenderingStreamAdapter {
+public class CommittedTrackStream extends RenderingStreamAdapter {
 	public static final BasicStroke TRACK_STROKE = new BasicStroke();
-
+	
 	@Override
 	public void render(Graphics2D graphics, Map<Object, Object> scene, long prevTimeFrame) {
-		EditableTrackSnapshot trackSnapshot = this.extract(scene, EditableTrackSnapshot.class);
+		CommittedTrackSnapshot trackSnapshot = this.extract(scene, CommittedTrackSnapshot.class);
 		if(null != trackSnapshot) {
 			CameraModelSnapshot camera = this.extract(scene, CameraModelSnapshot.class);
 			Rectangle mouse = this.getMousePosition(scene);
@@ -48,7 +48,7 @@ public class EditableTrackStream extends RenderingStreamAdapter {
 			}
 			
 			graphics.setStroke(TRACK_STROKE);
-			graphics.setColor(Color.BLUE);
+			graphics.setColor(Color.BLACK);
 			boolean restore = false;
 			for(ITrackPainter painter: trackSnapshot.getTracks()) {
 				if(painter.hits(graphics, mouse)) {
@@ -57,7 +57,7 @@ public class EditableTrackStream extends RenderingStreamAdapter {
 				}
 				painter.draw(camera, graphics, true);
 				if(restore) {
-					graphics.setColor(Color.BLUE);
+					graphics.setColor(Color.BLACK);
 					restore = false;
 				}
 			}
@@ -68,13 +68,8 @@ public class EditableTrackStream extends RenderingStreamAdapter {
 					int x = camera.world2pixX(points[i]) ;
 					int y = camera.world2pixY(points[i+1]);
 					graphics.fillOval(x - 1, y - 1, 3, 3);
-					
-					int angle = (int)((prevTimeFrame / 4)) % 360;
-					graphics.drawArc(x-4, y-4, 9, 9, angle, 45);
-					graphics.drawArc(x-4, y-4, 9, 9, (angle + 180) % 360, 45);
 				}
 			}
 		}
 	}
-
 }

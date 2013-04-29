@@ -31,7 +31,7 @@ class VehicleBase implements IIdentifiable {
 	/**
 	 * Unique, internal, non-modifiable vehicle ID.
 	 */
-	protected long id = -1;
+	protected long id = IIdentifiable.NEUTRAL_ID;
 	/**
 	 * Name of this vehicle.
 	 */
@@ -44,7 +44,7 @@ class VehicleBase implements IIdentifiable {
 
 	@Override
 	public void setId(long id) {
-		if(-1 != this.id) {
+		if(IIdentifiable.NEUTRAL_ID != this.id) {
 			throw new IllegalStateException("Cannot change the previously set ID.");
 		}
 		this.id = id;
@@ -175,10 +175,10 @@ public class Vehicle extends VehicleBase implements IMemento<Project> {
 		
 		@Override
 		public void exportData(Vehicle original, Project domainModel) {
-			if(this.vehicleTypeId < 0) {
+			if(this.vehicleTypeId == IIdentifiable.NEUTRAL_ID) {
 				throw new IllegalStateException("Invalid vehicle type ID.");
 			}
-			if(null == original.getName() && -1 == original.getId()) {
+			if(null == original.getName() && IIdentifiable.NEUTRAL_ID == original.getId()) {
 				original.setName(this.getName());
 			} else if(!this.getName().equals(original.getName())) {
 				original.setNewName(this.getName());

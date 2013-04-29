@@ -26,7 +26,7 @@ class StopBase implements IIdentifiable {
 	/**
 	 * Unique internal stop ID.
 	 */
-	protected long id = -1;
+	protected long id = IIdentifiable.NEUTRAL_ID;
 	/**
 	 * Unique stop name.
 	 */
@@ -39,7 +39,7 @@ class StopBase implements IIdentifiable {
 
 	@Override
 	public void setId(long id) {
-		if(-1 != this.id) {
+		if(IIdentifiable.NEUTRAL_ID != this.id) {
 			throw new IllegalStateException("Cannot change the previously set ID.");
 		}
 		this.id = id;

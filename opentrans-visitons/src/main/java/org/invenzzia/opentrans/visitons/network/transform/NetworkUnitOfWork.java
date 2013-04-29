@@ -20,6 +20,7 @@ package org.invenzzia.opentrans.visitons.network.transform;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import org.invenzzia.helium.data.interfaces.IIdentifiable;
 import org.invenzzia.opentrans.visitons.network.NetworkConst;
 import org.invenzzia.opentrans.visitons.network.TrackRecord;
 import org.invenzzia.opentrans.visitons.network.VertexRecord;
@@ -46,6 +47,16 @@ public class NetworkUnitOfWork {
 	 * List of vertices modified or added in this session.
 	 */
 	private List<VertexRecord> vertices;
+	/**
+	 * Identify new tracks with negative ID-s to distinguish them from the
+	 * existing tracks.
+	 */
+	private long nextTrackId = -IIdentifiable.INCREMENTATION_START;
+	/**
+	 * Identify new vertices with negative ID-s to distinguish them from
+	 * the existing tracks.
+	 */
+	private long nextVertexId = -IIdentifiable.INCREMENTATION_START;
 	
 	public NetworkUnitOfWork() {
 		this.tracks = new LinkedList<>();
@@ -53,10 +64,16 @@ public class NetworkUnitOfWork {
 	}
 	
 	public void addTrack(TrackRecord track) {
+		if(track.getId() == IIdentifiable.NEUTRAL_ID) {
+			track.setId(this.nextTrackId--);
+		}
 		this.tracks.add(track);
 	}
 	
 	public void addVertex(VertexRecord vertex) {
+		if(vertex.getId() == IIdentifiable.NEUTRAL_ID) {
+			vertex.setId(this.nextVertexId--);
+		}
 		this.vertices.add(vertex);
 	}
 	

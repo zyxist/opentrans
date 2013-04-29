@@ -19,6 +19,7 @@ package org.invenzzia.opentrans.visitons.network;
 
 
 import com.google.common.base.Preconditions;
+import org.invenzzia.helium.data.interfaces.IIdentifiable;
 
 /**
  * Represents a track in the network infrastructure graph. Tracks are created from
@@ -77,7 +78,7 @@ public class Track {
 	 * @param id New track ID.
 	 */
 	public void setId(long id) {
-		if(-1 != this.id) {
+		if(IIdentifiable.NEUTRAL_ID != this.id) {
 			throw new IllegalStateException("The ID is already set for the track.");
 		}
 		this.id = id;

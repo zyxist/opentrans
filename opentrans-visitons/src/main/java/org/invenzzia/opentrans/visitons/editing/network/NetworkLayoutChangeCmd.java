@@ -19,6 +19,7 @@ package org.invenzzia.opentrans.visitons.editing.network;
 
 import com.google.common.base.Preconditions;
 import java.util.Iterator;
+import org.invenzzia.helium.data.interfaces.IIdentifiable;
 import org.invenzzia.opentrans.visitons.Project;
 import org.invenzzia.opentrans.visitons.editing.ICommand;
 import org.invenzzia.opentrans.visitons.network.Track;
@@ -51,7 +52,7 @@ public class NetworkLayoutChangeCmd implements ICommand {
 		Iterator<TrackRecord> tri = this.uw.overTracks();
 		while(tri.hasNext()) {
 			TrackRecord tr = tri.next();
-			if(tr.getId() == -1) {
+			if(tr.getId() == IIdentifiable.NEUTRAL_ID) {
 				// New track
 				Track track = new Track(tr);
 			} else {
@@ -61,7 +62,7 @@ public class NetworkLayoutChangeCmd implements ICommand {
 		Iterator<VertexRecord> vri = this.uw.overVertices();
 		while(vri.hasNext()) {
 			VertexRecord vr = vri.next();
-			if(vr.getId() == -1) {
+			if(vr.getId() == IIdentifiable.NEUTRAL_ID) {
 				// New vertex
 			} else {
 				// Existing vertex

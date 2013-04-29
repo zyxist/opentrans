@@ -29,7 +29,7 @@ public class Vertex implements IIdentifiable {
 	/**
 	 * Unique numerical identifier of this vertex.
 	 */
-	private long id = -1;
+	private long id = IIdentifiable.NEUTRAL_ID;
 	/**
 	 * Where the vertex is located?
 	 */
@@ -54,7 +54,7 @@ public class Vertex implements IIdentifiable {
 	
 	@Override
 	public void setId(long id) {
-		if(-1 != this.id) {
+		if(IIdentifiable.NEUTRAL_ID != this.id) {
 			throw new IllegalStateException("Cannot change the ID of the vertex.");
 		}
 		this.id = id;

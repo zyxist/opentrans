@@ -17,6 +17,8 @@
 
 package org.invenzzia.opentrans.visitons.network;
 
+import org.invenzzia.helium.data.interfaces.IIdentifiable;
+
 /**
  * Vertex record can be used by the GUI thread to represent the currently edited
  * vertices. It has a slightly different structure and API than a normal vertex,
@@ -32,7 +34,7 @@ public class VertexRecord {
 	/**
 	 * The unique ID of the vertex. Allows proper mapping to the actual vertices. 
 	 */
-	private long id = -1;
+	private long id = IIdentifiable.NEUTRAL_ID;
 	/**
 	 * The X location of the vertex. <strong>This is an absolute coordinate!</strong>
 	 */
@@ -56,14 +58,14 @@ public class VertexRecord {
 	/**
 	 * For the import from the domain model: ID of the connected, but unimported first track.
 	 */
-	private long firstTrackId = -1;
+	private long firstTrackId = IIdentifiable.NEUTRAL_ID;
 	/**
 	 * For the import from the domain model: ID of the connected, but unimported second track.
 	 */
-	private long secondTrackId = -1;
+	private long secondTrackId = IIdentifiable.NEUTRAL_ID;
 	
 	/**
-	 * Returns the vertex ID. The value <tt>-1</tt> is returned, if the vertex is not exported
+	 * Returns the vertex ID. The value <tt>IIdentifiable.NEUTRAL_ID</tt> is returned, if the vertex is not exported
 	 * to the network model, and thus - no ID is given to it yet.
 	 * 
 	 * @return Vertex ID.
@@ -79,7 +81,7 @@ public class VertexRecord {
 	 * @param id Vertex ID
 	 */
 	public void setId(long id) {
-		if(-1 != this.id) {
+		if(IIdentifiable.NEUTRAL_ID != this.id) {
 			throw new IllegalStateException("The vertex record ID cannot be changed.");
 		}
 		this.id = id;
@@ -126,24 +128,24 @@ public class VertexRecord {
 	}
 	
 	public boolean hasAllTracks() {
-		return (this.firstTrack != null || this.firstTrackId != -1) &&
-			(this.secondTrack != null || this.secondTrackId != -1);
+		return (this.firstTrack != null || this.firstTrackId != IIdentifiable.NEUTRAL_ID) &&
+			(this.secondTrack != null || this.secondTrackId != IIdentifiable.NEUTRAL_ID);
 	}
 	
 	public boolean hasOneTrack() {
-		return (this.firstTrack != null || this.firstTrackId != -1) ^
-			(this.secondTrack != null || this.secondTrackId != -1);
+		return (this.firstTrack != null || this.firstTrackId != IIdentifiable.NEUTRAL_ID) ^
+			(this.secondTrack != null || this.secondTrackId != IIdentifiable.NEUTRAL_ID);
 	}
 	
 	public boolean hasNoTracks() {
-		return (this.firstTrack == null && this.firstTrackId == -1) &&
-			(this.secondTrack == null && this.secondTrackId == -1);
+		return (this.firstTrack == null && this.firstTrackId == IIdentifiable.NEUTRAL_ID) &&
+			(this.secondTrack == null && this.secondTrackId == IIdentifiable.NEUTRAL_ID);
 	}
 	
 	public void addTrack(TrackRecord record) {
-		if(null == this.firstTrack && -1 == this.firstTrackId) {
+		if(null == this.firstTrack && IIdentifiable.NEUTRAL_ID == this.firstTrackId) {
 			this.firstTrack = record;
-		} else if(null == this.secondTrack && -1 == this.secondTrackId) {
+		} else if(null == this.secondTrack && IIdentifiable.NEUTRAL_ID == this.secondTrackId) {
 			this.secondTrack = record;
 		} else {
 			throw new IllegalStateException("Cannot connect more than two tracks to a vertex.");
@@ -151,9 +153,9 @@ public class VertexRecord {
 	}
 	
 	public void addTrack(long trackId) {
-		if(null == this.firstTrack && -1 == this.firstTrackId) {
+		if(null == this.firstTrack && IIdentifiable.NEUTRAL_ID == this.firstTrackId) {
 			this.firstTrackId = trackId;
-		} else if(null == this.secondTrack && -1 == this.secondTrackId) {
+		} else if(null == this.secondTrack && IIdentifiable.NEUTRAL_ID == this.secondTrackId) {
 			this.secondTrackId = trackId;
 		} else {
 			throw new IllegalStateException("Cannot connect more than two tracks to a vertex.");
@@ -189,10 +191,10 @@ public class VertexRecord {
 	public void removeTrack(TrackRecord tr) {
 		if(this.firstTrack == tr) {
 			this.firstTrack = null;
-			this.firstTrackId = -1;
+			this.firstTrackId = IIdentifiable.NEUTRAL_ID;
 		} else if(this.secondTrack == tr) {
 			this.secondTrack = null;
-			this.secondTrackId = -1;
+			this.secondTrackId = IIdentifiable.NEUTRAL_ID;
 		} else {
 			throw new IllegalArgumentException("The track '"+tr.getId()+"' is not connected to vertex '"+this.getId()+"'");
 		}

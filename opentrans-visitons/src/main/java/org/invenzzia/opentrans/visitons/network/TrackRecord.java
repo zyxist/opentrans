@@ -18,6 +18,7 @@
 package org.invenzzia.opentrans.visitons.network;
 
 import com.google.common.base.Preconditions;
+import org.invenzzia.helium.data.interfaces.IIdentifiable;
 import org.invenzzia.opentrans.visitons.geometry.Point;
 
 /**
@@ -32,7 +33,7 @@ public class TrackRecord {
 	/**
 	 * The unique ID used for the identification.
 	 */
-	private long id = -1;
+	private long id = IIdentifiable.NEUTRAL_ID;
 	/**
 	 * The track type.
 	 */
@@ -55,7 +56,7 @@ public class TrackRecord {
 	}
 	
 	public void setId(long id) {
-		if(-1 != this.id) {
+		if(IIdentifiable.NEUTRAL_ID != this.id) {
 			throw new IllegalStateException("This track record already has an ID.");
 		}
 		this.id = id;

@@ -34,7 +34,7 @@ class VehicleTypeBase implements IIdentifiable {
 	/**
 	 * Unique internal ID of this vehicle type.
 	 */
-	protected long id = -1;
+	protected long id = IIdentifiable.NEUTRAL_ID;
 	/**
 	 * Unique name of the vehicle type.
 	 */
@@ -71,7 +71,7 @@ class VehicleTypeBase implements IIdentifiable {
 
 	@Override
 	public void setId(long id) {
-		if(-1 != this.id) {
+		if(IIdentifiable.NEUTRAL_ID != this.id) {
 			throw new IllegalStateException("Cannot change the previously set ID.");
 		}
 		this.id = id;
@@ -229,7 +229,7 @@ public final class VehicleType extends VehicleTypeBase implements IMemento<Proje
 		
 		@Override
 		public void exportData(VehicleType original, Project project) {
-			if(this.meanOfTransportId < 0) {
+			if(this.meanOfTransportId == IIdentifiable.NEUTRAL_ID) {
 				throw new IllegalStateException("Invalid mean of transport");
 			}
 			original.setName(this.getName());

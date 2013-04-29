@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
+import org.invenzzia.helium.data.interfaces.IIdentifiable;
 import org.invenzzia.opentrans.visitons.exception.WorldException;
 import org.invenzzia.opentrans.visitons.render.AbstractCameraModelFoundation;
 
@@ -383,7 +384,7 @@ public class World {
 	 * @return Fluent interface.
 	 */
 	public World addVertex(Vertex vertex) {
-		if(vertex.getId() != -1) {
+		if(vertex.getId() != IIdentifiable.NEUTRAL_ID) {
 			throw new IllegalArgumentException("Cannot add a previously added vertex.");
 		}
 		vertex.setId(this.nextVertexId++);

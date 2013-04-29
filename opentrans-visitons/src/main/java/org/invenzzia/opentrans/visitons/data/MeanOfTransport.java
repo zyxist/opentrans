@@ -28,7 +28,7 @@ class MeanOfTransportBase implements IIdentifiable {
 	/**
 	 * Internal unique ID used for recovery.
 	 */
-	protected long id = -1;
+	protected long id = IIdentifiable.NEUTRAL_ID;
 	/**
 	 * Mean of transport name.
 	 */
@@ -59,7 +59,7 @@ class MeanOfTransportBase implements IIdentifiable {
 
 	@Override
 	public void setId(long id) {
-		if(-1 != this.id) {
+		if(IIdentifiable.NEUTRAL_ID != this.id) {
 			throw new IllegalStateException("Cannot change the previously set ID.");
 		}
 		this.id = id;

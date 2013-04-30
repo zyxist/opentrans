@@ -64,6 +64,16 @@ public class NetworkUnitOfWork {
 		this.vertices = new LinkedList<>();
 	}
 	
+	/**
+	 * Returns <strong>true</strong>, if the unit of work does not contain any changes
+	 * to the data model.
+	 * 
+	 * @return True, if there are no changes stored.
+	 */
+	public boolean isEmpty() {
+		return this.tracks.isEmpty() && this.vertices.isEmpty();
+	}
+	
 	public void addTrack(TrackRecord track) {
 		if(track.getId() == IIdentifiable.NEUTRAL_ID) {
 			track.setId(this.nextTrackId--);
@@ -76,6 +86,25 @@ public class NetworkUnitOfWork {
 			vertex.setId(this.nextVertexId--);
 		}
 		this.vertices.add(vertex);
+	}
+	
+	/**
+	 * We can remove a previously added track from the unit of work. The method
+	 * performs the detaching from the neighbouring vertices as well.
+	 * 
+	 * @param track The track to remove.
+	 */
+	public void removeTrack(TrackRecord track) {
+		Preconditions.checkNotNull(track, "The specified track to remove is NULL.");
+		track.getFirstVertex().removeTrack(track);
+		track.getSecondVertex().removeTrack(track);
+		if(track.getFirstVertex().hasNoTracks()) {
+			this.vertices.remove(track.getFirstVertex());
+		}
+		if(track.getSecondVertex().hasNoTracks()) {
+			this.vertices.remove(track.getSecondVertex());
+		}
+		this.tracks.remove(track);
 	}
 	
 	public Iterator<TrackRecord> overTracks() {

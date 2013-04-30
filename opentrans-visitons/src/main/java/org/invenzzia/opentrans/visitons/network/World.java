@@ -511,22 +511,6 @@ public class World {
 			vertexNum += segment.getVertexNum();
 		}
 		
-		/*
-		int i = 0;
-		for(TrackRecord rec: this.tracks) {
-			switch(rec.getType()) {
-				case NetworkConst.TRACK_STRAIGHT:
-					snap.setTrackPainter(i++, new StraightTrackPainter(rec.getMetadata()));
-					break;
-				case NetworkConst.TRACK_CURVED:
-					snap.setTrackPainter(i++, new CurvedTrackPainter(rec.getMetadata()));
-					break;
-				case NetworkConst.TRACK_FREE:
-					snap.setTrackPainter(i++, new FreeTrackPainter(rec.getMetadata()));
-					break;
-			}
-		}
-		*/
 		double points[] = new double[vertexNum * 2];
 		int i = 0;
 		Set<Track> visibleTracks = new HashSet<>();

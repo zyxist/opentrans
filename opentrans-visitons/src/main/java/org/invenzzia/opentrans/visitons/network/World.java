@@ -512,10 +512,13 @@ public class World {
 		}
 		
 		double points[] = new double[vertexNum * 2];
+		long ids[] = new long[vertexNum];
 		int i = 0;
+		int j = 0;
 		Set<Track> visibleTracks = new HashSet<>();
 		for(Segment segment: visibleSegments) {
 			for(Vertex vertex: segment.getVertices()) {
+				ids[j++] = vertex.getId();
 				points[i++] = vertex.pos().getAbsoluteX();
 				points[i++] = vertex.pos().getAbsoluteY();
 				visibleTracks.add(vertex.getFirstTrack());
@@ -523,7 +526,7 @@ public class World {
 			}
 		}
 		CommittedTrackSnapshot snap = new CommittedTrackSnapshot(visibleTracks.size());
-		snap.setVertexArray(points);
+		snap.setVertexArray(points, ids);
 		i = 0;
 		for(Track track: visibleTracks) {
 			switch(track.getType()) {

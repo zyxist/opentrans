@@ -116,10 +116,11 @@ public class TrackStream extends RenderingStreamAdapter {
 		}
 		strategy.prepareVertexStroke(graphics);
 		double points[] = trackSnapshot.getVertices();
+		long ids[] = trackSnapshot.getVertexIds();
 		restore = false;
 		found = false;
 		if(null != points) {
-			for(int i = 0; i < points.length; i += 2) {
+			for(int i = 0, j = 0; i < points.length; i += 2, j++) {
 				int x = camera.world2pixX(points[i]) ;
 				int y = camera.world2pixY(points[i+1]);
 
@@ -128,6 +129,7 @@ public class TrackStream extends RenderingStreamAdapter {
 						graphics.setColor(Color.GREEN);
 						restore = true;
 						found = true;
+						hoverCollector.registerHoveredItem(HoveredItemSnapshot.TYPE_VERTEX, ids[j]);
 					}
 				}
 				strategy.drawVertex(graphics, x, y, prevTimeFrame);

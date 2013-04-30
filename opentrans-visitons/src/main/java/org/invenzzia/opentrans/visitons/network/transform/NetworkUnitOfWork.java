@@ -143,12 +143,15 @@ public class NetworkUnitOfWork {
 			}
 		}
 		double points[] = new double[this.vertices.size() * 2];
+		long ids[] = new long[this.vertices.size()];
 		i = 0;
+		int j = 0;
 		for(VertexRecord rec: this.vertices) {
 			points[i++] = rec.x();
 			points[i++] = rec.y();
+			ids[j++] = rec.getId();
 		}
-		snap.setVertexArray(points);
+		snap.setVertexArray(points, ids);
 		sm.updateResource(EditableTrackSnapshot.class, snap);
 	}
 }

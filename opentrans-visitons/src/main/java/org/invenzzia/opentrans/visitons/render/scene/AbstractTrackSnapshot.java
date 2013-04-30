@@ -37,6 +37,10 @@ public abstract class AbstractTrackSnapshot {
 	 */
 	private double[] vertices;
 	/**
+	 * Identifiers of vertices for the purpose of hovering.
+	 */
+	private long[] vertexIds;
+	/**
 	 * Shall the painters recalculate the shape objects?
 	 */
 	private boolean refresh;
@@ -50,8 +54,9 @@ public abstract class AbstractTrackSnapshot {
 		this.tracks[idx] = ptr;
 	}
 	
-	public void setVertexArray(double array[]) {
+	public void setVertexArray(double array[], long vid[]) {
 		this.vertices = array;
+		this.vertexIds = vid;
 	}
 	
 	public ITrackPainter[] getTracks() {
@@ -60,6 +65,10 @@ public abstract class AbstractTrackSnapshot {
 
 	public double[] getVertices() {
 		return this.vertices;
+	}
+	
+	public long[] getVertexIds() {
+		return this.vertexIds;
 	}
 	
 	/**

@@ -17,6 +17,10 @@
  */
 package org.invenzzia.opentrans.visitons.network;
 
+import com.google.common.base.Preconditions;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 /**
  * Represents a single world segment, a mechanism of partitioning the space in order to speed up rendering and finding objects. A segment
  * represents a square area of 1 km^2. It contains the references to all the vertices located inside it.
@@ -45,6 +49,10 @@ public class Segment {
 	 * Is the segment in the visible area of the camera?
 	 */
 	private boolean isDisplayed;
+	/**
+	 * Vertices within this segment.
+	 */
+	private Set<Vertex> vertices = new LinkedHashSet<>();
 
 	/**
 	 * Sets the position coordinates of the segment.
@@ -92,12 +100,39 @@ public class Segment {
 	}
 	
 	/**
-	 * Adds a new vertex to the segment. Avoid using this method in favour of {@link World#addVertex}.
+	 * Adds a new vertex to the segment. This is an internal method that is not a part of the public API.
 	 *
 	 * @param vertex
 	 * @return Fluent interface.
 	 */
-	Segment addVertex(Vertex vertex) {
-		return this;
+	void addVertex(Vertex vertex) {
+		Preconditions.checkNotNull(vertex, "Attempt to add an empty vertex to the segment.");
+		this.vertices.add(vertex);
+	}
+
+	/**
+	 * Removes the vertex from the segment. This is an internal method that is not a part of the public API.
+	 * 
+	 * @param vertex 
+	 */
+	void removeVertex(Vertex vertex) {
+		Preconditions.checkNotNull(vertex, "Attempt to add an empty vertex to the segment.");
+		this.vertices.remove(vertex);
+	}
+	
+	/**
+	 * Returns the number of vertices within this segment.
+	 * 
+	 * @return Number of vertices.
+	 */
+	int getVertexNum() {
+		return this.vertices.size();
+	}
+
+	/**
+	 * @return Iterable for the vertices within this segment.
+	 */
+	Iterable<Vertex> getVertices() {
+		return this.vertices;
 	}
 }

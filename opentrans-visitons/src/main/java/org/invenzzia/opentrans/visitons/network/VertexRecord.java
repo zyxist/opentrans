@@ -162,10 +162,26 @@ public class VertexRecord {
 		}
 	}
 
+	/**
+	 * Returns the track record connected to this vertex. Note that the track may not be imported
+	 * from the world model. In this case, this method would return <strong>null</strong>, but the
+	 * ID of the connected track could be obtained with {@link #getFirstTrackId()}. To extract the ID
+	 * of the connected track regardless of the storage method, use {@link #getFirstTrackActualId()}.
+	 * 
+	 * @return First track record.
+	 */
 	public TrackRecord getFirstTrack() {
 		return this.firstTrack;
 	}
 	
+	/**
+	 * Returns the track record connected to this vertex. Note that the track may not be imported
+	 * from the world model. In this case, this method would return <strong>null</strong>, but the
+	 * ID of the connected track could be obtained with {@link #getSecondTrackId()}. To extract the ID
+	 * of the connected track regardless of the storage method, use {@link #getSecondTrackActualId()}.
+	 * 
+	 * @return Second track record.
+	 */
 	public TrackRecord getSecondTrack() {
 		return this.secondTrack;
 	}
@@ -180,12 +196,40 @@ public class VertexRecord {
 		return this.firstTrack;
 	}
 	
+	/**
+	 * Returns the unimported track ID. See note to {@link #getFirstTrack()}.
+	 * 
+	 * @return ID of the first track, which is unimported from the world model.
+	 */
 	public long getFirstTrackId() {
 		return this.firstTrackId;
 	}
 	
+	/**
+	 * Returns the unimported track ID. See note to {@link #getSecondTrack()}.
+	 * 
+	 * @return ID of the second track, which is unimported from the world model.
+	 */
 	public long getSecondTrackId() {
 		return this.secondTrackId;
+	}
+	
+	/**
+	 * Returns the track ID regardless of the storage method. See note to {@link #getFirstTrack()}.
+	 * 
+	 * @return ID of the first track.
+	 */
+	public long getFirstTrackActualId() {
+		return (null != this.firstTrack ? this.firstTrack.getId() : this.firstTrackId);
+	}
+	
+	/**
+	 * Returns the track ID regardless of the storage method. See note to {@link #getSecondTrack()}.
+	 * 
+	 * @return ID of the second track.
+	 */
+	public long getSecondTrackActualId() {
+		return (null != this.secondTrack ? this.secondTrack.getId() : this.secondTrackId);
 	}
 	
 	public void removeTrack(TrackRecord tr) {

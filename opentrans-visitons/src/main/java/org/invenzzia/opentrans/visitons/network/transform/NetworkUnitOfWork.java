@@ -17,6 +17,7 @@
 
 package org.invenzzia.opentrans.visitons.network.transform;
 
+import com.google.common.base.Preconditions;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -99,6 +100,7 @@ public class NetworkUnitOfWork {
 		
 		int i = 0;
 		for(TrackRecord rec: this.tracks) {
+			Preconditions.checkState(rec.getId() != IIdentifiable.NEUTRAL_ID, "Track record has a neutral ID.");
 			switch(rec.getType()) {
 				case NetworkConst.TRACK_STRAIGHT:
 					snap.setTrackPainter(i++, new StraightTrackPainter(rec.getMetadata()));

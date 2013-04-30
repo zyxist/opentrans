@@ -18,7 +18,7 @@
 package org.invenzzia.opentrans.visitons.network;
 
 
-import com.google.common.base.Preconditions;
+import com.google.common.collect.BiMap;
 import org.invenzzia.helium.data.interfaces.IIdentifiable;
 
 /**
@@ -52,18 +52,6 @@ public class Track {
 	 * Extra metadata for certain forms of tracks.
 	 */
 	private double metadata[];
-	
-	/**
-	 * Creates a new track.
-	 * 
-	 * @param id
-	 * @param record 
-	 */
-	public Track(TrackRecord record) {
-		Preconditions.checkNotNull(record, "The TrackRecord passed to Track() constructor is empty.");
-		this.type = record.getType();
-		this.metadata = record.getMetadata();
-	}
 	
 	/**
 	 * @return Unique track ID.
@@ -100,5 +88,37 @@ public class Track {
 	 */
 	public double[] getMetadata() {
 		return this.metadata;
+	}
+	
+	/**
+	 * Imports the current data from the track record.
+	 * 
+	 * @param tr
+	 * @param world 
+	 * @param vertexMapping Vertices in track record may be new - we need a mapping to the actual ID-s.
+	 */
+	public void importFrom(TrackRecord tr, World world, BiMap<Long, Long> vertexMapping) {
+		this.type = tr.getType();
+		this.metadata = tr.getMetadata();
+	}
+	
+	/**
+	 * Imports the connections to the vertices.
+	 * 
+	 * @param tr
+	 * @param world
+	 * @param vertexMapping 
+	 */
+	public void importConnections(TrackRecord tr, World world, BiMap<Long, Long> vertexMapping) {
+		long id1 = tr.getFirstVertex().getId();
+		long id2 = tr.getSecondVertex().getId();
+		if(id1 < IIdentifiable.NEUTRAL_ID) {
+			id1 = vertexMapping.get(id1);
+		}
+		if(id2 < IIdentifiable.NEUTRAL_ID) {
+			id2 = vertexMapping.get(id2);
+		}
+		this.v1 = world.findVertex(id1);
+		this.v2 = world.findVertex(id2);
 	}
 }

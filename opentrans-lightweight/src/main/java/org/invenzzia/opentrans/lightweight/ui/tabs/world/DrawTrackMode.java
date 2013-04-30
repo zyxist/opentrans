@@ -19,12 +19,22 @@ package org.invenzzia.opentrans.lightweight.ui.tabs.world;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import org.invenzzia.helium.exception.CommandExecutionException;
+import org.invenzzia.helium.history.History;
+import org.invenzzia.opentrans.lightweight.IProjectHolder;
+import org.invenzzia.opentrans.lightweight.annotations.InModelThread;
+import org.invenzzia.opentrans.visitons.editing.ICommand;
+import org.invenzzia.opentrans.visitons.editing.network.NetworkLayoutChangeCmd;
 import org.invenzzia.opentrans.visitons.network.TrackRecord;
 import org.invenzzia.opentrans.visitons.network.VertexRecord;
+import org.invenzzia.opentrans.visitons.network.World;
 import org.invenzzia.opentrans.visitons.network.transform.NetworkUnitOfWork;
 import org.invenzzia.opentrans.visitons.network.transform.Transformations;
+import org.invenzzia.opentrans.visitons.render.CameraModel;
 import org.invenzzia.opentrans.visitons.render.SceneManager;
 import org.invenzzia.opentrans.visitons.render.scene.EditableTrackSnapshot;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This mode allows drawing new tracks.
@@ -32,16 +42,38 @@ import org.invenzzia.opentrans.visitons.render.scene.EditableTrackSnapshot;
  * @author Tomasz Jędrzejewski
  */
 public class DrawTrackMode extends AbstractEditMode {
+	private final Logger logger = LoggerFactory.getLogger(DrawTrackMode.class);
+	
 	@Inject
 	private Provider<NetworkUnitOfWork> unitOfWorkProvider;
 	@Inject
 	private SceneManager sceneManager;
-	
+	@Inject
+	private History<ICommand> history;
+	@Inject
+	private IProjectHolder projectHolder;
+	@Inject
+	private CameraModel cameraModel;
+	/**
+	 * Currently constructed unit of work.
+	 */
 	private NetworkUnitOfWork currentUnit;
+	/**
+	 * Transformations performed on that unit.
+	 */
 	private Transformations transformer;
-	
+	/**
+	 * The vertex that is updated according to the mouse movements.
+	 */
 	private VertexRecord boundVertex;
+	/**
+	 * The previously edited vertex - currently adjusted track is connected
+	 * to it on the opposite side.
+	 */
 	private VertexRecord previousBoundVertex;
+	/**
+	 * Currently constructed track.
+	 */
 	private TrackRecord track;
 	/**
 	 * Type of the next drawn track.
@@ -50,6 +82,7 @@ public class DrawTrackMode extends AbstractEditMode {
 	
 	@Override
 	public void modeEnabled() {
+		logger.debug("DrawTrackMode enabled.");
 	}
 	
 	@Override
@@ -60,6 +93,7 @@ public class DrawTrackMode extends AbstractEditMode {
 		this.boundVertex = null;
 		this.previousBoundVertex = null;
 		this.resetRenderingStream();
+		logger.debug("DrawTrackMode disabled.");
 	}
 	
 	@Override
@@ -70,15 +104,18 @@ public class DrawTrackMode extends AbstractEditMode {
 	@Override
 	public void leftActionPerformed(double worldX, double worldY, boolean altDown, boolean ctrlDown) {
 		if(null == this.currentUnit) {
+			logger.debug("leftAction: creating the unit of work.");
 			this.currentUnit = this.unitOfWorkProvider.get();
 			this.transformer = new Transformations(this.currentUnit);
 		}
 		if(null == this.boundVertex) {
+			logger.debug("leftAction: creating the bound vertex.");
 			VertexRecord vr = new VertexRecord();
 			vr.setPosition(worldX, worldY);
 			this.currentUnit.addVertex(vr);
 			this.previousBoundVertex = vr;
 		} else {
+			logger.debug("leftAction: advancing the bound vertex.");
 			this.currentUnit.addVertex(this.boundVertex);
 			this.previousBoundVertex = this.boundVertex;
 			this.boundVertex = null;
@@ -90,13 +127,21 @@ public class DrawTrackMode extends AbstractEditMode {
 
 	@Override
 	public void rightActionPerformed(double worldX, double worldY, boolean altDown, boolean ctrlDown) {
-		this.currentUnit = null;
-		this.transformer = null;
-		this.track = null;
-		this.boundVertex = null;
-		this.previousBoundVertex = null;
-		this.nextType = 0;
-		this.resetRenderingStream();
+		try {
+			logger.debug("rightAction: finishing the construction and saving the data to the world model.");
+			this.history.execute(new NetworkLayoutChangeCmd(this.currentUnit));
+			this.exportScene(this.projectHolder.getCurrentProject().getWorld());
+		} catch(CommandExecutionException exception) {
+			logger.error("Exception occurred while saving the network unit of work.", exception);
+		} finally {
+			this.currentUnit = null;
+			this.transformer = null;
+			this.track = null;
+			this.boundVertex = null;
+			this.previousBoundVertex = null;
+			this.nextType = 0;
+			this.resetRenderingStream();
+		}
 	}
 	
 	@Override
@@ -127,5 +172,10 @@ public class DrawTrackMode extends AbstractEditMode {
 	
 	private void resetRenderingStream() {
 		this.sceneManager.updateResource(EditableTrackSnapshot.class, null);
+	}
+	
+	@InModelThread(asynchronous = true)
+	public void exportScene(final World world) {
+		world.exportScene(this.sceneManager, this.cameraModel, false);
 	}
 }

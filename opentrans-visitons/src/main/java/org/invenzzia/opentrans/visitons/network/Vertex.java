@@ -17,8 +17,9 @@
 
 package org.invenzzia.opentrans.visitons.network;
 
-import com.google.common.base.Preconditions;
+import com.google.common.collect.BiMap;
 import org.invenzzia.helium.data.interfaces.IIdentifiable;
+import org.invenzzia.opentrans.visitons.utils.SegmentCoordinate;
 
 /**
  * Description here.
@@ -33,19 +34,19 @@ public class Vertex implements IIdentifiable {
 	/**
 	 * Where the vertex is located?
 	 */
-	private Segment segment;
-	/**
-	 * Position of the vertex within the segment.
-	 */
-	private double x;
-	/**
-	 * Position of the vertex within the segment.
-	 */
-	private double y;
+	private SegmentCoordinate position;
 	/**
 	 * The vertex tangent.
 	 */
 	private double tangent;
+	/**
+	 * The first connected track.
+	 */
+	private Track firstTrack;
+	/**
+	 * The second connected track.
+	 */
+	private Track secondTrack;
 	
 	@Override
 	public long getId() {
@@ -60,48 +61,66 @@ public class Vertex implements IIdentifiable {
 		this.id = id;
 	}
 	
-	public Segment getSegment() {
-		return this.segment;
+	/**
+	 * Returns the information about the position of this vertex on the world.
+	 * 
+	 * @return 
+	 */
+	public SegmentCoordinate pos() {
+		return this.position;
 	}
 	
-	public double x() {
-		return this.x;
-	}
-	
-	public double y() {
-		return this.y;
-	}
-	
+	/**
+	 * Tangent specifies the slope of the tangent line given in this vertex. It is calculated
+	 * from the tracks connected to it.
+	 * 
+	 * @return Tangent in this point.
+	 */
 	public double tangent() {
 		return this.tangent;
 	}
 	
-	public void setSegment(Segment segment) {
-		this.segment = Preconditions.checkNotNull(segment, "The vertex segment cannot be NULL.");
+	public Track getFirstTrack() {
+		return this.firstTrack;
 	}
 	
-	public void setX(double x) {
-		this.x = x;
-	}
-	
-	public void setY(double y) {
-		this.y = y;
-	}
-	
-	public void setTangent(double tangent) {
-		this.tangent = tangent;
+	public Track getSecondTrack() {
+		return this.secondTrack;
 	}
 	
 	/**
-	 * Sets the new vertex position.
+	 * Imports the vertex data from the vertex record.
 	 * 
-	 * @param segment
-	 * @param x
-	 * @param y 
+	 * @param vr
+	 * @param world Helper world object. We need some assistance from it.
 	 */
-	public void setPosition(Segment segment, double x, double y) {
-		this.segment = Preconditions.checkNotNull(segment, "The vertex segment cannot be NULL.");
-		this.x = x;
-		this.y = y;
+	public void importFrom(VertexRecord vr, World world) {
+		if(null != this.position) {
+			this.position.getSegment().removeVertex(this);
+		}
+		this.position = world.findPosition(vr.x(), vr.y());
+		this.position.getSegment().addVertex(this);
+		
+		this.tangent = vr.tangent();
+	}
+	
+	/**
+	 * Imports the track data from the track record.
+	 * 
+	 * @param vr
+	 * @param world
+	 * @param trackMapping 
+	 */
+	public void importConnections(VertexRecord vr, World world, BiMap<Long, Long> trackMapping) {
+		long id1 = vr.getFirstTrackActualId();
+		long id2 = vr.getSecondTrackActualId();
+		if(id1 < IIdentifiable.NEUTRAL_ID) {
+			id1 = trackMapping.get(id1);
+		}
+		if(id2 < IIdentifiable.NEUTRAL_ID) {
+			id2 = trackMapping.get(id2);
+		}
+		this.firstTrack = world.findTrack(id1);
+		this.secondTrack = world.findTrack(id2);
 	}
 }

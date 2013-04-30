@@ -46,4 +46,12 @@ public final class SegmentCoordinate {
 	public double y() {
 		return this.y;
 	}
+	
+	public double getAbsoluteX() {
+		return this.segment.getX() * Segment.SIZE + this.x;
+	}
+	
+	public double getAbsoluteY() {
+		return this.segment.getY() * Segment.SIZE + this.y;
+	}
 }

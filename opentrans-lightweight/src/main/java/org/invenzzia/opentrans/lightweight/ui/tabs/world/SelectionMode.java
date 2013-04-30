@@ -17,17 +17,24 @@
 
 package org.invenzzia.opentrans.lightweight.ui.tabs.world;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Selection mode allows selecting group of objects and moving them.
  * 
  * @author Tomasz Jędrzejewski
  */
 public class SelectionMode extends AbstractEditMode {
+	private final Logger logger = LoggerFactory.getLogger(SelectionMode.class);
+	
 	@Override
 	public void modeEnabled() {
+		logger.debug("SelectionMode enabled.");
 	}
 
 	@Override
 	public void modeDisabled() {
+		logger.debug("SelectionMode disabled.");
 	}
 }

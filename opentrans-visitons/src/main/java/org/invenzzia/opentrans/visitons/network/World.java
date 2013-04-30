@@ -19,12 +19,20 @@ package org.invenzzia.opentrans.visitons.network;
 
 import com.google.common.base.Preconditions;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Set;
 import org.invenzzia.helium.data.interfaces.IIdentifiable;
 import org.invenzzia.opentrans.visitons.exception.WorldException;
 import org.invenzzia.opentrans.visitons.render.AbstractCameraModelFoundation;
+import org.invenzzia.opentrans.visitons.render.SceneManager;
+import org.invenzzia.opentrans.visitons.render.painters.CurvedTrackPainter;
+import org.invenzzia.opentrans.visitons.render.painters.FreeTrackPainter;
+import org.invenzzia.opentrans.visitons.render.painters.StraightTrackPainter;
+import org.invenzzia.opentrans.visitons.render.scene.CommittedTrackSnapshot;
+import org.invenzzia.opentrans.visitons.utils.SegmentCoordinate;
 
 /**
  * Keeps all the information about the transportation network infrastructure
@@ -40,7 +48,6 @@ import org.invenzzia.opentrans.visitons.render.AbstractCameraModelFoundation;
  * @author Tomasz Jędrzejewski
  */
 public class World {
-
 	/**
 	 * A helper enumerator to specify the vertical directions.
 	 */
@@ -363,34 +370,49 @@ public class World {
 		}
 		return null;
 	}
-
+	
 	/**
-	 * Returns the segment, where the vertex belongs to.
-	 *
-	 * @param vertex The network vertex.
-	 * @return The owning segment.
+	 * Translates the absolute world coordinates into the relative <tt>(segment,x,y)</tt>
+	 * used in the world data model.
+	 * 
+	 * @param x
+	 * @param y
+	 * @return 
 	 */
-	public Segment segmentFor(Vertex vertex) {
-		int x = (int) Math.ceil(vertex.x() / Segment.SIZE);
-		int y = (int) Math.ceil(vertex.y() / Segment.SIZE);
-
-		return this.segments[x][y];
+	public SegmentCoordinate findPosition(double x, double y) {
+		int sx = (int) Math.floor(x / ((double) Segment.SIZE));
+		int sy = (int) Math.floor(y / ((double) Segment.SIZE));
+		
+		if(sx >= 0 && sx < this.dimX && sy >= 0 && sy < this.dimY) {
+			x -= (sx * Segment.SIZE);
+			y -= (sy * Segment.SIZE);
+			return new SegmentCoordinate(this.segments[sx][sy], x, y);
+		}
+		throw new IllegalArgumentException("The coordinates '"+x+"', '"+y+"' are outside the world (sx: "+sx+", sy: "+sy+").");
 	}
 
 	/**
-	 * Adds a vertex to the world visualization, placing it in the proper segment.
+	 * Adds a vertex to the world model, and assigns an ID to it, if necessary.
 	 *
 	 * @param vertex The vertex to add.
 	 * @return Fluent interface.
 	 */
 	public World addVertex(Vertex vertex) {
-		if(vertex.getId() != IIdentifiable.NEUTRAL_ID) {
-			throw new IllegalArgumentException("Cannot add a previously added vertex.");
+		if(vertex.getId() == IIdentifiable.NEUTRAL_ID) {
+			vertex.setId(this.nextVertexId++);
 		}
-		vertex.setId(this.nextVertexId++);
-		this.vertices.put(Long.valueOf(this.nextVertexId), vertex);
-		vertex.getSegment().addVertex(vertex);
+		this.vertices.put(Long.valueOf(vertex.getId()), vertex);
 		return this;
+	}
+	
+	/**
+	 * Finds a vertex with the given ID.
+	 * 
+	 * @param id Vertex ID.
+	 * @return Vertex.
+	 */
+	public Vertex findVertex(long id) {
+		return this.vertices.get(id);
 	}
 
 	/**
@@ -401,6 +423,30 @@ public class World {
 	 */
 	public World removeVertex(Vertex vertex) {
 		return this;
+	}
+	
+	/**
+	 * Adds a track to the world model, and assigns the ID, if necessary.
+	 * 
+	 * @param track
+	 * @return Fluent interface.
+	 */
+	public World addTrack(Track track) {
+		if(track.getId() == IIdentifiable.NEUTRAL_ID) {
+			track.setId(this.nextTrackId++);
+		}
+		this.tracks.put(Long.valueOf(track.getId()), track);
+		return this;
+	}
+	
+	/**
+	 * Finds a track with the specified ID.
+	 * 
+	 * @param id Track ID.
+	 * @return The track with this ID or null.
+	 */
+	public Track findTrack(long id) {
+		return this.tracks.get(id);
 	}
 	
 	/**
@@ -450,6 +496,68 @@ public class World {
 		return collection;
 	}
 	
-	
-
+	/**
+	 * Exports the editable part of the world to the scene manager.
+	 * 
+	 * @param sm Scene manager.
+	 * @param camera Camera model is needed to find the visible vertices.
+	 * @param batch Are we in the batch mode?
+	 */
+	public void exportScene(SceneManager sm, AbstractCameraModelFoundation camera, boolean batch) {
+		Collection<Segment> visibleSegments = this.getVisibleSegments(camera);
+		
+		int vertexNum = 0;
+		for(Segment segment: visibleSegments) {
+			vertexNum += segment.getVertexNum();
+		}
+		
+		/*
+		int i = 0;
+		for(TrackRecord rec: this.tracks) {
+			switch(rec.getType()) {
+				case NetworkConst.TRACK_STRAIGHT:
+					snap.setTrackPainter(i++, new StraightTrackPainter(rec.getMetadata()));
+					break;
+				case NetworkConst.TRACK_CURVED:
+					snap.setTrackPainter(i++, new CurvedTrackPainter(rec.getMetadata()));
+					break;
+				case NetworkConst.TRACK_FREE:
+					snap.setTrackPainter(i++, new FreeTrackPainter(rec.getMetadata()));
+					break;
+			}
+		}
+		*/
+		double points[] = new double[vertexNum * 2];
+		int i = 0;
+		Set<Track> visibleTracks = new HashSet<>();
+		for(Segment segment: visibleSegments) {
+			for(Vertex vertex: segment.getVertices()) {
+				points[i++] = vertex.pos().getAbsoluteX();
+				points[i++] = vertex.pos().getAbsoluteY();
+				visibleTracks.add(vertex.getFirstTrack());
+				visibleTracks.add(vertex.getSecondTrack());
+			}
+		}
+		CommittedTrackSnapshot snap = new CommittedTrackSnapshot(visibleTracks.size());
+		snap.setVertexArray(points);
+		i = 0;
+		for(Track track: visibleTracks) {
+			switch(track.getType()) {
+				case NetworkConst.TRACK_STRAIGHT:
+					snap.setTrackPainter(i++, new StraightTrackPainter(track.getMetadata()));
+					break;
+				case NetworkConst.TRACK_CURVED:
+					snap.setTrackPainter(i++, new CurvedTrackPainter(track.getMetadata()));
+					break;
+				case NetworkConst.TRACK_FREE:
+					snap.setTrackPainter(i++, new FreeTrackPainter(track.getMetadata()));
+					break;
+			}
+		}
+		if(batch) {
+			sm.batchUpdateResource(CommittedTrackSnapshot.class, snap);
+		} else {
+			sm.updateResource(CommittedTrackSnapshot.class, snap);
+		}
+	}
 }

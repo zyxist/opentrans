@@ -22,11 +22,11 @@ import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
+import org.invenzzia.opentrans.lightweight.annotations.InModelThread;
 import org.invenzzia.opentrans.lightweight.concurrent.ModelThread;
 import org.invenzzia.opentrans.lightweight.events.CameraUpdatedEvent;
 import org.invenzzia.opentrans.lightweight.events.NewProjectEvent;
 import org.invenzzia.opentrans.lightweight.events.WorldSizeChangedEvent;
-import org.invenzzia.opentrans.visitons.Project;
 import org.invenzzia.opentrans.visitons.Project.ProjectRecord;
 import org.invenzzia.opentrans.visitons.network.Segment;
 import org.invenzzia.opentrans.visitons.network.World;
@@ -66,32 +66,25 @@ public class CameraListener {
 		this.cameraModel.setWorldSize(event.getSizeX(), event.getSizeY());
 		this.eventBus.post(new CameraUpdatedEvent(new CameraModelSnapshot(this.cameraModel)));
 	}
-	
+
 	@Subscribe
-	public void notifyCameraUpdated(CameraUpdatedEvent event) {
+	@InModelThread(asynchronous = true)
+	public void notifyCameraUpdated(final CameraUpdatedEvent event) {
 		final CameraModelSnapshot snapshot = event.getSnapshot();
 		final VisibleSegmentSnapshot vss = new VisibleSegmentSnapshot();
-		
-		try {
-			final World world = this.worldProvider.get();
-			if(null != world && this.modelThread.isRunning()) {
-				this.modelThread.enqueueAndWait(new Runnable() {
-					@Override
-					public void run() {
-						for(Segment segment: world.getVisibleSegments(snapshot)) {
-							vss.addSegmentInfo(new VisibleSegmentSnapshot.SegmentInfo(segment, null));
-						}
-					}
-				});
+		final World world = this.worldProvider.get();
+		if(null != world) {
+			for(Segment segment: world.getVisibleSegments(snapshot)) {
+				vss.addSegmentInfo(new VisibleSegmentSnapshot.SegmentInfo(segment, null));
 			}
 			sceneManager.guard();
 			try {
 				sceneManager.batchUpdateResource(CameraModelSnapshot.class, snapshot);
 				sceneManager.batchUpdateResource(VisibleSegmentSnapshot.class, vss);
+				world.exportScene(sceneManager, cameraModel, true);
 			} finally {
 				sceneManager.unguard();
 			}
-		} catch(InterruptedException exception) {
 		}
 	}
 }

@@ -528,13 +528,13 @@ public class World {
 		for(Track track: visibleTracks) {
 			switch(track.getType()) {
 				case NetworkConst.TRACK_STRAIGHT:
-					snap.setTrackPainter(i++, new StraightTrackPainter(track.getMetadata()));
+					snap.setTrackPainter(i++, new StraightTrackPainter(track.getId(), track.getMetadata()));
 					break;
 				case NetworkConst.TRACK_CURVED:
-					snap.setTrackPainter(i++, new CurvedTrackPainter(track.getMetadata()));
+					snap.setTrackPainter(i++, new CurvedTrackPainter(track.getId(), track.getMetadata()));
 					break;
 				case NetworkConst.TRACK_FREE:
-					snap.setTrackPainter(i++, new FreeTrackPainter(track.getMetadata()));
+					snap.setTrackPainter(i++, new FreeTrackPainter(track.getId(), track.getMetadata()));
 					break;
 			}
 		}

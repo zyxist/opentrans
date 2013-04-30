@@ -55,5 +55,4 @@ public abstract class RenderingStreamAdapter implements IRenderingStream {
 		}
 		return null;
 	}
-	
 }

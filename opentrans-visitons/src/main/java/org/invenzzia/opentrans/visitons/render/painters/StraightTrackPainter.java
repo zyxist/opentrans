@@ -28,11 +28,21 @@ import org.invenzzia.opentrans.visitons.render.CameraModelSnapshot;
  * @author Tomasz Jędrzejewski
  */
 public class StraightTrackPainter implements ITrackPainter {
+	/**
+	 * ID of the painted track: for the mouse hovering.
+	 */
+	private final long id;
 	private final double coordinates[];
 	private Line2D.Double line;
 		
-	public StraightTrackPainter(double metadata[]) {
+	public StraightTrackPainter(long id, double metadata[]) {
 		this.coordinates = metadata;
+		this.id = id;
+	}
+	
+	@Override
+	public long getId() {
+		return this.id;
 	}
 
 	@Override

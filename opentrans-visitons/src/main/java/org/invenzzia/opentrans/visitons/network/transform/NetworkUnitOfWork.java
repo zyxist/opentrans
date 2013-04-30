@@ -132,13 +132,13 @@ public class NetworkUnitOfWork {
 			Preconditions.checkState(rec.getId() != IIdentifiable.NEUTRAL_ID, "Track record has a neutral ID.");
 			switch(rec.getType()) {
 				case NetworkConst.TRACK_STRAIGHT:
-					snap.setTrackPainter(i++, new StraightTrackPainter(rec.getMetadata()));
+					snap.setTrackPainter(i++, new StraightTrackPainter(rec.getId(), rec.getMetadata()));
 					break;
 				case NetworkConst.TRACK_CURVED:
-					snap.setTrackPainter(i++, new CurvedTrackPainter(rec.getMetadata()));
+					snap.setTrackPainter(i++, new CurvedTrackPainter(rec.getId(), rec.getMetadata()));
 					break;
 				case NetworkConst.TRACK_FREE:
-					snap.setTrackPainter(i++, new FreeTrackPainter(rec.getMetadata()));
+					snap.setTrackPainter(i++, new FreeTrackPainter(rec.getId(), rec.getMetadata()));
 					break;
 			}
 		}

@@ -22,6 +22,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.Map;
 import org.invenzzia.opentrans.visitons.render.CameraModelSnapshot;
+import org.invenzzia.opentrans.visitons.render.HoverCollector;
 import org.invenzzia.opentrans.visitons.render.RenderingStreamAdapter;
 import org.invenzzia.opentrans.visitons.render.scene.VisibleSegmentSnapshot;
 import org.invenzzia.opentrans.visitons.render.scene.VisibleSegmentSnapshot.SegmentInfo;
@@ -38,14 +39,11 @@ public class GridStream extends RenderingStreamAdapter {
 	public static final BasicStroke SUBGRID_STROKE = new BasicStroke(1.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 10.0f, new float[] { 2.0f }, 0.0f);
 	
 	@Override
-	public void render(Graphics2D g, Map<Object, Object> snapshot, long prevTimeFrame) {
+	public void render(Graphics2D g, Map<Object, Object> snapshot, HoverCollector hoverCollector, long prevTimeFrame) {
 		g.setColor(GridStream.GRID_COLOR);
 		VisibleSegmentSnapshot vss = this.extract(snapshot, VisibleSegmentSnapshot.class);
 		CameraModelSnapshot camera = this.extract(snapshot, CameraModelSnapshot.class);
-		
-		g.drawString("posX: "+camera.getPosX()+"; posY: "+camera.getPosY(), 10, 10);
-		g.drawString("oveX: "+camera.getOverflowCenterX()+"; oveY: "+camera.getOverflowCenterY(), 10, 30);
-		
+			
 		if(null != vss && null != camera) {
 			double mpp = camera.getMpp();
 			for(SegmentInfo s: vss.getSegments()) {

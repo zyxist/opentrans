@@ -17,36 +17,29 @@
 
 package org.invenzzia.opentrans.visitons.render.scene;
 
-import java.awt.Rectangle;
-
 /**
- * Represents the mouse position in the rendering thread, so
- * we can highlight certain objects.
+ * This is the only piece of information passed in the opposite direction:
+ * from the renderer to the application. It specifies, which object
  * 
  * @author Tomasz Jędrzejewski
  */
-public class MouseSnapshot {
-	private final int x;
-	private final int y;
+public class HoveredItemSnapshot {
+	public static final byte TYPE_TRACK = 1;
+	public static final byte TYPE_VERTEX = 2;
 	
-	public MouseSnapshot(int x, int y) {
-		this.x = x;
-		this.y = y;
+	private final byte type;
+	private final long id;
+	
+	public HoveredItemSnapshot(byte type, long id) {
+		this.type = type;
+		this.id = id;
 	}
 	
-	public int x() {
-		return this.x;
+	public byte getType() {
+		return this.type;
 	}
 	
-	public int y() {
-		return this.y;
-	}
-	
-	public Rectangle hitRect() {
-		return new Rectangle(this.x - 2, this.y - 2, 4, 4);
-	}
-	
-	public boolean hits(int x, int y, int w, int h) {
-		return (this.x >= x && this.x < (x + w) && this.y >= y && this.y < (y + h));
+	public long getId() {
+		return this.id;
 	}
 }

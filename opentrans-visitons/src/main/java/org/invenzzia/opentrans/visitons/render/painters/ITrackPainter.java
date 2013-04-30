@@ -28,6 +28,10 @@ import org.invenzzia.opentrans.visitons.render.CameraModelSnapshot;
  */
 public interface ITrackPainter {
 	/**
+	 * @return ID of the painted track.
+	 */
+	public long getId();
+	/**
 	 * Checks whether the mouse hits this object.
 	 * 
 	 * @param rect Mouse mouse rectangle.

@@ -21,6 +21,7 @@ import java.awt.Graphics2D;
 import java.util.Map;
 import org.invenzzia.opentrans.visitons.render.CameraModel;
 import org.invenzzia.opentrans.visitons.render.CameraModelSnapshot;
+import org.invenzzia.opentrans.visitons.render.HoverCollector;
 import org.invenzzia.opentrans.visitons.render.RenderingStreamAdapter;
 import org.invenzzia.opentrans.visitons.render.scene.VisibleSegmentSnapshot;
 import org.invenzzia.opentrans.visitons.render.scene.VisibleSegmentSnapshot.SegmentInfo;
@@ -35,7 +36,7 @@ public class SegmentBitmapStream extends RenderingStreamAdapter {
 	private static final double MAX_ZOOM_VISIBILITY = 3.0;
 	
 	@Override
-	public void render(Graphics2D graphics, Map<Object, Object> snapshot, long prevTimeFrame) {
+	public void render(Graphics2D graphics, Map<Object, Object> snapshot, HoverCollector hoverCollector, long prevTimeFrame) {
 		VisibleSegmentSnapshot vss = this.extract(snapshot, VisibleSegmentSnapshot.class);
 		CameraModelSnapshot camera = this.extract(snapshot, CameraModelSnapshot.class);
 		if(null != vss && null != camera) {

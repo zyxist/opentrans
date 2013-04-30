@@ -40,7 +40,8 @@ public interface IRenderingStream {
 	 * 
 	 * @param graphics Graphics device.
 	 * @param scene Description of the stuff in the scene.
+	 * @param hoverCollector Emits information about the hovered objects.
 	 * @param prevTimeFrame The time of rendering the previous frame in milliseconds.
 	 */
-	public void render(Graphics2D graphics, Map<Object, Object> scene, long prevTimeFrame);
+	public void render(Graphics2D graphics, Map<Object, Object> scene, HoverCollector hoverCollector, long prevTimeFrame);
 } 

@@ -28,12 +28,22 @@ import org.invenzzia.opentrans.visitons.render.CameraModelSnapshot;
  * @author Tomasz Jędrzejewski
  */
 public class FreeTrackPainter implements ITrackPainter {
+	/**
+	 * ID of the painted track: for the mouse hovering.
+	 */
+	private final long id;
 	private double coordinates[];
 	private Arc2D.Double firstArc;
 	private Arc2D.Double secondArc;
 	
-	public FreeTrackPainter(double metadata[]) {
+	public FreeTrackPainter(long id, double metadata[]) {
+		this.id = id;
 		this.coordinates = metadata;
+	}
+	
+	@Override
+	public long getId() {
+		return this.id;
 	}
 	
 	@Override

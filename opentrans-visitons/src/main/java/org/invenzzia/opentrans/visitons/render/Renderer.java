@@ -19,6 +19,7 @@ package org.invenzzia.opentrans.visitons.render;
 
 import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import java.awt.Color;
 import java.awt.Graphics;
@@ -71,10 +72,15 @@ public final class Renderer {
 	 * List of visible segments, updated every time we change the view port.
 	 */
 	private List<Segment> visibleSegments = new LinkedList<>();
+	/**
+	 * Collects information about the hovered objects.
+	 */
+	private HoverCollector hoverCollector;
 	
 	@Inject
-	public Renderer(SceneManager sceneManager) {
+	public Renderer(SceneManager sceneManager, Provider<HoverCollector> hoverCollectorProvider) {
 		this.sceneManager = Preconditions.checkNotNull(sceneManager, "The renderer cannot operate without a scene manager.");
+		this.hoverCollector = Preconditions.checkNotNull(hoverCollectorProvider, "The hover collector cannot be empty.").get();
 		this.createBuffers();
 	}
 	
@@ -160,6 +166,7 @@ public final class Renderer {
 	public void render(long prevFrameTime) {
 		Map<Object, Object> snapshot = this.sceneManager.getSnapshot();
 		this.updateBuffers(snapshot);
+		this.hoverCollector.resetHoveredItem();
 		
 		Graphics2D g = (Graphics2D) this.drawnImage.getGraphics();
 		g.setColor(Renderer.BACKGROUND_COLOR);
@@ -169,8 +176,9 @@ public final class Renderer {
 		// Run the rendering streams.
 		long current = System.currentTimeMillis();
 		for(IRenderingStream stream: this.renderingStreams) {
-			stream.render((Graphics2D) g, snapshot, current);
+			stream.render((Graphics2D) g, snapshot, this.hoverCollector, current);
 		}
+		this.hoverCollector.emitSnapshot(this.sceneManager);
 		this.swapBuffers(snapshot);
 	}
 

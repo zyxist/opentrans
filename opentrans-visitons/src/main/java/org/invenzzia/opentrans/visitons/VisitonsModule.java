@@ -22,9 +22,13 @@ import com.google.inject.Singleton;
 import org.invenzzia.opentrans.visitons.provider.CameraModelProvider;
 import org.invenzzia.opentrans.visitons.provider.SceneManagerProvider;
 import org.invenzzia.opentrans.visitons.render.CameraModel;
+import org.invenzzia.opentrans.visitons.render.HoverCollector;
 import org.invenzzia.opentrans.visitons.render.Renderer;
 import org.invenzzia.opentrans.visitons.render.SceneManager;
 import org.invenzzia.opentrans.visitons.render.listeners.SceneCameraListener;
+import org.invenzzia.opentrans.visitons.render.stream.GridStream;
+import org.invenzzia.opentrans.visitons.render.stream.SegmentBitmapStream;
+import org.invenzzia.opentrans.visitons.render.stream.TrackStream;
 
 /**
  * The module that defines the dependencies for Visi
@@ -38,6 +42,11 @@ public class VisitonsModule extends AbstractModule {
 		this.bind(CameraModel.class).toProvider(CameraModelProvider.class).in(Singleton.class);
 		this.bind(SceneManager.class).toProvider(SceneManagerProvider.class).in(Singleton.class);
 		this.bind(Renderer.class);
+		this.bind(HoverCollector.class);
+		
+		this.bind(GridStream.class).in(Singleton.class);
+		this.bind(SegmentBitmapStream.class).in(Singleton.class);
+		this.bind(TrackStream.class).in(Singleton.class);
 		
 		VisitonsExtensions.bindSceneManagerListeners(this.binder(), SceneCameraListener.class);
 	}

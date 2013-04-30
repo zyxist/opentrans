@@ -29,6 +29,10 @@ import org.invenzzia.opentrans.visitons.render.CameraModelSnapshot;
  */
 public class CurvedTrackPainter implements ITrackPainter {
 	/**
+	 * ID of the painted track: for the mouse hovering.
+	 */
+	private final long id;
+	/**
 	 * Data coordinates.
 	 */
 	private double coordinates[];
@@ -37,8 +41,14 @@ public class CurvedTrackPainter implements ITrackPainter {
 	 */
 	private Arc2D.Double arc;
 	
-	public CurvedTrackPainter(double metadata[]) {
+	public CurvedTrackPainter(long id, double metadata[]) {
+		this.id = id;
 		this.coordinates = metadata;
+	}
+	
+	@Override
+	public long getId() {
+		return this.id;
 	}
 
 	@Override

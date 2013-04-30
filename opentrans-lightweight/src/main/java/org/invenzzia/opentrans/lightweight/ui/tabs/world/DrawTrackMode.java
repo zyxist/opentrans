@@ -124,14 +124,16 @@ public class DrawTrackMode extends AbstractEditMode {
 	public void rightActionPerformed(double worldX, double worldY, boolean altDown, boolean ctrlDown) {
 		try {
 			logger.debug("rightAction: finishing the construction and saving the data to the world model.");
-			TrackRecord tr = this.boundVertex.getTrackTo(this.previousBoundVertex);
-			if(null != tr) {
-				this.currentUnit.removeTrack(tr);
+			if(null != this.boundVertex) {
+				TrackRecord tr = this.boundVertex.getTrackTo(this.previousBoundVertex);
+				if(null != tr) {
+					this.currentUnit.removeTrack(tr);
+				}
+				if(!this.currentUnit.isEmpty()) {
+					this.history.execute(new NetworkLayoutChangeCmd(this.currentUnit));
+				}
+				this.exportScene(this.projectHolder.getCurrentProject().getWorld());
 			}
-			if(!this.currentUnit.isEmpty()) {
-				this.history.execute(new NetworkLayoutChangeCmd(this.currentUnit));
-			}
-			this.exportScene(this.projectHolder.getCurrentProject().getWorld());
 		} catch(CommandExecutionException exception) {
 			logger.error("Exception occurred while saving the network unit of work.", exception);
 		} finally {

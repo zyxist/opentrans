@@ -27,6 +27,8 @@ import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import net.jcip.annotations.ThreadSafe;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Scene manager serves as a bridge between the renderer and the other
@@ -98,11 +100,11 @@ public class SceneManager implements ISceneManagerOperations {
 	 * @param value 
 	 */
 	public void updateResource(Object key, Object value) {
-		if(this.batch) {
-			throw new IllegalStateException("Call of the updateResource() method in batch mode!");
-		}
 		try {
 			this.lock.lock();
+			if(this.batch) {
+				throw new IllegalStateException("Call of the updateResource() method in batch mode!");
+			}
 			if(null == value) {
 				this.scene.remove(key);
 			} else {

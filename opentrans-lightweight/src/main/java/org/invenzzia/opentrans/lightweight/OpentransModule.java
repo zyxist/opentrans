@@ -55,8 +55,11 @@ import org.invenzzia.opentrans.lightweight.ui.workspace.DesktopManager;
 import org.invenzzia.opentrans.lightweight.ui.workspace.IDesktopPaneFactory;
 import org.invenzzia.opentrans.lightweight.ui.workspace.WorkspaceController;
 import org.invenzzia.opentrans.lightweight.ui.workspace.WorkspacePanel;
+import org.invenzzia.opentrans.lightweight.visitons.ConcurrentRecordImporter;
+import org.invenzzia.opentrans.visitons.bindings.ActualImporter;
 import org.invenzzia.opentrans.visitons.editing.ICommand;
 import org.invenzzia.opentrans.visitons.network.World;
+import org.invenzzia.opentrans.visitons.network.transform.IRecordImporter;
 
 /**
  * The Google Guice module that manages the bindings related to GUI.
@@ -140,6 +143,7 @@ public class OpentransModule extends AbstractModule {
 
 		// Bind visitons items
 		this.bind(World.class).toProvider(WorldProvider.class);
+		this.bind(IRecordImporter.class).annotatedWith(ActualImporter.class).to(ConcurrentRecordImporter.class).in(Singleton.class);
 	}
 
 }

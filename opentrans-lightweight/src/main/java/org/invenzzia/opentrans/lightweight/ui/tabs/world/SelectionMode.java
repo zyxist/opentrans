@@ -29,7 +29,7 @@ public class SelectionMode extends AbstractEditMode {
 	private final Logger logger = LoggerFactory.getLogger(SelectionMode.class);
 	
 	@Override
-	public void modeEnabled() {
+	public void modeEnabled(IEditModeAPI api) {
 		logger.debug("SelectionMode enabled.");
 	}
 

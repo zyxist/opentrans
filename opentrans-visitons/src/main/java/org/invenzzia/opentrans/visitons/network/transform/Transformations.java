@@ -18,6 +18,8 @@
 package org.invenzzia.opentrans.visitons.network.transform;
 
 import com.google.common.base.Preconditions;
+import com.google.inject.Inject;
+import org.invenzzia.opentrans.visitons.bindings.ActualImporter;
 import org.invenzzia.opentrans.visitons.geometry.ArcOps;
 import org.invenzzia.opentrans.visitons.geometry.LineOps;
 import org.invenzzia.opentrans.visitons.geometry.Point;
@@ -50,9 +52,15 @@ public class Transformations {
 	 * Where do we apply the changes?
 	 */
 	private final NetworkUnitOfWork unitOfWork;
+	/**
+	 * How to import the data from the world model?
+	 */
+	private final IRecordImporter recordImporter;
 	
-	public Transformations(NetworkUnitOfWork unitOfWork) {
+	@Inject
+	public Transformations(NetworkUnitOfWork unitOfWork, @ActualImporter IRecordImporter recordImporter) {
 		this.unitOfWork = Preconditions.checkNotNull(unitOfWork);
+		this.recordImporter = Preconditions.checkNotNull(recordImporter);
 	}
 	
 	/**
@@ -139,6 +147,7 @@ public class Transformations {
 	public boolean createStraightTrack(VertexRecord v1, VertexRecord v2) {
 		Preconditions.checkState(!v1.hasAllTracks(), "Cannot create a straight track to a full vertex.");
 		Preconditions.checkState(!v2.hasAllTracks(), "Cannot create a straight track to a full vertex.");
+		this.recordImporter.importAllMissingNeighbors(this.unitOfWork, v1, v2);
 		if(v1.hasNoTracks() && v2.hasNoTracks()) {
 			TrackRecord track = new TrackRecord();
 			track.setFreeVertex(v1);
@@ -196,8 +205,8 @@ public class Transformations {
 	 * @return 
 	 */
 	public boolean createCurvedTrack(VertexRecord v1, VertexRecord v2) {
+		this.recordImporter.importAllMissingNeighbors(this.unitOfWork, v1, v2);
 		if(v1.hasOneTrack() && v2.hasOneTrack()) {
-			this.unitOfWork.importAllMissingNeighbors(v2);
 			TrackRecord track = v2.getTrackTo(v1);
 			switch(track.getType()) {
 				case NetworkConst.TRACK_STRAIGHT:
@@ -209,7 +218,6 @@ public class Transformations {
 					break;
 			}
 		} else if(v1.hasOneTrack() && v2.hasNoTracks()) {
-			this.unitOfWork.importAllMissingNeighbors(v1);
 			TrackRecord tr = new TrackRecord();
 			tr.setType(NetworkConst.TRACK_CURVED);
 			tr.setFreeVertex(v1);

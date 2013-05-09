@@ -76,11 +76,11 @@ public class World {
 	/**
 	 * Incrementator for generating the vertex ID.
 	 */
-	private long nextVertexId = 0;
+	private long nextVertexId = IIdentifiable.INCREMENTATION_START;
 	/**
 	 * Incrementator for generating the track ID.
 	 */
-	private long nextTrackId = 0;
+	private long nextTrackId = IIdentifiable.INCREMENTATION_START;
 	/**
 	 * All the vertices managed by the project.
 	 */
@@ -521,8 +521,12 @@ public class World {
 				ids[j++] = vertex.getId();
 				points[i++] = vertex.pos().getAbsoluteX();
 				points[i++] = vertex.pos().getAbsoluteY();
-				visibleTracks.add(vertex.getFirstTrack());
-				visibleTracks.add(vertex.getSecondTrack());
+				if(null != vertex.getFirstTrack()) {
+					visibleTracks.add(vertex.getFirstTrack());
+				}
+				if(null != vertex.getSecondTrack()) {
+					visibleTracks.add(vertex.getSecondTrack());
+				}
 			}
 		}
 		CommittedTrackSnapshot snap = new CommittedTrackSnapshot(visibleTracks.size());

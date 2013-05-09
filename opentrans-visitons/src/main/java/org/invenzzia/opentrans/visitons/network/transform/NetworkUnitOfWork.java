@@ -19,12 +19,15 @@ package org.invenzzia.opentrans.visitons.network.transform;
 
 import com.google.common.base.Preconditions;
 import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import org.invenzzia.helium.data.interfaces.IIdentifiable;
 import org.invenzzia.opentrans.visitons.network.NetworkConst;
+import org.invenzzia.opentrans.visitons.network.Track;
 import org.invenzzia.opentrans.visitons.network.TrackRecord;
+import org.invenzzia.opentrans.visitons.network.Vertex;
 import org.invenzzia.opentrans.visitons.network.VertexRecord;
+import org.invenzzia.opentrans.visitons.network.World;
 import org.invenzzia.opentrans.visitons.render.SceneManager;
 import org.invenzzia.opentrans.visitons.render.painters.CurvedTrackPainter;
 import org.invenzzia.opentrans.visitons.render.painters.FreeTrackPainter;
@@ -43,11 +46,11 @@ public class NetworkUnitOfWork {
 	/**
 	 * List of the tracks modified or added in this session.
 	 */
-	private List<TrackRecord> tracks;
+	private Map<Long, TrackRecord> tracks;
 	/**
 	 * List of vertices modified or added in this session.
 	 */
-	private List<VertexRecord> vertices;
+	private Map<Long, VertexRecord> vertices;
 	/**
 	 * Identify new tracks with negative ID-s to distinguish them from the
 	 * existing tracks.
@@ -60,8 +63,8 @@ public class NetworkUnitOfWork {
 	private long nextVertexId = -IIdentifiable.INCREMENTATION_START;
 	
 	public NetworkUnitOfWork() {
-		this.tracks = new LinkedList<>();
-		this.vertices = new LinkedList<>();
+		this.tracks = new LinkedHashMap<>();
+		this.vertices = new LinkedHashMap<>();
 	}
 	
 	/**
@@ -78,16 +81,65 @@ public class NetworkUnitOfWork {
 		if(track.getId() == IIdentifiable.NEUTRAL_ID) {
 			track.setId(this.nextTrackId--);
 		}
-		this.tracks.add(track);
+		this.tracks.put(Long.valueOf(track.getId()), track);
 	}
 	
 	public void addVertex(VertexRecord vertex) {
 		if(vertex.getId() == IIdentifiable.NEUTRAL_ID) {
 			vertex.setId(this.nextVertexId--);
 		}
-		this.vertices.add(vertex);
+		this.vertices.put(Long.valueOf(vertex.getId()), vertex);
 	}
 	
+	/**
+	 * Imports the vertex from the domain model. This method may be called only in the
+	 * model thread. If the record with the given ID is alread in the unit of work, no
+	 * import happens - the method simply returns the existing record then.
+	 * 
+	 * @param vertex Source vertex.
+	 * @return Importex or existing track record.
+	 */
+	public VertexRecord importVertex(Vertex vertex) {
+		VertexRecord record = this.vertices.get(Long.valueOf(vertex.getId()));
+		if(null != record) {
+			return record;
+		}
+		record = new VertexRecord(vertex);
+		this.vertices.put(Long.valueOf(vertex.getId()), record);
+		return record;
+	}
+		
+	/**
+	 * Imports the track from the domain model. The method may be called only
+	 * in the model thread. If the record with the given ID is alread in the unit of work, no
+	 * import happens - the method simply returns the existing record then.
+	 * 
+	 * @param world
+	 * @param trackId
+	 * @return Imported or existing track record.
+	 */
+	public TrackRecord importTrack(World world, long trackId) {
+		TrackRecord record = this.tracks.get(Long.valueOf(trackId));
+		if(null != record) {
+			return record;
+		}
+		Track track = world.findTrack(trackId);
+		VertexRecord v1, v2;
+		record = new TrackRecord(
+			track,
+			v1 = this.importVertex(track.getFirstVertex()),
+			v2 = this.importVertex(track.getSecondVertex())
+		);
+		this.tracks.put(trackId, record);
+		
+		// Both of the vertices might have been imported earlier. We must update their references to the
+		// actual links.
+		v1.replaceReferenceWithRecord(record);
+		v2.replaceReferenceWithRecord(record);
+
+		return record;
+	}
+
 	/**
 	 * We can remove a previously added track from the unit of work. The method
 	 * performs the detaching from the neighbouring vertices as well.
@@ -99,24 +151,20 @@ public class NetworkUnitOfWork {
 		track.getFirstVertex().removeTrack(track);
 		track.getSecondVertex().removeTrack(track);
 		if(track.getFirstVertex().hasNoTracks()) {
-			this.vertices.remove(track.getFirstVertex());
+			this.vertices.remove(track.getFirstVertex().getId());
 		}
 		if(track.getSecondVertex().hasNoTracks()) {
-			this.vertices.remove(track.getSecondVertex());
+			this.vertices.remove(track.getSecondVertex().getId());
 		}
-		this.tracks.remove(track);
+		this.tracks.remove(track.getId());
 	}
 	
 	public Iterator<TrackRecord> overTracks() {
-		return this.tracks.iterator();
+		return this.tracks.values().iterator();
 	}
 	
 	public Iterator<VertexRecord> overVertices() {
-		return this.vertices.iterator();
-	}
-
-	public void importAllMissingNeighbors(VertexRecord vertex) {
-		
+		return this.vertices.values().iterator();
 	}
 	
 	/**
@@ -128,7 +176,7 @@ public class NetworkUnitOfWork {
 		EditableTrackSnapshot snap = new EditableTrackSnapshot(tracks.size());
 		
 		int i = 0;
-		for(TrackRecord rec: this.tracks) {
+		for(TrackRecord rec: this.tracks.values()) {
 			Preconditions.checkState(rec.getId() != IIdentifiable.NEUTRAL_ID, "Track record has a neutral ID.");
 			switch(rec.getType()) {
 				case NetworkConst.TRACK_STRAIGHT:
@@ -146,7 +194,7 @@ public class NetworkUnitOfWork {
 		long ids[] = new long[this.vertices.size()];
 		i = 0;
 		int j = 0;
-		for(VertexRecord rec: this.vertices) {
+		for(VertexRecord rec: this.vertices.values()) {
 			points[i++] = rec.x();
 			points[i++] = rec.y();
 			ids[j++] = rec.getId();

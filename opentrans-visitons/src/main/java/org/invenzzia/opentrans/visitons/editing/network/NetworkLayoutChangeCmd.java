@@ -126,7 +126,8 @@ public class NetworkLayoutChangeCmd implements ICommand {
 			project.getWorld().addTrack(track);
 			this.trackMapping.put(Long.valueOf(tempId), Long.valueOf(track.getId()));
 		} else {
-			
+			Track track = project.getWorld().findTrack(tr.getId());
+			track.importFrom(tr, project.getWorld(), this.vertexMapping);
 		}
 	}
 

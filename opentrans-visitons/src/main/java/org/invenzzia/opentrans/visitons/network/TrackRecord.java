@@ -51,6 +51,31 @@ public class TrackRecord {
 	 */
 	private double metadata[];
 	
+	/**
+	 * Creates a new, empty instance of track.
+	 */
+	public TrackRecord() {
+	}
+	
+	/**
+	 * Creates a track record which maps an existing {@link Track} object. We must also 
+	 * provide the two records for the vertices, which must be imported separately.
+	 * 
+	 * @param track The source track.
+	 * @param firstVertex The record for the first vertex.
+	 * @param secondVertex The record for the second vertex.
+	 */
+	public TrackRecord(Track track, VertexRecord firstVertex, VertexRecord secondVertex) {
+		Preconditions.checkNotNull(track);
+		Preconditions.checkNotNull(firstVertex);
+		Preconditions.checkNotNull(secondVertex);
+		this.id = track.getId();
+		this.type = track.getType();
+		this.metadata = track.getMetadata();
+		this.v1 = firstVertex;
+		this.v2 = secondVertex;
+	}
+	
 	public long getId() {
 		return this.id;
 	}

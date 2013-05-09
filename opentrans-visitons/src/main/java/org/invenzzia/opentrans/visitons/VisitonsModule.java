@@ -19,6 +19,9 @@ package org.invenzzia.opentrans.visitons;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Singleton;
+import org.invenzzia.opentrans.visitons.bindings.DefaultImporter;
+import org.invenzzia.opentrans.visitons.network.transform.DefaultRecordImporter;
+import org.invenzzia.opentrans.visitons.network.transform.IRecordImporter;
 import org.invenzzia.opentrans.visitons.provider.CameraModelProvider;
 import org.invenzzia.opentrans.visitons.provider.SceneManagerProvider;
 import org.invenzzia.opentrans.visitons.render.CameraModel;
@@ -48,6 +51,8 @@ public class VisitonsModule extends AbstractModule {
 		this.bind(SegmentBitmapStream.class).in(Singleton.class);
 		this.bind(TrackStream.class).in(Singleton.class);
 		
+		this.bind(IRecordImporter.class).annotatedWith(DefaultImporter.class).to(DefaultRecordImporter.class).in(Singleton.class);
+
 		VisitonsExtensions.bindSceneManagerListeners(this.binder(), SceneCameraListener.class);
 	}
 }

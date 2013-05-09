@@ -90,16 +90,34 @@ public class Track {
 		return this.metadata;
 	}
 	
+	public Vertex getFirstVertex() {
+		return this.v1;
+	}
+	
+	public Vertex getSecondVertex() {
+		return this.v2;
+	}
+	
 	/**
 	 * Imports the current data from the track record.
 	 * 
-	 * @param tr
-	 * @param world 
+	 * @param tr The source track record.
+	 * @param world Find the actual vertex instances here.
 	 * @param vertexMapping Vertices in track record may be new - we need a mapping to the actual ID-s.
 	 */
 	public void importFrom(TrackRecord tr, World world, BiMap<Long, Long> vertexMapping) {
 		this.type = tr.getType();
 		this.metadata = tr.getMetadata();
+		long actualId = tr.getFirstVertex().getId();
+		if(actualId < IIdentifiable.NEUTRAL_ID) {
+			actualId = vertexMapping.get(Long.valueOf(actualId));
+		}
+		this.v1 = world.findVertex(actualId);
+		actualId = tr.getSecondVertex().getId();
+		if(actualId < IIdentifiable.NEUTRAL_ID) {
+			actualId = vertexMapping.get(Long.valueOf(actualId));
+		}
+		this.v2 = world.findVertex(actualId);
 	}
 	
 	/**

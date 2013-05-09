@@ -17,7 +17,9 @@
 
 package org.invenzzia.opentrans.visitons.network;
 
+import com.google.common.base.Preconditions;
 import org.invenzzia.helium.data.interfaces.IIdentifiable;
+import org.invenzzia.opentrans.visitons.utils.SegmentCoordinate;
 
 /**
  * Vertex record can be used by the GUI thread to represent the currently edited
@@ -63,6 +65,32 @@ public class VertexRecord {
 	 * For the import from the domain model: ID of the connected, but unimported second track.
 	 */
 	private long secondTrackId = IIdentifiable.NEUTRAL_ID;
+	
+	/**
+	 * Creates a new, empty vertex record.
+	 */
+	public VertexRecord() {
+	}
+	
+	/**
+	 * Creates a record which maps to the given vertex.
+	 * 
+	 * @param vertex Source vertex.
+	 */
+	public VertexRecord(Vertex vertex) {
+		Preconditions.checkNotNull(vertex, "The vertex cannot be null.");
+		this.id = vertex.getId();
+		SegmentCoordinate coord = vertex.pos();
+		this.x = coord.getAbsoluteX();
+		this.y = coord.getAbsoluteY();
+		this.tangent = vertex.tangent();
+		if(null != vertex.getFirstTrack()) {
+			this.firstTrackId = vertex.getFirstTrack().getId();
+		}
+		if(null != vertex.getSecondTrack()) {
+			this.secondTrackId = vertex.getSecondTrack().getId();
+		}
+	}
 	
 	/**
 	 * Returns the vertex ID. The value <tt>IIdentifiable.NEUTRAL_ID</tt> is returned, if the vertex is not exported
@@ -275,5 +303,21 @@ public class VertexRecord {
 			return this.secondTrack;
 		}
 		return null;
+	}
+	
+	/**
+	 * This method is used while importing the track. It replaces the ID-based reference
+	 * with the newly imported track.
+	 * 
+	 * @param tr 
+	 */
+	public void replaceReferenceWithRecord(TrackRecord tr) {
+		if(this.firstTrackId == tr.getId()) {
+			this.firstTrack = tr;
+			this.firstTrackId = IIdentifiable.NEUTRAL_ID;
+		} else if(this.secondTrackId == tr.getId()) {
+			this.secondTrack = tr;
+			this.secondTrackId = IIdentifiable.NEUTRAL_ID;
+		}
 	}
 }

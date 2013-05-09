@@ -18,21 +18,30 @@
 package org.invenzzia.opentrans.lightweight.ui.tabs.world;
 
 /**
- * Common interface for writing edit modes.
+ * Empty implementation of an edit state - for constructing your own state machines.
  * 
  * @author Tomasz Jędrzejewski
  */
-public interface IEditMode extends IEditState {
-	/**
-	 * The method is called, when the mode is becoming enabled and starts capturing
-	 * the input events.
-	 * 
-	 * @param api The API with callbacks to the controller.
-	 */
-	public void modeEnabled(IEditModeAPI api);
-	/**
-	 * The method is called, when the mode is becoming disabled and stops capturing
-	 * the input events.
-	 */
-	public void modeDisabled();
+public abstract class AbstractEditState implements IEditState {
+	@Override
+	public boolean captureMotionEvents() {
+		return false;
+	}
+
+	@Override
+	public boolean captureDragEvents() {
+		return false;
+	}
+
+	@Override
+	public void mouseMoves(double worldX, double worldY, boolean altDown, boolean ctrlDown) {
+	}
+
+	@Override
+	public void leftActionPerformed(double worldX, double worldY, boolean altDown, boolean ctrlDown) {
+	}
+
+	@Override
+	public void rightActionPerformed(double worldX, double worldY, boolean altDown, boolean ctrlDown) {
+	}
 }

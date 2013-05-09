@@ -17,22 +17,18 @@
 
 package org.invenzzia.opentrans.lightweight.ui.tabs.world;
 
+import java.awt.Cursor;
+
 /**
- * Common interface for writing edit modes.
+ * Callback methods from the controller that can be used in the edit modes.
  * 
  * @author Tomasz Jędrzejewski
  */
-public interface IEditMode extends IEditState {
+public interface IEditModeAPI {
 	/**
-	 * The method is called, when the mode is becoming enabled and starts capturing
-	 * the input events.
+	 * Allows changing the shape of the cursor.
 	 * 
-	 * @param api The API with callbacks to the controller.
+	 * @param cursor The new cursor to draw.
 	 */
-	public void modeEnabled(IEditModeAPI api);
-	/**
-	 * The method is called, when the mode is becoming disabled and stops capturing
-	 * the input events.
-	 */
-	public void modeDisabled();
+	public void setCursor(Cursor cursor);
 }

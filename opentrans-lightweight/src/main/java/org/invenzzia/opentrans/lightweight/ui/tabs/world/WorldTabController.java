@@ -23,6 +23,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
 import java.awt.event.ComponentAdapter;
@@ -51,7 +52,7 @@ import org.invenzzia.opentrans.visitons.render.scene.MouseSnapshot;
  * @author Tomasz Jędrzejewski
  */
 @Singleton
-public class WorldTabController implements AdjustmentListener, IZoomListener, IWorldTabListener {
+public class WorldTabController implements AdjustmentListener, IZoomListener, IWorldTabListener, IEditModeAPI {
 	@Inject
 	private CameraModel cameraModel;
 	@Inject
@@ -121,7 +122,7 @@ public class WorldTabController implements AdjustmentListener, IZoomListener, IW
 			if(null == this.currentEditMode) {
 				throw new IllegalStateException("Unknown edit mode: "+this.worldTab.getSelectedMode());
 			}
-			this.currentEditMode.modeEnabled();
+			this.currentEditMode.modeEnabled(this);
 		}
 	}
 
@@ -161,8 +162,13 @@ public class WorldTabController implements AdjustmentListener, IZoomListener, IW
 		}
 		this.currentEditMode = this.editModes.get(event.getMode());
 		if(null != this.currentEditMode) {
-			this.currentEditMode.modeEnabled();
+			this.currentEditMode.modeEnabled(this);
 		}
+	}
+
+	@Override
+	public void setCursor(Cursor cursor) {
+		this.worldTab.getNetworkView().setCursor(cursor);
 	}
 
 	/**

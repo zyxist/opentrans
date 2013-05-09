@@ -18,21 +18,20 @@
 package org.invenzzia.opentrans.lightweight.ui.tabs.world;
 
 /**
- * Common interface for writing edit modes.
+ * Various types of events that can be captured by the world tab controller while
+ * moving the cursor around. This interface is used for both creating the complete
+ * edit modes, and the state machines within them.
  * 
  * @author Tomasz Jędrzejewski
  */
-public interface IEditMode extends IEditState {
-	/**
-	 * The method is called, when the mode is becoming enabled and starts capturing
-	 * the input events.
-	 * 
-	 * @param api The API with callbacks to the controller.
-	 */
-	public void modeEnabled(IEditModeAPI api);
-	/**
-	 * The method is called, when the mode is becoming disabled and stops capturing
-	 * the input events.
-	 */
-	public void modeDisabled();
+public interface IEditState {
+	public boolean captureMotionEvents();
+	
+	public boolean captureDragEvents();
+	
+	public void mouseMoves(double worldX, double worldY, boolean altDown, boolean ctrlDown);
+	
+	public void leftActionPerformed(double worldX, double worldY, boolean altDown, boolean ctrlDown);
+	
+	public void rightActionPerformed(double worldX, double worldY, boolean altDown, boolean ctrlDown);
 }

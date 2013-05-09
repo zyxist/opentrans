@@ -177,6 +177,22 @@ public class SceneManager implements ISceneManagerOperations {
 		}
 	}
 	
+	/**
+	 * Do not use this method inside the rendering loop. Use snapshot instead.
+	 * 
+	 * @param key Key to return.
+	 * @param cast Trick for nicer casting.
+	 * @return Object assigned to this key.
+	 */
+	public <T> T getResource(Object key, Class<T> cast) {
+		try {
+			this.lock.lock();
+			return (T) this.scene.get(key);
+		} finally {
+			this.lock.unlock();
+		}
+	}
+	
 	@Override
 	public Object getSceneResource(Object key) {
 		return this.scene.get(key);

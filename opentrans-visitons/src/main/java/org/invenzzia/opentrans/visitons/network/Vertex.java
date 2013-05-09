@@ -88,6 +88,28 @@ public class Vertex implements IIdentifiable {
 		return this.secondTrack;
 	}
 	
+	public boolean hasAllTracks() {
+		return (this.firstTrack != null) &&	(this.secondTrack != null);
+	}
+	
+	public boolean hasOneTrack() {
+		return (this.firstTrack != null) ^ (this.secondTrack != null);
+	}
+	
+	public boolean hasNoTracks() {
+		return (this.firstTrack == null) &&	(this.secondTrack == null);
+	}
+	
+	/**
+	 * If only one track is connected, the method returns it.
+	 */
+	public Track getTrack() {
+		if(this.firstTrack == null) {
+			return this.secondTrack;
+		}
+		return this.firstTrack;
+	}
+	
 	/**
 	 * Imports the vertex data from the vertex record.
 	 * 

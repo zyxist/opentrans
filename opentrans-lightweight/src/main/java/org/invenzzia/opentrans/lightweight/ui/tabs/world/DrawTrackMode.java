@@ -124,57 +124,6 @@ public class DrawTrackMode extends AbstractStateMachineEditMode {
 		this.resetRenderingStream();
 		logger.debug("DrawTrackMode disabled.");
 	}
-/*
-	@Override
-	public void leftActionPerformed(double worldX, double worldY, boolean altDown, boolean ctrlDown) {
-		if(null == this.currentUnit) {
-			logger.debug("leftAction: creating the unit of work.");
-			this.currentUnit = this.unitOfWorkProvider.get();
-			this.transformer = new Transformations(this.currentUnit);
-		}
-		if(null == this.boundVertex) {
-			logger.debug("leftAction: creating the bound vertex.");
-			VertexRecord vr = new VertexRecord();
-			vr.setPosition(worldX, worldY);
-			this.currentUnit.addVertex(vr);
-			this.previousBoundVertex = vr;
-		} else {
-			logger.debug("leftAction: advancing the bound vertex.");
-			this.currentUnit.addVertex(this.boundVertex);
-			this.previousBoundVertex = this.boundVertex;
-			this.boundVertex = null;
-			this.nextType = (this.nextType == 0 ? 1 : 0);
-		}
-
-		this.currentUnit.exportScene(this.sceneManager);
-	}
-
-	@Override
-	public void rightActionPerformed(double worldX, double worldY, boolean altDown, boolean ctrlDown) {
-		try {
-			logger.debug("rightAction: finishing the construction and saving the data to the world model.");
-			if(null != this.boundVertex) {
-				TrackRecord tr = this.boundVertex.getTrackTo(this.previousBoundVertex);
-				if(null != tr) {
-					this.currentUnit.removeTrack(tr);
-				}
-				if(!this.currentUnit.isEmpty()) {
-					this.history.execute(new NetworkLayoutChangeCmd(this.currentUnit));
-				}
-				this.exportScene(this.projectHolder.getCurrentProject().getWorld());
-			}
-		} catch(CommandExecutionException exception) {
-			logger.error("Exception occurred while saving the network unit of work.", exception);
-		} finally {
-			this.currentUnit = null;
-			this.transformer = null;
-			this.boundVertex = null;
-			this.previousBoundVertex = null;
-			this.nextType = 0;
-			this.resetRenderingStream();
-		}
-	}
-	*/
 	
 	private void resetRenderingStream() {
 		this.sceneManager.updateResource(EditableTrackSnapshot.class, null);

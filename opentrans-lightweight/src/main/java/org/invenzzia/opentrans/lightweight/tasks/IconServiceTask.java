@@ -46,6 +46,7 @@ public class IconServiceTask implements ITask {
 		// Medium tool icons
 		this.iconService.preloadIcon("edit-select", currentLoader.getResource("org/invenzzia/opentrans/gui/icons/medium/edit-select.png"));
 		this.iconService.preloadIcon("draw-freehand", currentLoader.getResource("org/invenzzia/opentrans/gui/icons/medium/draw-freehand.png"));
+		this.iconService.preloadIcon("connect-tracks", currentLoader.getResource("org/invenzzia/opentrans/gui/icons/medium/connect-tracks.png"));
 		
 		// Small utility icons
 		this.iconService.preloadIcon("ui-close-small", currentLoader.getResource("org/invenzzia/opentrans/gui/icons/small/ui-close.png"));

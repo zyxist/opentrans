@@ -251,6 +251,37 @@ public class Transformations {
 		this.unitOfWork.addTrack(tr);
 		return true;
 	}
+	
+	/**
+	 * Connects two vertices with a curve or double curve. Each of the vertices must
+	 * be connected to exactly one track.
+	 * 
+	 * @param v1
+	 * @param v2
+	 * @return 
+	 */
+	public boolean connectTwoVertices(VertexRecord v1, VertexRecord v2) {
+		Preconditions.checkState(v1.hasOneTrack());
+		Preconditions.checkState(v2.hasOneTrack());
+		this.recordImporter.importAllMissingNeighbors(this.unitOfWork, v1, v2);
+		
+		TrackRecord ct = v1.getTrack();
+		if(ct.getType() != NetworkConst.TRACK_STRAIGHT) {
+			return false;
+		}
+		
+		TrackRecord track = v2.getTrack();
+		switch(track.getType()) {
+			case NetworkConst.TRACK_STRAIGHT:
+				this.createCurvedToStraigtConnection(track, v1, v2);
+				return true;
+			case NetworkConst.TRACK_CURVED:
+				break;
+			case NetworkConst.TRACK_FREE:
+				break;
+		}
+		return false;
+	}
 
 	/**
 	 * This operation shall be applied to three vertices connected by:

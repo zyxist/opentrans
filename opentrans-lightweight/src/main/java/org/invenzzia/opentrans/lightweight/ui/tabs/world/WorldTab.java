@@ -103,6 +103,7 @@ public class WorldTab extends JPanel {
 	public void importIcons(IconService iconService) {
 		this.modeButtons[0].setIcon(iconService.getIcon("edit-select"));
 		this.modeButtons[1].setIcon(iconService.getIcon("draw-freehand"));
+		this.modeButtons[2].setIcon(iconService.getIcon("connect-tracks"));
 	}
 	
 	/**
@@ -148,11 +149,13 @@ public class WorldTab extends JPanel {
 	}
 	
 	private void createModeButtons() {
-		this.modeButtons = new JToggleButton[2];
+		this.modeButtons = new JToggleButton[3];
 		this.modeButtons[0] = new JToggleButton();
 		this.modeButtons[0].setToolTipText("Select vertices and tracks");
 		this.modeButtons[1] = new JToggleButton();
 		this.modeButtons[1].setToolTipText("Draw new tracks");
+		this.modeButtons[2] = new JToggleButton();
+		this.modeButtons[2].setToolTipText("Connect two existing tracks.");
 		for(int i = 0; i < this.modeButtons.length; i++) {
 			this.createToggleButtonAction(this.modeButtons[i], i);
 			this.modeButtons[i].setSize(35, 35);

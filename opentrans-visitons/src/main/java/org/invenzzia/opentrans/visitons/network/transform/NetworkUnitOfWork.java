@@ -18,9 +18,12 @@
 package org.invenzzia.opentrans.visitons.network.transform;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 import org.invenzzia.helium.data.interfaces.IIdentifiable;
 import org.invenzzia.opentrans.visitons.network.NetworkConst;
 import org.invenzzia.opentrans.visitons.network.Track;
@@ -52,6 +55,14 @@ public class NetworkUnitOfWork {
 	 */
 	private Map<Long, VertexRecord> vertices;
 	/**
+	 * Removed existing tracks - to be deleted from the world model.
+	 */
+	private Set<TrackRecord> removedTracks;
+	/**
+	 * Removed existing vertices - to be deleted from the world model.
+	 */
+	private Set<VertexRecord> removedVertices;
+	/**
 	 * Identify new tracks with negative ID-s to distinguish them from the
 	 * existing tracks.
 	 */
@@ -65,6 +76,8 @@ public class NetworkUnitOfWork {
 	public NetworkUnitOfWork() {
 		this.tracks = new LinkedHashMap<>();
 		this.vertices = new LinkedHashMap<>();
+		this.removedTracks = new LinkedHashSet<>();
+		this.removedVertices = new LinkedHashSet<>();
 	}
 	
 	/**
@@ -193,7 +206,9 @@ public class NetworkUnitOfWork {
 
 	/**
 	 * We can remove a previously added track from the unit of work. The method
-	 * performs the detaching from the neighbouring vertices as well.
+	 * performs the detaching from the neighbouring vertices as well. If the track
+	 * is not a brand-new track, it is added to the set of tracks to remove, when
+	 * this unit of work will be persisted.
 	 * 
 	 * @param track The track to remove.
 	 */
@@ -208,6 +223,32 @@ public class NetworkUnitOfWork {
 			this.vertices.remove(track.getSecondVertex().getId());
 		}
 		this.tracks.remove(track.getId());
+		if(track.getId() > IIdentifiable.NEUTRAL_ID) {
+			this.removedTracks.add(track);
+		}
+	}
+	
+	/**
+	 * We can remove a previously added vertex from the unit of work. The method also
+	 * removes all the tracks connected to this vertex. If the vertex is not a brand-new
+	 * vertex, it is added to the set of vertices to remove, when this unit of work will
+	 * be persisted.
+	 * 
+	 * @param vertex 
+	 */
+	public void removeVertex(VertexRecord vertex) {
+		Preconditions.checkNotNull(vertex, "The specified vertex to remove is NULL.");
+		Preconditions.checkArgument(!vertex.hasUnimportedTracks(), "The vertex to remove must not have unimported tracks!");
+		if(vertex.getFirstTrack() != null) {
+			this.removeTrack(vertex.getFirstTrack());
+		}
+		if(vertex.getSecondTrack() != null) {
+			this.removeTrack(vertex.getSecondTrack());
+		}
+		this.vertices.remove(Long.valueOf(vertex.getId()));
+		if(vertex.getId() > IIdentifiable.NEUTRAL_ID) {
+			this.removedVertices.add(vertex);
+		}
 	}
 	
 	public Iterator<TrackRecord> overTracks() {
@@ -216,6 +257,24 @@ public class NetworkUnitOfWork {
 	
 	public Iterator<VertexRecord> overVertices() {
 		return this.vertices.values().iterator();
+	}
+	
+	/**
+	 * Returns the set of all existing, but removed tracks.
+	 * 
+	 * @return 
+	 */
+	public Set<TrackRecord> getRemovedTracks() {
+		return ImmutableSet.copyOf(this.removedTracks);
+	}
+	
+	/**
+	 * Returns the set of all existing, but removed vertices.
+	 * 
+	 * @return 
+	 */
+	public Set<VertexRecord> getRemovedVertices() {
+		return ImmutableSet.copyOf(this.removedVertices);
 	}
 	
 	/**

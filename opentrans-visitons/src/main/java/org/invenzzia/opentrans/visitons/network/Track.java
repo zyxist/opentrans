@@ -113,6 +113,14 @@ public class Track {
 	}
 	
 	/**
+	 * Helper method for the {@link World} instance to deal with track removal.
+	 */
+	public void removeFromVertices() {
+		this.v1.removeTrack(this);
+		this.v2.removeTrack(this);
+	}
+	
+	/**
 	 * Imports the current data from the track record.
 	 * 
 	 * @param tr The source track record.

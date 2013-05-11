@@ -17,6 +17,7 @@
 
 package org.invenzzia.opentrans.visitons.network.transform;
 
+import java.util.Collection;
 import org.invenzzia.opentrans.visitons.network.VertexRecord;
 
 /**
@@ -36,4 +37,12 @@ public interface IRecordImporter {
 	 * @param vertices 
 	 */
 	public void importAllMissingNeighbors(NetworkUnitOfWork populatedUnit, VertexRecord ... vertices);
+	/**
+	 * For each vertex, this method should analyze the tracks, and if there is only
+	 * their ID, the appropriate track records should be created.
+	 * 
+	 * @param populatedUnit
+	 * @param vertices 
+	 */
+	public void importAllMissingNeighbors(NetworkUnitOfWork populatedUnit, Collection<VertexRecord> vertices);
 }

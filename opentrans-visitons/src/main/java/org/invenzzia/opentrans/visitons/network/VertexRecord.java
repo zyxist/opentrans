@@ -170,6 +170,15 @@ public class VertexRecord {
 			(this.secondTrack == null && this.secondTrackId == IIdentifiable.NEUTRAL_ID);
 	}
 	
+	/**
+	 * Returns true, if there are some unimported tracks connected to this vertex.
+	 * 
+	 * @return 
+	 */
+	public boolean hasUnimportedTracks() {
+		return (this.firstTrackId != IIdentifiable.NEUTRAL_ID || this.secondTrackId != IIdentifiable.NEUTRAL_ID);
+	}
+	
 	public void addTrack(TrackRecord record) {
 		if(null == this.firstTrack && IIdentifiable.NEUTRAL_ID == this.firstTrackId) {
 			this.firstTrack = record;
@@ -267,8 +276,6 @@ public class VertexRecord {
 		} else if(this.secondTrack == tr) {
 			this.secondTrack = null;
 			this.secondTrackId = IIdentifiable.NEUTRAL_ID;
-		} else {
-			throw new IllegalArgumentException("The track '"+tr.getId()+"' is not connected to vertex '"+this.getId()+"'");
 		}
 	}
 	

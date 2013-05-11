@@ -111,6 +111,19 @@ public class Vertex implements IIdentifiable {
 	}
 	
 	/**
+	 * Removes the track from the vertex. This method shall be used only by the {@link World} instances.
+	 * 
+	 * @param track 
+	 */
+	void removeTrack(Track track) {
+		if(this.firstTrack == track) {
+			this.firstTrack = null;
+		} else if(this.secondTrack == track) {
+			this.secondTrack = null;
+		}
+	}
+	
+	/**
 	 * Imports the vertex data from the vertex record.
 	 * 
 	 * @param vr

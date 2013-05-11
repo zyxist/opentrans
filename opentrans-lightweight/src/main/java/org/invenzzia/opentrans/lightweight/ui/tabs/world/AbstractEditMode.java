@@ -45,4 +45,8 @@ public abstract class AbstractEditMode extends AbstractTrackModeAPI implements I
 	@Override
 	public void rightActionPerformed(double worldX, double worldY, boolean altDown, boolean ctrlDown) {
 	}
+	
+	@Override
+	public void deletePressed(double worldX, double worldY) {
+	}
 }

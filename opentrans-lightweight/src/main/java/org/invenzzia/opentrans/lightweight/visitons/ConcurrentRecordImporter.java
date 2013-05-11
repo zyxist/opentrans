@@ -18,6 +18,7 @@
 package org.invenzzia.opentrans.lightweight.visitons;
 
 import com.google.inject.Inject;
+import java.util.Collection;
 import org.invenzzia.opentrans.lightweight.annotations.InModelThread;
 import org.invenzzia.opentrans.visitons.bindings.DefaultImporter;
 import org.invenzzia.opentrans.visitons.network.VertexRecord;
@@ -38,6 +39,12 @@ public class ConcurrentRecordImporter implements IRecordImporter {
 	@Override
 	@InModelThread(asynchronous = false)
 	public void importAllMissingNeighbors(NetworkUnitOfWork populatedUnit, VertexRecord... vertices) {
+		this.defaultImporter.importAllMissingNeighbors(populatedUnit, vertices);
+	}
+
+	@Override
+	@InModelThread(asynchronous = false)
+	public void importAllMissingNeighbors(NetworkUnitOfWork populatedUnit, Collection<VertexRecord> vertices) {
 		this.defaultImporter.importAllMissingNeighbors(populatedUnit, vertices);
 	}
 }

@@ -19,6 +19,7 @@ package org.invenzzia.opentrans.visitons.network.transform;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import java.util.Collection;
 import org.invenzzia.helium.data.interfaces.IIdentifiable;
 import org.invenzzia.opentrans.visitons.network.VertexRecord;
 import org.invenzzia.opentrans.visitons.network.World;
@@ -33,15 +34,27 @@ public class DefaultRecordImporter implements IRecordImporter {
 	private Provider<World> worldProvider;
 	
 	@Override
+	public void importAllMissingNeighbors(NetworkUnitOfWork populatedUnit, Collection<VertexRecord> vertices) {
+		World world = this.worldProvider.get();
+		for(VertexRecord rec: vertices) {
+			this.processSingleRecord(populatedUnit, world, rec);
+		}
+	}
+	
+	@Override
 	public void importAllMissingNeighbors(NetworkUnitOfWork populatedUnit, VertexRecord ... vertices) {
 		World world = this.worldProvider.get();
 		for(VertexRecord rec: vertices) {
-			if(rec.getFirstTrack() == null && rec.getFirstTrackId() != IIdentifiable.NEUTRAL_ID) {
-				populatedUnit.importTrack(world, rec.getFirstTrackId());
-			}
-			if(rec.getSecondTrack() == null && rec.getSecondTrackId()!= IIdentifiable.NEUTRAL_ID) {
-				populatedUnit.importTrack(world, rec.getSecondTrackId());
-			}
+			this.processSingleRecord(populatedUnit, world, rec);
+		}
+	}
+	
+	private void processSingleRecord(NetworkUnitOfWork populatedUnit, World world, VertexRecord rec) {
+		if(rec.getFirstTrack() == null && rec.getFirstTrackId() != IIdentifiable.NEUTRAL_ID) {
+			populatedUnit.importTrack(world, rec.getFirstTrackId());
+		}
+		if(rec.getSecondTrack() == null && rec.getSecondTrackId()!= IIdentifiable.NEUTRAL_ID) {
+			populatedUnit.importTrack(world, rec.getSecondTrackId());
 		}
 	}
 }

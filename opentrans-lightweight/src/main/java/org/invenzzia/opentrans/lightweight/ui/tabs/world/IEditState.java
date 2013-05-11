@@ -59,4 +59,13 @@ public interface IEditState {
 	 * @param ctrlDown Whether the CTRL button is pressed?
 	 */
 	public void rightActionPerformed(double worldX, double worldY, boolean altDown, boolean ctrlDown);
+	/**
+	 * The method is called, if the user hits 'DELETE' button on the keyboard. The method is prepared
+	 * for the forwarding the position of the cursor at the moment of hitting, but currently this functionality
+	 * won't be implemented.
+	 * 
+	 * @param worldX Currently always 0
+	 * @param worldY Currently always 0
+	 */
+	public void deletePressed(double worldX, double worldY);
 }

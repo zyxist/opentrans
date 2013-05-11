@@ -19,12 +19,14 @@ package org.invenzzia.opentrans.lightweight.ui.tabs.world;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import org.invenzzia.helium.exception.CommandExecutionException;
 import org.invenzzia.helium.history.History;
 import org.invenzzia.opentrans.lightweight.IProjectHolder;
 import org.invenzzia.opentrans.lightweight.annotations.InModelThread;
 import org.invenzzia.opentrans.visitons.Project;
 import org.invenzzia.opentrans.visitons.bindings.ActualImporter;
 import org.invenzzia.opentrans.visitons.editing.ICommand;
+import org.invenzzia.opentrans.visitons.editing.network.NetworkLayoutChangeCmd;
 import org.invenzzia.opentrans.visitons.network.World;
 import org.invenzzia.opentrans.visitons.network.transform.IRecordImporter;
 import org.invenzzia.opentrans.visitons.network.transform.NetworkUnitOfWork;
@@ -136,4 +138,20 @@ public abstract class AbstractTrackModeAPI {
 	protected HoveredItemSnapshot getHoveredItemSnapshot() {
 		return this.sceneManager.getResource(HoveredItemSnapshot.class, HoveredItemSnapshot.class);
 	}
+	
+	/**
+	 * Creates a history command and executes it.
+	 */
+	protected void applyChanges() {
+		if(!this.currentUnit.isEmpty()) {
+			try {
+				this.history.execute(new NetworkLayoutChangeCmd(this.currentUnit));
+				this.exportScene(this.getWorld());
+			} catch(CommandExecutionException exception) {
+				this.handleCommandExecutionError(exception);
+			}
+		}
+	}
+	
+	protected abstract void handleCommandExecutionError(CommandExecutionException exception);
 }

@@ -44,4 +44,8 @@ public abstract class AbstractEditState implements IEditState {
 	@Override
 	public void rightActionPerformed(double worldX, double worldY, boolean altDown, boolean ctrlDown) {
 	}
+	
+	@Override
+	public void deletePressed(double worldX, double worldY) {
+	}
 }

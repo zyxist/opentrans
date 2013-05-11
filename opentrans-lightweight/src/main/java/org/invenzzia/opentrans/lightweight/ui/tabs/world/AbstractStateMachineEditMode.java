@@ -80,4 +80,9 @@ public abstract  class AbstractStateMachineEditMode extends AbstractTrackModeAPI
 	public void rightActionPerformed(double worldX, double worldY, boolean altDown, boolean ctrlDown) {
 		this.currentState.rightActionPerformed(worldX, worldY, altDown, ctrlDown);
 	}
+	
+	@Override
+	public void deletePressed(double worldX, double worldY) {
+		this.currentState.deletePressed(worldX, worldY);
+	}
 }

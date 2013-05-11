@@ -422,6 +422,15 @@ public class World {
 	 * @return Fluent interface.
 	 */
 	public World removeVertex(Vertex vertex) {
+		Preconditions.checkNotNull(vertex, "The vertex to remove cannot be empty!");
+		if(vertex.getFirstTrack() != null) {
+			this.removeTrack(vertex.getFirstTrack());
+		}
+		if(vertex.getSecondTrack() != null) {
+			this.removeTrack(vertex.getSecondTrack());
+		}
+		this.vertices.remove(Long.valueOf(vertex.getId()));
+		vertex.pos().getSegment().removeVertex(vertex);
 		return this;
 	}
 	
@@ -447,6 +456,29 @@ public class World {
 	 */
 	public Track findTrack(long id) {
 		return this.tracks.get(id);
+	}
+	
+	/**
+	 * Removes the track from the world model.
+	 * 
+	 * @param track The track to remove.
+	 * @return Fluent interface.
+	 */
+	public World removeTrack(Track track) {
+		Preconditions.checkNotNull(track, "The specified track to remove must not be NULL!");
+		Vertex firstVertex = track.getFirstVertex();
+		Vertex secondVertex = track.getSecondVertex();
+		track.removeFromVertices();
+		
+		if(firstVertex.hasNoTracks()) {
+			this.vertices.remove(firstVertex.getId());
+			firstVertex.pos().getSegment().removeVertex(firstVertex);
+		}
+		if(secondVertex.hasNoTracks()) {
+			this.vertices.remove(secondVertex.getId());
+			secondVertex.pos().getSegment().removeVertex(secondVertex);
+		}
+		return this;
 	}
 	
 	/**

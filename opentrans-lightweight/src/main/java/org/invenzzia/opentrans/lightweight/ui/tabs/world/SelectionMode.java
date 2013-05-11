@@ -19,6 +19,7 @@ package org.invenzzia.opentrans.lightweight.ui.tabs.world;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
+import org.invenzzia.helium.exception.CommandExecutionException;
 import org.invenzzia.opentrans.lightweight.annotations.InModelThread;
 import org.invenzzia.opentrans.visitons.network.TrackRecord;
 import org.invenzzia.opentrans.visitons.network.VertexRecord;
@@ -61,7 +62,14 @@ public class SelectionMode extends AbstractEditMode {
 	@Override
 	public void modeDisabled() {
 		logger.debug("SelectionMode disabled.");
+		this.resetState();
+	}
+	
+	private void resetState() {
+		this.selectedTracks.clear();
 		this.selectedVertices.clear();
+		this.resetUnitOfWork();
+		this.resetRenderingStream();
 	}
 	
 	@InModelThread(asynchronous = false)
@@ -95,9 +103,29 @@ public class SelectionMode extends AbstractEditMode {
 	
 	@Override
 	public void rightActionPerformed(double worldX, double worldY, boolean altDown, boolean ctrlDown) {
-		this.selectedTracks.clear();
-		this.selectedVertices.clear();
-		this.resetUnitOfWork();
-		this.resetRenderingStream();
+		this.resetState();
+	}
+	
+	@Override
+	public void deletePressed(double worldX, double worldY) {
+		if(this.selectedTracks.size() > 0) {
+			for(TrackRecord tr: this.selectedTracks) {
+				this.currentUnit.removeTrack(tr);
+			}
+			this.applyChanges();
+			this.resetState();
+		} else if(this.selectedVertices.size() > 0) {
+			this.recordImporter.importAllMissingNeighbors(this.currentUnit, this.selectedVertices);
+			for(VertexRecord vr: this.selectedVertices) {
+				this.currentUnit.removeVertex(vr);
+			}
+			this.applyChanges();
+			this.resetState();
+		}
+	}
+
+	@Override
+	protected void handleCommandExecutionError(CommandExecutionException exception) {
+		logger.error("Exception occurred while saving the network unit of work.", exception);
 	}
 }

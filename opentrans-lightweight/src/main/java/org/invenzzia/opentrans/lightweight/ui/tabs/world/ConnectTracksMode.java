@@ -96,16 +96,10 @@ public class ConnectTracksMode extends AbstractEditMode {
 					}
 					this.currentUnit.exportScene(this.sceneManager);
 				} else {
-					try {
-						this.secondVertex = this.importFreeVertex(this.getProject(), snapshot.getId());
-						this.transformer.connectTwoVertices(this.firstVertex, this.secondVertex);
-						this.history.execute(new NetworkLayoutChangeCmd(currentUnit));
-						exportScene(this.getWorld());
-					} catch(CommandExecutionException exception) {
-						logger.error("Exception occurred while saving the network unit of work.", exception);
-					} finally {
-						this.resetState();
-					}
+					this.secondVertex = this.importFreeVertex(this.getProject(), snapshot.getId());
+					this.transformer.connectTwoVertices(this.firstVertex, this.secondVertex);
+					this.applyChanges();
+					this.resetState();
 				}
 			}
 		}
@@ -114,5 +108,10 @@ public class ConnectTracksMode extends AbstractEditMode {
 	@Override
 	public void rightActionPerformed(double worldX, double worldY, boolean altDown, boolean ctrlDown) {
 		this.resetState();
+	}
+
+	@Override
+	protected void handleCommandExecutionError(CommandExecutionException exception) {
+		logger.error("Exception occurred while saving the network unit of work.", exception);
 	}
 }

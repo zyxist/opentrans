@@ -115,6 +115,11 @@ public class DrawTrackMode extends AbstractStateMachineEditMode {
 		
 		return true;
 	}
+
+	@Override
+	protected void handleCommandExecutionError(CommandExecutionException exception) {
+		logger.error("Exception occurred while saving the network unit of work.", exception);
+	}
 	
 	/**
 	 * This is what happens if we are not currently drawing anything. This is an entry point for
@@ -256,14 +261,9 @@ public class DrawTrackMode extends AbstractStateMachineEditMode {
 					if(null != tr) {
 						currentUnit.removeTrack(tr);
 					}
-					if(!currentUnit.isEmpty()) {
-						history.execute(new NetworkLayoutChangeCmd(currentUnit));
-					}
-					exportScene(getWorld());
+					applyChanges();
 				}
 				setState(STATE_CURSOR_FREE);
-			} catch(CommandExecutionException exception) {
-				logger.error("Exception occurred while saving the network unit of work.", exception);
 			} finally {
 				currentUnit = null;
 				transformer = null;

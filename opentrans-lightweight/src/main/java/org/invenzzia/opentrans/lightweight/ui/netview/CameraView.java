@@ -48,6 +48,7 @@ public class CameraView extends JViewport implements Scrollable {
 	public CameraView() {
 		this.setPreferredSize(new Dimension(1000, 1000));
 		this.setOpaque(true);
+		this.setFocusable(true);
 	}
 	
 	/**

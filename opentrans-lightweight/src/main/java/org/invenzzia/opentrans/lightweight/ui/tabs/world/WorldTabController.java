@@ -28,6 +28,8 @@ import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.List;
 import javax.swing.event.MouseInputAdapter;
@@ -88,6 +90,10 @@ public class WorldTabController implements AdjustmentListener, IZoomListener, IW
 	 * Current mouse listener.
 	 */
 	private CameraMouseMotionListener mouseListener;
+	/**
+	 * Current keyboard listener.
+	 */
+	private KeyboardListener keyListener;
 	
 	public void setWorldTab(WorldTab worldTab) {
 		if(null != this.worldTab) {
@@ -96,8 +102,9 @@ public class WorldTabController implements AdjustmentListener, IZoomListener, IW
 			}
 			this.worldTab.removeWorldTabListener(this);
 			this.worldTab.getNetworkView().removeAdjustmentListener(this);
-			this.worldTab.getNetworkView().getCameraView().removeMouseListener(mouseListener);
-			this.worldTab.getNetworkView().getCameraView().removeMouseMotionListener(mouseListener);
+			this.worldTab.getNetworkView().getCameraView().removeKeyListener(this.keyListener);
+			this.worldTab.getNetworkView().getCameraView().removeMouseListener(this.mouseListener);
+			this.worldTab.getNetworkView().getCameraView().removeMouseMotionListener(this.mouseListener);
 			this.worldTab.getZoomField().removeZoomListener(this);
 			this.thread.setCameraView(null);
 			this.eventBus.unregister(this);
@@ -107,14 +114,18 @@ public class WorldTabController implements AdjustmentListener, IZoomListener, IW
 			if(null == this.mouseListener) {
 				this.mouseListener = new CameraMouseMotionListener();
 			}
+			if(null == this.keyListener) {
+				this.keyListener = new KeyboardListener();
+			}
 			
 			this.thread.setCameraView(this.worldTab.getNetworkView().getCameraView());
 			this.worldTab.addWorldTabListener(this);
 			this.worldTab.getNetworkView().addAdjustmentListener(this);
 			this.worldTab.getNetworkView().getCameraView().setRenderer(this.renderer);
 			this.worldTab.getNetworkView().getCameraView().addComponentListener(new CameraViewListener());
-			this.worldTab.getNetworkView().getCameraView().addMouseListener(mouseListener);
-			this.worldTab.getNetworkView().getCameraView().addMouseMotionListener(mouseListener);
+			this.worldTab.getNetworkView().getCameraView().addMouseListener(this.mouseListener);
+			this.worldTab.getNetworkView().getCameraView().addMouseMotionListener(this.mouseListener);
+			this.worldTab.getNetworkView().getCameraView().addKeyListener(this.keyListener);
 			this.worldTab.getZoomField().addZoomListener(this);
 			this.worldTab.getNetworkView().getCameraView().revalidate();
 			this.worldTab.getNetworkView().injectSnapshot(new CameraModelSnapshot(this.cameraModel));
@@ -194,6 +205,19 @@ public class WorldTabController implements AdjustmentListener, IZoomListener, IW
 	}
 	
 	/**
+	 * We need to handle the keyboard input and pass it to the edit modes.
+	 * 
+	 */
+	class KeyboardListener extends KeyAdapter {
+		@Override
+		public void keyReleased(KeyEvent e) {
+			if(e.getKeyCode() == KeyEvent.VK_DELETE) {
+				currentEditMode.deletePressed(0.0, 0.0);
+			}
+		}
+	}
+	
+	/**
 	 * This listener is registered directly in the camera view, it handles mouse dragging,
 	 * and zooming.
 	 */
@@ -208,6 +232,7 @@ public class WorldTabController implements AdjustmentListener, IZoomListener, IW
 		
 		@Override
 		public void mousePressed(MouseEvent e) {
+			worldTab.getNetworkView().getCameraView().requestFocusInWindow();
 			this.draggedX = e.getX();
 			this.draggedY = e.getY();
 			this.posX = cameraModel.getPosX();

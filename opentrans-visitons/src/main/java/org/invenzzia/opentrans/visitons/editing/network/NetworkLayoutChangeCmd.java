@@ -81,6 +81,19 @@ public class NetworkLayoutChangeCmd implements ICommand {
 			TrackRecord tr = tri.next();
 			this.importTrackConnections(tr, dieWelt);
 		}
+		
+		for(TrackRecord removedTrack: this.uw.getRemovedTracks()) {
+			Track t = dieWelt.findTrack(removedTrack.getId());
+			if(null != t) {
+				dieWelt.removeTrack(t);
+			}
+		}
+		for(VertexRecord removedVertex: this.uw.getRemovedVertices()) {
+			Vertex v = dieWelt.findVertex(removedVertex.getId());
+			if(null != v) {
+				dieWelt.removeVertex(v);
+			}
+		}
 	}
 
 	@Override

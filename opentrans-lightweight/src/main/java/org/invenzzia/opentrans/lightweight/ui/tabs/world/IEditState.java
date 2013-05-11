@@ -25,13 +25,38 @@ package org.invenzzia.opentrans.lightweight.ui.tabs.world;
  * @author Tomasz Jędrzejewski
  */
 public interface IEditState {
+	/**
+	 * If this method returns true, the controller starts forwarding mouse motion events
+	 * to the edit mode.
+	 * 
+	 * @return 
+	 */
 	public boolean captureMotionEvents();
-	
+	/**
+	 * If this method returns true, the controller starts forwarding dragging events
+	 * to the edit mode.
+	 * 
+	 * @return 
+	 */
 	public boolean captureDragEvents();
 	
 	public void mouseMoves(double worldX, double worldY, boolean altDown, boolean ctrlDown);
-	
+	/**
+	 * The method is called, when the user clicks with the left mouse button somewhere.
+	 * 
+	 * @param worldX Place of click in the world coordinates.
+	 * @param worldY Place of click in the world coordinates.
+	 * @param altDown Whether the ALT button is pressed?
+	 * @param ctrlDown Whether the CTRL button is pressed?
+	 */
 	public void leftActionPerformed(double worldX, double worldY, boolean altDown, boolean ctrlDown);
-	
+	/**
+	 * The method is called, when the user clicks with the right mouse button somewhere.
+	 * 
+	 * @param worldX Place of click in the world coordinates.
+	 * @param worldY Place of click in the world coordinates.
+	 * @param altDown Whether the ALT button is pressed?
+	 * @param ctrlDown Whether the CTRL button is pressed?
+	 */
 	public void rightActionPerformed(double worldX, double worldY, boolean altDown, boolean ctrlDown);
 }

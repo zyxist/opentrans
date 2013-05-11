@@ -17,29 +17,17 @@
 
 package org.invenzzia.opentrans.lightweight.ui.tabs.world;
 
-import com.google.inject.Inject;
-import com.google.inject.Provider;
 import java.awt.Cursor;
 import org.invenzzia.helium.exception.CommandExecutionException;
-import org.invenzzia.helium.history.History;
-import org.invenzzia.opentrans.lightweight.IProjectHolder;
 import org.invenzzia.opentrans.lightweight.annotations.InModelThread;
 import org.invenzzia.opentrans.visitons.Project;
-import org.invenzzia.opentrans.visitons.bindings.ActualImporter;
-import org.invenzzia.opentrans.visitons.editing.ICommand;
 import org.invenzzia.opentrans.visitons.editing.network.NetworkLayoutChangeCmd;
 import org.invenzzia.opentrans.visitons.network.NetworkConst;
 import org.invenzzia.opentrans.visitons.network.Track;
 import org.invenzzia.opentrans.visitons.network.TrackRecord;
 import org.invenzzia.opentrans.visitons.network.Vertex;
 import org.invenzzia.opentrans.visitons.network.VertexRecord;
-import org.invenzzia.opentrans.visitons.network.World;
-import org.invenzzia.opentrans.visitons.network.transform.IRecordImporter;
-import org.invenzzia.opentrans.visitons.network.transform.NetworkUnitOfWork;
 import org.invenzzia.opentrans.visitons.network.transform.Transformations;
-import org.invenzzia.opentrans.visitons.render.CameraModel;
-import org.invenzzia.opentrans.visitons.render.SceneManager;
-import org.invenzzia.opentrans.visitons.render.scene.EditableTrackSnapshot;
 import org.invenzzia.opentrans.visitons.render.scene.HoveredItemSnapshot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,6 +39,7 @@ import org.slf4j.LoggerFactory;
  */
 public class DrawTrackMode extends AbstractStateMachineEditMode {
 	private final Logger logger = LoggerFactory.getLogger(DrawTrackMode.class);
+	private static final String DEFAULT_STATUS = "Start drawing tracks by clicking within the world area, on the existing vertex or track.";
 	
 	/**
 	 * Single instance of one of the states.
@@ -68,32 +57,6 @@ public class DrawTrackMode extends AbstractStateMachineEditMode {
 	 * Single instance of one of the states.
 	 */
 	private final DrawingInProgressDrawTrackState STATE_DRAWING = new DrawingInProgressDrawTrackState();
-	
-	@Inject
-	private Provider<NetworkUnitOfWork> unitOfWorkProvider;
-	@Inject
-	private SceneManager sceneManager;
-	@Inject
-	private History<ICommand> history;
-	@Inject
-	private IProjectHolder projectHolder;
-	@Inject
-	private CameraModel cameraModel;
-	@Inject
-	@ActualImporter
-	private IRecordImporter recordImporter;
-	/**
-	 * Controller API for edit modes.
-	 */
-	private IEditModeAPI api;
-	/**
-	 * Currently constructed unit of work.
-	 */
-	private NetworkUnitOfWork currentUnit;
-	/**
-	 * Transformations performed on that unit.
-	 */
-	private Transformations transformer;
 	/**
 	 * The vertex that is updated according to the mouse movements.
 	 */
@@ -112,6 +75,7 @@ public class DrawTrackMode extends AbstractStateMachineEditMode {
 	public void modeEnabled(IEditModeAPI api) {
 		logger.debug("DrawTrackMode enabled.");
 		this.api = api;
+		this.api.setStatusMessage(DEFAULT_STATUS);
 		this.setState(this.STATE_CURSOR_FREE);
 	}
 	
@@ -125,15 +89,6 @@ public class DrawTrackMode extends AbstractStateMachineEditMode {
 		logger.debug("DrawTrackMode disabled.");
 	}
 	
-	private void resetRenderingStream() {
-		this.sceneManager.updateResource(EditableTrackSnapshot.class, null);
-	}
-	
-	@InModelThread(asynchronous = true)
-	public void exportScene(final World world) {
-		world.exportScene(this.sceneManager, this.cameraModel, false);
-	}
-	
 	@InModelThread(asynchronous = false)
 	public boolean isVertexFree(final Project project, long vertexId) {
 		return !project.getWorld().findVertex(vertexId).hasAllTracks();
@@ -145,9 +100,8 @@ public class DrawTrackMode extends AbstractStateMachineEditMode {
 		if(vertex.hasAllTracks()) {
 			return false;
 		}
-		if(null == this.currentUnit) {
-			this.currentUnit = this.unitOfWorkProvider.get();
-			this.transformer = new Transformations(this.currentUnit, this.recordImporter);
+		if(!this.hasUnitOfWork()) {
+			this.createUnitOfWork();
 		}
 		VertexRecord record = currentUnit.importVertex(vertex);
 		this.previousBoundVertex = record;

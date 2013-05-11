@@ -41,44 +41,29 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Description here.
+ * In this mode, we select two vertices connected to a single track. After selecting the second
+ * vertex, a curve is drawn between them.
  * 
  * @author Tomasz Jędrzejewski
  */
 public class ConnectTracksMode extends AbstractEditMode {
 	private final Logger logger = LoggerFactory.getLogger(ConnectTracksMode.class);
-	@Inject
-	private Provider<NetworkUnitOfWork> unitOfWorkProvider;
-	@Inject
-	private SceneManager sceneManager;
-	@Inject
-	private History<ICommand> history;
-	@Inject
-	private IProjectHolder projectHolder;
-	@Inject
-	private CameraModel cameraModel;
-	@Inject
-	@ActualImporter
-	private IRecordImporter recordImporter;
+	private static final String DEFAULT_STATUS = "Connect two ending vertices with a curve. Select the first vertex.";
+	private static final String ONLY_SINGLE_TRACK = "The selected vertex must be connected with exactly one track.";
+	private static final String FIRST_VERTEX_SELECTED = "Select the destination vertex to create a curve. The position of this vertex may be adjusted to match the constraints.";
 	/**
-	 * Controller API for edit modes.
+	 * First vertex.
 	 */
-	private IEditModeAPI api;
-	/**
-	 * Currently constructed unit of work.
-	 */
-	private NetworkUnitOfWork currentUnit;
-	/**
-	 * Transformations performed on that unit.
-	 */
-	private Transformations transformer;
-	
 	private VertexRecord firstVertex;
+	/**
+	 * Second vertex - here, the position of this point may be adjusted by the transformation algorithm.
+	 */
 	private VertexRecord secondVertex;
 
 	@Override
 	public void modeEnabled(IEditModeAPI api) {
 		this.api = api;
+		this.api.setStatusMessage(DEFAULT_STATUS);
 		this.firstVertex = null;
 		this.secondVertex = null;
 	}
@@ -95,18 +80,13 @@ public class ConnectTracksMode extends AbstractEditMode {
 			return null;
 		}
 		if(null == this.currentUnit) {
-			this.currentUnit = this.unitOfWorkProvider.get();
-			this.transformer = new Transformations(this.currentUnit, this.recordImporter);
+			this.createUnitOfWork();
 		}
 		return this.currentUnit.importVertex(vertex);
 	}
 	
-	@InModelThread(asynchronous = true)
-	public void exportScene(final World world) {
-		world.exportScene(this.sceneManager, this.cameraModel, false);
-	}
-	
 	private void resetState() {
+		this.api.setStatusMessage(DEFAULT_STATUS);
 		this.firstVertex = null;
 		this.secondVertex = null;
 		this.currentUnit = null;
@@ -121,6 +101,11 @@ public class ConnectTracksMode extends AbstractEditMode {
 			if(snapshot.getType() == HoveredItemSnapshot.TYPE_VERTEX) {
 				if(null == this.firstVertex) {
 					this.firstVertex = this.importFreeVertex(this.projectHolder.getCurrentProject(), snapshot.getId());
+					if(null != this.firstVertex) {
+						this.api.setStatusMessage(FIRST_VERTEX_SELECTED);
+					} else {
+						this.api.setStatusMessage(ONLY_SINGLE_TRACK);
+					}
 					this.currentUnit.exportScene(this.sceneManager);
 				} else {
 					try {

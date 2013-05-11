@@ -19,6 +19,7 @@ package org.invenzzia.opentrans.lightweight.ui.tabs.world;
 
 import com.google.inject.Inject;
 import org.invenzzia.opentrans.lightweight.lf.icons.IconService;
+import org.invenzzia.opentrans.lightweight.ui.MainWindowController;
 import org.invenzzia.opentrans.lightweight.ui.workspace.DesktopItem;
 import org.invenzzia.opentrans.lightweight.ui.workspace.IDesktopPaneFactory;
 
@@ -30,6 +31,8 @@ import org.invenzzia.opentrans.lightweight.ui.workspace.IDesktopPaneFactory;
 public class WorldTabFactory implements IDesktopPaneFactory<WorldTab> {
 	@Inject
 	private WorldTabController controller;
+	@Inject
+	private MainWindowController mainWindowController;
 	@Inject
 	private IconService iconService;
 
@@ -49,5 +52,6 @@ public class WorldTabFactory implements IDesktopPaneFactory<WorldTab> {
 	@Override
 	public void destroyDesktopItem(DesktopItem desktopItem) {
 		this.controller.setWorldTab(null);
+		this.mainWindowController.getMainWindow().clearLocationInfo();
 	}
 }

@@ -321,7 +321,7 @@ public class Transformations {
 		
 		this.calculateStraightLine(straight, v1, v2);
 		this.prepareCurveFreeMovement(v3, v2.x(), v2.y(), 0, buf);
-		this.findCurveDirection(curve, v2, v3, buf);
+		this.findCurveDirection(curve, v2, v3, buf[0], buf[1]);
 	}
 	
 	/**
@@ -354,7 +354,7 @@ public class Transformations {
 		double buf[] = new double[3];
 		this.prepareCurveFreeMovement(v1, v2.x(), v2.y(), 0, buf);
 		v2.setTangent(buf[2]);
-		this.findCurveDirection(tr, v1, v2, buf);
+		this.findCurveDirection(tr, v1, v2, buf[0], buf[1]);
 	}
 	
 	/**
@@ -485,12 +485,14 @@ public class Transformations {
 		v3.addTrack(tr);
 		tr.setType(NetworkConst.TRACK_CURVED);
 		track.setMetadata(new double[] { v3.x(), v3.y(), v4.x(), v4.y() });
+		this.findCurveDirection(tr, v1, v3, x2, y2);
+		/*
 		if(this.orientationOf(track, v4)) {
 			tr.setMetadata(this.prepareCurveMetadata(x1, y1, v1.x(), v1.y(), x2, y2, 0, null));
 		} else {
 			tr.setMetadata(this.prepareCurveMetadata(v1.x(), v1.y(), x1, y1, x2, y2, 0, null));
 		}
-		
+		*/
 		this.unitOfWork.addTrack(tr);
 	}
 	
@@ -683,17 +685,26 @@ public class Transformations {
 		return false;
 	}
 
-	private void findCurveDirection(TrackRecord tr, VertexRecord v1, VertexRecord v2, double[] buf) {
+	/**
+	 * Applies the proper direction to the curve.
+	 * 
+	 * @param tr The curved track.
+	 * @param v1 First vertex connected to this track.
+	 * @param v2 Second vertex connected to this track.
+	 * @param cx Center of the arc: X
+	 * @param cy Center of the arc: Y
+	 */
+	private void findCurveDirection(TrackRecord tr, VertexRecord v1, VertexRecord v2, double cx, double cy) {
 		Point c = v1.getOppositeTrack(tr).controlPoint(v1);
 		if(LineOps.onWhichSide(c.x(), c.y(), v1.x(), v1.y(), v2.x(), v2.y()) < 0) {
-			double metadata[] = this.prepareCurveMetadata(v1.x(), v1.y(), v2.x(), v2.y(), buf[0], buf[1], 0, null);
-			this.prepareCurveControlPoint(v1.x(), v1.y(), v1.tangent(), v2.x(), v2.y(), buf[0], buf[1], 8, metadata);
-			this.prepareCurveControlPoint(v2.x(), v2.y(), v2.tangent(), v1.x(), v1.y(), buf[0], buf[1], 10, metadata);
+			double metadata[] = this.prepareCurveMetadata(v1.x(), v1.y(), v2.x(), v2.y(), cx, cy, 0, null);
+			this.prepareCurveControlPoint(v1.x(), v1.y(), v1.tangent(), v2.x(), v2.y(), cx, cy, 8, metadata);
+			this.prepareCurveControlPoint(v2.x(), v2.y(), v2.tangent(), v1.x(), v1.y(), cx, cy, 10, metadata);
 			tr.setMetadata(metadata);
 		} else {
-			double metadata[] = this.prepareCurveMetadata(v2.x(), v2.y(), v1.x(), v1.y(), buf[0], buf[1], 0, null);
-			this.prepareCurveControlPoint(v1.x(), v1.y(), v1.tangent(), v2.x(), v2.y(), buf[0], buf[1], 10, metadata);
-			this.prepareCurveControlPoint(v2.x(), v2.y(), v2.tangent(), v1.x(), v1.y(), buf[0], buf[1], 8, metadata);
+			double metadata[] = this.prepareCurveMetadata(v2.x(), v2.y(), v1.x(), v1.y(), cx, cy, 0, null);
+			this.prepareCurveControlPoint(v1.x(), v1.y(), v1.tangent(), v2.x(), v2.y(), cx, cy, 10, metadata);
+			this.prepareCurveControlPoint(v2.x(), v2.y(), v2.tangent(), v1.x(), v1.y(), cx, cy, 8, metadata);
 			tr.setMetadata(metadata);
 		}
 	}

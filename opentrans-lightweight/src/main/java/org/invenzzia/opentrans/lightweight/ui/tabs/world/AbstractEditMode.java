@@ -22,7 +22,7 @@ package org.invenzzia.opentrans.lightweight.ui.tabs.world;
  * 
  * @author Tomasz Jędrzejewski
  */
-public abstract class AbstractEditMode implements IEditMode {
+public abstract class AbstractEditMode extends AbstractTrackModeAPI implements IEditMode {
 
 	@Override
 	public boolean captureMotionEvents() {

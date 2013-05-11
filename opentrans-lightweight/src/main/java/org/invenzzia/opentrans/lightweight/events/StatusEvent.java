@@ -15,14 +15,21 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.invenzzia.opentrans.lightweight.ui.tabs.world;
+package org.invenzzia.opentrans.lightweight.events;
 
 /**
- * Some operations may be reused across several edit modes. They can be put here,
- * so that they are accessible.
+ * An event that requires updating the status message.
  * 
  * @author Tomasz Jędrzejewski
  */
-public class CommonOperations {
-
+public class StatusEvent {
+	private final String statusMessage;
+	
+	public StatusEvent(String message) {
+		this.statusMessage = message;
+	}
+	
+	public String getStatusMessage() {
+		return this.statusMessage;
+	}
 }

@@ -48,7 +48,6 @@ import org.invenzzia.opentrans.lightweight.ui.tabs.infrastructure.Infrastructure
 import org.invenzzia.opentrans.lightweight.ui.tabs.vehicles.VehicleEditorController;
 import org.invenzzia.opentrans.lightweight.ui.tabs.vehicles.VehicleTabController;
 import org.invenzzia.opentrans.lightweight.ui.tabs.vehicles.VehicleTabFactory;
-import org.invenzzia.opentrans.lightweight.ui.tabs.world.CommonOperations;
 import org.invenzzia.opentrans.lightweight.ui.tabs.world.ConnectTracksMode;
 import org.invenzzia.opentrans.lightweight.ui.tabs.world.DrawTrackMode;
 import org.invenzzia.opentrans.lightweight.ui.tabs.world.SelectionMode;
@@ -143,7 +142,6 @@ public class OpentransModule extends AbstractModule {
 			DrawTrackMode.class,
 			ConnectTracksMode.class
 		);
-		this.bind(CommonOperations.class).in(Singleton.class);
 
 		// Bind visitons items
 		this.bind(World.class).toProvider(WorldProvider.class);

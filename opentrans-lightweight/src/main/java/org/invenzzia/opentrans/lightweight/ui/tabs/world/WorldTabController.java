@@ -34,7 +34,9 @@ import javax.swing.event.MouseInputAdapter;
 import org.invenzzia.opentrans.lightweight.concurrent.ModelThread;
 import org.invenzzia.opentrans.lightweight.concurrent.RenderingThread;
 import org.invenzzia.opentrans.lightweight.events.CameraUpdatedEvent;
+import org.invenzzia.opentrans.lightweight.events.StatusEvent;
 import org.invenzzia.opentrans.lightweight.events.WorldSizeChangedEvent;
+import org.invenzzia.opentrans.lightweight.ui.MainWindowController;
 import org.invenzzia.opentrans.lightweight.ui.component.ZoomField.IZoomListener;
 import org.invenzzia.opentrans.lightweight.ui.component.ZoomField.ZoomChangeEvent;
 import org.invenzzia.opentrans.lightweight.ui.netview.NetworkView;
@@ -65,6 +67,8 @@ public class WorldTabController implements AdjustmentListener, IZoomListener, IW
 	private SceneManager sceneManager;
 	@Inject
 	private EventBus eventBus;
+	@Inject
+	private MainWindowController mainWindowController;
 	@Inject
 	private Provider<World> worldProvider;
 	/**
@@ -171,6 +175,11 @@ public class WorldTabController implements AdjustmentListener, IZoomListener, IW
 		this.worldTab.getNetworkView().setCursor(cursor);
 	}
 
+	@Override
+	public void setStatusMessage(String message) {
+		this.eventBus.post(new StatusEvent(message));
+	}
+
 	/**
 	 * When the window changes its dimensions, we must update the camera view as well.
 	 */
@@ -226,10 +235,15 @@ public class WorldTabController implements AdjustmentListener, IZoomListener, IW
 		@Override
 		public void mouseMoved(MouseEvent e) {
 			sceneManager.updateResource(MouseSnapshot.class, new MouseSnapshot(e.getX(), e.getY()));
+			
+			double wx = cameraModel.pix2worldX(e.getX());
+			double wy = cameraModel.pix2worldY(e.getY());
+			
+			mainWindowController.getMainWindow().setLocationInfo((int) Math.round(wx), (int) Math.round(wy));
+			
 			if(currentEditMode.captureMotionEvents()) {
 				currentEditMode.mouseMoves(
-					cameraModel.pix2worldX(e.getX()),
-					cameraModel.pix2worldY(e.getY()),
+					wx, wy,
 					e.isAltDown(),
 					e.isControlDown()
 				);

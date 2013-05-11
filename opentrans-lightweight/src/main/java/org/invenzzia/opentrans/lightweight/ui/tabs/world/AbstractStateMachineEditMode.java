@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Tomasz Jędrzejewski
  */
-public abstract  class AbstractStateMachineEditMode implements IEditMode {
+public abstract  class AbstractStateMachineEditMode extends AbstractTrackModeAPI implements IEditMode {
 	private final Logger logger = LoggerFactory.getLogger(AbstractStateMachineEditMode.class);
 	/**
 	 * Current machine state.

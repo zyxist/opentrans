@@ -31,4 +31,10 @@ public interface IEditModeAPI {
 	 * @param cursor The new cursor to draw.
 	 */
 	public void setCursor(Cursor cursor);
+	/**
+	 * Forwards a status message to the status bar with the hint for the user.
+	 * 
+	 * @param message Message content.
+	 */
+	public void setStatusMessage(String message);
 }

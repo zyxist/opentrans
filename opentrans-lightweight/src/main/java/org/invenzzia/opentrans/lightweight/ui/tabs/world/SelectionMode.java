@@ -28,13 +28,19 @@ import org.slf4j.LoggerFactory;
 public class SelectionMode extends AbstractEditMode {
 	private final Logger logger = LoggerFactory.getLogger(SelectionMode.class);
 	
+	private static final String DEFAULT_STATUS = "Select track and vertices by clicking on them.";
+	
 	@Override
 	public void modeEnabled(IEditModeAPI api) {
 		logger.debug("SelectionMode enabled.");
+		this.api = api;
+		this.api.setStatusMessage(DEFAULT_STATUS);
 	}
 
 	@Override
 	public void modeDisabled() {
 		logger.debug("SelectionMode disabled.");
 	}
+	
+	
 }

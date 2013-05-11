@@ -24,6 +24,7 @@ import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import org.invenzzia.opentrans.lightweight.IProjectHolder;
 import org.invenzzia.opentrans.lightweight.events.ProjectEvent;
+import org.invenzzia.opentrans.lightweight.events.StatusEvent;
 import org.invenzzia.opentrans.lightweight.model.branding.BrandingModel;
 import org.invenzzia.opentrans.lightweight.ui.dialogs.resize.ResizeDialogController;
 import org.invenzzia.opentrans.visitons.Project;
@@ -81,6 +82,8 @@ public class MainWindowController {
 		return this.mainWindow;
 	}
 	
+	
+	
 	/**
 	 * Builds a title of the window, using the branding information and project
 	 * information.
@@ -94,6 +97,11 @@ public class MainWindowController {
 				.append(" ").append(this.brandingModel.getApplicationVersion());
 			this.mainWindow.setTitle(title.toString());
 		}
+	}
+	
+	@Subscribe
+	public void notifyAboutStatusEvents(StatusEvent event) {
+		this.mainWindow.setStatusMessage(event.getStatusMessage());
 	}
 	
 	@Subscribe

@@ -17,24 +17,12 @@
 
 package org.invenzzia.opentrans.lightweight.ui.tabs.world;
 
-import com.google.inject.Inject;
-import com.google.inject.Provider;
 import org.invenzzia.helium.exception.CommandExecutionException;
-import org.invenzzia.helium.history.History;
-import org.invenzzia.opentrans.lightweight.IProjectHolder;
 import org.invenzzia.opentrans.lightweight.annotations.InModelThread;
 import org.invenzzia.opentrans.visitons.Project;
-import org.invenzzia.opentrans.visitons.bindings.ActualImporter;
-import org.invenzzia.opentrans.visitons.editing.ICommand;
 import org.invenzzia.opentrans.visitons.editing.network.NetworkLayoutChangeCmd;
 import org.invenzzia.opentrans.visitons.network.Vertex;
 import org.invenzzia.opentrans.visitons.network.VertexRecord;
-import org.invenzzia.opentrans.visitons.network.World;
-import org.invenzzia.opentrans.visitons.network.transform.IRecordImporter;
-import org.invenzzia.opentrans.visitons.network.transform.NetworkUnitOfWork;
-import org.invenzzia.opentrans.visitons.network.transform.Transformations;
-import org.invenzzia.opentrans.visitons.render.CameraModel;
-import org.invenzzia.opentrans.visitons.render.SceneManager;
 import org.invenzzia.opentrans.visitons.render.scene.EditableTrackSnapshot;
 import org.invenzzia.opentrans.visitons.render.scene.HoveredItemSnapshot;
 import org.slf4j.Logger;
@@ -82,7 +70,7 @@ public class ConnectTracksMode extends AbstractEditMode {
 		if(null == this.currentUnit) {
 			this.createUnitOfWork();
 		}
-		return this.currentUnit.importVertex(vertex);
+		return this.currentUnit.importVertex(project.getWorld(), vertex);
 	}
 	
 	private void resetState() {
@@ -109,10 +97,10 @@ public class ConnectTracksMode extends AbstractEditMode {
 					this.currentUnit.exportScene(this.sceneManager);
 				} else {
 					try {
-						this.secondVertex = this.importFreeVertex(this.projectHolder.getCurrentProject(), snapshot.getId());
+						this.secondVertex = this.importFreeVertex(this.getProject(), snapshot.getId());
 						this.transformer.connectTwoVertices(this.firstVertex, this.secondVertex);
 						this.history.execute(new NetworkLayoutChangeCmd(currentUnit));
-						exportScene(projectHolder.getCurrentProject().getWorld());
+						exportScene(this.getWorld());
 					} catch(CommandExecutionException exception) {
 						logger.error("Exception occurred while saving the network unit of work.", exception);
 					} finally {

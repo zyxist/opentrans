@@ -99,6 +99,20 @@ public class Track {
 	}
 	
 	/**
+	 * Returns the vertex on the opposite side of the track.
+	 * 
+	 * @param tested The vertex we know.
+	 * @return The vertex opposite to it.
+	 */
+	public Vertex getOppositeVertex(Vertex tested) {
+		if(this.v1 == tested) {
+			return this.v2;
+		} else {
+			return this.v1;
+		}
+	}
+	
+	/**
 	 * Imports the current data from the track record.
 	 * 
 	 * @param tr The source track record.

@@ -103,7 +103,7 @@ public class DrawTrackMode extends AbstractStateMachineEditMode {
 		if(!this.hasUnitOfWork()) {
 			this.createUnitOfWork();
 		}
-		VertexRecord record = currentUnit.importVertex(vertex);
+		VertexRecord record = currentUnit.importVertex(project.getWorld(), vertex);
 		this.previousBoundVertex = record;
 		
 		Track track = vertex.getTrack();
@@ -148,7 +148,7 @@ public class DrawTrackMode extends AbstractStateMachineEditMode {
 		
 		@Override
 		public void leftActionPerformed(double worldX, double worldY, boolean altDown, boolean ctrlDown) {
-			HoveredItemSnapshot snapshot = sceneManager.getResource(HoveredItemSnapshot.class, HoveredItemSnapshot.class);
+			HoveredItemSnapshot snapshot = getHoveredItemSnapshot();
 			if(null == snapshot) {
 				setState(STATE_NEW_TRACK);
 			} else if(snapshot.getType() == HoveredItemSnapshot.TYPE_VERTEX) {
@@ -187,7 +187,7 @@ public class DrawTrackMode extends AbstractStateMachineEditMode {
 	class DrawingStartsFromExistingHalfFreePointDrawTrackState extends AbstractEditState {
 		@Override
 		public void leftActionPerformed(double worldX, double worldY, boolean altDown, boolean ctrlDown) {
-			HoveredItemSnapshot snapshot = sceneManager.getResource(HoveredItemSnapshot.class, HoveredItemSnapshot.class);
+			HoveredItemSnapshot snapshot = getHoveredItemSnapshot();
 			if(importFreeVertex(projectHolder.getCurrentProject(), snapshot.getId())) {
 				currentUnit.exportScene(sceneManager);
 				setState(STATE_DRAWING);
@@ -259,7 +259,7 @@ public class DrawTrackMode extends AbstractStateMachineEditMode {
 					if(!currentUnit.isEmpty()) {
 						history.execute(new NetworkLayoutChangeCmd(currentUnit));
 					}
-					exportScene(projectHolder.getCurrentProject().getWorld());
+					exportScene(getWorld());
 				}
 				setState(STATE_CURSOR_FREE);
 			} catch(CommandExecutionException exception) {

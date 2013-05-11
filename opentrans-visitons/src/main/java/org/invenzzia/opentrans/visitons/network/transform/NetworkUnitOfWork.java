@@ -99,16 +99,67 @@ public class NetworkUnitOfWork {
 	 * @param vertex Source vertex.
 	 * @return Importex or existing track record.
 	 */
-	public VertexRecord importVertex(Vertex vertex) {
+	public VertexRecord importVertex(World world, Vertex vertex) {
 		VertexRecord record = this.vertices.get(Long.valueOf(vertex.getId()));
 		if(null != record) {
 			return record;
 		}
 		record = new VertexRecord(vertex);
 		this.vertices.put(Long.valueOf(vertex.getId()), record);
+		this.commonVertexImport(world, vertex, record);
 		return record;
 	}
+	
+	/**
+	 * Imports the vertex from the domain model. This method may be called only in the
+	 * model thread. If the record with the given ID is alread in the unit of work, no
+	 * import happens - the method simply returns the existing record then.
+	 * 
+	 * @param world
+	 * @param vertexId
+	 * @return Importex or existing track record.
+	 */
+	public VertexRecord importVertex(World world, long vertexId) {
+		VertexRecord record = this.vertices.get(Long.valueOf(vertexId));
+		if(null != record) {
+			return record;
+		}
+		Vertex vertex = world.findVertex(vertexId);
+		record = new VertexRecord(vertex);
+		this.vertices.put(Long.valueOf(vertex.getId()), record);
+		this.commonVertexImport(world, vertex, record);
 		
+		return record;
+	}
+	
+	/**
+	 * Checks if we do not need to import some tracks, as well.
+	 * 
+	 * @param world
+	 * @param vertex
+	 * @param record 
+	 */
+	private void commonVertexImport(World world, Vertex vertex, VertexRecord record) {
+		if(null != vertex.getFirstTrack()) {
+			Vertex another = vertex.getFirstTrack().getOppositeVertex(vertex);
+			VertexRecord anotherRecord = this.vertices.get(Long.valueOf(another.getId()));
+			if(null != anotherRecord) {
+				TrackRecord tr = this.importTrack(world, vertex.getFirstTrack().getId());
+				record.replaceReferenceWithRecord(tr);
+				anotherRecord.replaceReferenceWithRecord(tr);
+			}
+		}
+		if(null != vertex.getSecondTrack()) {
+			Vertex another = vertex.getSecondTrack().getOppositeVertex(vertex);
+			VertexRecord anotherRecord = this.vertices.get(Long.valueOf(another.getId()));
+			if(null != anotherRecord) {
+				TrackRecord tr = this.importTrack(world, vertex.getSecondTrack().getId());
+				record.replaceReferenceWithRecord(tr);
+				anotherRecord.replaceReferenceWithRecord(tr);
+			}
+		}
+	}
+
 	/**
 	 * Imports the track from the domain model. The method may be called only
 	 * in the model thread. If the record with the given ID is alread in the unit of work, no
@@ -127,8 +178,8 @@ public class NetworkUnitOfWork {
 		VertexRecord v1, v2;
 		record = new TrackRecord(
 			track,
-			v1 = this.importVertex(track.getFirstVertex()),
-			v2 = this.importVertex(track.getSecondVertex())
+			v1 = this.importVertex(world, track.getFirstVertex()),
+			v2 = this.importVertex(world, track.getSecondVertex())
 		);
 		this.tracks.put(trackId, record);
 		

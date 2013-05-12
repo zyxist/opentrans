@@ -18,6 +18,7 @@
 package org.invenzzia.opentrans.lightweight.ui.tabs.world;
 
 import java.awt.Cursor;
+import org.invenzzia.opentrans.visitons.network.WorldRecord;
 
 /**
  * Callback methods from the controller that can be used in the edit modes.
@@ -25,6 +26,11 @@ import java.awt.Cursor;
  * @author Tomasz Jędrzejewski
  */
 public interface IEditModeAPI {
+	/**
+	 * Provides snapshot of the world data.
+	 * @return 
+	 */
+	public WorldRecord getWorldRecord();
 	/**
 	 * Allows changing the shape of the cursor.
 	 * 

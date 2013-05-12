@@ -22,16 +22,12 @@ import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
-import javax.swing.SwingUtilities;
-import org.invenzzia.helium.events.HistoryChangedEvent;
-import org.invenzzia.opentrans.lightweight.annotations.InModelThread;
 import org.invenzzia.opentrans.lightweight.annotations.InSwingThread;
-import org.invenzzia.opentrans.lightweight.concurrent.ModelThread;
 import org.invenzzia.opentrans.lightweight.events.CameraUpdatedEvent;
 import org.invenzzia.opentrans.lightweight.ui.component.Minimap;
 import org.invenzzia.opentrans.lightweight.ui.component.Minimap.ISegmentSelectionListener;
 import org.invenzzia.opentrans.lightweight.ui.component.Minimap.SegmentSelectionEvent;
-import org.invenzzia.opentrans.visitons.editing.ICommand;
+import org.invenzzia.opentrans.visitons.events.WorldEvent;
 import org.invenzzia.opentrans.visitons.network.World;
 import org.invenzzia.opentrans.visitons.render.CameraModel;
 import org.invenzzia.opentrans.visitons.render.CameraModelSnapshot;
@@ -85,9 +81,10 @@ public class MinimapController implements ISegmentSelectionListener {
 	 * @param event 
 	 */
 	@Subscribe
-	public void notifyHistoryChanged(HistoryChangedEvent<ICommand> event) {
-		final World world = this.worldProvider.get();
-		this.updateMinimap(world);
+	@InSwingThread(asynchronous = true)
+	public void notifyWorldEvents(WorldEvent event) {
+		this.minimap.setData(event.getWorld().getSegmentUsage());
+		this.minimap.repaint();
 	}
 	
 	/**
@@ -96,11 +93,14 @@ public class MinimapController implements ISegmentSelectionListener {
 	 * @param event 
 	 */
 	@Subscribe
+	@InSwingThread(asynchronous = true)
 	public void notifyCameraUpdated(CameraUpdatedEvent event) {
 		CameraModelSnapshot snapshot = event.getSnapshot();
 		this.minimap.setViewport(snapshot);
-		final World world = this.worldProvider.get();
-		this.updateMinimap(world);
+		this.minimap.updateData();
+		this.minimap.repaint();
+	//	final World world = this.worldProvider.get();
+	//	this.updateMinimap(world);
 	}
 	
 	/**
@@ -111,6 +111,7 @@ public class MinimapController implements ISegmentSelectionListener {
 	 * 
 	 * @param world 
 	 */
+	/*
 	@InModelThread(asynchronous = true)
 	public void updateMinimap(World world) {
 		this.applyWorldDataInformation(world.exportSegmentUsage());
@@ -120,5 +121,5 @@ public class MinimapController implements ISegmentSelectionListener {
 	protected void applyWorldDataInformation(boolean segmentUsage[][]) {
 		minimap.setData(segmentUsage);
 		minimap.repaint();
-	}
+	}*/
 }

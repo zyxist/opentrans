@@ -15,7 +15,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.invenzzia.opentrans.lightweight.events;
+package org.invenzzia.opentrans.visitons.events;
+
+import org.invenzzia.opentrans.visitons.network.WorldRecord;
 
 /**
  * Informs that the size of the world has changed. The event contains
@@ -23,20 +25,16 @@ package org.invenzzia.opentrans.lightweight.events;
  * 
  * @author Tomasz Jędrzejewski
  */
-public class WorldSizeChangedEvent {
-	private final int x;
-	private final int y;
-	
-	public WorldSizeChangedEvent(int x, int y) {
-		this.x = x;
-		this.y = y;
+public class WorldSizeChangedEvent extends WorldEvent {
+	public WorldSizeChangedEvent(WorldRecord world) {
+		super(world);
 	}
 
 	public int getSizeX() {
-		return this.x;
+		return this.world.getX();
 	}
 
 	public int getSizeY() {
-		return this.y;
+		return this.world.getY();
 	}
 }

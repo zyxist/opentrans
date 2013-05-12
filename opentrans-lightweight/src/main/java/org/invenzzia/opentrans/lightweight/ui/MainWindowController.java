@@ -23,12 +23,12 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import org.invenzzia.opentrans.lightweight.IProjectHolder;
-import org.invenzzia.opentrans.lightweight.events.ProjectEvent;
 import org.invenzzia.opentrans.lightweight.events.StatusEvent;
 import org.invenzzia.opentrans.lightweight.model.branding.BrandingModel;
 import org.invenzzia.opentrans.lightweight.ui.dialogs.resize.ResizeDialogController;
 import org.invenzzia.opentrans.visitons.Project;
 import org.invenzzia.opentrans.visitons.Project.ProjectRecord;
+import org.invenzzia.opentrans.visitons.events.ProjectEvent;
 
 /**
  * Description here.

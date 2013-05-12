@@ -26,7 +26,6 @@ import org.invenzzia.helium.history.History;
 import org.invenzzia.opentrans.lightweight.IProjectHolder;
 import org.invenzzia.opentrans.lightweight.annotations.InModelThread;
 import org.invenzzia.opentrans.lightweight.annotations.InSwingThread;
-import org.invenzzia.opentrans.lightweight.events.ProjectEvent;
 import org.invenzzia.opentrans.lightweight.ui.IDialogBuilder;
 import org.invenzzia.opentrans.lightweight.ui.forms.IFormAccessor;
 import org.invenzzia.opentrans.lightweight.ui.forms.IFormHandler;
@@ -34,6 +33,7 @@ import org.invenzzia.opentrans.visitons.Project;
 import org.invenzzia.opentrans.visitons.Project.ProjectRecord;
 import org.invenzzia.opentrans.visitons.editing.ICommand;
 import org.invenzzia.opentrans.visitons.editing.operations.UpdateProjectInfoCmd;
+import org.invenzzia.opentrans.visitons.events.ProjectEvent;
 
 /**
  * Handles the project information editing form. Nothing special: just

@@ -17,6 +17,7 @@
 
 package org.invenzzia.opentrans.visitons.editing.operations;
 
+import com.google.common.eventbus.EventBus;
 import org.invenzzia.helium.annotations.CommandDetails;
 import org.invenzzia.opentrans.visitons.Project;
 import org.invenzzia.opentrans.visitons.editing.common.WorldResizeCmd;
@@ -34,21 +35,21 @@ public class ExtendWorldCmd extends WorldResizeCmd {
 	}
 
 	@Override
-	public void execute(Project project) throws Exception {
-		this.performExtend(project.getWorld(), this.direction);
+	public void execute(Project project, EventBus eventBus) throws Exception {
+		this.performExtend(project.getWorld(), eventBus, this.direction);
 	}
 
 	@Override
-	public void undo(Project project) {
+	public void undo(Project project, EventBus eventBus) {
 		try {
-			this.performShrink(project.getWorld(), this.direction);
+			this.performShrink(project.getWorld(), eventBus, this.direction);
 		} catch(WorldException exception) {
 			throw new IllegalStateException("Undo operation failed unexpectedly.", exception);
 		}
 	}
 
 	@Override
-	public void redo(Project project) {
-		this.performExtend(project.getWorld(), this.direction);
+	public void redo(Project project, EventBus eventBus) {
+		this.performExtend(project.getWorld(), eventBus, this.direction);
 	}
 }

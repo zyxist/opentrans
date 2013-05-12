@@ -17,6 +17,7 @@
 
 package org.invenzzia.opentrans.visitons.editing.operations;
 
+import com.google.common.eventbus.EventBus;
 import org.invenzzia.helium.annotations.CommandDetails;
 import org.invenzzia.opentrans.visitons.Project;
 import org.invenzzia.opentrans.visitons.editing.common.WorldResizeCmd;
@@ -36,19 +37,19 @@ public class ShrinkWorldCmd extends WorldResizeCmd {
 	}
 
 	@Override
-	public void execute(Project project) throws Exception {
-		this.performShrink(project.getWorld(), this.direction);
+	public void execute(Project project, EventBus eventBus) throws Exception {
+		this.performShrink(project.getWorld(), eventBus, this.direction);
 	}
 
 	@Override
-	public void undo(Project project) {
-		this.performExtend(project.getWorld(), this.direction);
+	public void undo(Project project, EventBus eventBus) {
+		this.performExtend(project.getWorld(), eventBus, this.direction);
 	}
 
 	@Override
-	public void redo(Project project) {
+	public void redo(Project project, EventBus eventBus) {
 		try {
-			this.performShrink(project.getWorld(), this.direction);
+			this.performShrink(project.getWorld(), eventBus, this.direction);
 		} catch(WorldException exception) {
 			throw new IllegalStateException("Redo operation failed unexpectedly.", exception);
 		}

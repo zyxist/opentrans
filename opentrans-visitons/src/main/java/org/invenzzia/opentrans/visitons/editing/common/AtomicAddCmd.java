@@ -18,6 +18,7 @@
 package org.invenzzia.opentrans.visitons.editing.common;
 
 import com.google.common.base.Preconditions;
+import com.google.common.eventbus.EventBus;
 import org.invenzzia.helium.data.interfaces.ICRUDManager;
 import org.invenzzia.helium.data.interfaces.IIdentifiable;
 import org.invenzzia.helium.data.interfaces.IManagerMemento;
@@ -58,7 +59,7 @@ public abstract class AtomicAddCmd<
 	}
 
 	@Override
-	public void execute(Project project) throws Exception {
+	public void execute(Project project, EventBus eventBus) throws Exception {
 		M mgr = this.getManager(project);
 		T item = this.createNewItem();
 		this.record.exportData(item, project);
@@ -68,7 +69,7 @@ public abstract class AtomicAddCmd<
 	}
 
 	@Override
-	public void undo(Project project) {
+	public void undo(Project project, EventBus eventBus) {
 		try {
 			M mgr = this.getManager(project);
 			T object = Preconditions.checkNotNull(mgr.findById(this.record.getId()), "findById() cannot return NULL in the undo() operation!");
@@ -80,7 +81,7 @@ public abstract class AtomicAddCmd<
 	}
 	
 	@Override
-	public void redo(Project project) {
+	public void redo(Project project, EventBus eventBus) {
 		M mgr = this.getManager(project);
 		mgr.restoreMemento(this.memento);
 	}

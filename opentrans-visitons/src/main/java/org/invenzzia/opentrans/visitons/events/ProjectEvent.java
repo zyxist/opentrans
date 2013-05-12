@@ -15,17 +15,29 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.invenzzia.opentrans.lightweight.events;
+package org.invenzzia.opentrans.visitons.events;
 
+import com.google.common.base.Preconditions;
 import org.invenzzia.opentrans.visitons.Project.ProjectRecord;
 
 /**
- * Notification that a new project has been opened.
+ * Events related to changing the project status in the application.
  * 
  * @author Tomasz Jędrzejewski
  */
-public class NewProjectEvent extends ProjectEvent {
-	public NewProjectEvent(ProjectRecord project) {
-		super(project);
+public class ProjectEvent {
+	private final ProjectRecord project;
+	
+	public ProjectEvent(ProjectRecord project) {
+		this.project = Preconditions.checkNotNull(project, "Cannot emit a project event without a project record!");
+	}
+	
+	/**
+	 * Returns the project object this event is related to.
+	 * 
+	 * @return 
+	 */
+	public ProjectRecord getProject() {
+		return this.project;
 	}
 }

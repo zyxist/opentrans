@@ -18,6 +18,7 @@
 package org.invenzzia.opentrans.visitons.editing.common;
 
 import com.google.common.base.Preconditions;
+import com.google.common.eventbus.EventBus;
 import org.invenzzia.helium.data.interfaces.ICRUDManager;
 import org.invenzzia.helium.data.interfaces.IIdentifiable;
 import org.invenzzia.helium.data.interfaces.IManagerMemento;
@@ -58,7 +59,7 @@ public abstract class AtomicRemoveCmd<
 	}
 
 	@Override
-	public void execute(Project project) throws Exception {
+	public void execute(Project project, EventBus eventBus) throws Exception {
 		M mgr = this.getManager(project);
 		T item = mgr.findById(this.record.getId());
 		if(null == item) {
@@ -69,15 +70,15 @@ public abstract class AtomicRemoveCmd<
 	}
 
 	@Override
-	public void undo(Project project) {
+	public void undo(Project project, EventBus eventBus) {
 		M mgr = this.getManager(project);
 		mgr.restoreMemento(this.memento);
 	}
 
 	@Override
-	public void redo(Project project) {
+	public void redo(Project project, EventBus eventBus) {
 		try {
-			this.execute(project);
+			this.execute(project, eventBus);
 		} catch(Exception exception) {
 			throw new IllegalStateException("Redo operation failed.", exception);
 		}

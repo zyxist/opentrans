@@ -17,6 +17,7 @@
 
 package org.invenzzia.opentrans.visitons.editing.common;
 
+import com.google.common.eventbus.EventBus;
 import org.invenzzia.opentrans.visitons.Project;
 import org.invenzzia.opentrans.visitons.editing.ICommand;
 
@@ -31,17 +32,17 @@ import org.invenzzia.opentrans.visitons.editing.ICommand;
 public abstract class AtomicNetworkCmd implements ICommand {
 
 	@Override
-	public void execute(Project project) throws Exception {
+	public void execute(Project project, EventBus eventBus) throws Exception {
 		
 	}
 
 	@Override
-	public void undo(Project project) {
+	public void undo(Project project, EventBus eventBus) {
 		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
 	}
 
 	@Override
-	public void redo(Project project) {
+	public void redo(Project project, EventBus eventBus) {
 		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
 	}
 

@@ -20,15 +20,18 @@ package org.invenzzia.opentrans.visitons.editing.network;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+import com.google.common.eventbus.EventBus;
 import java.util.Iterator;
 import org.invenzzia.helium.data.interfaces.IIdentifiable;
 import org.invenzzia.opentrans.visitons.Project;
 import org.invenzzia.opentrans.visitons.editing.ICommand;
+import org.invenzzia.opentrans.visitons.events.WorldSegmentUsageChangedEvent;
 import org.invenzzia.opentrans.visitons.network.Track;
 import org.invenzzia.opentrans.visitons.network.TrackRecord;
 import org.invenzzia.opentrans.visitons.network.Vertex;
 import org.invenzzia.opentrans.visitons.network.VertexRecord;
 import org.invenzzia.opentrans.visitons.network.World;
+import org.invenzzia.opentrans.visitons.network.WorldRecord;
 import org.invenzzia.opentrans.visitons.network.transform.NetworkUnitOfWork;
 
 /**
@@ -56,7 +59,7 @@ public class NetworkLayoutChangeCmd implements ICommand {
 	}
 
 	@Override
-	public void execute(Project project) throws Exception {
+	public void execute(Project project, EventBus eventBus) throws Exception {
 		World dieWelt = project.getWorld(); // Deutschland ist ein schones Land :)
 
 		Iterator<VertexRecord> vri = this.uw.overVertices();
@@ -94,14 +97,15 @@ public class NetworkLayoutChangeCmd implements ICommand {
 				dieWelt.removeVertex(v);
 			}
 		}
+		eventBus.post(new WorldSegmentUsageChangedEvent(new WorldRecord(dieWelt)));
 	}
 
 	@Override
-	public void undo(Project project) {
+	public void undo(Project project, EventBus eventBus) {
 	}
 
 	@Override
-	public void redo(Project project) {
+	public void redo(Project project, EventBus eventBus) {
 	}
 
 	/**

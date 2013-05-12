@@ -27,6 +27,7 @@ import org.invenzzia.opentrans.visitons.geometry.Point;
 import org.invenzzia.opentrans.visitons.network.NetworkConst;
 import org.invenzzia.opentrans.visitons.network.TrackRecord;
 import org.invenzzia.opentrans.visitons.network.VertexRecord;
+import org.invenzzia.opentrans.visitons.network.WorldRecord;
 
 /**
  * Here we keep all the geometrical transformations of tracks and vertices
@@ -57,18 +58,27 @@ public class Transformations {
 	 * How to import the data from the world model?
 	 */
 	private final IRecordImporter recordImporter;
+	/**
+	 * Additional information about the edited world.
+	 */
+	private WorldRecord world;
 	
 	@Inject
-	public Transformations(NetworkUnitOfWork unitOfWork, @ActualImporter IRecordImporter recordImporter) {
+	public Transformations(NetworkUnitOfWork unitOfWork, @ActualImporter IRecordImporter recordImporter, WorldRecord worldRecord) {
 		this.unitOfWork = Preconditions.checkNotNull(unitOfWork);
 		this.recordImporter = Preconditions.checkNotNull(recordImporter);
+		this.world = Preconditions.checkNotNull(worldRecord);
 	}
-	
+
 	/**
 	 * Updates the meta-data of the straight track.
 	 * @param tr 
 	 */
 	public boolean updateStraightTrack(TrackRecord tr, VertexRecord boundVertex, double x, double y, byte mode) {
+		if(!this.world.isWithinWorld(x, y)) {
+			return false;
+		}
+		
 		Preconditions.checkNotNull(tr, "Track record cannot be empty.");
 		Preconditions.checkNotNull(boundVertex, "Bound vertex cannot be empty.");
 		VertexRecord v1 = tr.getFirstVertex();
@@ -120,8 +130,12 @@ public class Transformations {
 	 * @param boundVertex
 	 * @param x
 	 * @param y 
+	 * @return False, if the update cannot be made for some reason.
 	 */
-	public void updateCurvedTrack(TrackRecord tr, VertexRecord boundVertex, double x, double y) {
+	public boolean updateCurvedTrack(TrackRecord tr, VertexRecord boundVertex, double x, double y) {
+		if(!this.world.isWithinWorld(x, y)) {
+			return false;
+		}
 		VertexRecord v1 = tr.getFirstVertex();
 		VertexRecord v2 = tr.getSecondVertex();
 		if(boundVertex == v1) {
@@ -134,6 +148,7 @@ public class Transformations {
 		
 		v2.setPosition(x, y);
 		this.calculateCurve(tr, v1, v2);
+		return true;
 	}
 	
 	/**
@@ -459,7 +474,7 @@ public class Transformations {
 	 * @param v1 First vertex (stationary)
 	 * @param v3 Second vertex (can be adjusted)
 	 */
-	private void createCurvedToStraigtConnection(TrackRecord track, VertexRecord v1, VertexRecord v3) {
+	private boolean createCurvedToStraigtConnection(TrackRecord track, VertexRecord v1, VertexRecord v3) {
 		VertexRecord v4 = track.getOppositeVertex(v3);
 		VertexRecord v2 = ((TrackRecord) v1.getTrack()).getOppositeVertex(v1);
 		double buf[] = new double[12];
@@ -501,6 +516,10 @@ public class Transformations {
 		x1 = (buf[11] + buf[10] * buf[2] / buf[1]) / (buf[9] - buf[10] * buf[0] / buf[1]);
 		y1 = - ((buf[0] * x1 + buf[2]) / buf[1]);
 		
+		if(!this.world.isWithinWorld(x1, y1)) {
+			return false;
+		}
+		
 		v3.setPosition(x1, y1);
 		TrackRecord tr = new TrackRecord();
 		tr.setFreeVertex(v1);
@@ -518,6 +537,7 @@ public class Transformations {
 		}
 		*/
 		this.unitOfWork.addTrack(tr);
+		return true;
 	}
 	
 	/**

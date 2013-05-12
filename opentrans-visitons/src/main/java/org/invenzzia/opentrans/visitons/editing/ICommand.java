@@ -17,6 +17,7 @@
 
 package org.invenzzia.opentrans.visitons.editing;
 
+import com.google.common.eventbus.EventBus;
 import org.invenzzia.opentrans.visitons.Project;
 
 /**
@@ -32,18 +33,21 @@ public interface ICommand {
 	 * Executes the command on the data model.
 	 * 
 	 * @param project Data model.
+	 * @param eventBus Here we can send notifications.
 	 */
-	public void execute(Project project) throws Exception;
+	public void execute(Project project, EventBus eventBus) throws Exception;
 	/**
 	 * Cancels the changes introduced by this command.
 	 * 
-	 * @param project 
+	 * @param project Data model.
+	 * @param eventBus Here we can send notifications.
 	 */
-	public void undo(Project project);
+	public void undo(Project project, EventBus eventBus);
 	/**
 	 * Replays the changes introduced by this command.
 	 * 
-	 * @param project 
+	 * @param project Data model.
+	 * @param eventBus Here we can send notifications.
 	 */
-	public void redo(Project project);
+	public void redo(Project project, EventBus eventBus);
 }

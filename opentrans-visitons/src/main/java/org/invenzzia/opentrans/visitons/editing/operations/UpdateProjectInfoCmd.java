@@ -18,6 +18,7 @@
 package org.invenzzia.opentrans.visitons.editing.operations;
 
 import com.google.common.base.Preconditions;
+import com.google.common.eventbus.EventBus;
 import org.invenzzia.helium.annotations.CommandDetails;
 import org.invenzzia.opentrans.visitons.Project;
 import org.invenzzia.opentrans.visitons.Project.ProjectRecord;
@@ -41,18 +42,18 @@ public class UpdateProjectInfoCmd implements ICommand {
 	}
 
 	@Override
-	public void execute(Project project) throws Exception {
+	public void execute(Project project, EventBus eventBus) throws Exception {
 		this.memento = project.getMemento(project);
 		this.record.exportData(project, project);
 	}
 
 	@Override
-	public void undo(Project project) {
+	public void undo(Project project, EventBus eventBus) {
 		project.restoreMemento(this.memento, project);
 	}
 
 	@Override
-	public void redo(Project project) {
+	public void redo(Project project, EventBus eventBus) {
 		this.record.exportData(project, project);
 	}
 }

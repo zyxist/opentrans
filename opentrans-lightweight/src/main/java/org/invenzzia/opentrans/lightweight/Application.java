@@ -29,7 +29,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import javax.swing.SwingUtilities;
-import org.invenzzia.opentrans.lightweight.events.NewProjectEvent;
 import org.invenzzia.opentrans.lightweight.exception.TaskException;
 import org.invenzzia.opentrans.lightweight.model.branding.BrandingModel;
 import org.invenzzia.opentrans.lightweight.tasks.*;
@@ -37,6 +36,7 @@ import org.invenzzia.opentrans.lightweight.ui.splash.SplashScreen;
 import org.invenzzia.opentrans.visitons.Project;
 import org.invenzzia.opentrans.visitons.Project.ProjectRecord;
 import org.invenzzia.opentrans.visitons.VisitonsModule;
+import org.invenzzia.opentrans.visitons.events.NewProjectEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

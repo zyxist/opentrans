@@ -17,6 +17,7 @@
 
 package org.invenzzia.opentrans.lightweight.app;
 
+import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
 import org.invenzzia.helium.annotations.CommandDetails;
 import org.invenzzia.helium.history.IHistoryStrategy;
@@ -34,23 +35,25 @@ import org.invenzzia.opentrans.visitons.editing.ICommand;
 public class VisitonsHistoryStrategy implements IHistoryStrategy<ICommand> {
 	@Inject
 	private IProjectHolder projectHolder;
+	@Inject
+	private EventBus eventBus;
 
 	@Override
 	@InModelThread(asynchronous = false)
 	public void execute(ICommand command) throws Exception {
-		command.execute(this.projectHolder.getCurrentProject());
+		command.execute(this.projectHolder.getCurrentProject(), this.eventBus);
 	}
 
 	@Override
 	@InModelThread(asynchronous = true)
 	public void undo(ICommand command) {
-		command.undo(this.projectHolder.getCurrentProject());
+		command.undo(this.projectHolder.getCurrentProject(), this.eventBus);
 	}
 
 	@Override
 	@InModelThread(asynchronous = true)
 	public void redo(ICommand command) {
-		command.redo(this.projectHolder.getCurrentProject());
+		command.redo(this.projectHolder.getCurrentProject(), this.eventBus);
 	}
 
 	@Override
@@ -62,17 +65,17 @@ public class VisitonsHistoryStrategy implements IHistoryStrategy<ICommand> {
 @CommandDetails(name = "Initial state")
 class BaseCommand implements ICommand {
 	@Override
-	public void execute(Project project) throws Exception {
+	public void execute(Project project, EventBus eventBus) throws Exception {
 		throw new UnsupportedOperationException("Not applicable for this command.");
 	}
 
 	@Override
-	public void undo(Project project) {
+	public void undo(Project project, EventBus eventBus) {
 		throw new UnsupportedOperationException("Not applicable for this command.");
 	}
 
 	@Override
-	public void redo(Project project) {
+	public void redo(Project project, EventBus eventBus) {
 		throw new UnsupportedOperationException("Not applicable for this command.");
 	}
 }

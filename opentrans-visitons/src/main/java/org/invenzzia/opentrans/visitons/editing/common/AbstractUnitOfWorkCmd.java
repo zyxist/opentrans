@@ -18,6 +18,7 @@
 package org.invenzzia.opentrans.visitons.editing.common;
 
 import com.google.common.base.Preconditions;
+import com.google.common.eventbus.EventBus;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.invenzzia.helium.data.UnitOfWork;
@@ -57,7 +58,7 @@ public abstract class AbstractUnitOfWorkCmd <
 	}
 	
 	@Override
-	public void execute(Project project) throws Exception {
+	public void execute(Project project, EventBus eventBus) throws Exception {
 		M mgr = this.getManager(project);
 		this.mementos = new LinkedHashMap<>();
 		
@@ -81,7 +82,7 @@ public abstract class AbstractUnitOfWorkCmd <
 	}
 
 	@Override
-	public void undo(Project project) {
+	public void undo(Project project, EventBus eventBus) {
 		try {
 			M mgr = this.getManager(project);
 			for(R record: this.unitOfWork.getInsertedRecords()) {
@@ -107,7 +108,7 @@ public abstract class AbstractUnitOfWorkCmd <
 	}
 	
 	@Override
-	public void redo(Project project) {
+	public void redo(Project project, EventBus eventBus) {
 		try {
 			M mgr = this.getManager(project);
 			for(R record: this.unitOfWork.getInsertedRecords()) {

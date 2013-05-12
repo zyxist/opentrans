@@ -24,11 +24,11 @@ import com.google.inject.Provider;
 import org.invenzzia.helium.events.HistoryCommandReplayedEvent;
 import org.invenzzia.opentrans.lightweight.IProjectHolder;
 import org.invenzzia.opentrans.lightweight.annotations.InModelThread;
-import org.invenzzia.opentrans.lightweight.events.ProjectEvent;
 import org.invenzzia.opentrans.lightweight.ui.forms.FormController;
 import org.invenzzia.opentrans.visitons.Project;
 import org.invenzzia.opentrans.visitons.Project.ProjectRecord;
 import org.invenzzia.opentrans.visitons.editing.ICommand;
+import org.invenzzia.opentrans.visitons.events.ProjectEvent;
 
 /**
  * Description here.

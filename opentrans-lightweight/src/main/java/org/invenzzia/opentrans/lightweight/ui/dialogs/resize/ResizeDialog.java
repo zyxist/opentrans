@@ -24,6 +24,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import javax.swing.Box;
@@ -162,6 +163,9 @@ public class ResizeDialog extends JDialog {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				setVisible(false);
+				ResizeDialog.this.dispatchEvent(new WindowEvent( 
+					ResizeDialog.this, WindowEvent.WINDOW_CLOSING 
+				));
 			}
 		});
 		this.extendButton.addActionListener(new ActionListener() {

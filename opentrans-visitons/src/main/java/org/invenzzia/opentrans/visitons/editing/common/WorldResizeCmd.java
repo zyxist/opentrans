@@ -17,12 +17,15 @@
 
 package org.invenzzia.opentrans.visitons.editing.common;
 
+import com.google.common.eventbus.EventBus;
 import org.invenzzia.opentrans.visitons.editing.ICommand;
+import org.invenzzia.opentrans.visitons.events.WorldSizeChangedEvent;
 import org.invenzzia.opentrans.visitons.exception.WorldException;
 import org.invenzzia.opentrans.visitons.network.World;
+import org.invenzzia.opentrans.visitons.network.WorldRecord;
 
 /**
- * Description here.
+ * Common code for the world size change commands.
  * 
  * @author Tomasz Jędrzejewski
  */
@@ -35,6 +38,10 @@ public abstract class WorldResizeCmd implements ICommand {
 	 * Direction of the resize operation.
 	 */
 	protected final int direction;
+	/**
+	 * Produced world record with extra information for the GUI.
+	 */
+	private WorldRecord record;
 	
 	/**
 	 * Constructs the resizing command.
@@ -51,7 +58,7 @@ public abstract class WorldResizeCmd implements ICommand {
 	 * @param world
 	 * @param direction 
 	 */
-	protected void performExtend(World world, int direction) {
+	protected void performExtend(World world, EventBus eventBus, int direction) {
 		switch(direction) {
 			case RESIZE_NORTH:
 				world.extendVertically(World.VerticalDir.UP);
@@ -66,6 +73,7 @@ public abstract class WorldResizeCmd implements ICommand {
 				world.extendHorizontally(World.HorizontalDir.RIGHT);
 				break;
 		}
+		eventBus.post(new WorldSizeChangedEvent(new WorldRecord(world)));
 	}
 	
 	/**
@@ -74,7 +82,7 @@ public abstract class WorldResizeCmd implements ICommand {
 	 * @param world
 	 * @param direction 
 	 */
-	protected void performShrink(World world, int direction) throws WorldException {
+	protected void performShrink(World world, EventBus eventBus, int direction) throws WorldException {
 		switch(direction) {
 			case RESIZE_NORTH:
 				world.shrinkVertically(World.VerticalDir.UP);
@@ -89,5 +97,6 @@ public abstract class WorldResizeCmd implements ICommand {
 				world.shrinkHorizontally(World.HorizontalDir.RIGHT);
 				break;
 		}
+		eventBus.post(new WorldSizeChangedEvent(new WorldRecord(world)));
 	}
 }

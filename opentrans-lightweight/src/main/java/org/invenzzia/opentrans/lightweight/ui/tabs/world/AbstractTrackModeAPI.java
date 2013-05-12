@@ -73,7 +73,7 @@ public abstract class AbstractTrackModeAPI {
 	 */
 	protected void createUnitOfWork() {
 		this.currentUnit = this.unitOfWorkProvider.get();
-		this.transformer = new Transformations(this.currentUnit, this.recordImporter);
+		this.transformer = new Transformations(this.currentUnit, this.recordImporter, this.api.getWorldRecord());
 	}
 	
 	/**

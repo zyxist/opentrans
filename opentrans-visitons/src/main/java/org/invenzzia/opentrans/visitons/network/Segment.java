@@ -98,7 +98,7 @@ public final class Segment {
 	 * @return True, if the segment contains some infrastructural data or 'false' if it is empty.
 	 */
 	public boolean isUsed() {
-		return false;
+		return !this.vertices.isEmpty();
 	}
 
 	public void setImagePath(String imagePath) {

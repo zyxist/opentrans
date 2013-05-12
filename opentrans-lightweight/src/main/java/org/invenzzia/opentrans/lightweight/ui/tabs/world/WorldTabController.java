@@ -33,17 +33,20 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.List;
 import javax.swing.event.MouseInputAdapter;
+import org.invenzzia.opentrans.lightweight.annotations.InModelThread;
+import org.invenzzia.opentrans.lightweight.annotations.InSwingThread;
 import org.invenzzia.opentrans.lightweight.concurrent.ModelThread;
 import org.invenzzia.opentrans.lightweight.concurrent.RenderingThread;
 import org.invenzzia.opentrans.lightweight.events.CameraUpdatedEvent;
 import org.invenzzia.opentrans.lightweight.events.StatusEvent;
-import org.invenzzia.opentrans.lightweight.events.WorldSizeChangedEvent;
 import org.invenzzia.opentrans.lightweight.ui.MainWindowController;
 import org.invenzzia.opentrans.lightweight.ui.component.ZoomField.IZoomListener;
 import org.invenzzia.opentrans.lightweight.ui.component.ZoomField.ZoomChangeEvent;
 import org.invenzzia.opentrans.lightweight.ui.netview.NetworkView;
 import org.invenzzia.opentrans.lightweight.ui.tabs.world.WorldTab.IWorldTabListener;
+import org.invenzzia.opentrans.visitons.events.WorldSizeChangedEvent;
 import org.invenzzia.opentrans.visitons.network.World;
+import org.invenzzia.opentrans.visitons.network.WorldRecord;
 import org.invenzzia.opentrans.visitons.render.CameraModel;
 import org.invenzzia.opentrans.visitons.render.CameraModelSnapshot;
 import org.invenzzia.opentrans.visitons.render.Renderer;
@@ -94,6 +97,10 @@ public class WorldTabController implements AdjustmentListener, IZoomListener, IW
 	 * Current keyboard listener.
 	 */
 	private KeyboardListener keyListener;
+	/**
+	 * Snapshot of the basic information about the world model.
+	 */
+	private WorldRecord worldRecord;
 	
 	public void setWorldTab(WorldTab worldTab) {
 		if(null != this.worldTab) {
@@ -111,6 +118,7 @@ public class WorldTabController implements AdjustmentListener, IZoomListener, IW
 		}
 		this.worldTab = worldTab;
 		if(null != this.worldTab) {
+			this.worldRecord = this.createWorldRecord();
 			if(null == this.mouseListener) {
 				this.mouseListener = new CameraMouseMotionListener();
 			}
@@ -157,16 +165,32 @@ public class WorldTabController implements AdjustmentListener, IZoomListener, IW
 		this.worldTab.getNetworkView().updateScrollbarPositions();
 	}
 	
+	/**
+	 * When the world size is changed, we must update the scrollbars to reflect the new values, and
+	 * reset the edit modes in order not to rely on the outdated information.
+	 * 
+	 * @param event 
+	 */
 	@Subscribe
+	@InSwingThread(asynchronous = true)
 	public void notifyExternalWorldSizeChange(WorldSizeChangedEvent event) {
+		this.worldRecord = event.getWorld();
 		this.worldTab.getNetworkView().updateScrollbarPositions();
+		this.currentEditMode.modeDisabled();
+		this.currentEditMode.modeEnabled(this);
 	}
 	
 	@Subscribe
+	@InSwingThread(asynchronous = true)
 	public void notifyCameraUpdated(CameraUpdatedEvent event) {
 		this.worldTab.getNetworkView().injectSnapshot(event.getSnapshot());
 		this.worldTab.getNetworkView().updateScrollbars();
 		this.worldTab.getNetworkView().updateScrollbarPositions();
+	}
+	
+	@InModelThread(asynchronous = false)
+	public WorldRecord createWorldRecord() {
+		return new WorldRecord(this.worldProvider.get());
 	}
 
 	@Override
@@ -179,6 +203,11 @@ public class WorldTabController implements AdjustmentListener, IZoomListener, IW
 		if(null != this.currentEditMode) {
 			this.currentEditMode.modeEnabled(this);
 		}
+	}
+	
+	@Override
+	public WorldRecord getWorldRecord() {
+		return this.worldRecord;
 	}
 
 	@Override

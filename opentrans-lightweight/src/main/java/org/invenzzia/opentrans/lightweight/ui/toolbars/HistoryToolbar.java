@@ -39,6 +39,11 @@ public class HistoryToolbar extends AbstractToolbar {
 		this.initComponents();
 	}
 	
+	@Override
+	public String getToolbarPreferenceKey() {
+		return "opentrans.gui.toolbar.history";
+	}
+	
 	/**
 	 * Initializes the toolbar buttons.
 	 */

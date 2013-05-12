@@ -18,6 +18,7 @@
 package org.invenzzia.opentrans.lightweight.ui.workspace;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
 import com.google.inject.Singleton;
 import java.awt.Component;
 import java.util.LinkedHashMap;
@@ -145,7 +146,8 @@ public class DesktopManager implements ITabListener {
 	}
 
 	/**
-	 * Sets the focus on the tab identified by the given key.
+	 * Sets the focus on the tab identified by the given key. If it does not exist,
+	 * it is created.
 	 * 
 	 * @param key Unique tab key.
 	 */
@@ -158,6 +160,17 @@ public class DesktopManager implements ITabListener {
 			this.createItem(key);
 		} else {
 			this.managedPane.setSelectedIndex(this.managedPane.indexOfComponent(di.getContent()));
+		}
+	}
+	
+	/**
+	 * Executes the given predicate for all the desktop item factories.
+	 * 
+	 * @param predicate 
+	 */
+	public void forAllFactories(Predicate<IDesktopPaneFactory> predicate) {
+		for(IDesktopPaneFactory factory: this.factories.values()) {
+			predicate.apply(factory);
 		}
 	}
 

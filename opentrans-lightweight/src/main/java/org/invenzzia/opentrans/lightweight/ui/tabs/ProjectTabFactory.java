@@ -42,6 +42,11 @@ public class ProjectTabFactory implements IDesktopPaneFactory<ProjectTab> {
 	 * when the panel is discarded.
 	 */
 	private ProjectTabController controllerMemento;
+	
+	@Override
+	public String getDesktopItemName() {
+		return "Project";
+	}
 
 	@Override
 	public Class getContentType() {
@@ -55,7 +60,7 @@ public class ProjectTabFactory implements IDesktopPaneFactory<ProjectTab> {
 		this.controllerMemento.setView(projectTab);
 		this.eventBus.register(this.controllerMemento);
 		
-		DesktopItem di = new DesktopItem("Project", projectTab);
+		DesktopItem di = new DesktopItem(this.getDesktopItemName(), projectTab);
 		return di;
 	}
 

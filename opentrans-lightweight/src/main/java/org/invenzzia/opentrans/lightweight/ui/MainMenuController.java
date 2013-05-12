@@ -17,10 +17,20 @@
 
 package org.invenzzia.opentrans.lightweight.ui;
 
+import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.util.prefs.Preferences;
+import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JMenuItem;
+import javax.swing.JPanel;
 import org.invenzzia.helium.events.HistoryChangedEvent;
 import org.invenzzia.helium.exception.CommandExecutionException;
 import org.invenzzia.helium.history.History;
@@ -34,7 +44,13 @@ import org.invenzzia.opentrans.lightweight.ui.dialogs.resize.ResizeDialog;
 import org.invenzzia.opentrans.lightweight.ui.dialogs.resize.ResizeDialogController;
 import org.invenzzia.opentrans.lightweight.ui.dialogs.vehicletype.VehicleTypeController;
 import org.invenzzia.opentrans.lightweight.ui.dialogs.vehicletype.VehicleTypeDialog;
+import org.invenzzia.opentrans.lightweight.ui.toolbars.AbstractToolbar;
+import org.invenzzia.opentrans.lightweight.ui.toolbars.ToolbarManager;
+import org.invenzzia.opentrans.lightweight.ui.workspace.DesktopManager;
+import org.invenzzia.opentrans.lightweight.ui.workspace.IDesktopPaneFactory;
 import org.invenzzia.opentrans.visitons.editing.ICommand;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Implementation for all actions found in the main application menu.
@@ -42,6 +58,7 @@ import org.invenzzia.opentrans.visitons.editing.ICommand;
  * @author Tomasz Jędrzejewski
  */
 public class MainMenuController {
+	private final Logger logger = LoggerFactory.getLogger(MainMenuController.class);
 	/**
 	 * For managing the state of 'undo' and 'redo' buttons.
 	 */
@@ -64,6 +81,10 @@ public class MainMenuController {
 	 */
 	@Inject
 	private MainWindowController mainWindowController;
+	@Inject
+	private DesktopManager desktopManager;
+	@Inject
+	private ToolbarManager toolbarManager;
 	@Inject
 	private Provider<ResizeDialogController> resizeDialogControllerProvider;
 	@Inject
@@ -91,7 +112,50 @@ public class MainMenuController {
 			this.actionScanner.discoverActions(MainMenuController.class, this);
 			this.actionScanner.bindComponents(MainWindow.class, this.view);
 			this.updateButtonStates();
+			this.buildTabSelectionItems();
+			this.buildToolbarSelectionItems();
 		}
+	}
+	
+	/**
+	 * The part of the 'Window' menu must be constructed dynamically: take all
+	 * the tab factories from the desktop manager and present them as menu items,
+	 * so that we could access them from menu.
+	 */
+	protected void buildTabSelectionItems() {
+		this.desktopManager.forAllFactories(new Predicate<IDesktopPaneFactory>() {
+			@Override
+			public boolean apply(IDesktopPaneFactory factory) {
+				JMenuItem item = new JMenuItem(factory.getDesktopItemName());
+				item.addActionListener(new TabActionListener(factory.getContentType()));
+				view.addTabSelectionItem(item);
+				return true;
+			}
+		});
+	}
+	
+	/**
+	 * The part of the 'Window' menu must be constructed dynamically: take all
+	 * the toolbars registered in the toolbar manager and present them as menu
+	 * items, so that we could access them from menu.
+	 */
+	protected void buildToolbarSelectionItems() {
+		this.toolbarManager.forAllToolbars(new Predicate<AbstractToolbar>() {
+
+			@Override
+			public boolean apply(AbstractToolbar toolbar) {
+				
+				boolean isActive = Preferences.userRoot().getBoolean(toolbar.getToolbarName(), true);
+				toolbar.setActive(isActive);
+				JCheckBoxMenuItem item = new JCheckBoxMenuItem(toolbar.getToolbarName());
+				item.setState(isActive);
+				item.addItemListener(new ToolbarItemListener(toolbar));
+				
+				view.addToolbarSelectionItem(item);
+				
+				return true;
+			}
+		});
 	}
 
 	@Action("quit")
@@ -149,6 +213,11 @@ public class MainMenuController {
 		dialog.setVisible(true);
 	}
 	
+	@Action("closeAllTabs")
+	public void closeAllTabsAction() {
+		this.desktopManager.destroyAllItems();
+	}
+	
 	@Action("about")
 	public void aboutAction() {
 		AboutDialog dialog = this.dialogBuilder.createModalDialog(AboutDialog.class);
@@ -182,6 +251,43 @@ public class MainMenuController {
 		} else {
 			this.view.setUndoEnabled(true);
 			this.view.setRedoEnabled(true);
+		}
+	}
+	
+	/**
+	 * For the tab selection menu items.
+	 */
+	class TabActionListener implements ActionListener {
+		private final Class<? extends JPanel> key;
+		
+		public TabActionListener(Class<? extends JPanel> key) {
+			this.key = Preconditions.checkNotNull(key);
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if(logger.isDebugEnabled()) {
+				logger.debug("Activating the tab '"+this.key.getSimpleName()+"'");
+			}
+			desktopManager.setFocus(this.key);
+		}
+	}
+	
+	/**
+	 * For the toolbar activation items.
+	 */
+	class ToolbarItemListener implements ItemListener {
+		private final AbstractToolbar toolbar;
+		
+		public ToolbarItemListener(AbstractToolbar toolbar) {
+			this.toolbar = Preconditions.checkNotNull(toolbar);
+		}
+
+		@Override
+		public void itemStateChanged(ItemEvent e) {
+			this.toolbar.setActive(e.getStateChange() == ItemEvent.SELECTED);
+			Preferences.userRoot().putBoolean(this.toolbar.getToolbarPreferenceKey(), this.toolbar.isActive());
+			toolbarManager.update();
 		}
 	}
 }

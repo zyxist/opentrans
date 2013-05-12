@@ -79,7 +79,7 @@ public class OpentransModule extends AbstractModule {
 		this.bind(IProjectHolder.class).toInstance(application);
 		this.bind(EventBus.class).in(Singleton.class);
 		this.bind(IconService.class).in(Singleton.class);
-		this.bind(ToolbarManager.class);
+		this.bind(ToolbarManager.class).in(Singleton.class);
 		this.bind(DesktopManager.class).toProvider(DesktopManagerProvider.class).in(Singleton.class);
 		
 		this.bind(IDialogBuilder.class).to(DefaultDialogBuilder.class);

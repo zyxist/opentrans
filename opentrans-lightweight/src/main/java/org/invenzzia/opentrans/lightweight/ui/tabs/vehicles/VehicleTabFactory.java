@@ -33,6 +33,11 @@ public class VehicleTabFactory implements IDesktopPaneFactory<VehicleTab> {
 	private Provider<VehicleTabController> controllerProvider;
 	@Inject
 	private EventBus eventBus;
+	
+	@Override
+	public String getDesktopItemName() {
+		return "Vehicles";
+	}
 
 	@Override
 	public Class<VehicleTab> getContentType() {
@@ -46,7 +51,7 @@ public class VehicleTabFactory implements IDesktopPaneFactory<VehicleTab> {
 		ctrl.setView(tab);
 		this.eventBus.register(ctrl);
 		
-		return new DesktopItem("Vehicles", tab, ctrl);
+		return new DesktopItem(this.getDesktopItemName(), tab, ctrl);
 	}
 
 	@Override

@@ -35,6 +35,11 @@ public class WorldTabFactory implements IDesktopPaneFactory<WorldTab> {
 	private MainWindowController mainWindowController;
 	@Inject
 	private IconService iconService;
+	
+	@Override
+	public String getDesktopItemName() {
+		return "World";
+	}
 
 	@Override
 	public Class getContentType() {
@@ -46,7 +51,7 @@ public class WorldTabFactory implements IDesktopPaneFactory<WorldTab> {
 		WorldTab worldTab = new WorldTab();
 		worldTab.importIcons(this.iconService);
 		this.controller.setWorldTab(worldTab);
-		return new DesktopItem("World", worldTab, this.controller);
+		return new DesktopItem(this.getDesktopItemName(), worldTab, this.controller);
 	}
 
 	@Override

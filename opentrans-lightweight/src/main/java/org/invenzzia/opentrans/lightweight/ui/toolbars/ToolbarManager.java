@@ -18,6 +18,7 @@
 package org.invenzzia.opentrans.lightweight.ui.toolbars;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
 import com.google.inject.Singleton;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -100,6 +101,17 @@ public class ToolbarManager {
 			}
 		}
 		toolbarPanel.revalidate();
+	}
+	
+	/**
+	 * Executes the given predicate for all the toolbars.
+	 * 
+	 * @param predicate 
+	 */
+	public void forAllToolbars(Predicate<AbstractToolbar> predicate) {
+		for(AbstractToolbar toolbar: this.toolbars.values()) {
+			predicate.apply(toolbar);
+		}
 	}
 	
 	/**

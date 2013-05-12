@@ -37,6 +37,13 @@ public abstract class AbstractToolbar extends JToolBar {
 	 * @return Toolbar name.
 	 */
 	abstract public String getToolbarName();
+	/**
+	 * Returns the preference key used for remembering the state of this toolbar
+	 * after closing the application.
+	 * 
+	 * @return Preference key identifying this toolbar. 
+	 */
+	abstract public String getToolbarPreferenceKey();
 	
 	/**
 	 * Initializes the toolbar properties.

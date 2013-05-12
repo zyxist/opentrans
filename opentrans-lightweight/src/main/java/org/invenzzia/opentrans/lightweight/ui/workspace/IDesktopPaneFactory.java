@@ -20,13 +20,35 @@ package org.invenzzia.opentrans.lightweight.ui.workspace;
 import javax.swing.JPanel;
 
 /**
- * Specifies, how to create a particular tab type.
+ * Specifies, how to create a particular tab type. It is guaranteed
+ * that the desktop manager won't ask for the new desktop item before
+ * destroying the previous one, so we can cache some information in
+ * the factory.
  * 
- * @copyright Invenzzia Group <http://www.invenzzia.org/>
  * @author Tomasz Jędrzejewski
  */
 public interface IDesktopPaneFactory<T extends JPanel> {
+	/**
+	 * We must know the name of the desktop item without constructing the
+	 * actual desktop item in order to draw a menu.
+	 * 
+	 * @return Name of the constructed desktop items.
+	 */
+	public String getDesktopItemName();
+	/**
+	 * @return Type of the constructed desktop item class.
+	 */
 	public Class<T> getContentType();
+	/**
+	 * Creates the desktop item and returns it.
+	 * 
+	 * @return New desktop item.
+	 */
 	public DesktopItem createDesktopItem();
+	/**
+	 * Destroys the desktop item.
+	 * 
+	 * @param desktopItem 
+	 */
 	public void destroyDesktopItem(DesktopItem desktopItem);
 }

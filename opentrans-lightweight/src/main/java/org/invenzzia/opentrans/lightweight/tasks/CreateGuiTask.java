@@ -101,6 +101,9 @@ public class CreateGuiTask implements ITask {
 	public final void doStartup() {
 		this.initServices();
 		
+		// Create the toolbars - must go first, because the menu controller must see them!
+		this.createToolbars();
+		
 		// Create the main GUI object
 		MainWindow window = this.mainWindowProvider.get();
 		this.mainWindowController.setMainWindow(window);
@@ -121,8 +124,7 @@ public class CreateGuiTask implements ITask {
 		
 		// Create toolbars
 		this.toolbarManager.setToolbarPanel(window.getToolbarPanel());
-		this.createToolbars();
-		
+		this.toolbarManager.update();
 		this.desktopManager.setFocus(WorldTab.class);
 		window.setVisible(true);
 	}
@@ -146,7 +148,7 @@ public class CreateGuiTask implements ITask {
 		this.eventBus.register(this.historyToolbarController);
 		this.setToolbarActivity(historyToolbar);
 		this.toolbarManager.addToolbar(historyToolbar);
-		this.toolbarManager.update();
+		
 	}
 	
 	/**

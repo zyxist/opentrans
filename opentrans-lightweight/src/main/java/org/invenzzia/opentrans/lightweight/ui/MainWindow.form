@@ -94,6 +94,9 @@
           <SubComponents>
             <MenuItem class="javax.swing.JMenuItem" name="resizeWorldMenuItem">
               <Properties>
+                <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
+                  <KeyStroke key="Ctrl+W"/>
+                </Property>
                 <Property name="text" type="java.lang.String" value="Resize world..."/>
               </Properties>
               <AuxValues>
@@ -104,6 +107,9 @@
             </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="meanOfTransportMenuItem">
               <Properties>
+                <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
+                  <KeyStroke key="Shift+Ctrl+M"/>
+                </Property>
                 <Property name="text" type="java.lang.String" value="Means of transport"/>
               </Properties>
               <AuxValues>
@@ -112,6 +118,9 @@
             </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="vehicleTypeMenuItem">
               <Properties>
+                <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
+                  <KeyStroke key="Shift+Ctrl+T"/>
+                </Property>
                 <Property name="text" type="java.lang.String" value="Vehicle types"/>
               </Properties>
               <AuxValues>
@@ -134,6 +143,31 @@
           <Properties>
             <Property name="text" type="java.lang.String" value="Window"/>
           </Properties>
+          <SubComponents>
+            <Menu class="javax.swing.JMenu" name="tabSelectionSubmenu">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Project tabs"/>
+              </Properties>
+            </Menu>
+            <Menu class="javax.swing.JMenu" name="toolbarSubmenu">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Toolbars"/>
+              </Properties>
+            </Menu>
+            <MenuItem class="javax.swing.JPopupMenu$Separator" name="jSeparator3">
+            </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="closeAllTabsItem">
+              <Properties>
+                <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
+                  <KeyStroke key="Shift+Ctrl+T"/>
+                </Property>
+                <Property name="text" type="java.lang.String" value="Close all tabs"/>
+              </Properties>
+              <AuxValues>
+                <AuxValue name="JavaCodeGenerator_DeclarationPre" type="java.lang.String" value="@Action(&quot;closeAllTabs&quot;)"/>
+              </AuxValues>
+            </MenuItem>
+          </SubComponents>
         </Menu>
         <Menu class="javax.swing.JMenu" name="helpMenu">
           <Properties>

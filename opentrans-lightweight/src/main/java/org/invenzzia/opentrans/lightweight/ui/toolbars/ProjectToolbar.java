@@ -51,6 +51,11 @@ public class ProjectToolbar extends AbstractToolbar {
 		return "Project toolbar";
 	}
 	
+	@Override
+	public String getToolbarPreferenceKey() {
+		return "opentrans.gui.toolbar.project";
+	}
+	
 	/**
 	 * Initializes the toolbar components.
 	 */

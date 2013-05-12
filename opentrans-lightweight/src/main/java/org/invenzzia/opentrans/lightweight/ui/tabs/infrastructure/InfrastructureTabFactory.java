@@ -35,6 +35,11 @@ public class InfrastructureTabFactory implements IDesktopPaneFactory<Infrastruct
 	private EventBus eventBus;
 	
 	private InfrastructureTabController lastController;
+	
+	@Override
+	public String getDesktopItemName() {
+		return "Infrastructure";
+	}
 
 	@Override
 	public Class<InfrastructureTab> getContentType() {
@@ -49,7 +54,7 @@ public class InfrastructureTabFactory implements IDesktopPaneFactory<Infrastruct
 		ctrl.setView(tab);
 		this.lastController = ctrl;
 		
-		return new DesktopItem("Infrastructure", tab);
+		return new DesktopItem(this.getDesktopItemName(), tab);
 	}
 
 	@Override

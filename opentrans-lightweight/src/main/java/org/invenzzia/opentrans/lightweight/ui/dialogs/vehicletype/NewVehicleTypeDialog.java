@@ -16,7 +16,9 @@
  */
 package org.invenzzia.opentrans.lightweight.ui.dialogs.vehicletype;
 
+import java.awt.event.WindowEvent;
 import javax.swing.ComboBoxModel;
+import javax.swing.JDialog;
 import org.invenzzia.opentrans.visitons.data.MeanOfTransport.MeanOfTransportRecord;
 
 /**
@@ -33,7 +35,8 @@ public class NewVehicleTypeDialog extends javax.swing.JDialog {
 	 */
 	public NewVehicleTypeDialog(java.awt.Frame parent, boolean modal) {
 		super(parent, modal);
-		initComponents();
+		this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+		this.initComponents();
 	}
 
 	/**
@@ -163,17 +166,17 @@ public class NewVehicleTypeDialog extends javax.swing.JDialog {
 
 	private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okButtonActionPerformed
 		this.confirmed = true;
-		this.setVisible(false);
+		this.dispose();
 	}//GEN-LAST:event_okButtonActionPerformed
 
 	private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
 		this.confirmed = false;
-		this.setVisible(false);
+		this.dispose();
 	}//GEN-LAST:event_cancelButtonActionPerformed
 
 	private void nameFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nameFieldActionPerformed
 		this.confirmed = true;
-		this.setVisible(false);
+		this.dispose();
 	}//GEN-LAST:event_nameFieldActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

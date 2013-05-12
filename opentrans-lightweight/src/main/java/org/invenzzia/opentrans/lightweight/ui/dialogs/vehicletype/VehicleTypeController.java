@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 zyxist
+ * Copyright (C) 2013 Invenzzia Group <http://www.invenzzia.org/>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,11 +12,10 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 package org.invenzzia.opentrans.lightweight.ui.dialogs.vehicletype;
 
-import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import org.invenzzia.helium.data.UnitOfWork;
@@ -25,10 +24,10 @@ import org.invenzzia.helium.history.History;
 import org.invenzzia.opentrans.lightweight.IProjectHolder;
 import org.invenzzia.opentrans.lightweight.annotations.Action;
 import org.invenzzia.opentrans.lightweight.annotations.FormField;
-import org.invenzzia.opentrans.lightweight.annotations.InModelThread;
 import org.invenzzia.opentrans.lightweight.controllers.IActionScanner;
 import org.invenzzia.opentrans.lightweight.controllers.IFormScanner;
 import org.invenzzia.opentrans.lightweight.model.visitons.MeanSelectionModel;
+import org.invenzzia.opentrans.lightweight.ui.AbstractDialogController;
 import org.invenzzia.opentrans.lightweight.ui.IDialogBuilder;
 import org.invenzzia.opentrans.lightweight.ui.dialogs.vehicletype.VehicleTypeDialog.IItemListener;
 import org.invenzzia.opentrans.lightweight.ui.dialogs.vehicletype.VehicleTypeDialog.ItemEvent;
@@ -40,10 +39,11 @@ import org.invenzzia.opentrans.visitons.editing.ICommand;
 import org.invenzzia.opentrans.visitons.editing.operations.UpdateVehicleTypesCmd;
 
 /**
- *
- * @author zyxist
+ * Input controller for the dialog window that allows managing the vehicle types.
+ * 
+ * @author Tomasz Jędrzejewski
  */
-public class VehicleTypeController implements IItemListener {
+public class VehicleTypeController extends AbstractDialogController<VehicleTypeDialog> implements IItemListener {
 	/**
 	 * Required to save the state at the end of work.
 	 */
@@ -68,10 +68,6 @@ public class VehicleTypeController implements IItemListener {
 	@Inject
 	private Provider<MeanSelectionModel> meanSelectionModelProvider;
 	/**
-	 * The managed view.
-	 */
-	private VehicleTypeDialog view;
-	/**
 	 * Available means of transport.
 	 */
 	private MeanSelectionModel meanSelectionModel;
@@ -81,8 +77,9 @@ public class VehicleTypeController implements IItemListener {
 	 * 
 	 * @param dialog 
 	 */
+	@Override
 	public void setView(VehicleTypeDialog dialog) {
-		this.view = Preconditions.checkNotNull(dialog);
+		super.setView(dialog);
 		this.actionScanner.discoverActions(VehicleTypeController.class, this);
 		this.actionScanner.bindComponents(VehicleTypeDialog.class, dialog);
 		
@@ -95,15 +92,14 @@ public class VehicleTypeController implements IItemListener {
 		this.meanSelectionModel.loadData(project);		
 		this.model.loadData(this.projectHolder.getCurrentProject());
 		
-		this.view.setModel(this.model);
-		this.view.setMeanSelectionModel(this.meanSelectionModel);
-		this.view.addItemListener(this);
-		this.view.disableForm();
+		this.dialog.setModel(this.model);
+		this.dialog.setMeanSelectionModel(this.meanSelectionModel);
+		this.dialog.addItemListener(this);
+		this.dialog.disableForm();
 	}
 	
 	@Action("okAction")
 	public void okAction() {
-		this.view.setVisible(false);
 		UnitOfWork<VehicleTypeRecord> unitOfWork = this.model.getUnitOfWork();
 		try {
 			if(!unitOfWork.isEmpty()) {
@@ -112,11 +108,12 @@ public class VehicleTypeController implements IItemListener {
 		} catch(CommandExecutionException exception) {
 			this.dialogBuilder.showError("Cannot save vehicle types", exception);
 		}
+		this.dialog.dispose();
 	}
 	
 	@Action("cancelAction")
 	public void cancelAction() {
-		this.view.setVisible(false);
+		this.dialog.dispose();
 	}
 
 	@Action("helpAction")
@@ -158,7 +155,7 @@ public class VehicleTypeController implements IItemListener {
 
 	@Action("removeAction")
 	public void removeAction() {
-		VehicleTypeRecord record = this.view.getSelectedRecord();
+		VehicleTypeRecord record = this.dialog.getSelectedRecord();
 		if(record.hasVehicles()) {
 			this.dialogBuilder.showInformation("Cannot remove", "This vehicle type has vehicles assigned. Remove the vehicles first.");
 		} else {
@@ -169,7 +166,7 @@ public class VehicleTypeController implements IItemListener {
 	@FormField(name="name")
 	public void onNameChanged() {
 		if(this.formScanner.validate("name", Validators.lengthBetween(1, 30))) {
-			VehicleTypeRecord record = this.view.getSelectedRecord();
+			VehicleTypeRecord record = this.dialog.getSelectedRecord();
 			if(null != record) {
 				record.setName(this.formScanner.getString("name"));
 				this.model.updateRecord(record);
@@ -180,7 +177,7 @@ public class VehicleTypeController implements IItemListener {
 	
 	@FormField(name="meanOfTransport")
 	public void onMeanOfTransportChange() {
-		VehicleTypeRecord record = this.view.getSelectedRecord();
+		VehicleTypeRecord record = this.dialog.getSelectedRecord();
 		if(null != record) {
 			record.setMeanOfTransport(this.formScanner.getObject("meanOfTransport", MeanOfTransportRecord.class).getId());
 		}
@@ -189,7 +186,7 @@ public class VehicleTypeController implements IItemListener {
 	@FormField(name="length")
 	public void onLengthChange() {
 		if(this.formScanner.validate("length", Validators.isDouble(), Validators.range(0.0, 100.0))) {
-			VehicleTypeRecord record = this.view.getSelectedRecord();
+			VehicleTypeRecord record = this.dialog.getSelectedRecord();
 			if(null != record) {
 				record.setLength(this.formScanner.getDouble("length"));
 			}
@@ -199,7 +196,7 @@ public class VehicleTypeController implements IItemListener {
 	@FormField(name="mass")
 	public void onMassChange() {
 		if(this.formScanner.validate("mass", Validators.isInteger(), Validators.range(0, 200000))) {
-			VehicleTypeRecord record = this.view.getSelectedRecord();
+			VehicleTypeRecord record = this.dialog.getSelectedRecord();
 			if(null != record) {
 				record.setMass(this.formScanner.getInt("mass"));
 			}
@@ -209,7 +206,7 @@ public class VehicleTypeController implements IItemListener {
 	@FormField(name="enginePower")
 	public void onEnginePowerChange() {
 		if(this.formScanner.validate("enginePower", Validators.isInteger(), Validators.range(0, 1000000))) {
-			VehicleTypeRecord record = this.view.getSelectedRecord();
+			VehicleTypeRecord record = this.dialog.getSelectedRecord();
 			if(null != record) {
 				record.setEnginePower(this.formScanner.getInt("enginePower"));
 			}
@@ -219,7 +216,7 @@ public class VehicleTypeController implements IItemListener {
 	@FormField(name="maximumCapacity")
 	public void onMaximumCapacityChanged() {
 		if(this.formScanner.validate("maximumCapacity", Validators.isInteger(), Validators.range(0, 1000))) {
-			VehicleTypeRecord record = this.view.getSelectedRecord();
+			VehicleTypeRecord record = this.dialog.getSelectedRecord();
 			if(null != record) {
 				record.setMaximumCapacity(this.formScanner.getInt("maximumCapacity"));
 			}
@@ -228,7 +225,7 @@ public class VehicleTypeController implements IItemListener {
 	
 	@FormField(name="numberOfSegments")
 	public void onNumberOfSegmentsChanged() {
-		VehicleTypeRecord record = this.view.getSelectedRecord();
+		VehicleTypeRecord record = this.dialog.getSelectedRecord();
 		if(null != record) {
 			record.setNumberOfSegments(this.formScanner.getInt("numberOfSegments"));
 		}
@@ -236,7 +233,7 @@ public class VehicleTypeController implements IItemListener {
 	
 	@FormField(name="exchangeRatio")
 	public void onExchangeRatioChanged() {
-		VehicleTypeRecord record = this.view.getSelectedRecord();
+		VehicleTypeRecord record = this.dialog.getSelectedRecord();
 		if(null != record) {
 			record.setPassengerExchangeRatio(this.formScanner.getInt("exchangeRatio"));
 		}
@@ -246,7 +243,7 @@ public class VehicleTypeController implements IItemListener {
 	public void onItemSelected(ItemEvent event) {
 		if(event.hasRecord()) {
 			VehicleTypeRecord record = event.getRecord();
-			this.view.enableForm();
+			this.dialog.enableForm();
 			this.formScanner.setString("name", record.getName());
 			this.formScanner.setObject("meanOfTransport", this.meanSelectionModel.findById(record.getMeanOfTransportId()));
 			this.formScanner.setDouble("length", record.getLength());
@@ -256,7 +253,7 @@ public class VehicleTypeController implements IItemListener {
 			this.formScanner.setInt("numberOfSegments", record.getNumberOfSegments());
 			this.formScanner.setInt("exchangeRatio", record.getPassengerExchangeRatio());
 		} else {
-			this.view.disableForm();
+			this.dialog.disableForm();
 		}
 	}
 }

@@ -19,6 +19,7 @@ package org.invenzzia.opentrans.lightweight.ui.dialogs.vehicletype;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import javax.swing.ComboBoxModel;
+import javax.swing.JDialog;
 import javax.swing.ListModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -46,6 +47,7 @@ public class VehicleTypeDialog extends javax.swing.JDialog {
 	
 	public VehicleTypeDialog(java.awt.Frame parent, boolean modal) {
 		super(parent, modal);
+		this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 		this.initComponents();
 		this.listeners = new LinkedHashSet<>();
 	}

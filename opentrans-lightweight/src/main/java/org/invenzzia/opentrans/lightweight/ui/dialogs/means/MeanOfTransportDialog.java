@@ -18,6 +18,7 @@ package org.invenzzia.opentrans.lightweight.ui.dialogs.means;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
+import javax.swing.JDialog;
 import javax.swing.ListModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -44,6 +45,7 @@ public class MeanOfTransportDialog extends javax.swing.JDialog {
 	 */
 	public MeanOfTransportDialog(java.awt.Frame parent, boolean modal) {
 		super(parent, modal);
+		this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 		initComponents();
 	}
 	

@@ -17,8 +17,8 @@
 
 package org.invenzzia.opentrans.lightweight.ui.dialogs.means;
 
-import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
+import java.awt.event.WindowEvent;
 import org.invenzzia.helium.data.UnitOfWork;
 import org.invenzzia.helium.exception.CommandExecutionException;
 import org.invenzzia.helium.history.History;
@@ -27,6 +27,7 @@ import org.invenzzia.opentrans.lightweight.annotations.Action;
 import org.invenzzia.opentrans.lightweight.annotations.FormField;
 import org.invenzzia.opentrans.lightweight.controllers.IActionScanner;
 import org.invenzzia.opentrans.lightweight.controllers.IFormScanner;
+import org.invenzzia.opentrans.lightweight.ui.AbstractDialogController;
 import org.invenzzia.opentrans.lightweight.ui.IDialogBuilder;
 import org.invenzzia.opentrans.lightweight.ui.dialogs.means.MeanOfTransportDialog.IItemListener;
 import org.invenzzia.opentrans.lightweight.validator.Validators;
@@ -35,11 +36,11 @@ import org.invenzzia.opentrans.visitons.editing.ICommand;
 import org.invenzzia.opentrans.visitons.editing.operations.UpdateMeansOfTransportCmd;
 
 /**
- * Description here.
+ * Input controller for the dialog that allows managing means of transport.
  * 
  * @author Tomasz Jędrzejewski
  */
-public class MeanOfTransportController implements IItemListener {
+public class MeanOfTransportController extends AbstractDialogController<MeanOfTransportDialog> implements IItemListener {
 	/**
 	 * Required to save the state at the end of work.
 	 */
@@ -61,18 +62,15 @@ public class MeanOfTransportController implements IItemListener {
 	private MeanOfTransportModel model;
 	@Inject
 	private IProjectHolder projectHolder;
-	/**
-	 * The managed view.
-	 */
-	private MeanOfTransportDialog view;
 	
 	/**
 	 * Sets the view and binds the controller actions.
 	 * 
 	 * @param dialog 
 	 */
+	@Override
 	public void setView(MeanOfTransportDialog dialog) {
-		this.view = Preconditions.checkNotNull(dialog);
+		super.setView(dialog);
 		this.actionScanner.discoverActions(MeanOfTransportController.class, this);
 		this.actionScanner.bindComponents(MeanOfTransportDialog.class, dialog);
 		
@@ -80,13 +78,12 @@ public class MeanOfTransportController implements IItemListener {
 		this.formScanner.bindFields(MeanOfTransportDialog.class, dialog);
 		
 		this.model.loadData(this.projectHolder.getCurrentProject());
-		this.view.setModel(this.model);
-		this.view.addItemListener(this);
+		this.dialog.setModel(this.model);
+		this.dialog.addItemListener(this);
 	}
 	
 	@Action("okAction")
 	public void okAction() {
-		this.view.setVisible(false);
 		UnitOfWork<MeanOfTransportRecord> unitOfWork = this.model.getUnitOfWork();
 		try {
 			if(!unitOfWork.isEmpty()) {
@@ -95,11 +92,12 @@ public class MeanOfTransportController implements IItemListener {
 		} catch(CommandExecutionException exception) {
 			this.dialogBuilder.showError("Cannot save means of transport", exception);
 		}
+		this.dialog.dispose();
 	}
 	
 	@Action("cancelAction")
 	public void cancelAction() {
-		this.view.setVisible(false);
+		this.dialog.dispose();
 	}
 	
 	@Action("helpAction")
@@ -130,7 +128,7 @@ public class MeanOfTransportController implements IItemListener {
 
 	@Action("removeAction")
 	public void removeAction() {
-		MeanOfTransportRecord record = this.view.getSelectedRecord();
+		MeanOfTransportRecord record = this.dialog.getSelectedRecord();
 		if(record.hasVehicleTypes()) {
 			this.dialogBuilder.showInformation("Cannot remove", "This mean of transport has vehicle types assigned. Remove the vehicle types first.");
 		} else {
@@ -141,7 +139,7 @@ public class MeanOfTransportController implements IItemListener {
 	@FormField(name="name")
 	public void onNameChanged() {
 		if(this.formScanner.validate("name", Validators.lengthBetween(3, 30))) {
-			MeanOfTransportRecord record = this.view.getSelectedRecord();
+			MeanOfTransportRecord record = this.dialog.getSelectedRecord();
 			if(null != record) {
 				record.setName(this.formScanner.getString("name"));
 				this.model.updateRecord(record);
@@ -153,7 +151,7 @@ public class MeanOfTransportController implements IItemListener {
 	@FormField(name="rollingFrictionCoefficient")
 	public void onRollingFrictionCoefficientChanged() {
 		if(this.formScanner.validate("rollingFrictionCoefficient", Validators.isDouble())) {
-			MeanOfTransportRecord record = this.view.getSelectedRecord();
+			MeanOfTransportRecord record = this.dialog.getSelectedRecord();
 			if(null != record) {
 				record.setRollingFrictionCoefficient(this.formScanner.getDouble("rollingFrictionCoefficient"));
 				this.model.updateRecord(record);
@@ -164,7 +162,7 @@ public class MeanOfTransportController implements IItemListener {
 	@FormField(name="maxSafeSpeedCoefficient")
 	public void onMaxSafeSpeedCoefficientChanged() {
 		if(this.formScanner.validate("maxSafeSpeedCoefficient", Validators.isDouble())) {
-			MeanOfTransportRecord record = this.view.getSelectedRecord();
+			MeanOfTransportRecord record = this.dialog.getSelectedRecord();
 			if(null != record) {
 				record.setMaxSafeSpeedRadiusCoefficient(this.formScanner.getDouble("maxSafeSpeedCoefficient"));
 				this.model.updateRecord(record);
@@ -175,7 +173,7 @@ public class MeanOfTransportController implements IItemListener {
 	@FormField(name="overtakingSpeedPunishment")
 	public void onOvertakingSpeedPunishmentChanged() {
 		if(this.formScanner.validate("overtakingSpeedPunishment", Validators.isDouble())) {
-			MeanOfTransportRecord record = this.view.getSelectedRecord();
+			MeanOfTransportRecord record = this.dialog.getSelectedRecord();
 			if(null != record) {
 				record.setOvertakingPunishment(this.formScanner.getDouble("overtakingSpeedPunishment"));
 				this.model.updateRecord(record);
@@ -187,11 +185,11 @@ public class MeanOfTransportController implements IItemListener {
 	public void onAllowVehicleOvertakingChanged() {
 		boolean value = this.formScanner.getBoolean("allowVehicleOvertaking");
 		if(!value) {
-			this.view.setOvertakingSpeedPunishmentEnabled(false);
+			this.dialog.setOvertakingSpeedPunishmentEnabled(false);
 		} else {
-			this.view.setOvertakingSpeedPunishmentEnabled(true);
+			this.dialog.setOvertakingSpeedPunishmentEnabled(true);
 		}
-		MeanOfTransportRecord record = this.view.getSelectedRecord();
+		MeanOfTransportRecord record = this.dialog.getSelectedRecord();
 		if(null != record) {
 			record.setOvertakingAllowed(value);
 			this.model.updateRecord(record);
@@ -202,18 +200,18 @@ public class MeanOfTransportController implements IItemListener {
 	public void onItemSelected(MeanOfTransportDialog.ItemEvent event) {
 		if(event.hasRecord()) {
 			MeanOfTransportRecord record = event.getRecord();
-			this.view.enableForm();
+			this.dialog.enableForm();
 			this.formScanner.setString("name", record.getName());
 			this.formScanner.setDouble("rollingFrictionCoefficient", record.getRollingFrictionCoefficient());
 			this.formScanner.setDouble("maxSafeSpeedCoefficient", record.getMaxSafeSpeedRadiusCoefficient());
 			this.formScanner.setDouble("overtakingSpeedPunishment", record.getOvertakingPunishment());
 			this.formScanner.setBoolean("allowVehicleOvertaking", record.isOvertakingAllowed());
 			if(!record.isOvertakingAllowed()) {
-				this.view.setOvertakingSpeedPunishmentEnabled(false);
+				this.dialog.setOvertakingSpeedPunishmentEnabled(false);
 			}
-			this.view.setHasVehicleTypes(record.hasVehicleTypes());
+			this.dialog.setHasVehicleTypes(record.hasVehicleTypes());
 		} else {
-			this.view.disableForm();
+			this.dialog.disableForm();
 		}
 	}
 }

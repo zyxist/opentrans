@@ -75,6 +75,8 @@ public class ResizeDialog extends JDialog {
 	public ResizeDialog(Frame parent, boolean modal) {
 		super(parent, modal);
 		
+		this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+		
 		this.listeners = new LinkedHashSet<>();
 		this.setTitle("Resize world");
 		
@@ -162,10 +164,7 @@ public class ResizeDialog extends JDialog {
 		this.okButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				setVisible(false);
-				ResizeDialog.this.dispatchEvent(new WindowEvent( 
-					ResizeDialog.this, WindowEvent.WINDOW_CLOSING 
-				));
+				ResizeDialog.this.dispose();
 			}
 		});
 		this.extendButton.addActionListener(new ActionListener() {

@@ -26,6 +26,8 @@ import org.invenzzia.helium.exception.CommandExecutionException;
 import org.invenzzia.helium.history.History;
 import org.invenzzia.opentrans.lightweight.annotations.Action;
 import org.invenzzia.opentrans.lightweight.controllers.IActionScanner;
+import org.invenzzia.opentrans.lightweight.ui.dialogs.about.AboutDialog;
+import org.invenzzia.opentrans.lightweight.ui.dialogs.about.AboutDialogController;
 import org.invenzzia.opentrans.lightweight.ui.dialogs.means.MeanOfTransportController;
 import org.invenzzia.opentrans.lightweight.ui.dialogs.means.MeanOfTransportDialog;
 import org.invenzzia.opentrans.lightweight.ui.dialogs.resize.ResizeDialog;
@@ -68,6 +70,8 @@ public class MainMenuController {
 	private Provider<MeanOfTransportController> meanOfTransportControllerProvider;
 	@Inject
 	private Provider<VehicleTypeController> vehicleTypeControllerProvider;
+	@Inject
+	private Provider<AboutDialogController> aboutDialogControllerProvider;
 	/**
 	 * The view scanned for menu items.
 	 */
@@ -141,6 +145,14 @@ public class MainMenuController {
 	public void vehicleTypesAction() {
 		VehicleTypeDialog dialog = this.dialogBuilder.createModalDialog(VehicleTypeDialog.class);
 		VehicleTypeController controller = this.vehicleTypeControllerProvider.get();
+		controller.setView(dialog);
+		dialog.setVisible(true);
+	}
+	
+	@Action("about")
+	public void aboutAction() {
+		AboutDialog dialog = this.dialogBuilder.createModalDialog(AboutDialog.class);
+		AboutDialogController controller = this.aboutDialogControllerProvider.get();
 		controller.setView(dialog);
 		dialog.setVisible(true);
 	}

@@ -139,6 +139,7 @@ public class MainWindow extends JFrame {
             toolsMenu = new javax.swing.JMenu();
             windowMenu = new javax.swing.JMenu();
             helpMenu = new javax.swing.JMenu();
+            aboutMenuItem = new javax.swing.JMenuItem();
 
             setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
             setTitle("OpenTrans");
@@ -235,6 +236,11 @@ public class MainWindow extends JFrame {
             jMenuBar1.add(windowMenu);
 
             helpMenu.setText("Help");
+
+            aboutMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_A, java.awt.event.InputEvent.CTRL_MASK));
+            aboutMenuItem.setText("About...");
+            helpMenu.add(aboutMenuItem);
+
             jMenuBar1.add(helpMenu);
 
             setJMenuBar(jMenuBar1);
@@ -261,6 +267,8 @@ public class MainWindow extends JFrame {
       }// </editor-fold>//GEN-END:initComponents
 
       // Variables declaration - do not modify//GEN-BEGIN:variables
+      @Action("about")
+      private javax.swing.JMenuItem aboutMenuItem;
       private javax.swing.JMenu editMenu;
       private javax.swing.JMenu fileMenu;
       private javax.swing.Box.Filler filler1;

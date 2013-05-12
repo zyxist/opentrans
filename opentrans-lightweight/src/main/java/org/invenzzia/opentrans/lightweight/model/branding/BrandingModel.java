@@ -47,8 +47,8 @@ public class BrandingModel {
 		this.appVersion = System.getProperty(BRANDING_APP_VERSION, "0.1.0");
 		this.appAuthor = System.getProperty(BRANDING_APP_AUTHOR, "Author name");
 		this.appWebsite = System.getProperty(BRANDING_APP_WEBSITE, "http://www.example.com");
-		this.appCopyright = System.getProperty(BRANDING_APP_NAME, "Author name");
-		this.appLicense = System.getProperty(BRANDING_APP_NAME, "Sample license");
+		this.appCopyright = System.getProperty(BRANDING_APP_COPYRIGHT, "Author name");
+		this.appLicense = System.getProperty(BRANDING_APP_LICENSE, "Sample license");
 		this.promoImagePath = System.getProperty(BRANDING_PROMO_IMAGE, "org/invenzzia/helium/gui/splash.png");
 		this.promoBarColor = System.getProperty(BRANDING_PROMO_BAR_COLOR, "#0000dd");
 		this.promoTextColor = System.getProperty(BRANDING_PROMO_TEXT_COLOR, "#0000dd");

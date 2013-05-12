@@ -140,7 +140,7 @@ public class MainWindow extends JFrame {
             windowMenu = new javax.swing.JMenu();
             helpMenu = new javax.swing.JMenu();
 
-            setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+            setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
             setTitle("OpenTrans");
 
             toolbarPanel.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));

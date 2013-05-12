@@ -17,11 +17,10 @@
 
 package org.invenzzia.opentrans.lightweight.ui;
 
+import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import java.awt.Toolkit;
-import java.awt.event.WindowEvent;
 import org.invenzzia.helium.events.HistoryChangedEvent;
 import org.invenzzia.helium.exception.CommandExecutionException;
 import org.invenzzia.helium.history.History;
@@ -56,7 +55,13 @@ public class MainMenuController {
 	 */
 	@Inject
 	private IDialogBuilder dialogBuilder;
-	
+	@Inject
+	private EventBus eventBus;
+	/**
+	 * We need access to it to call {@link MainWindowController#handleClosing()} method.
+	 */
+	@Inject
+	private MainWindowController mainWindowController;
 	@Inject
 	private Provider<ResizeDialogController> resizeDialogControllerProvider;
 	@Inject
@@ -87,9 +92,7 @@ public class MainMenuController {
 
 	@Action("quit")
 	public void quitAction() {
-		this.view.setVisible(false);
-		WindowEvent wev = new WindowEvent(this.view, WindowEvent.WINDOW_CLOSING);
-		Toolkit.getDefaultToolkit().getSystemEventQueue().postEvent(wev);
+		this.mainWindowController.handleClosing();
 	}
 	
 	@Action("undo")

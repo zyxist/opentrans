@@ -18,6 +18,7 @@
 package org.invenzzia.opentrans.visitons.network;
 
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.BiMap;
 import org.invenzzia.helium.data.interfaces.IIdentifiable;
 
@@ -110,6 +111,19 @@ public class Track {
 		} else {
 			return this.v1;
 		}
+	}
+	
+	/**
+	 * Sets the track vertices. The method exists primarily for debugging/testing purposes and should
+	 * not be used in the production.
+	 * 
+	 * @param v1
+	 * @param v2 
+	 */
+	@Deprecated
+	public void setVertices(Vertex v1, Vertex v2) {
+		this.v1 = Preconditions.checkNotNull(v1);
+		this.v2 = Preconditions.checkNotNull(v2);
 	}
 	
 	/**

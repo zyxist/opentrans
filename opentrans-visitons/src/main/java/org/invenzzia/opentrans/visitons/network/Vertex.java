@@ -17,6 +17,7 @@
 
 package org.invenzzia.opentrans.visitons.network;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.BiMap;
 import org.invenzzia.helium.data.interfaces.IIdentifiable;
 import org.invenzzia.opentrans.visitons.utils.SegmentCoordinate;
@@ -59,6 +60,17 @@ public class Vertex implements IIdentifiable {
 			throw new IllegalStateException("Cannot change the ID of the vertex.");
 		}
 		this.id = id;
+	}
+	
+	/**
+	 * Injects new coordinates - the method fails, if none are set. The method exists primarily
+	 * for the debugging/testing purposes and should not be used.
+	 * 
+	 * @param coordinate 
+	 */
+	public void setPos(SegmentCoordinate pos) {
+		Preconditions.checkState(this.position == null, "The position is already set.");
+		this.position = pos;
 	}
 	
 	/**
@@ -121,6 +133,19 @@ public class Vertex implements IIdentifiable {
 		} else if(this.secondTrack == track) {
 			this.secondTrack = null;
 		}
+	}
+	
+	/**
+	 * Sets the tracks connected to this vertex. The method exists primarily for the debug/testing
+	 * purposes and should not be used.
+	 * 
+	 * @param t1
+	 * @param t2 
+	 */
+	@Deprecated
+	public void setTracks(Track t1, Track t2) {
+		this.firstTrack = t1;
+		this.secondTrack = t2;
 	}
 	
 	/**

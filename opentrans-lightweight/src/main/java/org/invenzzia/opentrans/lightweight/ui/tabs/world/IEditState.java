@@ -39,8 +39,29 @@ public interface IEditState {
 	 * @return 
 	 */
 	public boolean captureDragEvents();
-	
+	/**
+	 * The method is called, when we are moving the mouse around the camera view.
+	 * However, {@link #captureMotionEvents() ()} must return true to enable movement
+	 * event forwarding.
+	 * 
+	 * @param worldX Current mouse position in world coordinates.
+	 * @param worldY Current mouse position in world coordinates.
+	 * @param altDown Is ALT button pressed?
+	 * @param ctrlDown Is CTRL button pressed?
+	 */
 	public void mouseMoves(double worldX, double worldY, boolean altDown, boolean ctrlDown);
+	/**
+	 * The method is called, when the controller detects that we are dragging something.
+	 * However, {@link #captureDragEvents()} must return true to enable drag event forwarding.
+	 * 
+	 * @param worldX Current mouse position in world coordinates.
+	 * @param worldY Current mouse position in world coordinates.
+	 * @param deltaX Movement delta
+	 * @param deltaY Movement delta
+	 * @param altDown Is ALT button pressed?
+	 * @param ctrlDown Is CTRL button pressed?
+	 */
+	public void mouseDrags(double worldX, double worldY, double deltaX, double deltaY, boolean altDown, boolean ctrlDown);
 	/**
 	 * The method is called, when the user clicks with the left mouse button somewhere.
 	 * 

@@ -21,7 +21,6 @@ import java.awt.Cursor;
 import org.invenzzia.helium.exception.CommandExecutionException;
 import org.invenzzia.opentrans.lightweight.annotations.InModelThread;
 import org.invenzzia.opentrans.visitons.Project;
-import org.invenzzia.opentrans.visitons.editing.network.NetworkLayoutChangeCmd;
 import org.invenzzia.opentrans.visitons.network.NetworkConst;
 import org.invenzzia.opentrans.visitons.network.Track;
 import org.invenzzia.opentrans.visitons.network.TrackRecord;
@@ -170,10 +169,9 @@ public class DrawTrackMode extends AbstractStateMachineEditMode {
 		
 		@Override
 		public void leftActionPerformed(double worldX, double worldY, boolean altDown, boolean ctrlDown) {
-			if(null == currentUnit) {
+			if(!hasUnitOfWork()) {
 				logger.debug("leftAction: creating the unit of work.");
-				currentUnit = unitOfWorkProvider.get();
-				transformer = new Transformations(currentUnit, recordImporter);
+				createUnitOfWork();
 			}
 			logger.debug("leftAction: creating the bound vertex.");
 			VertexRecord vr = new VertexRecord();

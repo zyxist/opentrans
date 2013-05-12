@@ -70,6 +70,11 @@ public abstract  class AbstractStateMachineEditMode extends AbstractTrackModeAPI
 	public void mouseMoves(double worldX, double worldY, boolean altDown, boolean ctrlDown) {
 		this.currentState.mouseMoves(worldX, worldY, altDown, ctrlDown);
 	}
+	
+	@Override
+	public void mouseDrags(double worldX, double worldY, double deltaX, double deltaY, boolean altDown, boolean ctrlDown) {
+		this.currentState.mouseDrags(worldX, worldY, deltaX, deltaY, altDown, ctrlDown);
+	}
 
 	@Override
 	public void leftActionPerformed(double worldX, double worldY, boolean altDown, boolean ctrlDown) {

@@ -59,21 +59,20 @@ public class TrackRecord {
 	
 	/**
 	 * Creates a track record which maps an existing {@link Track} object. We must also 
-	 * provide the two records for the vertices, which must be imported separately.
+	 * provide the two records for the vertices, which must be imported separately. Note
+	 * that this constructor creates a partially initialized object - you must call
+	 * {@link #setVertices()} as soon as possible. See note for this method for the
+	 * reason.
 	 * 
 	 * @param track The source track.
 	 * @param firstVertex The record for the first vertex.
 	 * @param secondVertex The record for the second vertex.
 	 */
-	public TrackRecord(Track track, VertexRecord firstVertex, VertexRecord secondVertex) {
+	public TrackRecord(Track track) {
 		Preconditions.checkNotNull(track);
-		Preconditions.checkNotNull(firstVertex);
-		Preconditions.checkNotNull(secondVertex);
 		this.id = track.getId();
 		this.type = track.getType();
 		this.metadata = track.getMetadata();
-		this.v1 = firstVertex;
-		this.v2 = secondVertex;
 	}
 	
 	public long getId() {
@@ -106,7 +105,23 @@ public class TrackRecord {
 		Preconditions.checkArgument(type >= 0 && type <= 2, "Invalid track type: "+type);
 		this.type = type;
 	}
-	
+
+	/**
+	 * This method is used by the importing code - we cannot put setting these
+	 * pieces of code into the constructor, because we must put the newly created
+	 * record into a map before importing vertices. Otherwise we could fall into
+	 * a situation, where the same track would be imported several times.
+	 * 
+	 * @param v1
+	 * @param v2 
+	 */
+	public void setVertices(VertexRecord firstVertex, VertexRecord secondVertex) {
+		Preconditions.checkNotNull(firstVertex);
+		Preconditions.checkNotNull(secondVertex);
+		this.v1 = firstVertex;
+		this.v2 = secondVertex;
+	}
+
 	public void setFreeVertex(VertexRecord newVertex) {
 		if(null == this.v1) {
 			this.v1 = newVertex;

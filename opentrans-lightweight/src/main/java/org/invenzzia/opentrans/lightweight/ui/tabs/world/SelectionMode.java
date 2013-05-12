@@ -17,6 +17,7 @@
 
 package org.invenzzia.opentrans.lightweight.ui.tabs.world;
 
+import com.sun.glass.ui.Cursor;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import org.invenzzia.helium.exception.CommandExecutionException;
@@ -83,6 +84,11 @@ public class SelectionMode extends AbstractEditMode {
 	}
 	
 	@Override
+	public boolean captureDragEvents() {
+		return this.selectedTracks.size() > 0 || this.selectedVertices.size() > 0;
+	}
+	
+	@Override
 	public void leftActionPerformed(double worldX, double worldY, boolean altDown, boolean ctrlDown) {
 		HoveredItemSnapshot hovered = this.getHoveredItemSnapshot();
 		if(null != hovered) {
@@ -104,6 +110,18 @@ public class SelectionMode extends AbstractEditMode {
 	@Override
 	public void rightActionPerformed(double worldX, double worldY, boolean altDown, boolean ctrlDown) {
 		this.resetState();
+	}
+	
+	@Override
+	public void mouseDrags(double worldX, double worldY, double deltaX, double deltaY, boolean altDown, boolean ctrlDown) {
+		int selectedVerticesNum = this.selectedVertices.size();
+		int selectedTracksNum = this.selectedTracks.size();
+		this.api.setCursor(java.awt.Cursor.getPredefinedCursor(Cursor.CURSOR_MOVE));
+		if(selectedVerticesNum == 1 && selectedTracksNum == 0) {
+			
+		} else if(selectedTracksNum > 0 && selectedVerticesNum == 0) {
+			this.transformer.moveTracksByDelta(this.selectedTracks, deltaX, deltaY);
+		}
 	}
 	
 	@Override

@@ -27,7 +27,7 @@ import java.util.Set;
  *
  * @author Tomasz Jędrzejewski
  */
-public class Segment {
+public final class Segment {
 
 	/**
 	 * Segment size in meters
@@ -53,6 +53,19 @@ public class Segment {
 	 * Vertices within this segment.
 	 */
 	private Set<Vertex> vertices = new LinkedHashSet<>();
+	
+	public Segment() {
+	}
+	
+	/**
+	 * Constructor that automatically sets the segment position.
+	 * 
+	 * @param x
+	 * @param y 
+	 */
+	public Segment(int x, int y) {
+		this.setPosition(x, y);
+	}
 
 	/**
 	 * Sets the position coordinates of the segment.

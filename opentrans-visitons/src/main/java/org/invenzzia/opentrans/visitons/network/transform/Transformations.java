@@ -19,6 +19,7 @@ package org.invenzzia.opentrans.visitons.network.transform;
 
 import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
+import java.util.Set;
 import org.invenzzia.opentrans.visitons.bindings.ActualImporter;
 import org.invenzzia.opentrans.visitons.geometry.ArcOps;
 import org.invenzzia.opentrans.visitons.geometry.LineOps;
@@ -282,6 +283,21 @@ public class Transformations {
 		}
 		return false;
 	}
+	
+	/**
+	 * Moves a set of tracks by the given delta. All the connected tracks that are not a subject
+	 * of the movement are either adjusted, or changed into a double curve. Before making an actual
+	 * movement, the new positions of each affected vertex are checked against world boundaries - 
+	 * we cannot move anything outside them!
+	 * 
+	 * @param tracks Set of tracks to move.
+	 * @param deltaX Movement delta: X
+	 * @param deltaY Movement delta: Y
+	 * @return False, if at least one of the affected vertices is outside the world.
+	 */
+	public boolean moveTracksByDelta(Set<TrackRecord> tracks, double deltaX, double deltaY) {
+		return false;
+	}
 
 	/**
 	 * This operation shall be applied to three vertices connected by:
@@ -435,6 +451,14 @@ public class Transformations {
 		tr.setMetadata(metadata);
 	}
 	
+	/**
+	 * Creates a curve between two vertices. The second of them must be connected to a straight
+	 * track and its location may be adjusted to match the drawn curve constraints.
+	 * 
+	 * @param track Track connected to vertex V3
+	 * @param v1 First vertex (stationary)
+	 * @param v3 Second vertex (can be adjusted)
+	 */
 	private void createCurvedToStraigtConnection(TrackRecord track, VertexRecord v1, VertexRecord v3) {
 		VertexRecord v4 = track.getOppositeVertex(v3);
 		VertexRecord v2 = ((TrackRecord) v1.getTrack()).getOppositeVertex(v1);

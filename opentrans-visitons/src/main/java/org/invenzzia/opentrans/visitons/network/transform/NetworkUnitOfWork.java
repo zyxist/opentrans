@@ -90,6 +90,20 @@ public class NetworkUnitOfWork {
 		return this.tracks.isEmpty() && this.vertices.isEmpty();
 	}
 	
+	/**
+	 * @return Number of imported tracks. 
+	 */
+	public int getTrackNum() {
+		return this.tracks.size();
+	}
+	
+	/**
+	 * @return Number of imported vertices. 
+	 */
+	public int getVertexNum() {
+		return this.vertices.size();
+	}
+	
 	public void addTrack(TrackRecord track) {
 		if(track.getId() == IIdentifiable.NEUTRAL_ID) {
 			track.setId(this.nextTrackId--);
@@ -102,6 +116,26 @@ public class NetworkUnitOfWork {
 			vertex.setId(this.nextVertexId--);
 		}
 		this.vertices.put(Long.valueOf(vertex.getId()), vertex);
+	}
+	
+	/**
+	 * Returns the vertex record with the specified ID or null.
+	 * 
+	 * @param id Vertex ID to find.
+	 * @return Vertex record with this ID or null.
+	 */
+	public VertexRecord findVertex(long id) {
+		return this.vertices.get(id);
+	}
+	
+	/**
+	 * Returns the track record with the specified ID or null.
+	 * 
+	 * @param id Track ID to find.
+	 * @return Track record with this ID or null.
+	 */
+	public TrackRecord findTrack(long id) {
+		return this.tracks.get(id);
 	}
 	
 	/**
@@ -189,12 +223,12 @@ public class NetworkUnitOfWork {
 		}
 		Track track = world.findTrack(trackId);
 		VertexRecord v1, v2;
-		record = new TrackRecord(
-			track,
+		record = new TrackRecord(track);
+		this.tracks.put(trackId, record);
+		record.setVertices(
 			v1 = this.importVertex(world, track.getFirstVertex()),
 			v2 = this.importVertex(world, track.getSecondVertex())
 		);
-		this.tracks.put(trackId, record);
 		
 		// Both of the vertices might have been imported earlier. We must update their references to the
 		// actual links.

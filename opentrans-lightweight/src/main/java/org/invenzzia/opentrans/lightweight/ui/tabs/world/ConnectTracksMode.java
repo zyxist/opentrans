@@ -20,7 +20,6 @@ package org.invenzzia.opentrans.lightweight.ui.tabs.world;
 import org.invenzzia.helium.exception.CommandExecutionException;
 import org.invenzzia.opentrans.lightweight.annotations.InModelThread;
 import org.invenzzia.opentrans.visitons.Project;
-import org.invenzzia.opentrans.visitons.editing.network.NetworkLayoutChangeCmd;
 import org.invenzzia.opentrans.visitons.network.Vertex;
 import org.invenzzia.opentrans.visitons.network.VertexRecord;
 import org.invenzzia.opentrans.visitons.render.scene.EditableTrackSnapshot;

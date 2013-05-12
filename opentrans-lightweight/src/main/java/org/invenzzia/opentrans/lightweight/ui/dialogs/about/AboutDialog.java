@@ -16,7 +16,6 @@
  */
 package org.invenzzia.opentrans.lightweight.ui.dialogs.about;
 
-import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.font.TextAttribute;
@@ -25,7 +24,6 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.ImageIcon;
-import javax.swing.UIManager;
 import org.invenzzia.opentrans.lightweight.annotations.Action;
 import org.invenzzia.opentrans.lightweight.model.branding.BrandingModel;
 

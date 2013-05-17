@@ -47,4 +47,9 @@ public class ConcurrentRecordImporter implements IRecordImporter {
 	public void importAllMissingNeighbors(NetworkUnitOfWork populatedUnit, Collection<VertexRecord> vertices) {
 		this.defaultImporter.importAllMissingNeighbors(populatedUnit, vertices);
 	}
+
+	@Override
+	public void importMissingNeighboursSmarter(NetworkUnitOfWork populatedUnit, VertexRecord rootVertex) {
+		this.defaultImporter.importMissingNeighboursSmarter(populatedUnit, rootVertex);
+	}
 }

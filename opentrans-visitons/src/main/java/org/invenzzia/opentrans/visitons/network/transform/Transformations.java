@@ -71,8 +71,20 @@ public class Transformations {
 	}
 
 	/**
-	 * Updates the meta-data of the straight track.
-	 * @param tr 
+	 * Updates the meta-data of the straight track. The actual algorithm depends on the selected mode.
+	 * 
+	 * <ul>
+	 *  <li><tt>STR_MODE_LENGHTEN</tt> - the straight track is simply lenghtened. It does not affect
+	 *	any other tracks, but the movement options are limited.</li>
+	 *  <li><tt>STR_MODE_FREE</tt> - here the bound vertex can be freely moved, but this may require
+	 *	change the position of other vertices as well.</li>
+	 * </ul>
+	 * 
+	 * @param tr The track to update.
+	 * @param boundVertex The vertex that is being moved.
+	 * @param x New position of the bound vertex.
+	 * @param y New position of the bound vertex.
+	 * @param mode The way of adjusting the straight track.
 	 */
 	public boolean updateStraightTrack(TrackRecord tr, VertexRecord boundVertex, double x, double y, byte mode) {
 		if(!this.world.isWithinWorld(x, y)) {
@@ -127,7 +139,7 @@ public class Transformations {
 	 * Updates the metadata of the curved track.
 	 * 
 	 * @param tr
-	 * @param boundVertex
+	 * @param boundVertex The vertex that is being moved.
 	 * @param x
 	 * @param y 
 	 * @return False, if the update cannot be made for some reason.
@@ -226,7 +238,7 @@ public class Transformations {
 			TrackRecord track = v2.getTrackTo(v1);
 			switch(track.getType()) {
 				case NetworkConst.TRACK_STRAIGHT:
-					this.createCurvedToStraigtConnection(track, v1, v2);
+					this.createCurvedToStraigtConnection(track, v1, v2, null);
 					break;
 				case NetworkConst.TRACK_CURVED:
 					break;
@@ -289,7 +301,7 @@ public class Transformations {
 		TrackRecord track = v2.getTrack();
 		switch(track.getType()) {
 			case NetworkConst.TRACK_STRAIGHT:
-				this.createCurvedToStraigtConnection(track, v1, v2);
+				this.createCurvedToStraigtConnection(track, v1, v2, null);
 				return true;
 			case NetworkConst.TRACK_CURVED:
 				break;
@@ -312,6 +324,130 @@ public class Transformations {
 	 */
 	public boolean moveTracksByDelta(Set<TrackRecord> tracks, double deltaX, double deltaY) {
 		return false;
+	}
+	
+	/**
+	 * Moves a single vertex by the given delta. This is the dispositor method, which checks the state
+	 * of the vertex being moved and delegates the actual task to other transformation methods. If the
+	 * method returns <strong>false</strong>, no data are updated.
+	 * 
+	 * @param vertex Vertex to move.
+	 * @param deltaX New position X
+	 * @param deltaY New position Y
+	 * @return True, if the movement is possible.
+	 */
+	public boolean moveVertexToPosition(VertexRecord vertex, double posX, double posY, byte mode) {
+		this.recordImporter.importAllMissingNeighbors(this.unitOfWork, vertex);
+		if(vertex.hasNoTracks()) {
+			throw new IllegalStateException("Vertex with no tracks exists on the map!");
+		} else if(vertex.hasOneTrack()) {
+			// This is simple.
+			TrackRecord tr = vertex.getTrack();
+			this.recordImporter.importAllMissingNeighbors(this.unitOfWork, tr.getOppositeVertex(vertex));
+			switch(tr.getType()) {
+				case NetworkConst.TRACK_STRAIGHT:
+					return this.updateStraightTrack(tr, vertex, posX, posY, mode);
+				case NetworkConst.TRACK_CURVED:
+					return this.updateCurvedTrack(tr, vertex, posX, posY);
+				case NetworkConst.TRACK_FREE:
+					throw new UnsupportedOperationException("Implement me, dude!");
+			}
+		} else {
+			// This is a hardcore. Prepare for a mind ride! We might affect up to 4 tracks here!
+			// In order not to spam the model thread (which the application probably uses), we
+			// create a smarter record importer which is not so stupid to import just these vertices
+			// that we request. By 'smart' we mean that it analyzes the type of the imported tracks
+			// and can decide, whether to import more or not, just to satisfy the code below. And
+			// everything in one, atomic model thread operation.
+			// In other words, we delegate part of the logic, which should be here, somewhere else, and
+			// this is not elegant according to some guys, including me :).
+			// Hmmm... I could use multiline comments here.
+			
+			this.recordImporter.importMissingNeighboursSmarter(this.unitOfWork, vertex);
+			
+			// Now, which one of you, tracks, is straight?
+			TrackRecord straightTrack;
+			TrackRecord curvedTrack;
+			TrackRecord furtherStraightTrack;
+			if(vertex.getFirstTrack().getType() == NetworkConst.TRACK_STRAIGHT) {
+				straightTrack = vertex.getFirstTrack();
+				curvedTrack = vertex.getSecondTrack();
+			} else {
+				straightTrack = vertex.getSecondTrack();
+				curvedTrack = vertex.getFirstTrack();
+			}
+			VertexRecord curvedTrVert2 = curvedTrack.getOppositeVertex(vertex);
+			VertexRecord straightTrVert2 = straightTrack.getOppositeVertex(vertex);
+			if(curvedTrVert2.hasAllTracks()) {
+				if(mode == Transformations.STR_MODE_LENGHTEN) {
+					if(curvedTrack.getType() == NetworkConst.TRACK_CURVED) {
+						System.out.println("Implemented case");
+						return this.moveIntVertexLenghteningFullCurvedTrack(curvedTrack, vertex, curvedTrVert2, posX, posY);
+					} else {
+						
+					}
+				} else if(straightTrVert2.hasAllTracks()) {
+					// Most complex case: 4 tracks affected.
+				} else {
+					// A bit simpler, but still complex: 3 tracks affected.
+				}
+			} else {
+				if(mode == Transformations.STR_MODE_LENGHTEN) {
+					if(curvedTrack.getType() == NetworkConst.TRACK_CURVED) {
+						
+					} else {
+						
+					}
+				} else if(straightTrVert2.hasAllTracks()) {
+					
+				} else {
+					
+				}
+			}
+			
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * First case of moving the internal vertex: a lenghtening a straight track, which affects the straight
+	 * track on the opposite side of the curve. Both tracks are lenghtened by the same distance, changing the
+	 * curve radius. The curve centre moves along a imaginary straight line.
+	 * 
+	 * @param curvedTrack Affected curved track.
+	 * @param v1 The vertex being moved.
+	 * @param v2 The affected vertex on the opposite side of the curve.
+	 * @param x New position of v1: X
+	 * @param y New position of v1: Y
+	 */
+	private boolean moveIntVertexLenghteningFullCurvedTrack(TrackRecord curvedTrack, VertexRecord v1, VertexRecord v2, double x, double y) {
+		TrackRecord closerStraightTrack = v1.getOppositeTrack(curvedTrack);
+		TrackRecord furtherStraightTrack = v2.getOppositeTrack(curvedTrack);
+		VertexRecord clStVert2 = closerStraightTrack.getOppositeVertex(v1);
+		
+		double buf[] = new double[8];
+		double mov = LineOps.vectorLengtheningDistance(clStVert2.x(), clStVert2.y(), v1.x(), v1.y(), x, y, 0, buf);
+		if(furtherStraightTrack.computeLength() + mov < 0.0 || closerStraightTrack.computeLength() + mov < 0.0) {
+			// Impossible!
+			System.err.println("1st impossible: "+mov);
+			return false;
+		}
+		VertexRecord ftStVert2 = furtherStraightTrack.getOppositeVertex(v2);
+		LineOps.lenghtenVector(ftStVert2.x(), ftStVert2.y(), v2.x(), v2.y(), mov, 0, buf);
+		
+		if(!this.world.isWithinWorld(buf[0], buf[1]) || !this.world.isWithinWorld(buf[6], buf[7])) {
+			System.err.println("Outside the world");
+			return false;
+		}
+		v2.setPosition(buf[0], buf[1]);
+		v1.setPosition(buf[6], buf[7]);
+
+	
+		this.calculateStraightLine(furtherStraightTrack, furtherStraightTrack.getFirstVertex(), furtherStraightTrack.getSecondVertex());
+		this.calculateStraightLine(closerStraightTrack, closerStraightTrack.getFirstVertex(), closerStraightTrack.getSecondVertex());
+		this.createCurvedToStraigtConnection(furtherStraightTrack, v1, v2, curvedTrack);
+		return true;
 	}
 
 	/**
@@ -386,6 +522,27 @@ public class Transformations {
 		this.prepareCurveFreeMovement(v1, v2.x(), v2.y(), 0, buf);
 		v2.setTangent(buf[2]);
 		this.findCurveDirection(tr, v1, v2, buf[0], buf[1]);
+	}
+	
+	/**
+	 * Match the curve to the new positions of two vertices, without changing the direction.
+	 * 
+	 * @param tr
+	 * @param v1
+	 * @param v2 
+	 */
+	private void refreshCurve(TrackRecord tr) {
+		VertexRecord v1 = tr.getFirstVertex();
+		VertexRecord v2 = tr.getSecondVertex();
+		
+		double buf[] = new double[8];
+		LineOps.toGeneral(v1.x(), v1.y(), v1.tangent(), 0, buf);
+		LineOps.toGeneral(v2.x(), v2.y(), v2.tangent(), 3, buf);
+		LineOps.toOrthogonal(0, buf, v1.x(), v1.y());
+		LineOps.toOrthogonal(3, buf, v1.x(), v1.y());
+		LineOps.intersection(0, 3, 6, buf);
+		
+		tr.setMetadata(this.prepareCurveMetadata(v1.x(), v1.y(), v2.x(), v2.y(), buf[6], buf[7], 0, null));
 	}
 	
 	/**
@@ -468,15 +625,22 @@ public class Transformations {
 	
 	/**
 	 * Creates a curve between two vertices. The second of them must be connected to a straight
-	 * track and its location may be adjusted to match the drawn curve constraints.
+	 * track and its location may be adjusted to match the drawn curve constraints. If the last
+	 * argument is null, a new track is constructed. Otherwise, we update the parameters of that
+	 * track.
 	 * 
 	 * @param track Track connected to vertex V3
 	 * @param v1 First vertex (stationary)
 	 * @param v3 Second vertex (can be adjusted)
 	 */
-	private boolean createCurvedToStraigtConnection(TrackRecord track, VertexRecord v1, VertexRecord v3) {
+	private boolean createCurvedToStraigtConnection(TrackRecord track, VertexRecord v1, VertexRecord v3, TrackRecord curvedTrack) {
 		VertexRecord v4 = track.getOppositeVertex(v3);
-		VertexRecord v2 = ((TrackRecord) v1.getTrack()).getOppositeVertex(v1);
+		VertexRecord v2;
+		if(null == curvedTrack) {
+			v2 = ((TrackRecord) v1.getTrack()).getOppositeVertex(v1);
+		} else {
+			v2 = v1.getOppositeTrack(curvedTrack).getOppositeVertex(v1);
+		}
 		double buf[] = new double[12];
 		// First line: Dx + Ey + F = 0
 		LineOps.toGeneral(v3.x(), v3.y(), v4.x(), v4.y(), 0, buf);
@@ -490,6 +654,12 @@ public class Transformations {
 		buf[6] = (buf[0] * q + buf[3] * p);
 		buf[7] = (buf[1] * q + buf[4] * p);
 		buf[8] = (buf[2] * q + buf[5] * p);
+		
+		if(Math.signum(buf[6] * v1.x() + buf[7] * v1.y() + buf[8]) == Math.signum(buf[6] * v3.x() + buf[7] * v3.y() + buf[8])) {
+			buf[6] = (buf[0] * q - buf[3] * p);
+			buf[7] = (buf[1] * q - buf[4] * p);
+			buf[8] = (buf[2] * q - buf[5] * p);
+		}
 		
 		// Generate the orthogonal of the second line.
 		LineOps.toOrthogonal(3, buf, v1.x(), v1.y());
@@ -521,22 +691,20 @@ public class Transformations {
 		}
 		
 		v3.setPosition(x1, y1);
-		TrackRecord tr = new TrackRecord();
-		tr.setFreeVertex(v1);
-		tr.setFreeVertex(v3);
-		v1.addTrack(tr);
-		v3.addTrack(tr);
-		tr.setType(NetworkConst.TRACK_CURVED);
-		track.setMetadata(new double[] { v3.x(), v3.y(), v4.x(), v4.y() });
-		this.findCurveDirection(tr, v1, v3, x2, y2);
-		/*
-		if(this.orientationOf(track, v4)) {
-			tr.setMetadata(this.prepareCurveMetadata(x1, y1, v1.x(), v1.y(), x2, y2, 0, null));
+		if(null == curvedTrack) {
+			TrackRecord tr = new TrackRecord();
+			tr.setFreeVertex(v1);
+			tr.setFreeVertex(v3);
+			v1.addTrack(tr);
+			v3.addTrack(tr);
+			tr.setType(NetworkConst.TRACK_CURVED);
+			track.setMetadata(new double[] { v3.x(), v3.y(), v4.x(), v4.y() });
+			this.findCurveDirection(tr, v1, v3, x2, y2);
+			this.unitOfWork.addTrack(tr);
 		} else {
-			tr.setMetadata(this.prepareCurveMetadata(v1.x(), v1.y(), x1, y1, x2, y2, 0, null));
+			track.setMetadata(new double[] { v3.x(), v3.y(), v4.x(), v4.y() });
+			this.findCurveDirection(curvedTrack, v1, v3, x2, y2);
 		}
-		*/
-		this.unitOfWork.addTrack(tr);
 		return true;
 	}
 	
@@ -737,19 +905,22 @@ public class Transformations {
 	 * @param v2 Second vertex connected to this track.
 	 * @param cx Center of the arc: X
 	 * @param cy Center of the arc: Y
+	 * @return Direction: negative if tracks are replaced.
 	 */
-	private void findCurveDirection(TrackRecord tr, VertexRecord v1, VertexRecord v2, double cx, double cy) {
+	private int findCurveDirection(TrackRecord tr, VertexRecord v1, VertexRecord v2, double cx, double cy) {
 		Point c = v1.getOppositeTrack(tr).controlPoint(v1);
 		if(LineOps.onWhichSide(c.x(), c.y(), v1.x(), v1.y(), v2.x(), v2.y()) < 0) {
 			double metadata[] = this.prepareCurveMetadata(v1.x(), v1.y(), v2.x(), v2.y(), cx, cy, 0, null);
 			this.prepareCurveControlPoint(v1.x(), v1.y(), v1.tangent(), v2.x(), v2.y(), cx, cy, 8, metadata);
 			this.prepareCurveControlPoint(v2.x(), v2.y(), v2.tangent(), v1.x(), v1.y(), cx, cy, 10, metadata);
 			tr.setMetadata(metadata);
+			return 1;
 		} else {
 			double metadata[] = this.prepareCurveMetadata(v2.x(), v2.y(), v1.x(), v1.y(), cx, cy, 0, null);
 			this.prepareCurveControlPoint(v1.x(), v1.y(), v1.tangent(), v2.x(), v2.y(), cx, cy, 10, metadata);
 			this.prepareCurveControlPoint(v2.x(), v2.y(), v2.tangent(), v1.x(), v1.y(), cx, cy, 8, metadata);
 			tr.setMetadata(metadata);
+			return -1;
 		}
 	}
 }

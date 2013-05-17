@@ -100,6 +100,24 @@ public class Track {
 	}
 	
 	/**
+	 * Returns the length of this track.
+	 * 
+	 * @return Length of this track in world units.
+	 */
+	public double getLength() {
+		return this.length;
+	}
+	
+	/**
+	 * Sets the length. This method shall not be used outside the I/O code.
+	 * 
+	 * @param length 
+	 */
+	public void setLength(double length) {
+		this.length = length;
+	}
+	
+	/**
 	 * Returns the vertex on the opposite side of the track.
 	 * 
 	 * @param tested The vertex we know.
@@ -154,6 +172,7 @@ public class Track {
 			actualId = vertexMapping.get(Long.valueOf(actualId));
 		}
 		this.v2 = world.findVertex(actualId);
+		this.length = tr.getLength();
 	}
 	
 	/**

@@ -39,7 +39,15 @@ public abstract class AbstractEditMode extends AbstractTrackModeAPI implements I
 	}
 	
 	@Override
+	public void mouseStartsDragging(double worldX, double worldY, boolean altDown, boolean ctrlDown) {
+	}
+	
+	@Override
 	public void mouseDrags(double worldX, double worldY, double deltaX, double deltaY, boolean altDown, boolean ctrlDown) {
+	}
+	
+	@Override
+	public void mouseStopsDragging(double worldX, double worldY, boolean altDown, boolean ctrlDown) {
 	}
 	
 	@Override

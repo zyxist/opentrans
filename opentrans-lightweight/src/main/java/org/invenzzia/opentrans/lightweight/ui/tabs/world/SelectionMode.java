@@ -17,13 +17,14 @@
 
 package org.invenzzia.opentrans.lightweight.ui.tabs.world;
 
-import com.sun.glass.ui.Cursor;
+import java.awt.Cursor;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import org.invenzzia.helium.exception.CommandExecutionException;
 import org.invenzzia.opentrans.lightweight.annotations.InModelThread;
 import org.invenzzia.opentrans.visitons.network.TrackRecord;
 import org.invenzzia.opentrans.visitons.network.VertexRecord;
+import org.invenzzia.opentrans.visitons.network.transform.Transformations;
 import org.invenzzia.opentrans.visitons.render.scene.HoveredItemSnapshot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +48,9 @@ public class SelectionMode extends AbstractEditMode {
 	 * due to the transformation requirements.
 	 */
 	private Set<TrackRecord> selectedTracks;
+	
+	private double dragInitialPosX;
+	private double dragInitialPosY;
 	
 	public SelectionMode() {
 		this.selectedVertices = new LinkedHashSet<>();
@@ -113,15 +117,39 @@ public class SelectionMode extends AbstractEditMode {
 	}
 	
 	@Override
+	public void mouseStartsDragging(double worldX, double worldY, boolean altDown, boolean ctrlDown) {
+		int selectedVerticesNum = this.selectedVertices.size();
+		int selectedTracksNum = this.selectedTracks.size();
+		this.api.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		if(selectedVerticesNum == 1 && selectedTracksNum == 0) {
+			VertexRecord vertexRecord = this.selectedVertices.iterator().next();
+			this.dragInitialPosX = worldX;
+			this.dragInitialPosY = worldY;
+		}
+	}
+	
+	@Override
 	public void mouseDrags(double worldX, double worldY, double deltaX, double deltaY, boolean altDown, boolean ctrlDown) {
 		int selectedVerticesNum = this.selectedVertices.size();
 		int selectedTracksNum = this.selectedTracks.size();
-		this.api.setCursor(java.awt.Cursor.getPredefinedCursor(Cursor.CURSOR_MOVE));
+		
 		if(selectedVerticesNum == 1 && selectedTracksNum == 0) {
-			
+			this.transformer.moveVertexToPosition(
+				this.selectedVertices.iterator().next(),
+				worldX, worldY,
+				(ctrlDown ? Transformations.STR_MODE_FREE : Transformations.STR_MODE_LENGHTEN)
+			);
 		} else if(selectedTracksNum > 0 && selectedVerticesNum == 0) {
 			this.transformer.moveTracksByDelta(this.selectedTracks, deltaX, deltaY);
 		}
+		this.currentUnit.exportScene(this.sceneManager);
+	}
+	
+	@Override
+	public void mouseStopsDragging(double worldX, double worldY, boolean altDown, boolean ctrlDown) {
+		this.api.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+		this.applyChanges();
+		this.resetState();
 	}
 	
 	@Override

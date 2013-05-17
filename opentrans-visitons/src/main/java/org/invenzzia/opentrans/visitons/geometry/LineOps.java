@@ -200,6 +200,52 @@ public class LineOps {
 	}
 	
 	/**
+	 * Suppose we have three points: A, B, C. Let <tt>(A, B)</tt> be a vector from A to B. C is
+	 * some free point. We cast C to the line specified by the vector and find out, by how much
+	 * it would lenghten (+) or shorten(-) that vector, if we did <tt>B = (cast C)</tt>.
+	 * In addition, the position of <tt>cast C</tt> is saved in the buffer under the indices
+	 * <tt>from + 6, from + 7</tt>.
+	 * 
+	 * @param x1 A: X
+	 * @param y1 A: Y
+	 * @param x2 B: X
+	 * @param y2 B: Y
+	 * @param x3 C: X
+	 * @param y3 C: Y
+	 * @param from Starting position in the buffer
+	 * @param buf The data buffer with at least 8 free slots, starting from <tt>from</tt>.
+	 * @return Vector lenght potential change.
+	 */
+	public static double vectorLengtheningDistance(double x1, double y1, double x2, double y2, double x3, double y3, int from, double buf[]) {
+		LineOps.toGeneral(x1, y1, x2, y2, from, buf);
+		LineOps.toOrthogonal(from, from + 3, buf, x3, y3);
+		LineOps.intersection(from, from + 3, from + 6, buf);
+		double dist = lineLength(x2, y2, buf[from+6], buf[from+7]);
+		if(lineLength(x1, y1, buf[from+6], buf[from+7]) < lineLength(x1, y1, x2, y2)) {
+			return -dist;
+		}
+		return dist;
+	}
+	
+	/**
+	 * Let <tt>(A, B)</tt> be the vector. This method finds the new position of B, if the vector is lenghtened
+	 * or shortened by the given <tt>from</tt> value.
+	 * 
+	 * @param x1 A: X
+	 * @param y1 A: Y
+	 * @param x2 B: X
+	 * @param y2 B: Y
+	 * @param value The value we lenghten or shorten the vector by.
+	 * @param from Starting position in the buffer
+	 * @param buf Buf with at least 2 free slots starting from <tt>from</tt>.
+	 */
+	public static void lenghtenVector(double x1, double y1, double x2, double y2, double value, int from, double buf[]) {
+		double a = 1.0 + value / LineOps.lineLength(x1, y1, x2, y2);
+		buf[from] = x1 + (x2 - x1) * a;
+		buf[from+1] = y1 + (y2 - y1) * a;
+	}
+
+	/**
 	 * Calculate parametric value of X or Y point on a line, specified by t
 	 * parameter and the line starting and ending points. We need to call it
 	 * separately for X and Y to get the point.

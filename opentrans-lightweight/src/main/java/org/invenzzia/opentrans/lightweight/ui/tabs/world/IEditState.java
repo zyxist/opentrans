@@ -50,6 +50,17 @@ public interface IEditState {
 	 * @param ctrlDown Is CTRL button pressed?
 	 */
 	public void mouseMoves(double worldX, double worldY, boolean altDown, boolean ctrlDown);
+	
+	/**
+	 * The method is called at the beginning of the dragging process. It immediately follows
+	 * the first call to {@link #mouseDrags(double, double, double, double, boolean, boolean)}.
+	 * 
+	 * @param worldX Current mouse position in world coordinates.
+	 * @param worldY Current mouse position in world coordinates.
+	 * @param altDown Is ALT button pressed?
+	 * @param ctrlDown Is CTRL button pressed?
+	 */
+	public void mouseStartsDragging(double worldX, double worldY, boolean altDown, boolean ctrlDown);
 	/**
 	 * The method is called, when the controller detects that we are dragging something.
 	 * However, {@link #captureDragEvents()} must return true to enable drag event forwarding.
@@ -62,6 +73,17 @@ public interface IEditState {
 	 * @param ctrlDown Is CTRL button pressed?
 	 */
 	public void mouseDrags(double worldX, double worldY, double deltaX, double deltaY, boolean altDown, boolean ctrlDown);
+	/**
+	 * This method is called, when we stop dragging. It is guaranteed that previously, 
+	 * {@link #mouseDrags(double, double, double, double, boolean, boolean)} has been called
+	 * at least once.
+	 * 
+	 * @param worldX Current mouse position in world coordinates.
+	 * @param worldY Current mouse position in world coordinates.
+	 * @param altDown Is ALT button pressed?
+	 * @param ctrlDown Is CTRL button pressed?
+	 */
+	public void mouseStopsDragging(double worldX, double worldY, boolean altDown, boolean ctrlDown);
 	/**
 	 * The method is called, when the user clicks with the left mouse button somewhere.
 	 * 

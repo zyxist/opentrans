@@ -45,4 +45,14 @@ public interface IRecordImporter {
 	 * @param vertices 
 	 */
 	public void importAllMissingNeighbors(NetworkUnitOfWork populatedUnit, Collection<VertexRecord> vertices);
+	/**
+	 * Imports the data for one of the cases for {@link Transformations#moveVertexToPosition()}. See the long
+	 * comment in that method to get to know more. Note that the passed vertex <strong>MUST</strong> have two
+	 * tracks connected. And don't try to argue with that, because some implementations won't be so polite to
+	 * inform you about that with some precondition checking!
+	 * 
+	 * @param populatedUnit 
+	 * @param rootVertex The initial vertex that we are sure we know.
+	 */
+	public void importMissingNeighboursSmarter(NetworkUnitOfWork populatedUnit, VertexRecord rootVertex);
 }

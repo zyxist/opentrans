@@ -72,8 +72,18 @@ public abstract  class AbstractStateMachineEditMode extends AbstractTrackModeAPI
 	}
 	
 	@Override
+	public void mouseStartsDragging(double worldX, double worldY, boolean altDown, boolean ctrlDown) {
+		this.currentState.mouseStartsDragging(worldX, worldY, altDown, ctrlDown);
+	}
+	
+	@Override
 	public void mouseDrags(double worldX, double worldY, double deltaX, double deltaY, boolean altDown, boolean ctrlDown) {
 		this.currentState.mouseDrags(worldX, worldY, deltaX, deltaY, altDown, ctrlDown);
+	}
+	
+	@Override
+	public void mouseStopsDragging(double worldX, double worldY, boolean altDown, boolean ctrlDown) {
+		this.currentState.mouseStopsDragging(worldX, worldY, altDown, ctrlDown);
 	}
 
 	@Override

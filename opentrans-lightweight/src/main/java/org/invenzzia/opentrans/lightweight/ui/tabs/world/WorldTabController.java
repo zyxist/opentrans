@@ -286,6 +286,7 @@ public class WorldTabController implements AdjustmentListener, IZoomListener, IW
 					double deltaX = cameraModel.worldDistance(e.getX() - this.draggedX);
 					double deltaY = cameraModel.worldDistance(e.getY() - this.draggedY);
 					currentEditMode.mouseDrags(wx, wy, deltaX, deltaY, e.isAltDown(), e.isControlDown());
+					this.draggingEnabled = true;
 				}
 			}
 		}
@@ -310,6 +311,7 @@ public class WorldTabController implements AdjustmentListener, IZoomListener, IW
 
 		@Override
 		public void mouseReleased(MouseEvent e) {
+
 			// We do not want to emit dragging-related events to the edit mode, because this event
 			// has already been consumed by the scroll process and it could distrupt the edition.
 			if(e.getButton() == MouseEvent.BUTTON3 && !this.draggingEnabled) {
@@ -317,8 +319,13 @@ public class WorldTabController implements AdjustmentListener, IZoomListener, IW
 					cameraModel.pix2worldY(e.getY()), e.isAltDown(), e.isControlDown());
 			}
 			if(e.getButton() == MouseEvent.BUTTON1) {
-				currentEditMode.leftActionPerformed(cameraModel.pix2worldX(e.getX()),
-					cameraModel.pix2worldY(e.getY()), e.isAltDown(), e.isControlDown());
+				if(this.draggingEnabled) {
+					currentEditMode.mouseStopsDragging(cameraModel.pix2worldX(e.getX()),
+						cameraModel.pix2worldY(e.getY()), e.isAltDown(), e.isControlDown());
+				} else {
+					currentEditMode.leftActionPerformed(cameraModel.pix2worldX(e.getX()),
+						cameraModel.pix2worldY(e.getY()), e.isAltDown(), e.isControlDown());
+				}
 			}
 			this.draggingEnabled = false;
 			this.button = 0;

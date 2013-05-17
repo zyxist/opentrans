@@ -19,6 +19,7 @@ package org.invenzzia.opentrans.visitons.network;
 
 import com.google.common.base.Preconditions;
 import org.invenzzia.helium.data.interfaces.IIdentifiable;
+import org.invenzzia.opentrans.visitons.geometry.LineOps;
 import org.invenzzia.opentrans.visitons.geometry.Point;
 
 /**
@@ -46,6 +47,10 @@ public class TrackRecord {
 	 * Second vertex this track is connected to.
 	 */
 	private VertexRecord v2 = null;
+	/**
+	 * The length of this track in world units (metres).
+	 */
+	private double length;
 	/**
 	 * Geometrical metadata.
 	 */
@@ -221,5 +226,48 @@ public class TrackRecord {
 				}
 		}
 		throw new IllegalStateException("Invalid track type: "+this.type);
+	}
+	
+	/**
+	 * Computes and returns the length of this track record. The method does not change
+	 * the state of the object.
+	 * 
+	 * @return Computes and returns the length of this track record.
+	 */
+	public double computeLength() {
+		switch(this.type) {
+			case NetworkConst.TRACK_STRAIGHT:
+				return LineOps.lineLength(this.v1.x(), this.v1.y(), this.v2.x(), this.v2.y());
+			case NetworkConst.TRACK_CURVED:
+				throw new UnsupportedOperationException("Implement me!");
+			case NetworkConst.TRACK_FREE:
+				throw new UnsupportedOperationException("Implement me!");
+		}
+		throw new IllegalStateException("Invalid track type: "+this.type+" (track ID: "+this.id+")");
+	}
+	
+	/**
+	 * Returns the currently persisted length of this track.
+	 * 
+	 * @return 
+	 */
+	public double getLength() {
+		return this.length;
+	}
+	
+	/**
+	 * Computes and persists the length of this track.
+	 */
+	public void updateLength() {
+		this.length = this.computeLength();
+	}
+
+	/**
+	 * Replaces the tracks with places.
+	 */
+	public void replaceVertices() {
+		VertexRecord tmp = this.v1;
+		this.v1 = this.v2;
+		this.v2 = tmp;
 	}
 }

@@ -381,7 +381,6 @@ public class Transformations {
 			if(curvedTrVert2.hasAllTracks()) {
 				if(mode == Transformations.STR_MODE_LENGHTEN) {
 					if(curvedTrack.getType() == NetworkConst.TRACK_CURVED) {
-						System.out.println("Implemented case");
 						return this.moveIntVertexLenghteningFullCurvedTrack(curvedTrack, vertex, curvedTrVert2, posX, posY);
 					} else {
 						
@@ -430,14 +429,12 @@ public class Transformations {
 		double mov = LineOps.vectorLengtheningDistance(clStVert2.x(), clStVert2.y(), v1.x(), v1.y(), x, y, 0, buf);
 		if(furtherStraightTrack.computeLength() + mov < 0.0 || closerStraightTrack.computeLength() + mov < 0.0) {
 			// Impossible!
-			System.err.println("1st impossible: "+mov);
 			return false;
 		}
 		VertexRecord ftStVert2 = furtherStraightTrack.getOppositeVertex(v2);
 		LineOps.lenghtenVector(ftStVert2.x(), ftStVert2.y(), v2.x(), v2.y(), mov, 0, buf);
 		
 		if(!this.world.isWithinWorld(buf[0], buf[1]) || !this.world.isWithinWorld(buf[6], buf[7])) {
-			System.err.println("Outside the world");
 			return false;
 		}
 		v2.setPosition(buf[0], buf[1]);

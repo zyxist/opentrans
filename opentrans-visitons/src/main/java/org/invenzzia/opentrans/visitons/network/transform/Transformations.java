@@ -399,7 +399,7 @@ public class Transformations {
 						
 					}
 				} else if(straightTrVert2.hasAllTracks()) {
-					
+					return this.moveIntVertexAdjustingSecondCurve(vertex, straightTrack, curvedTrack, posX, posY);
 				} else {
 					
 				}
@@ -504,6 +504,7 @@ public class Transformations {
 	 * @param v2 The affected vertex on the opposite side of the curve.
 	 * @param x New position of v1: X
 	 * @param y New position of v1: Y
+	 * @return True, if the operation is possible.
 	 */
 	private boolean moveIntVertexLenghteningPartialCurvedTrack(TrackRecord curvedTrack, TrackRecord straightTrack, VertexRecord v1, VertexRecord v2, double x, double y) {
 		if(!this.world.isWithinWorld(x, y)) {
@@ -522,6 +523,31 @@ public class Transformations {
 		return true;
 	}
 	
+	/**
+	 * Similar to {@link #moveIntVertexMostComplexCase()}, but without a track on the opposite side of the curved
+	 * track.
+	 * 
+	 * @param v1 Vertex being moved.
+	 * @param closerStraightTrack
+	 * @param closerCurvedTrack
+	 * @param x New position of v1: X
+	 * @param y New position of v1: Y
+	 * @return True, if the operation is possible.
+	 */
+	private boolean moveIntVertexAdjustingSecondCurve(VertexRecord v1, TrackRecord closerStraightTrack, TrackRecord closerCurvedTrack, double x, double y) {
+		if(!this.world.isWithinWorld(x, y)) {
+			return false;
+		}
+		v1.setPosition(x, y);
+		
+		VertexRecord v2 = closerStraightTrack.getOppositeVertex(v1);
+		VertexRecord v3 = closerCurvedTrack.getOppositeVertex(v1);
+		TrackRecord furtherStraightTrack = closerCurvedTrack.getOppositeVertex(v1).getOppositeTrack(closerCurvedTrack);
+		this.adjustJoiningVertexOnCircle(v1, v2, v2.getOppositeTrack(closerStraightTrack).getOppositeVertex(v2));
+		this.calculateCurve(closerCurvedTrack, v1, v3);
+		
+		return true;
+	}
 	/**
 	 * This operation shall be applied to three vertices connected by:
 	 * 

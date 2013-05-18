@@ -401,7 +401,7 @@ public class Transformations {
 				} else if(straightTrVert2.hasAllTracks()) {
 					return this.moveIntVertexAdjustingSecondCurve(vertex, straightTrack, curvedTrack, posX, posY);
 				} else {
-					
+					return this.moveIntVertexOnlyStraightAndCurvedTrack(vertex, straightTrack, curvedTrack, posX, posY);
 				}
 			}
 			
@@ -548,6 +548,30 @@ public class Transformations {
 		
 		return true;
 	}
+	
+	/**
+	 * Similar to {@link #moveIntVertexMostComplexCase()}, but without a track on the opposite side of the curved
+	 * track.
+	 * 
+	 * @param v1 Vertex being moved.
+	 * @param straightTrack
+	 * @param curvedTrack
+	 * @param x New position of v1: X
+	 * @param y New position of v1: Y
+	 * @return True, if the operation is possible.
+	 */
+	private boolean moveIntVertexOnlyStraightAndCurvedTrack(VertexRecord v1, TrackRecord straightTrack, TrackRecord curvedTrack, double x, double y) {
+		if(!this.world.isWithinWorld(x, y)) {
+			return false;
+		}
+		v1.setPosition(x, y);
+		
+		this.calculateStraightLine(straightTrack, v1, straightTrack.getOppositeVertex(v1));
+		this.calculateCurve(curvedTrack, v1, curvedTrack.getOppositeVertex(v1));
+		
+		return true;
+	}
+	
 	/**
 	 * This operation shall be applied to three vertices connected by:
 	 * 

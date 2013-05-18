@@ -368,7 +368,6 @@ public class Transformations {
 			// Now, which one of you, tracks, is straight?
 			TrackRecord straightTrack;
 			TrackRecord curvedTrack;
-			TrackRecord furtherStraightTrack;
 			if(vertex.getFirstTrack().getType() == NetworkConst.TRACK_STRAIGHT) {
 				straightTrack = vertex.getFirstTrack();
 				curvedTrack = vertex.getSecondTrack();
@@ -387,6 +386,7 @@ public class Transformations {
 					}
 				} else if(straightTrVert2.hasAllTracks()) {
 					// Most complex case: 4 tracks affected.
+					return this.moveIntVertexMostComplexCase(vertex, straightTrack, curvedTrack, posX, posY);
 				} else {
 					// A bit simpler, but still complex: 3 tracks affected.
 				}
@@ -444,6 +444,27 @@ public class Transformations {
 		this.calculateStraightLine(furtherStraightTrack, furtherStraightTrack.getFirstVertex(), furtherStraightTrack.getSecondVertex());
 		this.calculateStraightLine(closerStraightTrack, closerStraightTrack.getFirstVertex(), closerStraightTrack.getSecondVertex());
 		this.createCurvedToStraigtConnection(furtherStraightTrack, v1, v2, curvedTrack);
+		return true;
+	}
+	
+	/**
+	 * The most complex vertex movement case: 4 tracks are affected at a time. This a combination of 
+	 * {@link #adjustJoiningVertexOnCircle()} and {@link #moveIntVertexLenghteningFullCurvedTrack()}.
+	 * 
+	 * @return True, if the operation is possible.
+	 */
+	private boolean moveIntVertexMostComplexCase(VertexRecord v1, TrackRecord closerStraightTrack, TrackRecord closerCurvedTrack, double x, double y) {
+		if(!this.world.isWithinWorld(x, y)) {
+			return false;
+		}
+		v1.setPosition(x, y);
+		
+		VertexRecord v2 = closerStraightTrack.getOppositeVertex(v1);
+		TrackRecord furtherStraightTrack = closerCurvedTrack.getOppositeVertex(v1).getOppositeTrack(closerCurvedTrack);
+		this.adjustJoiningVertexOnCircle(v1, v2, v2.getOppositeTrack(closerStraightTrack).getOppositeVertex(v2));
+		this.createCurvedToStraigtConnection(furtherStraightTrack, v1, closerCurvedTrack.getOppositeVertex(v1), closerCurvedTrack);
+		// Most complex case... and most shortest code! :D
+		// Unfortunately... some refactoring will be needed, if we want to disallow certain invalid situations.
 		return true;
 	}
 

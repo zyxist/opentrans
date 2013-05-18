@@ -285,7 +285,7 @@ public class WorldTabController implements AdjustmentListener, IZoomListener, IW
 					double wy = cameraModel.pix2worldY(e.getY());
 					double deltaX = cameraModel.worldDistance(e.getX() - this.draggedX);
 					double deltaY = cameraModel.worldDistance(e.getY() - this.draggedY);
-					currentEditMode.mouseDrags(wx, wy, deltaX, deltaY, e.isAltDown(), e.isControlDown());
+					currentEditMode.mouseDrags(wx, wy, deltaX, deltaY, e.isShiftDown(), e.isControlDown());
 					this.draggingEnabled = true;
 				}
 			}
@@ -303,7 +303,7 @@ public class WorldTabController implements AdjustmentListener, IZoomListener, IW
 			if(currentEditMode.captureMotionEvents()) {
 				currentEditMode.mouseMoves(
 					wx, wy,
-					e.isAltDown(),
+					e.isShiftDown(),
 					e.isControlDown()
 				);
 			}
@@ -316,15 +316,15 @@ public class WorldTabController implements AdjustmentListener, IZoomListener, IW
 			// has already been consumed by the scroll process and it could distrupt the edition.
 			if(e.getButton() == MouseEvent.BUTTON3 && !this.draggingEnabled) {
 				currentEditMode.rightActionPerformed(cameraModel.pix2worldX(e.getX()),
-					cameraModel.pix2worldY(e.getY()), e.isAltDown(), e.isControlDown());
+					cameraModel.pix2worldY(e.getY()), e.isShiftDown(), e.isControlDown());
 			}
 			if(e.getButton() == MouseEvent.BUTTON1) {
 				if(this.draggingEnabled) {
 					currentEditMode.mouseStopsDragging(cameraModel.pix2worldX(e.getX()),
-						cameraModel.pix2worldY(e.getY()), e.isAltDown(), e.isControlDown());
+						cameraModel.pix2worldY(e.getY()), e.isShiftDown(), e.isControlDown());
 				} else {
 					currentEditMode.leftActionPerformed(cameraModel.pix2worldX(e.getX()),
-						cameraModel.pix2worldY(e.getY()), e.isAltDown(), e.isControlDown());
+						cameraModel.pix2worldY(e.getY()), e.isShiftDown(), e.isControlDown());
 				}
 			}
 			this.draggingEnabled = false;

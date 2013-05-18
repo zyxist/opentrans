@@ -47,6 +47,12 @@ public class Transformations {
 	 */
 	public static final byte STR_MODE_FREE = 1;
 	/**
+	 * For moving the straight track-ending vertex that is connected to a curve:
+	 * free movement allowed, the curve is adjusted to match the tangent (alternative
+	 * scenario).
+	 */
+	public static final byte STR_MODE_FREE_2 = 2;
+	/**
 	 * Epsilon for double value comparisons.
 	 */
 	private static final double EPSILON = 0.0000000001;
@@ -382,11 +388,16 @@ public class Transformations {
 					if(curvedTrack.getType() == NetworkConst.TRACK_CURVED) {
 						return this.moveIntVertexLenghteningFullCurvedTrack(curvedTrack, vertex, curvedTrVert2, posX, posY);
 					} else {
-						
+						return this.moveIntVertexLenghteningFreeCurvedTrack(curvedTrack, straightTrack, vertex, curvedTrVert2, posX, posY);
 					}
 				} else if(straightTrVert2.hasAllTracks()) {
-					// Most complex case: 4 tracks affected.
-					return this.moveIntVertexMostComplexCase(vertex, straightTrack, curvedTrack, posX, posY);
+					if(mode == Transformations.STR_MODE_FREE && curvedTrack.getType() == NetworkConst.TRACK_CURVED) {
+						// Most complex case: 4 tracks affected.
+						return this.moveIntVertexMostComplexCase(vertex, straightTrack, curvedTrack, posX, posY);
+					} else {
+						// In this scenario we allow switching between curved track types.
+						return this.moveIntVertexMostComplexCaseAllowFreeTracks(vertex, straightTrack, curvedTrack, posX, posY);
+					}
 				} else {
 					// A bit simpler, but still complex: 3 tracks affected.
 					return this.moveIntVertexSimplerVersionOfPreviousWithoutSecondCurvedTrack(vertex, straightTrack, curvedTrack, posX, posY);
@@ -449,6 +460,32 @@ public class Transformations {
 	}
 	
 	/**
+	 * Alternative case of the method above: when the curved track is a free (double curve).
+	 * 
+	 * @param curvedTrack Affected doubly curved track.
+	 * @param v1 The vertex being moved.
+	 * @param v2 The affected vertex on the opposite side of the curve.
+	 * @param x New position of v1: X
+	 * @param y New position of v1: Y
+	 * @return True, if the movement is possible.
+	 */
+	private boolean moveIntVertexLenghteningFreeCurvedTrack(TrackRecord curvedTrack, TrackRecord straightTrack, VertexRecord v1, VertexRecord v2, double x, double y) {
+		if(!this.world.isWithinWorld(x, y)) {
+			return false;
+		}
+		
+		double buf[] = new double[8];
+		VertexRecord opposite = straightTrack.getOppositeVertex(v1);
+		LineOps.toGeneral(opposite.x(), opposite.y(), v1.x(), v1.y(), 0, buf);
+		LineOps.toOrthogonal(0, 3, buf, x, y);
+		LineOps.intersection(0, 3, 6, buf);
+		v1.setPosition(buf[6], buf[7]);
+		straightTrack.setMetadata(new double[] { v1.x(), v1.y(), opposite.x(), opposite.y() } );
+		this.calculateFreeCurve(curvedTrack, v1, v2);
+		return true;
+	}
+	
+	/**
 	 * The most complex vertex movement case: 4 tracks are affected at a time. This a combination of 
 	 * {@link #adjustJoiningVertexOnCircle()} and {@link #moveIntVertexLenghteningFullCurvedTrack()}.
 	 * 
@@ -492,6 +529,37 @@ public class Transformations {
 		this.createCurvedToStraigtConnection(furtherStraightTrack, v1, closerCurvedTrack.getOppositeVertex(v1), closerCurvedTrack);
 		// Most complex case... and most shortest code! :D
 		// Unfortunately... some refactoring will be needed, if we want to disallow certain invalid situations.
+		return true;
+	}
+	
+	/**
+	 * Alternative version of {@link #moveIntVertexMostComplexCase()}, where the curved track can be free track. Here
+	 * we can affect only three tracks, but we allow switching between a doubly-curved and single-curved track.
+	 * 
+	 * @param v1
+	 * @param closerStraightTrack
+	 * @param curvedTrack
+	 * @param x
+	 * @param y
+	 * @return 
+	 */
+	private boolean moveIntVertexMostComplexCaseAllowFreeTracks(VertexRecord v1, TrackRecord closerStraightTrack, TrackRecord curvedTrack, double x, double y) {
+		if(!this.world.isWithinWorld(x, y)) {
+			return false;
+		}
+		v1.setPosition(x, y);
+		
+		VertexRecord v2 = closerStraightTrack.getOppositeVertex(v1);
+		VertexRecord v3 = curvedTrack.getOppositeVertex(v1);
+		this.adjustJoiningVertexOnCircle(v1, v2, v2.getOppositeTrack(closerStraightTrack).getOppositeVertex(v2));
+	//	if(this.useSingleCurve(v1, v3)) {
+	//		curvedTrack.setType(NetworkConst.TRACK_CURVED);
+	//		this.calculateCurve(curvedTrack, v1, v2);
+	//	} else {
+			curvedTrack.setType(NetworkConst.TRACK_FREE);
+			this.calculateFreeCurve(curvedTrack, v1, v3);
+	//	}
+		
 		return true;
 	}
 	

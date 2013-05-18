@@ -137,7 +137,7 @@ public class SelectionMode extends AbstractEditMode {
 			this.transformer.moveVertexToPosition(
 				this.selectedVertices.iterator().next(),
 				worldX, worldY,
-				(ctrlDown ? Transformations.STR_MODE_FREE : Transformations.STR_MODE_LENGHTEN)
+				(ctrlDown ? (altDown ? Transformations.STR_MODE_FREE_2 : Transformations.STR_MODE_FREE) : Transformations.STR_MODE_LENGHTEN)
 			);
 		} else if(selectedTracksNum > 0 && selectedVerticesNum == 0) {
 			this.transformer.moveTracksByDelta(this.selectedTracks, deltaX, deltaY);

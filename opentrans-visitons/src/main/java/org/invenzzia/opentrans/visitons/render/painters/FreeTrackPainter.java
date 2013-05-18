@@ -66,12 +66,12 @@ public class FreeTrackPainter implements ITrackPainter {
 			Arc2D.OPEN
 		);
 		this.secondArc = new Arc2D.Double(
-			(double) camera.world2pixX(this.coordinates[8]),
-			(double) camera.world2pixY(this.coordinates[9]),
-			(double) camera.world2pix(this.coordinates[10]),
-			(double) camera.world2pix(this.coordinates[11]),
-			this.coordinates[12],
-			this.coordinates[13],
+			(double) camera.world2pixX(this.coordinates[12]),
+			(double) camera.world2pixY(this.coordinates[13]),
+			(double) camera.world2pix(this.coordinates[14]),
+			(double) camera.world2pix(this.coordinates[15]),
+			this.coordinates[16],
+			this.coordinates[17],
 			Arc2D.OPEN
 		);
 	}

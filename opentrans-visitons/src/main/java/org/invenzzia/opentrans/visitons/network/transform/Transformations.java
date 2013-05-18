@@ -394,7 +394,7 @@ public class Transformations {
 			} else {
 				if(mode == Transformations.STR_MODE_LENGHTEN) {
 					if(curvedTrack.getType() == NetworkConst.TRACK_CURVED) {
-						
+						return this.moveIntVertexLenghteningPartialCurvedTrack(curvedTrack, straightTrack, vertex, curvedTrVert2, posX, posY);
 					} else {
 						
 					}
@@ -494,7 +494,34 @@ public class Transformations {
 		// Unfortunately... some refactoring will be needed, if we want to disallow certain invalid situations.
 		return true;
 	}
-
+	
+	/**
+	 * Similar to {@link #moveIntVertexLenghteningFullCurvedTrack()}, but the modified curved track is not connected
+	 * to anything on the opposite side.
+	 * 
+	 * @param curvedTrack Affected curved track.
+	 * @param v1 The vertex being moved.
+	 * @param v2 The affected vertex on the opposite side of the curve.
+	 * @param x New position of v1: X
+	 * @param y New position of v1: Y
+	 */
+	private boolean moveIntVertexLenghteningPartialCurvedTrack(TrackRecord curvedTrack, TrackRecord straightTrack, VertexRecord v1, VertexRecord v2, double x, double y) {
+		if(!this.world.isWithinWorld(x, y)) {
+			return false;
+		}
+		
+		double buf[] = new double[8];
+		VertexRecord opposite = straightTrack.getOppositeVertex(v1);
+		LineOps.toGeneral(opposite.x(), opposite.y(), v1.x(), v1.y(), 0, buf);
+		LineOps.toOrthogonal(0, 3, buf, x, y);
+		LineOps.intersection(0, 3, 6, buf);
+		v1.setPosition(buf[6], buf[7]);
+		straightTrack.setMetadata(new double[] { v1.x(), v1.y(), opposite.x(), opposite.y() } );
+		this.calculateCurve(curvedTrack, v1, v2);
+		
+		return true;
+	}
+	
 	/**
 	 * This operation shall be applied to three vertices connected by:
 	 * 

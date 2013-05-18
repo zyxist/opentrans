@@ -389,6 +389,7 @@ public class Transformations {
 					return this.moveIntVertexMostComplexCase(vertex, straightTrack, curvedTrack, posX, posY);
 				} else {
 					// A bit simpler, but still complex: 3 tracks affected.
+					return this.moveIntVertexSimplerVersionOfPreviousWithoutSecondCurvedTrack(vertex, straightTrack, curvedTrack, posX, posY);
 				}
 			} else {
 				if(mode == Transformations.STR_MODE_LENGHTEN) {
@@ -462,6 +463,32 @@ public class Transformations {
 		VertexRecord v2 = closerStraightTrack.getOppositeVertex(v1);
 		TrackRecord furtherStraightTrack = closerCurvedTrack.getOppositeVertex(v1).getOppositeTrack(closerCurvedTrack);
 		this.adjustJoiningVertexOnCircle(v1, v2, v2.getOppositeTrack(closerStraightTrack).getOppositeVertex(v2));
+		this.createCurvedToStraigtConnection(furtherStraightTrack, v1, closerCurvedTrack.getOppositeVertex(v1), closerCurvedTrack);
+		// Most complex case... and most shortest code! :D
+		// Unfortunately... some refactoring will be needed, if we want to disallow certain invalid situations.
+		return true;
+	}
+	
+	/**
+	 * This is the simpler version of the previous variant, where the further curved track does not exist, so instead adjusting
+	 * it with {@link #adjustJoiningVertexOnCircle()}, we can simply calculate the straight track.
+	 * 
+	 * @param v1
+	 * @param closerStraightTrack
+	 * @param closerCurvedTrack
+	 * @param x
+	 * @param y
+	 * @return True, if the operation is possible.
+	 */
+	private boolean moveIntVertexSimplerVersionOfPreviousWithoutSecondCurvedTrack(VertexRecord v1, TrackRecord closerStraightTrack, TrackRecord closerCurvedTrack, double x, double y) {
+		if(!this.world.isWithinWorld(x, y)) {
+			return false;
+		}
+		v1.setPosition(x, y);
+		
+		VertexRecord v2 = closerStraightTrack.getOppositeVertex(v1);
+		TrackRecord furtherStraightTrack = closerCurvedTrack.getOppositeVertex(v1).getOppositeTrack(closerCurvedTrack);
+		this.calculateStraightLine(closerStraightTrack, v1, v2);
 		this.createCurvedToStraigtConnection(furtherStraightTrack, v1, closerCurvedTrack.getOppositeVertex(v1), closerCurvedTrack);
 		// Most complex case... and most shortest code! :D
 		// Unfortunately... some refactoring will be needed, if we want to disallow certain invalid situations.

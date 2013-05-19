@@ -18,6 +18,7 @@
 package org.invenzzia.opentrans.visitons.geometry;
 
 import junit.framework.Assert;
+import junit.framework.AssertionFailedError;
 import org.junit.Test;
 
 public class LineOpsTest {
@@ -71,6 +72,25 @@ public class LineOpsTest {
 	}
 	
 	@Test
+	public void testReoderingIsIndependentFromInitialOrder() {
+		double buffer[];
+		double expected[] = new double[]{ 1.0, -100.0, 3.0, -60.0, 6.0, 0.0, 10.0, 80.0 };;
+		
+		buffer = new double[]{ 1.0, -100.0, 3.0, -60.0, 6.0, 0.0, 10.0, 80.0 };
+		LineOps.reorder(buffer, 0, 2, 4, 6);
+		this.assertArrayEquals(expected, buffer);
+		buffer = new double[]{ 3.0, -60.0, 6.0, 0.0, 1.0, -100.0, 10.0, 80.0 };
+		LineOps.reorder(buffer, 0, 2, 4, 6);
+		this.assertArrayEquals(expected, buffer);
+		buffer = new double[]{ 6.0, 0.0, 3.0, -60.0, 1.0, -100.0, 10.0, 80.0 };
+		LineOps.reorder(buffer, 0, 2, 4, 6);
+		this.assertArrayEquals(expected, buffer);
+		buffer = new double[]{ 6.0, 0.0, 10.0, 80.0, 3.0, -60.0, 1.0, -100.0 };
+		LineOps.reorder(buffer, 0, 2, 4, 6);
+		this.assertArrayEquals(expected, buffer);
+	}
+	
+	@Test
 	public void testFindingGeneralFormFromTangent() {
 		double buf[] = new double[3];
 		LineOps.toGeneral(1.0, 1.0, Math.toRadians(45.0), 0, buf);
@@ -116,5 +136,28 @@ public class LineOpsTest {
 		Assert.assertEquals(1, LineOps.onWhichSide(3.0, 3.0, 4.0, 4.0, 5.0, 6.0));
 		Assert.assertEquals(-1, LineOps.onWhichSide(3.0, 3.0, 4.0, 4.0, 5.0, 4.0));
 		Assert.assertEquals(0, LineOps.onWhichSide(3.0, 3.0, 4.0, 4.0, 5.0, 5.0));
+	}
+	
+	private void assertArrayEquals(double[] expected, double actual[]) {
+		Assert.assertEquals(expected.length, actual.length);
+		try {
+			for(int i = 0; i < expected.length; i++) {
+				Assert.assertEquals(expected[i], actual[i]);
+			}
+		} catch(AssertionFailedError error) {
+			boolean first = true;
+			StringBuilder sb = new StringBuilder("actual = [");
+			for(int i = 0; i < actual.length; i++) {
+				if(!first) {
+					sb.append(", ");
+				} else {
+					first = false;
+				}
+				sb.append(actual[i]);
+			}
+			sb.append("]");
+			System.err.println(sb.toString());
+			throw error;
+		}
 	}
 }

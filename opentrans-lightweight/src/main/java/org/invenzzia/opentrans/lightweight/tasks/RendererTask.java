@@ -20,6 +20,7 @@ package org.invenzzia.opentrans.lightweight.tasks;
 import com.google.inject.Inject;
 import org.invenzzia.opentrans.lightweight.exception.TaskException;
 import org.invenzzia.opentrans.visitons.render.Renderer;
+import org.invenzzia.opentrans.visitons.render.stream.DebugPointStream;
 import org.invenzzia.opentrans.visitons.render.stream.GridStream;
 import org.invenzzia.opentrans.visitons.render.stream.SegmentBitmapStream;
 import org.invenzzia.opentrans.visitons.render.stream.TrackStream;
@@ -38,12 +39,15 @@ public class RendererTask implements ITask {
 	private SegmentBitmapStream bitmapStream;
 	@Inject
 	private TrackStream trackStream;
+	@Inject
+	private DebugPointStream debugStream;
 
 	@Override
 	public void startup() throws TaskException {
 		this.renderer.addRenderingStream(this.gridStream);
 		this.renderer.addRenderingStream(this.bitmapStream);
 		this.renderer.addRenderingStream(this.trackStream);
+		this.renderer.addRenderingStream(this.debugStream);
 	}
 
 	@Override

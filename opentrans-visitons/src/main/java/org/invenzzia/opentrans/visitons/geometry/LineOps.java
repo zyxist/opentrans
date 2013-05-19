@@ -168,6 +168,31 @@ public class LineOps {
 	}
 	
 	/**
+	 * Checks, on which side of the line given by the point A and tangent t, the point C lies.
+	 * 
+	 * @param x1 A point: X
+	 * @param y1 A point: Y
+	 * @param tangent Tangent of the line l.
+	 * @param x3 C point: X
+	 * @param y3 C point: Y
+	 * @return 
+	 */
+	public static int onWhichSide(double x1, double y1, double tangent, double x3, double y3) {
+		double A, B, C;
+		if(Math.abs(tangent - Math.PI / 2) < Geometry.EPSILON || Math.abs(tangent - (Math.PI + Math.PI / 2)) < Geometry.EPSILON) {
+			A = x1;
+			B = 0.0;
+			C = 0.0;
+		} else {
+			A = Math.tan(tangent);
+			B = -1.0;
+			C = y1 - A * x1;
+		}
+		
+		return (A * x3 + B * y3 + C) > 0.0 ? 1 : -1;
+	}
+	
+	/**
 	 * Finds the intersection of the two lines. The input data are read from <tt>data</tt> parameter,
 	 * and the result is also written there. The first argument specifies the position of the first
 	 * line parameters: A1, B1, C1. The second argument specifies the position of the second line
@@ -360,9 +385,11 @@ public class LineOps {
 	public static void reorder(double buf[], int ... pts) {
 		if(pts.length > 1) {
 			double tempBuf[] = new double[pts.length * 2];
+			int orig[] = new int[pts.length];
 			for(int i = 0; i < pts.length; i++) {
 				tempBuf[i * 2] = buf[pts[i]];
 				tempBuf[i * 2 + 1] = buf[pts[i] + 1];
+				orig[i] = pts[i];
 			}
 			if(Geometry.isZero(buf[pts[0]] - buf[pts[1]])) {
 				// Move the sweep vertically
@@ -377,20 +404,23 @@ public class LineOps {
 				}
 			} else {
 				// Move the sweep horizontally
-				for(int i = 0; i < pts.length; i++) {
-					for(int j = i; j < pts.length; j++) {
-						if(buf[pts[i]] > buf[pts[j]]) {
-							int tmp = pts[j];
-							pts[j] = pts[i];
-							pts[i] = tmp;
-						}
+				for(int i = 1; i < pts.length; i++) {
+					int idx = pts[i];
+					int hole = i;
+					while(hole >= 1 && buf[idx] < buf[pts[hole - 1]]) {
+						pts[hole] = pts[hole - 1];
+						hole--;
 					}
+					pts[hole] = idx;
 				}
 			}
-			
 			for(int i = 0; i < pts.length; i++) {
-				buf[pts[i]] = tempBuf[i * 2];
-				buf[pts[i] + 1] = tempBuf[i * 2 + 1];
+				tempBuf[i * 2] = buf[pts[i]];
+				tempBuf[i * 2 + 1] = buf[pts[i] + 1];
+			}
+			for(int i = 0; i < pts.length; i++) {
+				buf[orig[i]] = tempBuf[i * 2];
+				buf[orig[i] + 1] = tempBuf[i * 2 + 1];
 			}
 		}
 	}

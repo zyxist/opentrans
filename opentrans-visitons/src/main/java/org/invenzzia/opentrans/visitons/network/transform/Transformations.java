@@ -28,6 +28,8 @@ import org.invenzzia.opentrans.visitons.network.NetworkConst;
 import org.invenzzia.opentrans.visitons.network.TrackRecord;
 import org.invenzzia.opentrans.visitons.network.VertexRecord;
 import org.invenzzia.opentrans.visitons.network.WorldRecord;
+import org.invenzzia.opentrans.visitons.render.SceneManager;
+import org.invenzzia.opentrans.visitons.render.scene.DebugPointSnapshot;
 
 /**
  * Here we keep all the geometrical transformations of tracks and vertices
@@ -68,12 +70,17 @@ public class Transformations {
 	 * Additional information about the edited world.
 	 */
 	private WorldRecord world;
+	/**
+	 * Drawing hint lines, etc.
+	 */
+	private SceneManager sceneManager;
 	
 	@Inject
-	public Transformations(NetworkUnitOfWork unitOfWork, @ActualImporter IRecordImporter recordImporter, WorldRecord worldRecord) {
+	public Transformations(NetworkUnitOfWork unitOfWork, @ActualImporter IRecordImporter recordImporter, WorldRecord worldRecord, SceneManager sceneManager) {
 		this.unitOfWork = Preconditions.checkNotNull(unitOfWork);
 		this.recordImporter = Preconditions.checkNotNull(recordImporter);
 		this.world = Preconditions.checkNotNull(worldRecord);
+		this.sceneManager = Preconditions.checkNotNull(sceneManager);
 	}
 
 	/**
@@ -133,7 +140,7 @@ public class Transformations {
 					case NetworkConst.TRACK_FREE:
 						v2.setPosition(x, y);
 						this.calculateStraightLine(tr, v1, v2);
-						this.calculateFreeCurve(tr, v1, v2);
+						this.calculateFreeCurve(previousTrack, v1, previousTrack.getOppositeVertex(v1));
 						break;
 				}
 			}
@@ -162,6 +169,9 @@ public class Transformations {
 			v2 = tmp;
 		} else if(boundVertex != v2) {
 			throw new IllegalArgumentException("Bound vertex does not belong to the specified track.");
+		}
+		if(v1.hasOneTrack()) {
+			return false;
 		}
 		
 		v2.setPosition(x, y);
@@ -356,7 +366,12 @@ public class Transformations {
 				case NetworkConst.TRACK_CURVED:
 					return this.updateCurvedTrack(tr, vertex, posX, posY);
 				case NetworkConst.TRACK_FREE:
-					throw new UnsupportedOperationException("Implement me, dude!");
+					if(!this.world.isWithinWorld(posX, posY)) {
+						return false;
+					}
+					vertex.setPosition(posX, posY);
+					this.calculateFreeCurve(tr, vertex, tr.getOppositeVertex(vertex));
+					return true;
 			}
 		} else {
 			// This is a hardcore. Prepare for a mind ride! We might affect up to 4 tracks here!
@@ -524,11 +539,13 @@ public class Transformations {
 		v1.setPosition(x, y);
 		
 		VertexRecord v2 = closerStraightTrack.getOppositeVertex(v1);
-		TrackRecord furtherStraightTrack = closerCurvedTrack.getOppositeVertex(v1).getOppositeTrack(closerCurvedTrack);
 		this.calculateStraightLine(closerStraightTrack, v1, v2);
-		this.createCurvedToStraigtConnection(furtherStraightTrack, v1, closerCurvedTrack.getOppositeVertex(v1), closerCurvedTrack);
-		// Most complex case... and most shortest code! :D
-		// Unfortunately... some refactoring will be needed, if we want to disallow certain invalid situations.
+		if(closerCurvedTrack.getType() == NetworkConst.TRACK_CURVED) {
+			TrackRecord furtherStraightTrack = closerCurvedTrack.getOppositeVertex(v1).getOppositeTrack(closerCurvedTrack);
+			this.createCurvedToStraigtConnection(furtherStraightTrack, v1, closerCurvedTrack.getOppositeVertex(v1), closerCurvedTrack);
+		} else {
+			this.calculateFreeCurve(closerCurvedTrack, closerCurvedTrack.getFirstVertex(), closerCurvedTrack.getSecondVertex());
+		}
 		return true;
 	}
 	
@@ -797,7 +814,10 @@ public class Transformations {
 
 			// Choose one of these intersections.
 			LineOps.reorder(buf, 35, 37, 39, 41);
-			int selectedPt = 37;	// temporarily hardcoded - TODO
+			this.sceneManager.updateResource(DebugPointSnapshot.class, new DebugPointSnapshot(
+				new double[] { buf[35], buf[36], buf[37], buf[38], buf[39], buf[40], buf[41], buf[42],  }
+			));
+			int selectedPt = (v1.y() > v2.y() ? (v1.x() > v2.x() ? 39 : 37) : (v1.x() > v2.x() ? 37 : 39));
 			LineOps.middlePoint(v1.x(), v1.y(), selectedPt, 41, buf);	// K
 			LineOps.middlePoint(v2.x(), v2.y(), selectedPt, 43, buf);	// L
 
@@ -805,10 +825,19 @@ public class Transformations {
 			LineOps.toOrthogonal(v2.x(), v2.y(), 43, 53, buf);
 			LineOps.intersection(6, 50, 56, buf); // M point - center of the first arc
 			LineOps.intersection(9, 53, 58, buf); // N point - center of the second arc
+		
 
-			
-			this.prepareCurveMetadata(buf[selectedPt], buf[selectedPt+1], v1.x(), v1.y(), buf[56], buf[57], 0, metadata);
-			this.prepareCurveMetadata(buf[selectedPt], buf[selectedPt+1], v2.x(), v2.y(), buf[58], buf[59], 12, metadata);
+			if(LineOps.onWhichSide(v1.x(), v1.y(), v1.tangent(), buf[selectedPt], buf[selectedPt + 1]) == (v1.x() > v2.x() ? 1 : -1)) {
+				this.prepareCurveMetadata(buf[selectedPt], buf[selectedPt+1], v1.x(), v1.y(), buf[56], buf[57], 0, metadata);
+			} else {
+				this.prepareCurveMetadata(v1.x(), v1.y(), buf[selectedPt], buf[selectedPt+1], buf[56], buf[57], 0, metadata);
+			}
+			if(LineOps.onWhichSide(v2.x(), v2.y(), v2.tangent(), buf[selectedPt], buf[selectedPt + 1]) == (v1.x() > v2.x() ? 1 : -1)) {
+				this.prepareCurveMetadata(v2.x(), v2.y(), buf[selectedPt], buf[selectedPt+1], buf[58], buf[59], 12, metadata);
+				
+			} else {
+				this.prepareCurveMetadata(buf[selectedPt], buf[selectedPt+1], v2.x(), v2.y(), buf[58], buf[59], 12, metadata);
+			}
 		}
 		tr.setMetadata(metadata);
 	}

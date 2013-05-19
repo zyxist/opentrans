@@ -33,6 +33,7 @@ import org.invenzzia.opentrans.visitons.network.transform.NetworkUnitOfWork;
 import org.invenzzia.opentrans.visitons.network.transform.Transformations;
 import org.invenzzia.opentrans.visitons.render.CameraModel;
 import org.invenzzia.opentrans.visitons.render.SceneManager;
+import org.invenzzia.opentrans.visitons.render.scene.DebugPointSnapshot;
 import org.invenzzia.opentrans.visitons.render.scene.EditableTrackSnapshot;
 import org.invenzzia.opentrans.visitons.render.scene.HoveredItemSnapshot;
 
@@ -73,7 +74,7 @@ public abstract class AbstractTrackModeAPI {
 	 */
 	protected void createUnitOfWork() {
 		this.currentUnit = this.unitOfWorkProvider.get();
-		this.transformer = new Transformations(this.currentUnit, this.recordImporter, this.api.getWorldRecord());
+		this.transformer = new Transformations(this.currentUnit, this.recordImporter, this.api.getWorldRecord(), this.sceneManager);
 	}
 	
 	/**
@@ -108,7 +109,13 @@ public abstract class AbstractTrackModeAPI {
 	 * Clears the editable track snapshot in the renderer.
 	 */
 	protected void resetRenderingStream() {
-		this.sceneManager.updateResource(EditableTrackSnapshot.class, null);
+		this.sceneManager.guard();
+		try {
+			this.sceneManager.batchUpdateResource(EditableTrackSnapshot.class, null);
+			this.sceneManager.batchUpdateResource(DebugPointSnapshot.class, null);
+		} finally {
+			this.sceneManager.unguard();
+		}
 	}
 	
 	/**

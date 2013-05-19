@@ -30,6 +30,7 @@ import org.invenzzia.opentrans.visitons.render.HoverCollector;
 import org.invenzzia.opentrans.visitons.render.Renderer;
 import org.invenzzia.opentrans.visitons.render.SceneManager;
 import org.invenzzia.opentrans.visitons.render.listeners.SceneCameraListener;
+import org.invenzzia.opentrans.visitons.render.stream.DebugPointStream;
 import org.invenzzia.opentrans.visitons.render.stream.GridStream;
 import org.invenzzia.opentrans.visitons.render.stream.SegmentBitmapStream;
 import org.invenzzia.opentrans.visitons.render.stream.TrackStream;
@@ -51,6 +52,7 @@ public class VisitonsModule extends AbstractModule {
 		this.bind(GridStream.class).in(Singleton.class);
 		this.bind(SegmentBitmapStream.class).in(Singleton.class);
 		this.bind(TrackStream.class).in(Singleton.class);
+		this.bind(DebugPointStream.class).in(Singleton.class);
 		this.bind(NetworkUnitOfWork.class);
 		
 		this.bind(IRecordImporter.class).annotatedWith(DefaultImporter.class).to(DefaultRecordImporter.class).in(Singleton.class);

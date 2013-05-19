@@ -92,6 +92,16 @@ public class TrackRecord {
 	}
 	
 	/**
+	 * Returns <strong>true</strong>, if this track has a destination ID, not temporary one. It means
+	 * that we need to update an existing track, not create a new one.
+	 * 
+	 * @return True, if this track is persisted.
+	 */
+	public boolean isPersisted() {
+		return this.id > IIdentifiable.NEUTRAL_ID;
+	}
+	
+	/**
 	 * Return the type of the vertex: straight, curved or free.
 	 * 
 	 * @return Track type. See {@link NetworkConst} constants.

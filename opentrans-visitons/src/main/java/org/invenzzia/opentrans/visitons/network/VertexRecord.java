@@ -115,6 +115,16 @@ public class VertexRecord {
 		this.id = id;
 	}
 	
+	/**
+	 * Returns <strong>true</strong>, if this vertex has a destination ID, not temporary one. It means
+	 * that we need to update an existing vertex, not create a new one.
+	 * 
+	 * @return True, if this vertex is persisted.
+	 */
+	public boolean isPersisted() {
+		return this.id > IIdentifiable.NEUTRAL_ID;
+	}
+	
 	public double x() {
 		return this.x;
 	}

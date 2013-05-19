@@ -87,7 +87,7 @@ public class NetworkUnitOfWork {
 	 * @return True, if there are no changes stored.
 	 */
 	public boolean isEmpty() {
-		return this.tracks.isEmpty() && this.vertices.isEmpty();
+		return this.tracks.isEmpty() && this.vertices.isEmpty() && this.removedTracks.isEmpty() && this.removedVertices.isEmpty();
 	}
 	
 	/**
@@ -248,16 +248,24 @@ public class NetworkUnitOfWork {
 	 */
 	public void removeTrack(TrackRecord track) {
 		Preconditions.checkNotNull(track, "The specified track to remove is NULL.");
-		track.getFirstVertex().removeTrack(track);
-		track.getSecondVertex().removeTrack(track);
-		if(track.getFirstVertex().hasNoTracks()) {
-			this.vertices.remove(track.getFirstVertex().getId());
+		VertexRecord firstVertex = track.getFirstVertex();
+		VertexRecord secondVertex = track.getSecondVertex();
+		firstVertex.removeTrack(track);
+		secondVertex.removeTrack(track);
+		if(firstVertex.hasNoTracks()) {
+			this.vertices.remove(firstVertex.getId());
+			if(firstVertex.isPersisted()) {
+				this.removedVertices.add(firstVertex);
+			}
 		}
-		if(track.getSecondVertex().hasNoTracks()) {
-			this.vertices.remove(track.getSecondVertex().getId());
+		if(secondVertex.hasNoTracks()) {
+			this.vertices.remove(secondVertex.getId());
+			if(secondVertex.isPersisted()) {
+				this.removedVertices.add(secondVertex);
+			}
 		}
 		this.tracks.remove(track.getId());
-		if(track.getId() > IIdentifiable.NEUTRAL_ID) {
+		if(track.isPersisted()) {
 			this.removedTracks.add(track);
 		}
 	}

@@ -32,6 +32,19 @@ public class NetworkConst {
 	public static final byte VERTEX_FREE = 0;
 	public static final byte VERTEX_HALFFREE = 1;
 	public static final byte VERTEX_SLAVE = 2;
+	
+	/**
+	 * Indicates that we cannot snap to this track.
+	 */
+	public static final byte NO_SNAPPING = 0;
+	/**
+	 * Indicates that we can connect to the track by making a junction.
+	 */
+	public static final byte SNAP_CONNECT = 1;
+	/**
+	 * Indicates that we can adjust the track to match this one.
+	 */
+	public static final byte SNAP_ADJUST = 2;
 
 	private NetworkConst() {
 	}

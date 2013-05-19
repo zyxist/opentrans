@@ -293,6 +293,32 @@ public class NetworkUnitOfWork {
 		}
 	}
 	
+	/**
+	 * Connects two vertices that have only one track connected, into a single vertex. Geometric
+	 * adjustment of shapes must be performed separately.
+	 * 
+	 * @param mainVertex
+	 * @param freeVertex
+	 * @return The record representing the new vertex.
+	 */
+	public VertexRecord connectVertices(VertexRecord mainVertex, VertexRecord freeVertex) {
+		Preconditions.checkArgument(mainVertex.hasOneTrack());
+		Preconditions.checkArgument(freeVertex.hasOneTrack());
+		
+		TrackRecord tr = freeVertex.getTrack();
+		tr.replaceVertex(freeVertex, mainVertex);
+		mainVertex.addTrack(tr);
+		
+		freeVertex.removeTrack(tr);
+		if(freeVertex.isPersisted()) {
+			this.removedVertices.add(freeVertex);
+		}
+		if(mainVertex.getId() == IIdentifiable.NEUTRAL_ID) {
+			this.addVertex(mainVertex);
+		}
+		return mainVertex;
+	}
+	
 	public Iterator<TrackRecord> overTracks() {
 		return this.tracks.values().iterator();
 	}

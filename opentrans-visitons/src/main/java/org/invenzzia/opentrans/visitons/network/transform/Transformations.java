@@ -657,6 +657,74 @@ public class Transformations {
 		return true;
 	}
 	
+	public byte isSnappingToTrackPossible(VertexRecord boundVertex, TrackRecord tr) {
+		Preconditions.checkArgument(boundVertex.hasOneTrack());
+		
+		TrackRecord modifiedTrack = boundVertex.getTrack();
+		
+		if(modifiedTrack.getId() == tr.getId()) {
+			return NetworkConst.NO_SNAPPING;
+		}
+		if(tr.getFirstVertex().hasOneTrack() || tr.getSecondVertex().hasOneTrack()) {
+			if(modifiedTrack.getType() == NetworkConst.TRACK_STRAIGHT && tr.getType() != NetworkConst.TRACK_STRAIGHT) {
+				return NetworkConst.SNAP_ADJUST;
+			} else if(modifiedTrack.getType() == NetworkConst.TRACK_CURVED) {
+				if(tr.getType() != NetworkConst.TRACK_FREE) {
+					return NetworkConst.SNAP_ADJUST;
+				}
+			} else if(modifiedTrack.getType() == NetworkConst.TRACK_FREE && tr.getType() == NetworkConst.TRACK_STRAIGHT) {
+				return NetworkConst.SNAP_ADJUST;
+			}
+		} else {
+			
+		}
+		return NetworkConst.NO_SNAPPING;
+	}
+	
+	/**
+	 * Performs the actual adjustment snapping. To call this method, the passed track record must have one of
+	 * the vertices with only one track connected.
+	 * 
+	 * @param boundVertex
+	 * @param tr 
+	 */
+	public void snapToAdjustingTrack(VertexRecord boundVertex, TrackRecord tr) {
+		Preconditions.checkArgument(boundVertex.hasOneTrack(), "The bound vertex must have exactly one track.");
+		if(!(tr.getFirstVertex().hasOneTrack() || tr.getSecondVertex().hasOneTrack())) {
+			throw new IllegalArgumentException("The passed track record must have a vertex with only one track connected.");
+		}
+		
+		VertexRecord freeVertex = (tr.getFirstVertex().hasOneTrack() ? tr.getFirstVertex() : tr.getSecondVertex());
+		VertexRecord otherVertex = tr.getOppositeVertex(freeVertex);
+		
+		this.recordImporter.importAllMissingNeighbors(this.unitOfWork, otherVertex);
+		VertexRecord newVertex;
+		TrackRecord furtherTrack;
+		TrackRecord drawnTrack = boundVertex.getTrack();
+		switch(drawnTrack.getType()) {
+			case NetworkConst.TRACK_STRAIGHT:
+				if(tr.getType() == NetworkConst.TRACK_CURVED) {
+					newVertex = this.unitOfWork.connectVertices(boundVertex, freeVertex);
+					if(otherVertex.hasOneTrack()) {
+						this.refreshCurve(tr);
+					} else {
+						furtherTrack = otherVertex.getOppositeTrack(tr);
+						this.createCurvedToStraigtConnection(drawnTrack, otherVertex, boundVertex, tr);
+					}				
+				} else if(tr.getType() == NetworkConst.TRACK_FREE) {
+					newVertex = this.unitOfWork.connectVertices(boundVertex, freeVertex);
+					this.calculateFreeCurve(tr, newVertex, tr.getOppositeVertex(newVertex));
+				}
+				break;
+			case NetworkConst.TRACK_CURVED:
+				
+				break;
+			case NetworkConst.TRACK_FREE:
+				
+				break;
+		}
+	}
+	
 	/**
 	 * This operation shall be applied to three vertices connected by:
 	 * 

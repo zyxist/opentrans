@@ -32,6 +32,7 @@ import org.invenzzia.opentrans.visitons.render.scene.AbstractTrackSnapshot;
 import org.invenzzia.opentrans.visitons.render.scene.CommittedTrackSnapshot;
 import org.invenzzia.opentrans.visitons.render.scene.EditableTrackSnapshot;
 import org.invenzzia.opentrans.visitons.render.scene.HoveredItemSnapshot;
+import org.invenzzia.opentrans.visitons.render.scene.IgnoreHoverSnapshot;
 import org.invenzzia.opentrans.visitons.render.scene.MouseSnapshot;
 
 /**
@@ -66,15 +67,16 @@ public class TrackStream extends RenderingStreamAdapter {
 		CommittedTrackSnapshot committedTrackSnapshot = this.extract(scene, CommittedTrackSnapshot.class);
 		EditableTrackSnapshot editableTrackSnapshot = this.extract(scene, EditableTrackSnapshot.class);
 		CameraModelSnapshot camera = this.extract(scene, CameraModelSnapshot.class);
+		IgnoreHoverSnapshot ignoreHover = this.extract(scene, IgnoreHoverSnapshot.class);
 		MouseSnapshot mouse = this.extract(scene, MouseSnapshot.class);
 		Rectangle mouseRect = this.getMousePosition(scene);
 		if(null != committedTrackSnapshot) {
 			this.drawTracksFromSnapshot(this.commitStrategy, graphics, scene, hoverCollector, prevTimeFrame,
-				committedTrackSnapshot, camera, mouse, mouseRect);
+				committedTrackSnapshot, camera, ignoreHover, mouse, mouseRect);
 		}
 		if(null != editableTrackSnapshot) {
 			this.drawTracksFromSnapshot(this.editStrategy, graphics, scene, hoverCollector, prevTimeFrame,
-				editableTrackSnapshot, camera, mouse, mouseRect);
+				editableTrackSnapshot, camera, ignoreHover, mouse, mouseRect);
 		}
 	}
 	
@@ -92,7 +94,8 @@ public class TrackStream extends RenderingStreamAdapter {
 	 * @param mouseRect 
 	 */
 	private void drawTracksFromSnapshot(ITrackDrawingStrategy strategy, Graphics2D graphics, Map<Object, Object> scene, HoverCollector hoverCollector,
-		long prevTimeFrame, AbstractTrackSnapshot trackSnapshot, CameraModelSnapshot camera, MouseSnapshot mouse, Rectangle mouseRect)
+		long prevTimeFrame, AbstractTrackSnapshot trackSnapshot, CameraModelSnapshot camera, IgnoreHoverSnapshot ignoreHover,
+		MouseSnapshot mouse, Rectangle mouseRect)
 	{
 		if(trackSnapshot.needsRefresh()) {
 			trackSnapshot.refreshTrackPainters(camera);
@@ -101,8 +104,13 @@ public class TrackStream extends RenderingStreamAdapter {
 		strategy.prepareTrackStroke(graphics);
 		boolean restore = false;
 		boolean found = false;
+		boolean checkHover;
 		for(ITrackPainter painter: trackSnapshot.getTracks()) {
-			if(!found && painter.hits(graphics, mouseRect)) {
+			checkHover = true;
+			if(null != ignoreHover) {
+				checkHover = ignoreHover.getTrackId() != painter.getId();
+			}
+			if(!found && checkHover && painter.hits(graphics, mouseRect)) {
 				graphics.setColor(Color.ORANGE);
 				restore = true;
 				found = true;
@@ -125,7 +133,11 @@ public class TrackStream extends RenderingStreamAdapter {
 				int y = camera.world2pixY(points[i+1]);
 
 				if(null != mouse) {
-					if(!found && mouse.hits(x - 1, y - 1, 3, 3)) {
+					checkHover = true;
+					if(null != ignoreHover) {
+						checkHover = ignoreHover.getVertexId() != ids[j];
+					}
+					if(!found && checkHover && mouse.hits(x - 1, y - 1, 3, 3)) {
 						graphics.setColor(Color.GREEN);
 						restore = true;
 						found = true;

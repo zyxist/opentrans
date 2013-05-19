@@ -80,12 +80,18 @@ public class DrawTrackMode extends AbstractStateMachineEditMode {
 	
 	@Override
 	public void modeDisabled() {
+		this.resetState();
+		logger.debug("DrawTrackMode disabled.");
+	}
+	
+	public void resetState() {
 		this.currentUnit = null;
 		this.transformer = null;
 		this.boundVertex = null;
 		this.previousBoundVertex = null;
+		this.nextType = 0;
+		this.resetIgnoring();
 		this.resetRenderingStream();
-		logger.debug("DrawTrackMode disabled.");
 	}
 	
 	@InModelThread(asynchronous = false)
@@ -209,6 +215,24 @@ public class DrawTrackMode extends AbstractStateMachineEditMode {
 		@Override
 		public void leftActionPerformed(double worldX, double worldY, boolean altDown, boolean ctrlDown) {
 			if(null != boundVertex) {
+				HoveredItemSnapshot snapshot = getHoveredItemSnapshot();
+				if(null != snapshot) {
+					if(snapshot.getType() == HoveredItemSnapshot.TYPE_TRACK) {
+						// Check if we can snap to this track.
+						TrackRecord importedTrack = currentUnit.importTrack(getWorld(), snapshot.getId());
+						byte snapping = transformer.isSnappingToTrackPossible(boundVertex, importedTrack);
+						if(snapping == NetworkConst.SNAP_ADJUST) {
+							transformer.snapToAdjustingTrack(boundVertex, importedTrack);
+							applyChanges();
+							resetState();
+							setState(STATE_CURSOR_FREE);
+							return;
+						}
+
+					} else if(snapshot.getType() == HoveredItemSnapshot.TYPE_VERTEX) {
+						// Check if snapping to this vertex is possible.
+					}
+				}
 				logger.debug("leftAction: advancing the bound vertex.");
 				currentUnit.addVertex(boundVertex);
 				previousBoundVertex = boundVertex;
@@ -233,6 +257,7 @@ public class DrawTrackMode extends AbstractStateMachineEditMode {
 				} else {
 					transformer.createCurvedTrack(previousBoundVertex, boundVertex);
 				}
+				addForIgnoring(boundVertex.getTrack(), boundVertex);
 			} else {
 				TrackRecord tr = boundVertex.getTrackTo(previousBoundVertex);
 				if(nextType == 0) {
@@ -263,12 +288,7 @@ public class DrawTrackMode extends AbstractStateMachineEditMode {
 				}
 				setState(STATE_CURSOR_FREE);
 			} finally {
-				currentUnit = null;
-				transformer = null;
-				boundVertex = null;
-				previousBoundVertex = null;
-				nextType = 0;
-				resetRenderingStream();
+				resetState();
 			}
 		}
 	}

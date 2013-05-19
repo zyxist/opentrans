@@ -27,6 +27,8 @@ import org.invenzzia.opentrans.visitons.Project;
 import org.invenzzia.opentrans.visitons.bindings.ActualImporter;
 import org.invenzzia.opentrans.visitons.editing.ICommand;
 import org.invenzzia.opentrans.visitons.editing.network.NetworkLayoutChangeCmd;
+import org.invenzzia.opentrans.visitons.network.TrackRecord;
+import org.invenzzia.opentrans.visitons.network.VertexRecord;
 import org.invenzzia.opentrans.visitons.network.World;
 import org.invenzzia.opentrans.visitons.network.transform.IRecordImporter;
 import org.invenzzia.opentrans.visitons.network.transform.NetworkUnitOfWork;
@@ -36,6 +38,7 @@ import org.invenzzia.opentrans.visitons.render.SceneManager;
 import org.invenzzia.opentrans.visitons.render.scene.DebugPointSnapshot;
 import org.invenzzia.opentrans.visitons.render.scene.EditableTrackSnapshot;
 import org.invenzzia.opentrans.visitons.render.scene.HoveredItemSnapshot;
+import org.invenzzia.opentrans.visitons.render.scene.IgnoreHoverSnapshot;
 
 /**
  * Common code shared by most of the edit modes used for drawing tracks.
@@ -144,6 +147,23 @@ public abstract class AbstractTrackModeAPI {
 	 */
 	protected HoveredItemSnapshot getHoveredItemSnapshot() {
 		return this.sceneManager.getResource(HoveredItemSnapshot.class, HoveredItemSnapshot.class);
+	}
+	
+	/**
+	 * Adds the given vertex and track for ignoring while looking for hovered vertex/track.
+	 * 
+	 * @param tr
+	 * @param vr 
+	 */
+	protected void addForIgnoring(TrackRecord tr, VertexRecord vr) {
+		this.sceneManager.updateResource(IgnoreHoverSnapshot.class, new IgnoreHoverSnapshot(tr, vr));
+	}
+	
+	/**
+	 * Resets ignored hover items.
+	 */
+	protected void resetIgnoring() {
+		this.sceneManager.updateResource(IgnoreHoverSnapshot.class, null);
 	}
 	
 	/**

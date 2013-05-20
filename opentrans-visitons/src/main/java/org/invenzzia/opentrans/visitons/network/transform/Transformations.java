@@ -309,20 +309,18 @@ public class Transformations {
 		Preconditions.checkState(v2.hasOneTrack());
 		this.recordImporter.importAllMissingNeighbors(this.unitOfWork, v1, v2);
 		
-		TrackRecord ct = v1.getTrack();
-		if(ct.getType() != NetworkConst.TRACK_STRAIGHT) {
-			return false;
-		}
-		
-		TrackRecord track = v2.getTrack();
-		switch(track.getType()) {
-			case NetworkConst.TRACK_STRAIGHT:
-				this.createCurvedToStraigtConnection(track, v1, v2, null);
-				return true;
-			case NetworkConst.TRACK_CURVED:
-				break;
-			case NetworkConst.TRACK_FREE:
-				break;
+		TrackRecord t1 = v1.getTrack();
+		TrackRecord t2 = v2.getTrack();
+		if(t1.getType() == NetworkConst.TRACK_STRAIGHT && t2.getType() == NetworkConst.TRACK_STRAIGHT) {
+			this.createCurvedToStraigtConnection(t2, v1, v2, null);
+		} else if(t1.getType() == NetworkConst.TRACK_CURVED && t2.getType() == NetworkConst.TRACK_CURVED) {
+			VertexRecord v1b = t1.getOppositeVertex(v1);
+			VertexRecord v2b = t2.getOppositeVertex(v2);
+			this.unitOfWork.removeTrack(t1);
+			this.unitOfWork.removeTrack(t2);
+			this.createFreeTrack(v1b, v2b);
+		} else if(t1.getType() == NetworkConst.TRACK_FREE && t2.getType() == NetworkConst.TRACK_FREE) {
+			
 		}
 		return false;
 	}
@@ -696,6 +694,7 @@ public class Transformations {
 		
 		VertexRecord freeVertex = (tr.getFirstVertex().hasOneTrack() ? tr.getFirstVertex() : tr.getSecondVertex());
 		VertexRecord otherVertex = tr.getOppositeVertex(freeVertex);
+		VertexRecord otherDrawnVertex = boundVertex.getTrack().getOppositeVertex(boundVertex);
 		
 		this.recordImporter.importAllMissingNeighbors(this.unitOfWork, otherVertex);
 		VertexRecord newVertex;
@@ -709,7 +708,7 @@ public class Transformations {
 						this.refreshCurve(tr);
 					} else {
 						furtherTrack = otherVertex.getOppositeTrack(tr);
-						this.createCurvedToStraigtConnection(drawnTrack, otherVertex, boundVertex, tr);
+						this.createCurvedToStraigtConnection(drawnTrack, otherVertex, newVertex, tr);
 					}				
 				} else if(tr.getType() == NetworkConst.TRACK_FREE) {
 					newVertex = this.unitOfWork.connectVertices(boundVertex, freeVertex);
@@ -717,10 +716,20 @@ public class Transformations {
 				}
 				break;
 			case NetworkConst.TRACK_CURVED:
-				
+				if(tr.getType() == NetworkConst.TRACK_STRAIGHT) {
+					newVertex = this.unitOfWork.connectVertices(boundVertex, freeVertex);
+					this.createCurvedToStraigtConnection(tr, drawnTrack.getOppositeVertex(newVertex), newVertex, drawnTrack);
+				} else if(tr.getType() == NetworkConst.TRACK_CURVED) {
+					this.unitOfWork.removeTrack(tr);
+					this.unitOfWork.removeTrack(drawnTrack);
+					this.createFreeTrack(otherVertex, otherDrawnVertex);
+				}
 				break;
 			case NetworkConst.TRACK_FREE:
-				
+				if(tr.getType() == NetworkConst.TRACK_STRAIGHT) {
+					newVertex = this.unitOfWork.connectVertices(boundVertex, freeVertex);
+					this.calculateFreeCurve(drawnTrack, newVertex, otherDrawnVertex);
+				}
 				break;
 		}
 	}

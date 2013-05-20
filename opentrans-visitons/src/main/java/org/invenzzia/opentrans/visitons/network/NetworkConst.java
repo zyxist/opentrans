@@ -45,6 +45,23 @@ public class NetworkConst {
 	 * Indicates that we can adjust the track to match this one.
 	 */
 	public static final byte SNAP_ADJUST = 2;
+	
+	/**
+	 * For moving the straight track-ending vertex that is connected to a curve:
+	 * only lenghtening or shortening the straight track along the tangent line.
+	 */
+	public static final byte MODE_DEFAULT = 0;
+	/**
+	 * For moving the straight track-ending vertex that is connected to a curve:
+	 * free movement allowed, the curve is adjusted to match the tangent.
+	 */
+	public static final byte MODE_ALT1 = 1;
+	/**
+	 * For moving the straight track-ending vertex that is connected to a curve:
+	 * free movement allowed, the curve is adjusted to match the tangent (alternative
+	 * scenario).
+	 */
+	public static final byte MODE_ALT2 = 2;
 
 	private NetworkConst() {
 	}

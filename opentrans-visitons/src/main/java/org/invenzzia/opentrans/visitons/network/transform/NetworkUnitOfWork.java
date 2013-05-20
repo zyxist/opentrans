@@ -104,18 +104,32 @@ public class NetworkUnitOfWork {
 		return this.vertices.size();
 	}
 	
-	public void addTrack(TrackRecord track) {
+	/**
+	 * Adds a track, and if this is a new track, it assigns a temporary ID to it.
+	 * 
+	 * @param track
+	 * @return Fluent interface.
+	 */
+	public NetworkUnitOfWork addTrack(TrackRecord track) {
 		if(track.getId() == IIdentifiable.NEUTRAL_ID) {
 			track.setId(this.nextTrackId--);
 		}
 		this.tracks.put(Long.valueOf(track.getId()), track);
+		return this;
 	}
 	
-	public void addVertex(VertexRecord vertex) {
+	/**
+	 * Adds a vertex, and if this is a new vertex, it assigns a temporary ID to it.
+	 * 
+	 * @param vertex
+	 * @return Fluent interface.
+	 */
+	public NetworkUnitOfWork addVertex(VertexRecord vertex) {
 		if(vertex.getId() == IIdentifiable.NEUTRAL_ID) {
 			vertex.setId(this.nextVertexId--);
 		}
 		this.vertices.put(Long.valueOf(vertex.getId()), vertex);
+		return this;
 	}
 	
 	/**

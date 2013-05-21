@@ -163,6 +163,20 @@ public class TrackRecord {
 		}
 	}
 	
+	public TrackRecord getOppositeTrack(TrackRecord anotherTrack) {
+		if(anotherTrack.hasVertex(this.v1)) {
+			if(this.v2.hasOneTrack()) {
+				return null;
+			}
+			return this.v2.getOppositeTrack(this);
+		} else {
+			if(this.v1.hasOneTrack()) {
+				return null;
+			}
+			return this.v1.getOppositeTrack(this);
+		}
+	}
+	
 	/**
 	 * Returns true, if one of the vertices has <tt>hasOneTrack() == true</tt>.
 	 * 

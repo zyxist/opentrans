@@ -24,6 +24,8 @@ import org.invenzzia.opentrans.visitons.network.transform.ITransformAPI;
 import org.invenzzia.opentrans.visitons.network.transform.TransformInput;
 import org.invenzzia.opentrans.visitons.network.transform.conditions.ICondition;
 import org.invenzzia.opentrans.visitons.network.transform.modifiers.IModifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Common code for a single transformation operation (such as vertex movement). The
@@ -33,8 +35,11 @@ import org.invenzzia.opentrans.visitons.network.transform.modifiers.IModifier;
  * @author Tomasz Jędrzejewski
  */
 public abstract class AbstractOperation implements IOperation {
+	private static final Logger logger = LoggerFactory.getLogger(AbstractOperation.class);
+	
 	private final List<CaseDefinition> cases;
 	private ICondition<TransformInput> initialCondition;
+	private IModifier initialModifier;
 	private ITransformAPI api;
 	
 	public AbstractOperation() {
@@ -51,14 +56,42 @@ public abstract class AbstractOperation implements IOperation {
 		return this.api;
 	}
 
+	/**
+	 * Sets the initial conditions verified before everything else.
+	 * 
+	 * @param condition 
+	 */
 	protected final void initialCondition(ICondition<TransformInput> condition) {
 		this.initialCondition = condition;
 	}
 	
+	/**
+	 * Sets the initial modifier applied after validating the initial conditions.
+	 * 
+	 * @param modifier 
+	 */
+	protected final void initialModifier(IModifier modifier) {
+		this.initialModifier = modifier;
+	}
+	
+	/**
+	 * Registers a new case that is fired, if the given condition matches.
+	 * 
+	 * @param condition
+	 * @param caseImpl 
+	 */
 	protected final void register(ICondition<TransformInput> condition, IOperationCase caseImpl) {
 		this.cases.add(new CaseDefinition(condition, null, caseImpl));
 	}
 	
+	/**
+	 * Registers a new case that is fired, if the given condition matches. Before entering
+	 * the case, the specified modifier is applied to the input.
+	 * 
+	 * @param condition
+	 * @param modifier
+	 * @param caseImpl 
+	 */
 	protected final void register(ICondition<TransformInput> condition, IModifier modifier, IOperationCase caseImpl) {
 		this.cases.add(new CaseDefinition(condition, modifier, caseImpl));
 	}
@@ -77,9 +110,19 @@ public abstract class AbstractOperation implements IOperation {
 				return false;
 			}
 		}
+		if(null != this.initialModifier) {
+			this.initialModifier.modify(input);
+		}
+		int idx = 1;
 		for(CaseDefinition caseDef: this.cases) {
-			if(caseDef.evaluate(input)) {
-				return true;
+			try {
+				if(caseDef.evaluate(input)) {
+					return true;
+				}
+				idx++;
+			} catch(RuntimeException exception) {
+				logger.error("Failure occurred while evaluating conditions for case #"+idx);
+				throw exception;
 			}
 		}
 		return false;

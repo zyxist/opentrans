@@ -17,21 +17,26 @@
 
 package org.invenzzia.opentrans.visitons.network.transform.modifiers;
 
-import com.google.common.base.Preconditions;
+import org.invenzzia.opentrans.visitons.network.NetworkConst;
+import org.invenzzia.opentrans.visitons.network.TrackRecord;
 import org.invenzzia.opentrans.visitons.network.transform.TransformInput;
 
 /**
- * Extracts the track from the vertex and then saves it in <tt>v2</tt> field
- * of the input.
+ * Ensures that the straight track is always on <tt>v1</tt>
  * 
  * @author Tomasz Jędrzejewski
  */
-public class GetTrackFromVertexModifier implements IModifier {
-	
+public class MakeStraightFirstModifier implements IModifier {
+
 	@Override
 	public void modify(TransformInput input) {
-		Preconditions.checkArgument(input.v1.hasOneTrack(), "The evaluated track must be connected to a single vertex.");
-		Preconditions.checkArgument(input.t2 == null, "The second track must not be set!");
-		input.t2 = input.v1.getTrack();
+		if(null != input.t1 && null != input.t2) {
+			if(input.t1.getType() != NetworkConst.TRACK_STRAIGHT) {
+				TrackRecord tr = input.t2;
+				input.t2 = input.t1;
+				input.t1 = tr;
+			}
+		}
 	}
+
 }

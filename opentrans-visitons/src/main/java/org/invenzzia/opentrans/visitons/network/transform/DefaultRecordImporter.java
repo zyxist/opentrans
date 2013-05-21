@@ -64,14 +64,17 @@ public class DefaultRecordImporter implements IRecordImporter {
 		this.processSingleRecord(populatedUnit, world, rootVertex);
 		
 		// Oh, it turns out that this 'smartness' does not have to be so smart. I like simplicity.
-		VertexRecord lev1a = rootVertex.getFirstTrack().getOppositeVertex(rootVertex);
-		VertexRecord lev1b = rootVertex.getSecondTrack().getOppositeVertex(rootVertex);
-		
-		if(lev1a.hasAllTracks()) {
-			this.processSingleRecord(populatedUnit, world, lev1a);
+		if(null != rootVertex.getFirstTrack()) {
+			VertexRecord lev1a = rootVertex.getFirstTrack().getOppositeVertex(rootVertex);
+			if(lev1a.hasAllTracks()) {
+				this.processSingleRecord(populatedUnit, world, lev1a);
+			}
 		}
-		if(lev1b.hasAllTracks()) {
-			this.processSingleRecord(populatedUnit, world, lev1b);
+		if(null != rootVertex.getSecondTrack()) {
+			VertexRecord lev1b = rootVertex.getSecondTrack().getOppositeVertex(rootVertex);
+			if(lev1b.hasAllTracks()) {
+				this.processSingleRecord(populatedUnit, world, lev1b);
+			}
 		}
 	}
 }

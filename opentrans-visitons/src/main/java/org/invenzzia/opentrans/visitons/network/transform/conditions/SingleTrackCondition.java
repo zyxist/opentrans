@@ -28,14 +28,16 @@ import org.invenzzia.opentrans.visitons.network.transform.TransformInput;
  */
 public class SingleTrackCondition implements ICondition<TransformInput> {
 	private ICondition<TrackRecord> condition;
+	private int which;
 	
-	public SingleTrackCondition(ICondition<TrackRecord> condition) {
+	public SingleTrackCondition(ICondition<TrackRecord> condition, int which) {
 		this.condition = Preconditions.checkNotNull(condition);
+		this.which = which;
 	}
 
 	@Override
 	public boolean matches(TransformInput input) {
-		return this.condition.matches(input.t1);
+		return this.condition.matches(this.which == 1 ? input.t1 : input.t2);
 	}
 
 }

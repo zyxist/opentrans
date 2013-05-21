@@ -17,21 +17,27 @@
 
 package org.invenzzia.opentrans.visitons.network.transform.modifiers;
 
-import com.google.common.base.Preconditions;
+import org.invenzzia.opentrans.visitons.network.TrackRecord;
 import org.invenzzia.opentrans.visitons.network.transform.TransformInput;
 
 /**
- * Extracts the track from the vertex and then saves it in <tt>v2</tt> field
- * of the input.
+ * Extracts the opposite vertex from the given track.
  * 
  * @author Tomasz Jędrzejewski
  */
-public class GetTrackFromVertexModifier implements IModifier {
+public class GetVertexFromTrackModifier implements IModifier {
+	private int which;
+	
+	public GetVertexFromTrackModifier(int whichTrack) {
+		this.which = whichTrack;
+	}
+	
 	
 	@Override
 	public void modify(TransformInput input) {
-		Preconditions.checkArgument(input.v1.hasOneTrack(), "The evaluated track must be connected to a single vertex.");
-		Preconditions.checkArgument(input.t2 == null, "The second track must not be set!");
-		input.t2 = input.v1.getTrack();
+		TrackRecord tr = (this.which == 1 ? input.t1 : input.t2);
+		if(null != tr) {
+			input.v2 = tr.getOppositeVertex(input.v1);
+		}
 	}
 }

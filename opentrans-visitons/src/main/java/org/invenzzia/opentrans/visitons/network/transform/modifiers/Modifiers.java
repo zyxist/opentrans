@@ -45,4 +45,16 @@ public class Modifiers {
 	public static CombinedModifier all(IModifier ... modifiers) {
 		return new CombinedModifier(modifiers);
 	}
+	
+	public static MakeStraightFirstModifier makeStraightTrackFirst() {
+		return new MakeStraightFirstModifier();
+	}
+	
+	public static GetVertexFromTrackModifier getOppositeVertexForFirstTrack() {
+		return new GetVertexFromTrackModifier(1);
+	}
+	
+	public static GetVertexFromTrackModifier getOppositeVertexForSecondTrack() {
+		return new GetVertexFromTrackModifier(2);
+	}
 }

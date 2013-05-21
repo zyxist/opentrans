@@ -220,9 +220,17 @@ public class TransformEngine {
 					new double[] { buf[35], buf[36], buf[37], buf[38], buf[39], buf[40], buf[41], buf[42],  }
 				));
 				int selectedPt = (v1.y() > v2.y() ? (v1.x() > v2.x() ? 39 : 37) : (v1.x() > v2.x() ? 37 : 39));
+				
+				this.prepareCurveFreeMovement(v1, buf[selectedPt], buf[selectedPt+1], 43, buf);
+				this.prepareCurveFreeMovement(v2, buf[selectedPt], buf[selectedPt+1], 45, buf);
+				this.prepareCurveMetadata(buf[selectedPt], buf[selectedPt+1], v1.x(), v1.y(), buf[43], buf[44], 0, metadata);
+				this.prepareCurveMetadata(buf[selectedPt], buf[selectedPt+1], v2.x(), v2.y(), buf[45], buf[46], 12, metadata);
+				
+				/*
+				
 				LineOps.middlePoint(v1.x(), v1.y(), selectedPt, 41, buf);	// K
 				LineOps.middlePoint(v2.x(), v2.y(), selectedPt, 43, buf);	// L
-
+				
 				LineOps.toOrthogonal(v1.x(), v1.y(), 41, 50, buf);
 				LineOps.toOrthogonal(v2.x(), v2.y(), 43, 53, buf);
 				LineOps.intersection(6, 50, 56, buf); // M point - center of the first arc
@@ -240,6 +248,7 @@ public class TransformEngine {
 				} else {
 					this.prepareCurveMetadata(buf[selectedPt], buf[selectedPt+1], v2.x(), v2.y(), buf[58], buf[59], 12, metadata);
 				}
+				*/
 			}
 			tr.setMetadata(metadata);
 		}

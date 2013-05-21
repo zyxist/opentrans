@@ -22,9 +22,11 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import org.invenzzia.helium.exception.CommandExecutionException;
 import org.invenzzia.opentrans.lightweight.annotations.InModelThread;
+import org.invenzzia.opentrans.visitons.network.NetworkConst;
 import org.invenzzia.opentrans.visitons.network.TrackRecord;
 import org.invenzzia.opentrans.visitons.network.VertexRecord;
 import org.invenzzia.opentrans.visitons.network.transform.Transformations;
+import org.invenzzia.opentrans.visitons.network.transform.ops.MoveVertex;
 import org.invenzzia.opentrans.visitons.render.scene.HoveredItemSnapshot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -134,13 +136,18 @@ public class SelectionMode extends AbstractEditMode {
 		int selectedTracksNum = this.selectedTracks.size();
 		
 		if(selectedVerticesNum == 1 && selectedTracksNum == 0) {
+			this.transformEngine.op(MoveVertex.class).move(this.selectedVertices.iterator().next(), worldX, worldY,
+				(ctrlDown ? (altDown ? NetworkConst.MODE_ALT2 : NetworkConst.MODE_ALT1) : NetworkConst.MODE_DEFAULT)
+			);
+			/*
 			this.transformer.moveVertexToPosition(
 				this.selectedVertices.iterator().next(),
 				worldX, worldY,
 				(ctrlDown ? (altDown ? Transformations.STR_MODE_FREE_2 : Transformations.STR_MODE_FREE) : Transformations.STR_MODE_LENGHTEN)
 			);
+			*/
 		} else if(selectedTracksNum > 0 && selectedVerticesNum == 0) {
-			this.transformer.moveTracksByDelta(this.selectedTracks, deltaX, deltaY);
+		//	this.transformer.moveTracksByDelta(this.selectedTracks, deltaX, deltaY);
 		}
 		this.currentUnit.exportScene(this.sceneManager);
 	}

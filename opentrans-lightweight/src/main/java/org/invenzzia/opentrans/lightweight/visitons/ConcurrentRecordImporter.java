@@ -50,6 +50,11 @@ public class ConcurrentRecordImporter implements IRecordImporter {
 
 	@Override
 	public void importMissingNeighboursSmarter(NetworkUnitOfWork populatedUnit, VertexRecord rootVertex) {
+		this.delegateImporting(populatedUnit, rootVertex);
+	}
+	
+	@InModelThread(asynchronous = false)
+	private void delegateImporting(NetworkUnitOfWork populatedUnit, VertexRecord rootVertex) {
 		this.defaultImporter.importMissingNeighboursSmarter(populatedUnit, rootVertex);
 	}
 }

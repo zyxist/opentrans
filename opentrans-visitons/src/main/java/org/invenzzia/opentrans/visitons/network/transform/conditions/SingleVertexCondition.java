@@ -28,13 +28,15 @@ import org.invenzzia.opentrans.visitons.network.transform.TransformInput;
  */
 public class SingleVertexCondition implements ICondition<TransformInput> {
 	private final ICondition<VertexRecord> condition;
+	private final int which;
 	
-	public SingleVertexCondition(ICondition<VertexRecord> condition) {
+	public SingleVertexCondition(ICondition<VertexRecord> condition, int which) {
 		this.condition = Preconditions.checkNotNull(condition);
+		this.which = which;
 	}
 
 	@Override
 	public boolean matches(TransformInput input) {
-		return this.condition.matches(input.v1);
+		return this.condition.matches(this.which == 1 ? input.v1 : input.v2);
 	}
 }

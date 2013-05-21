@@ -18,7 +18,6 @@
 package org.invenzzia.opentrans.visitons.network.transform.ops;
 
 import org.invenzzia.opentrans.visitons.network.transform.ITransformAPI;
-import org.invenzzia.opentrans.visitons.network.transform.TransformEngine;
 import org.invenzzia.opentrans.visitons.network.transform.TransformInput;
 
 /**

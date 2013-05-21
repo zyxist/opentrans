@@ -32,6 +32,10 @@ public class Conditions {
 	public static <T> AndCondition<T> and(ICondition<T> ... conditions) {
 		return new AndCondition<>(conditions);
 	}
+	
+	public static <T> NotCondition<T> not(ICondition<T> condition) {
+		return new NotCondition<>(condition);
+	}
 
 	public static BothTrackCondition bothTracks(ICondition<TrackRecord> condition) {
 		return new BothTrackCondition(condition);
@@ -42,7 +46,11 @@ public class Conditions {
 	}
 
 	public static SingleTrackCondition track(ICondition<TrackRecord> condition) {
-		return new SingleTrackCondition(condition);
+		return new SingleTrackCondition(condition, 1);
+	}
+	
+	public static SingleTrackCondition secondTrack(ICondition<TrackRecord> condition) {
+		return new SingleTrackCondition(condition, 2);
 	}
 	
 	/**
@@ -82,7 +90,11 @@ public class Conditions {
 	}
 	
 	public static SingleVertexCondition vertex(ICondition<VertexRecord> condition) {
-		return new SingleVertexCondition(condition);
+		return new SingleVertexCondition(condition, 1);
+	}
+	
+	public static SingleVertexCondition secondVertex(ICondition<VertexRecord> condition) {
+		return new SingleVertexCondition(condition, 2);
 	}
 	
 	public static BothVertexCondition bothVertices(ICondition<VertexRecord> condition) {

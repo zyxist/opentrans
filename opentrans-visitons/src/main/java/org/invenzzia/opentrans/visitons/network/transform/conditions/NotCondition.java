@@ -15,23 +15,23 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.invenzzia.opentrans.visitons.network.transform.modifiers;
-
-import com.google.common.base.Preconditions;
-import org.invenzzia.opentrans.visitons.network.transform.TransformInput;
+package org.invenzzia.opentrans.visitons.network.transform.conditions;
 
 /**
- * Extracts the track from the vertex and then saves it in <tt>v2</tt> field
- * of the input.
+ * Description here.
  * 
  * @author Tomasz Jędrzejewski
  */
-public class GetTrackFromVertexModifier implements IModifier {
+public class NotCondition<T> implements ICondition<T>{
+	private ICondition<T> condition;
 	
-	@Override
-	public void modify(TransformInput input) {
-		Preconditions.checkArgument(input.v1.hasOneTrack(), "The evaluated track must be connected to a single vertex.");
-		Preconditions.checkArgument(input.t2 == null, "The second track must not be set!");
-		input.t2 = input.v1.getTrack();
+	public NotCondition(ICondition<T> condition) {
+		this.condition = condition;
 	}
+
+	@Override
+	public boolean matches(T input) {
+		return !this.condition.matches(input);
+	}
+	
 }

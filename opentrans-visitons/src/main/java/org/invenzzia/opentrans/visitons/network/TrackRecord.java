@@ -163,6 +163,20 @@ public class TrackRecord {
 		}
 	}
 	
+	/**
+	 * This method is valid only for the open tracks, where one of the vertices has
+	 * exactly 1 track connected. It returns the previous track.
+	 * 
+	 * @return Previous track or NULL, if this is a lone track.
+	 */
+	public TrackRecord getPreviousTrack() {
+		VertexRecord checked = this.v1.hasOneTrack() ? this.v2 : this.v1;
+		if(checked.hasOneTrack()) {
+			return null;
+		}
+		return checked.getOppositeTrack(this);
+	}
+	
 	public void replaceVertex(VertexRecord oldVertex, VertexRecord newVertex) {
 		if(this.v1 == oldVertex) {
 			this.v1 = newVertex;

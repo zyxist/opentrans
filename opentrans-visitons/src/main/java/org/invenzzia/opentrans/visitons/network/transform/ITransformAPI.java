@@ -58,10 +58,8 @@ public interface ITransformAPI {
 	 * vertex tangents.
 	 * 
 	 * @param tr Updated track record.
-	 * @param v1 First vertex
-	 * @param v2 Second vertex.
 	 */
-	public void calculateFreeCurve(TrackRecord tr, VertexRecord v1, VertexRecord v2);
+	public void calculateFreeCurve(TrackRecord tr);
 	/**
 	 * This operation shall be applied to three vertices connected by:
 	 * 

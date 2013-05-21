@@ -152,8 +152,10 @@ public class TransformEngine {
 		}
 
 		@Override
-		public void calculateFreeCurve(TrackRecord tr, VertexRecord v1, VertexRecord v2) {
+		public void calculateFreeCurve(TrackRecord tr) {
 			Preconditions.checkArgument(tr.getType() == NetworkConst.TRACK_FREE, "Invalid track type: TRACK_FREE expected.");
+			VertexRecord v1 = tr.getFirstVertex();
+			VertexRecord v2 = tr.getSecondVertex();
 			double metadata[] = new double[24];
 			if(Math.abs(v1.tangent() - v2.tangent()) < EPSILON) {
 				// If the lines are parallel, we need a special handling.

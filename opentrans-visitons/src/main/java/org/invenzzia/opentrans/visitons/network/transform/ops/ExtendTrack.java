@@ -80,7 +80,7 @@ public class ExtendTrack extends AbstractOperation {
 				VertexRecord newVertex = buildVertex(api, input);
 				createdTrack = buildTrack(api, input, newVertex);
 				createdTrack.setType(NetworkConst.TRACK_FREE);
-				api.calculateFreeCurve(createdTrack, newVertex, createdTrack.getOppositeVertex(newVertex));
+				api.calculateFreeCurve(createdTrack);
 			}
 		};
 	}

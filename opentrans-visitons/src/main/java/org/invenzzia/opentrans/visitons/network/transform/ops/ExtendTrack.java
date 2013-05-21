@@ -17,6 +17,7 @@
 
 package org.invenzzia.opentrans.visitons.network.transform.ops;
 
+import org.invenzzia.opentrans.visitons.geometry.LineOps;
 import org.invenzzia.opentrans.visitons.network.NetworkConst;
 import org.invenzzia.opentrans.visitons.network.TrackRecord;
 import org.invenzzia.opentrans.visitons.network.VertexRecord;
@@ -31,12 +32,17 @@ import static org.invenzzia.opentrans.visitons.network.transform.conditions.Cond
  * @author Tomasz Jędrzejewski
  */
 public class ExtendTrack extends AbstractOperation {
-	private TrackRecord createdTrack;
+	private VertexRecord createdVertex;
 
-	public TrackRecord extend(VertexRecord vr, double x, double y, byte mode) {
-		this.createdTrack = null;
+	public VertexRecord extend(VertexRecord vr, double x, double y, byte mode) {
+		this.createdVertex = null;
+		
+		if(!this.getAPI().getWorld().isWithinWorld(x, y)) {
+			return null;
+		}
+		
 		this.evaluateCases(new TransformInput(vr.getTrack(), null, vr, null, x, y, mode));
-		return this.createdTrack;
+		return this.createdVertex;
 	}
 	
 	@Override
@@ -53,10 +59,10 @@ public class ExtendTrack extends AbstractOperation {
 		return new IOperationCase() {
 			@Override
 			public void execute(TransformInput input, ITransformAPI api) {
-				VertexRecord newVertex = buildVertex(api, input);
-				createdTrack = buildTrack(api, input, newVertex);
-				createdTrack.setType(NetworkConst.TRACK_CURVED);
-				api.curveFollowsPoint(createdTrack, newVertex);
+				createdVertex = buildVertex(api, input);
+				TrackRecord newTrack = buildTrack(api, input, createdVertex);
+				newTrack.setType(NetworkConst.TRACK_CURVED);
+				api.curveFollowsPoint(newTrack, createdVertex);
 			}
 		};
 	}
@@ -65,10 +71,18 @@ public class ExtendTrack extends AbstractOperation {
 		return new IOperationCase() {
 			@Override
 			public void execute(TransformInput input, ITransformAPI api) {
-				VertexRecord newVertex = buildVertex(api, input);
-				createdTrack = buildTrack(api, input, newVertex);
-				createdTrack.setType(NetworkConst.TRACK_STRAIGHT);
-				api.calculateStraightLine(createdTrack);
+				createdVertex = buildVertex(api, input);
+				TrackRecord newTrack = buildTrack(api, input, createdVertex);
+				newTrack.setType(NetworkConst.TRACK_STRAIGHT);
+				
+				if(input.v1.hasAllTracks()) {
+					double buf[] = new double[8];
+					LineOps.toGeneral(input.v1.x(), input.v1.y(), input.v1.tangent(), 0, buf);
+					LineOps.toOrthogonal(0, 3, buf, input.a1, input.a2);
+					LineOps.intersection(0, 3, 6, buf);
+					createdVertex.setPosition(buf[6], buf[7]);
+				}
+				api.calculateStraightLine(newTrack);
 			}
 		};
 	}
@@ -77,10 +91,10 @@ public class ExtendTrack extends AbstractOperation {
 		return new IOperationCase() {
 			@Override
 			public void execute(TransformInput input, ITransformAPI api) {
-				VertexRecord newVertex = buildVertex(api, input);
-				createdTrack = buildTrack(api, input, newVertex);
-				createdTrack.setType(NetworkConst.TRACK_FREE);
-				api.calculateFreeCurve(createdTrack);
+				createdVertex = buildVertex(api, input);
+				TrackRecord newTrack = buildTrack(api, input, createdVertex);
+				newTrack.setType(NetworkConst.TRACK_FREE);
+				api.calculateFreeCurve(newTrack);
 			}
 		};
 	}

@@ -36,9 +36,9 @@ public class MoveVertex extends AbstractOperation {
 	/**
 	 * Moves the given vertex to the new position, if possible.
 	 * 
-	 * @param vr
-	 * @param x
-	 * @param y
+	 * @param vr Vertex being moved.
+	 * @param x New position of this vertex.
+	 * @param y New position of this vertex.
 	 * @param mode Editing mode
 	 * @return True, if the operation succeeded.
 	 */
@@ -81,11 +81,16 @@ public class MoveVertex extends AbstractOperation {
 			@Override
 			public void execute(TransformInput input, ITransformAPI api) {
 				VertexRecord opposite = input.t1.getOppositeVertex(input.v1);
-				double buf[] = new double[8];
-				LineOps.toGeneral(opposite.x(), opposite.y(), input.v1.x(), input.v1.y(), 0, buf);
-				LineOps.toOrthogonal(0, 3, buf, input.a1, input.a2);
-				LineOps.intersection(0, 3, 6, buf);
-				input.v1.setPosition(buf[6], buf[7]);
+				
+				if(opposite.hasAllTracks()) {
+					double buf[] = new double[8];
+					LineOps.toGeneral(opposite.x(), opposite.y(), input.v1.x(), input.v1.y(), 0, buf);
+					LineOps.toOrthogonal(0, 3, buf, input.a1, input.a2);
+					LineOps.intersection(0, 3, 6, buf);
+					input.v1.setPosition(buf[6], buf[7]);
+				} else {
+					input.v1.setPosition(input.a1, input.a2);
+				}
 				api.calculateStraightLine(input.t1);
 			}
 		};

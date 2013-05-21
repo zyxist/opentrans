@@ -17,6 +17,7 @@
 
 package org.invenzzia.opentrans.visitons.network.transform.ops;
 
+import com.google.common.base.Preconditions;
 import org.invenzzia.opentrans.visitons.network.TrackRecord;
 import org.invenzzia.opentrans.visitons.network.VertexRecord;
 import org.invenzzia.opentrans.visitons.network.transform.ITransformAPI;
@@ -31,7 +32,7 @@ public class CreateNewTrack implements IOperation {
 	
 	@Override
 	public void setTransformAPI(ITransformAPI api) {
-		this.api = api;
+		this.api = Preconditions.checkNotNull(api);
 	}
 	
 	/**
@@ -46,7 +47,7 @@ public class CreateNewTrack implements IOperation {
 	 * @return Vertex record #2
 	 */
 	public VertexRecord create(double x1, double y1, double x2, double y2) {
-		if(this.api.getWorld().isWithinWorld(x1, y1) || this.api.getWorld().isWithinWorld(x2, y2)) {
+		if(!this.api.getWorld().isWithinWorld(x1, y1) || !this.api.getWorld().isWithinWorld(x2, y2)) {
 			return null;
 		}
 		

@@ -46,6 +46,10 @@ public abstract class AbstractOperation implements IOperation {
 	public void setTransformAPI(ITransformAPI api) {
 		this.api = Preconditions.checkNotNull(api);
 	}
+	
+	protected final ITransformAPI getAPI() {
+		return this.api;
+	}
 
 	protected final void initialCondition(ICondition<TransformInput> condition) {
 		this.initialCondition = condition;

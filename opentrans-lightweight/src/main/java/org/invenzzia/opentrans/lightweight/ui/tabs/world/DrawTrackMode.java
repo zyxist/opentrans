@@ -17,16 +17,17 @@
 
 package org.invenzzia.opentrans.lightweight.ui.tabs.world;
 
+import com.google.common.base.Preconditions;
 import java.awt.Cursor;
 import org.invenzzia.helium.exception.CommandExecutionException;
 import org.invenzzia.opentrans.lightweight.annotations.InModelThread;
 import org.invenzzia.opentrans.visitons.Project;
 import org.invenzzia.opentrans.visitons.network.NetworkConst;
-import org.invenzzia.opentrans.visitons.network.Track;
-import org.invenzzia.opentrans.visitons.network.TrackRecord;
 import org.invenzzia.opentrans.visitons.network.Vertex;
 import org.invenzzia.opentrans.visitons.network.VertexRecord;
-import org.invenzzia.opentrans.visitons.network.transform.Transformations;
+import org.invenzzia.opentrans.visitons.network.transform.ops.CreateNewTrack;
+import org.invenzzia.opentrans.visitons.network.transform.ops.ExtendTrack;
+import org.invenzzia.opentrans.visitons.network.transform.ops.MoveVertex;
 import org.invenzzia.opentrans.visitons.render.scene.HoveredItemSnapshot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +52,7 @@ public class DrawTrackMode extends AbstractStateMachineEditMode {
 	/**
 	 * Single instance of one of the states.
 	 */
-	private final DrawingStartsFromExistingHalfFreePointDrawTrackState STATE_CONTINUE_TRACK = new DrawingStartsFromExistingHalfFreePointDrawTrackState();
+	private final DrawingStartsFromOpenVertexState STATE_CONTINUE_TRACK = new DrawingStartsFromOpenVertexState();
 	/**
 	 * Single instance of one of the states.
 	 */
@@ -60,15 +61,6 @@ public class DrawTrackMode extends AbstractStateMachineEditMode {
 	 * The vertex that is updated according to the mouse movements.
 	 */
 	private VertexRecord boundVertex;
-	/**
-	 * The previously edited vertex - currently adjusted track is connected
-	 * to it on the opposite side.
-	 */
-	private VertexRecord previousBoundVertex;
-	/**
-	 * Type of the next drawn track.
-	 */
-	private int nextType = 0;
 	
 	@Override
 	public void modeEnabled(IEditModeAPI api) {
@@ -88,8 +80,6 @@ public class DrawTrackMode extends AbstractStateMachineEditMode {
 		this.currentUnit = null;
 		this.transformer = null;
 		this.boundVertex = null;
-		this.previousBoundVertex = null;
-		this.nextType = 0;
 		this.resetIgnoring();
 		this.resetRenderingStream();
 	}
@@ -108,16 +98,7 @@ public class DrawTrackMode extends AbstractStateMachineEditMode {
 		if(!this.hasUnitOfWork()) {
 			this.createUnitOfWork();
 		}
-		VertexRecord record = currentUnit.importVertex(project.getWorld(), vertex);
-		this.previousBoundVertex = record;
-		
-		Track track = vertex.getTrack();
-		if(null != track) {
-			this.nextType = (track.getType() == NetworkConst.TRACK_STRAIGHT ? 1 : 0);
-		} else {
-			this.nextType = 0;
-		}
-		
+		this.boundVertex = currentUnit.importVertex(project.getWorld(), vertex);		
 		return true;
 	}
 
@@ -172,36 +153,77 @@ public class DrawTrackMode extends AbstractStateMachineEditMode {
 	}
 	
 	class NewDrawingStartsDrawTrackState extends AbstractEditState {
+		private boolean started = false;
+		private double x;
+		private double y;
+		
+		@Override
+		public boolean captureMotionEvents() {
+			return this.started;
+		}
 		
 		@Override
 		public void leftActionPerformed(double worldX, double worldY, boolean altDown, boolean ctrlDown) {
 			if(!hasUnitOfWork()) {
-				logger.debug("leftAction: creating the unit of work.");
+				logger.debug("STATE_NEW_TRACK: creating the unit of work.");
 				createUnitOfWork();
 			}
-			logger.debug("leftAction: creating the bound vertex.");
-			VertexRecord vr = new VertexRecord();
-			vr.setPosition(worldX, worldY);
-			currentUnit.addVertex(vr);
-			previousBoundVertex = vr;
-			currentUnit.exportScene(sceneManager);
-			
-			setState(STATE_DRAWING);
+			this.x = worldX;
+			this.y = worldY;
+			this.started = true;
+		}
+		
+		@Override
+		public void mouseMoves(double worldX, double worldY, boolean altDown, boolean ctrlDown) {
+			try {
+				logger.debug("STATE_NEW_TRACK: creating the bound vertex.");
+				boundVertex = transformEngine.op(CreateNewTrack.class).create(this.x, this.y, worldX, worldY);
+				if(null == boundVertex) {
+					logger.debug("STATE_NEW_TRACK: not able to create.");
+					setState(STATE_CURSOR_FREE);
+					resetState();
+				} else {
+					setState(STATE_DRAWING);
+				}
+			} finally {
+				this.started = false;
+			}
 		}
 	}
 	
 	/**
 	 * Long, but self-descriptive. In this case OK.
 	 */
-	class DrawingStartsFromExistingHalfFreePointDrawTrackState extends AbstractEditState {
+	class DrawingStartsFromOpenVertexState extends AbstractEditState {
+		private boolean started = false;
+		
+		@Override
+		public boolean captureMotionEvents() {
+			return this.started;
+		}
+		
 		@Override
 		public void leftActionPerformed(double worldX, double worldY, boolean altDown, boolean ctrlDown) {
 			HoveredItemSnapshot snapshot = getHoveredItemSnapshot();
 			if(importFreeVertex(projectHolder.getCurrentProject(), snapshot.getId())) {
+				this.started = true;
 				currentUnit.exportScene(sceneManager);
-				setState(STATE_DRAWING);
 			} else {
 				setState(STATE_CURSOR_FREE);
+			}
+		}
+		
+		@Override
+		public void mouseMoves(double worldX, double worldY, boolean altDown, boolean ctrlDown) {
+			Preconditions.checkState(null != boundVertex);
+			try {
+				boundVertex = transformEngine.op(ExtendTrack.class).extend(boundVertex, worldX, worldY,
+						(altDown ? NetworkConst.MODE_ALT1 : NetworkConst.MODE_DEFAULT)
+					);
+				currentUnit.exportScene(sceneManager);
+				setState(STATE_DRAWING);
+			} finally {
+				this.started = false;
 			}
 		}
 	}
@@ -211,10 +233,12 @@ public class DrawTrackMode extends AbstractStateMachineEditMode {
 	 * movements etc.
 	 */
 	class DrawingInProgressDrawTrackState extends AbstractEditState {
+		private boolean started = false;
 		
 		@Override
 		public void leftActionPerformed(double worldX, double worldY, boolean altDown, boolean ctrlDown) {
 			if(null != boundVertex) {
+				/*
 				HoveredItemSnapshot snapshot = getHoveredItemSnapshot();
 				if(null != snapshot) {
 					if(snapshot.getType() == HoveredItemSnapshot.TYPE_TRACK) {
@@ -239,6 +263,10 @@ public class DrawTrackMode extends AbstractStateMachineEditMode {
 				boundVertex = null;
 				nextType = (nextType == 0 ? 1 : 0);
 
+*				*/
+				logger.debug("STATE_DRAWING: finalizing the position of previous track.");
+				transformEngine.op(MoveVertex.class).move(boundVertex, worldX, worldY, (ctrlDown ? NetworkConst.MODE_ALT1 : NetworkConst.MODE_DEFAULT));
+				this.started = true; // Inform that by the next move, we start a new track.
 				currentUnit.exportScene(sceneManager);
 			}
 		}
@@ -250,27 +278,17 @@ public class DrawTrackMode extends AbstractStateMachineEditMode {
 		
 		@Override
 		public void mouseMoves(double worldX, double worldY, boolean altDown, boolean ctrlDown) {
-			if(null == boundVertex) {
-				boundVertex = new VertexRecord();
-				if(nextType == 0) {
-					transformer.createStraightTrack(previousBoundVertex, boundVertex);
-				} else {
-					transformer.createCurvedTrack(previousBoundVertex, boundVertex);
-				}
-				addForIgnoring(boundVertex.getTrack(), boundVertex);
-			} else {
-				TrackRecord tr = boundVertex.getTrackTo(previousBoundVertex);
-				if(nextType == 0) {
-					transformer.updateStraightTrack(
-						tr,
-						boundVertex,
-						worldX,
-						worldY,
-						(ctrlDown ? Transformations.STR_MODE_FREE : Transformations.STR_MODE_LENGHTEN)
+			Preconditions.checkState(null != boundVertex);
+			if(this.started) {
+				logger.debug("STATE_DRAWING: extending the track.");
+				this.started = false;
+				boundVertex = transformEngine.op(ExtendTrack.class).extend(boundVertex, worldX, worldY,
+						(altDown ? NetworkConst.MODE_ALT1 : NetworkConst.MODE_DEFAULT)
 					);
-				} else {
-					transformer.updateCurvedTrack(tr, boundVertex, worldX, worldY);
-				}
+			} else {
+				transformEngine.op(MoveVertex.class).move(boundVertex, worldX, worldY,
+					(ctrlDown ? NetworkConst.MODE_ALT1 : NetworkConst.MODE_DEFAULT)
+				);
 			}
 			currentUnit.exportScene(sceneManager);
 		}
@@ -278,16 +296,15 @@ public class DrawTrackMode extends AbstractStateMachineEditMode {
 		@Override
 		public void rightActionPerformed(double worldX, double worldY, boolean altDown, boolean ctrlDown) {
 			try {
-				logger.debug("rightAction: finishing the construction and saving the data to the world model.");
-				if(null != boundVertex) {
-					TrackRecord tr = boundVertex.getTrackTo(previousBoundVertex);
-					if(null != tr) {
-						currentUnit.removeTrack(tr);
-					}
-					applyChanges();
+				logger.debug("STATE_DRAWING: finishing the construction and saving the data to the world model.");
+				if(this.started) {
+					this.started = false;
+				} else {
+					currentUnit.removeTrack(boundVertex.getTrack());
 				}
-				setState(STATE_CURSOR_FREE);
+				applyChanges();
 			} finally {
+				setState(STATE_CURSOR_FREE);
 				resetState();
 			}
 		}

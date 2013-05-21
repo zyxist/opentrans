@@ -30,6 +30,7 @@ import org.invenzzia.opentrans.visitons.network.TrackRecord;
 import org.invenzzia.opentrans.visitons.network.VertexRecord;
 import org.invenzzia.opentrans.visitons.network.WorldRecord;
 import org.invenzzia.opentrans.visitons.network.transform.ops.AbstractOperation;
+import org.invenzzia.opentrans.visitons.network.transform.ops.IOperation;
 import org.invenzzia.opentrans.visitons.render.SceneManager;
 import org.invenzzia.opentrans.visitons.render.scene.DebugPointSnapshot;
 
@@ -67,7 +68,7 @@ public class TransformEngine {
 	/**
 	 * Map of all the possible operations.
 	 */
-	private Map<Class<? extends AbstractOperation>, AbstractOperation> operations;
+	private Map<Class<? extends IOperation>, IOperation> operations;
 	
 	@Inject
 	public TransformEngine(@ActualImporter IRecordImporter recordImporter) {
@@ -81,7 +82,7 @@ public class TransformEngine {
 	 * 
 	 * @param operation 
 	 */
-	public void addOperation(AbstractOperation operation) {
+	public void addOperation(IOperation operation) {
 		Preconditions.checkNotNull(operation);
 		this.operations.put(operation.getClass(), operation);
 		operation.setTransformAPI(this.api);
@@ -96,7 +97,16 @@ public class TransformEngine {
 		this.unitOfWork = unitOfWork;
 	}
 	
-	public <T extends AbstractOperation> T op(Class<T> opType) {
+	/**
+	 * Injects the current record of the world.
+	 * 
+	 * @param world 
+	 */
+	public void setWorld(WorldRecord world) {
+		this.world = Preconditions.checkNotNull(world);
+	}
+	
+	public <T extends IOperation> T op(Class<T> opType) {
 		T operation = (T) this.operations.get(opType);
 		if(null == operation) {
 			throw new IllegalArgumentException("No such operation: "+opType.getSimpleName());
@@ -262,12 +272,14 @@ public class TransformEngine {
 
 		@Override
 		public void curveFollowsPoint(TrackRecord curvedTrack, VertexRecord boundVertex) {
+			Preconditions.checkState(boundVertex.hasOneTrack());
 			VertexRecord v2 = curvedTrack.getOppositeVertex(boundVertex);
+			Preconditions.checkState(v2.hasAllTracks());
 			
 			double buf[] = new double[3];
-			this.prepareCurveFreeMovement(boundVertex, v2.x(), v2.y(), 0, buf);
-			v2.setTangent(buf[2]);
-			this.findCurveDirection(curvedTrack, boundVertex, v2, buf[0], buf[1]);
+			this.prepareCurveFreeMovement(v2, boundVertex.x(), boundVertex.y(), 0, buf);
+			boundVertex.setTangent(buf[2]);
+			this.findCurveDirection(curvedTrack, v2, boundVertex, buf[0], buf[1]);
 		}
 
 		@Override
@@ -390,10 +402,9 @@ public class TransformEngine {
 		 * the curve we are currently drawing. In this case, we must apply a bit different transformation to search
 		 * the curve centre point.
 		 * 
-		 * @param x1 First point
-		 * @param y1 First point
-		 * @param x2 Second point, that is free.
-		 * @param y2 Second point, that is free.
+		 * @param v1 Stationary vertex, connected somewhere.
+		 * @param x2 Second point, that is open.
+		 * @param y2 Second point, that is open.
 		 * @param to
 		 * @param buf 
 		 */

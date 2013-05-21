@@ -32,6 +32,7 @@ import org.invenzzia.opentrans.visitons.network.VertexRecord;
 import org.invenzzia.opentrans.visitons.network.World;
 import org.invenzzia.opentrans.visitons.network.transform.IRecordImporter;
 import org.invenzzia.opentrans.visitons.network.transform.NetworkUnitOfWork;
+import org.invenzzia.opentrans.visitons.network.transform.TransformEngine;
 import org.invenzzia.opentrans.visitons.network.transform.Transformations;
 import org.invenzzia.opentrans.visitons.render.CameraModel;
 import org.invenzzia.opentrans.visitons.render.SceneManager;
@@ -57,6 +58,8 @@ public abstract class AbstractTrackModeAPI {
 	@Inject
 	protected CameraModel cameraModel;
 	@Inject
+	protected TransformEngine transformEngine;
+	@Inject
 	@ActualImporter
 	protected IRecordImporter recordImporter;	
 	/**
@@ -78,6 +81,8 @@ public abstract class AbstractTrackModeAPI {
 	protected void createUnitOfWork() {
 		this.currentUnit = this.unitOfWorkProvider.get();
 		this.transformer = new Transformations(this.currentUnit, this.recordImporter, this.api.getWorldRecord(), this.sceneManager);
+		this.transformEngine.setUnitOfWork(this.currentUnit);
+		this.transformEngine.setWorld(this.api.getWorldRecord());
 	}
 	
 	/**
@@ -95,6 +100,7 @@ public abstract class AbstractTrackModeAPI {
 	protected void resetUnitOfWork() {
 		this.currentUnit = null;
 		this.transformer = null;
+		this.transformEngine.setUnitOfWork(null);
 	}
 	
 	/**

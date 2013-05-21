@@ -84,7 +84,7 @@ public interface ITransformAPI {
 	 * from the previous track to this point.
 	 * 
 	 * @param curvedTrack
-	 * @param boundVertex 
+	 * @param boundVertex The point that updated its position.
 	 */
 	public void curveFollowsPoint(TrackRecord curvedTrack, VertexRecord boundVertex);
 	/**

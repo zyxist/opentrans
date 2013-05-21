@@ -19,6 +19,7 @@ package org.invenzzia.opentrans.visitons;
 
 import com.google.inject.Binder;
 import com.google.inject.multibindings.Multibinder;
+import org.invenzzia.opentrans.visitons.network.transform.ops.IOperation;
 import org.invenzzia.opentrans.visitons.render.ISceneManagerListener;
 
 /**
@@ -34,6 +35,19 @@ public class VisitonsExtensions {
 		Multibinder<ISceneManagerListener> lst = Multibinder.newSetBinder(binder, ISceneManagerListener.class);
 		for(Class<? extends ISceneManagerListener> listenerClass: listeners) {
 			lst.addBinding().to(listenerClass);
+		}
+	}
+	
+	/**
+	 * Binds new operation implementations to the transformation engine.
+	 * 
+	 * @param binder
+	 * @param operations 
+	 */
+	public static void bindTransformOperations(Binder binder, Class<? extends IOperation> ... operations) {
+		Multibinder<IOperation> opBinder = Multibinder.newSetBinder(binder, IOperation.class);
+		for(Class<? extends IOperation> op: operations) {
+			opBinder.addBinding().to(op);
 		}
 	}
 }

@@ -23,8 +23,13 @@ import org.invenzzia.opentrans.visitons.bindings.DefaultImporter;
 import org.invenzzia.opentrans.visitons.network.transform.DefaultRecordImporter;
 import org.invenzzia.opentrans.visitons.network.transform.IRecordImporter;
 import org.invenzzia.opentrans.visitons.network.transform.NetworkUnitOfWork;
+import org.invenzzia.opentrans.visitons.network.transform.TransformEngine;
+import org.invenzzia.opentrans.visitons.network.transform.ops.CreateNewTrack;
+import org.invenzzia.opentrans.visitons.network.transform.ops.ExtendTrack;
+import org.invenzzia.opentrans.visitons.network.transform.ops.MoveVertex;
 import org.invenzzia.opentrans.visitons.provider.CameraModelProvider;
 import org.invenzzia.opentrans.visitons.provider.SceneManagerProvider;
+import org.invenzzia.opentrans.visitons.provider.TransformEngineProvider;
 import org.invenzzia.opentrans.visitons.render.CameraModel;
 import org.invenzzia.opentrans.visitons.render.HoverCollector;
 import org.invenzzia.opentrans.visitons.render.Renderer;
@@ -54,6 +59,13 @@ public class VisitonsModule extends AbstractModule {
 		this.bind(TrackStream.class).in(Singleton.class);
 		this.bind(DebugPointStream.class).in(Singleton.class);
 		this.bind(NetworkUnitOfWork.class);
+		this.bind(TransformEngine.class).toProvider(TransformEngineProvider.class);
+		
+		VisitonsExtensions.bindTransformOperations(this.binder(),
+			CreateNewTrack.class,
+			ExtendTrack.class,
+			MoveVertex.class
+		);
 		
 		this.bind(IRecordImporter.class).annotatedWith(DefaultImporter.class).to(DefaultRecordImporter.class).in(Singleton.class);
 

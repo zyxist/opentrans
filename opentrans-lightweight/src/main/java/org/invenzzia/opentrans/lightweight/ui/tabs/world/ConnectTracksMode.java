@@ -22,6 +22,7 @@ import org.invenzzia.opentrans.lightweight.annotations.InModelThread;
 import org.invenzzia.opentrans.visitons.Project;
 import org.invenzzia.opentrans.visitons.network.Vertex;
 import org.invenzzia.opentrans.visitons.network.VertexRecord;
+import org.invenzzia.opentrans.visitons.network.transform.ops.BindVertices;
 import org.invenzzia.opentrans.visitons.render.scene.EditableTrackSnapshot;
 import org.invenzzia.opentrans.visitons.render.scene.HoveredItemSnapshot;
 import org.slf4j.Logger;
@@ -96,7 +97,7 @@ public class ConnectTracksMode extends AbstractEditMode {
 					this.currentUnit.exportScene(this.sceneManager);
 				} else {
 					this.secondVertex = this.importFreeVertex(this.getProject(), snapshot.getId());
-					this.transformer.connectTwoVertices(this.firstVertex, this.secondVertex);
+					this.transformEngine.op(BindVertices.class).bind(this.firstVertex, this.secondVertex);
 					this.applyChanges();
 					this.resetState();
 				}

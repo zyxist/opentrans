@@ -45,8 +45,24 @@ public class Conditions {
 		return new SingleTrackCondition(condition);
 	}
 	
+	/**
+	 * Extracts the track from the first vertex, which has only one track connected.
+	 * 
+	 * @param condition Condition to evaluate.
+	 * @return Condition.
+	 */
 	public static FirstVertexTrackCondition fstVertexTrack(ICondition<TrackRecord> condition) {
 		return new FirstVertexTrackCondition(condition);
+	}
+	
+	/**
+	 * Extracts the track from the second vertex, which has only one track connected.
+	 * 
+	 * @param condition Condition to evaluate.
+	 * @return Condition.
+	 */
+	public static SecondVertexTrackCondition secVertexTrack(ICondition<TrackRecord> condition) {
+		return new SecondVertexTrackCondition(condition);
 	}
 
 	public static TrackTypeCondition withType(byte trackType) {
@@ -69,11 +85,23 @@ public class Conditions {
 		return new SingleVertexCondition(condition);
 	}
 	
+	public static BothVertexCondition bothVertices(ICondition<VertexRecord> condition) {
+		return new BothVertexCondition(condition);
+	}
+	
 	public static VertexWithAllTracksCondition hasAllTracks() {
 		return new VertexWithAllTracksCondition();
 	}
 	
+	public static VertexWithAllTracksCondition haveAllTracks() {
+		return new VertexWithAllTracksCondition();
+	}
+	
 	public static VertexWithOneTrackCondition hasOneTrack() {
+		return new VertexWithOneTrackCondition();
+	}
+	
+	public static VertexWithOneTrackCondition haveOneTrack() {
 		return new VertexWithOneTrackCondition();
 	}
 }

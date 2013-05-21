@@ -18,24 +18,23 @@
 package org.invenzzia.opentrans.visitons.network.transform.conditions;
 
 import com.google.common.base.Preconditions;
-import org.invenzzia.opentrans.visitons.network.TrackRecord;
+import org.invenzzia.opentrans.visitons.network.VertexRecord;
 import org.invenzzia.opentrans.visitons.network.transform.TransformInput;
 
 /**
- * Extracts the track from the vertex <tt>v1</tt> and evaluates another condition
- * on it.
+ * Evaluates a vertex condition on both vertices in the transform input.
  * 
  * @author Tomasz Jędrzejewski
  */
-public class FirstVertexTrackCondition implements ICondition<TransformInput> {
-	private ICondition<TrackRecord> condition;
+public class BothVertexCondition implements ICondition<TransformInput> {
+	private final ICondition<VertexRecord> condition;
 	
-	public FirstVertexTrackCondition(ICondition<TrackRecord> condition) {
+	public BothVertexCondition(ICondition<VertexRecord> condition) {
 		this.condition = Preconditions.checkNotNull(condition);
 	}
 
 	@Override
 	public boolean matches(TransformInput input) {
-		return this.condition.matches(input.v1.getTrack());
+		return this.condition.matches(input.v1) && this.condition.matches(input.v2);
 	}
 }

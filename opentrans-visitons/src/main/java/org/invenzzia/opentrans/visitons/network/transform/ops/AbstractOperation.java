@@ -71,6 +71,7 @@ public abstract class AbstractOperation implements IOperation {
 	 * @return True, if the operation has been performed.
 	 */
 	protected final boolean evaluateCases(TransformInput input) {
+		this.importData(input, this.api);
 		if(null != this.initialCondition) {
 			if(!this.initialCondition.matches(input)) {
 				return false;
@@ -82,6 +83,16 @@ public abstract class AbstractOperation implements IOperation {
 			}
 		}
 		return false;
+	}
+	
+	/**
+	 * The programmer may overwrite this method to provide custom data importer.
+	 * The method is called before performing any checks.
+	 * 
+	 * @param input The input to the operation.
+	 * @param api The transformation API
+	 */
+	protected void importData(TransformInput input, ITransformAPI api) {
 	}
 	
 	/**

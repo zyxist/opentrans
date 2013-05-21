@@ -22,20 +22,21 @@ import org.invenzzia.opentrans.visitons.network.TrackRecord;
 import org.invenzzia.opentrans.visitons.network.transform.TransformInput;
 
 /**
- * Extracts the track from the vertex <tt>v1</tt> and evaluates another condition
+ * Extracts the track from the vertex <tt>v2</tt> and evaluates another condition
  * on it.
  * 
  * @author Tomasz Jędrzejewski
  */
-public class FirstVertexTrackCondition implements ICondition<TransformInput> {
+public class SecondVertexTrackCondition implements ICondition<TransformInput> {
 	private ICondition<TrackRecord> condition;
 	
-	public FirstVertexTrackCondition(ICondition<TrackRecord> condition) {
+	public SecondVertexTrackCondition(ICondition<TrackRecord> condition) {
 		this.condition = Preconditions.checkNotNull(condition);
 	}
 
 	@Override
 	public boolean matches(TransformInput input) {
-		return this.condition.matches(input.v1.getTrack());
+		return this.condition.matches(input.v2.getTrack());
 	}
+
 }

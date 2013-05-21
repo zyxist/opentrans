@@ -164,6 +164,15 @@ public class TrackRecord {
 	}
 	
 	/**
+	 * Returns true, if one of the vertices has <tt>hasOneTrack() == true</tt>.
+	 * 
+	 * @return 
+	 */
+	public boolean isOpen() {
+		return (this.v1.hasOneTrack() || this.v2.hasOneTrack());
+	}
+	
+	/**
 	 * This method is valid only for the open tracks, where one of the vertices has
 	 * exactly 1 track connected. It returns the previous track.
 	 * 

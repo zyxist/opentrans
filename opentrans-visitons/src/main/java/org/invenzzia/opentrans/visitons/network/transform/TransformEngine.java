@@ -282,8 +282,11 @@ public class TransformEngine {
 			this.findCurveDirection(curvedTrack, v2, boundVertex, buf[0], buf[1]);
 		}
 
+		// hint: v1 - stationary
+		// v3 - can be adjusted
 		@Override
 		public boolean matchStraightTrackAndCurve(TrackRecord curvedTrack, TrackRecord straightTrack, VertexRecord v1, VertexRecord v3) {
+			Preconditions.checkArgument(straightTrack.hasVertex(v3) && curvedTrack.hasVertex(v3) && curvedTrack.hasVertex(v1), "Conditions not satisfied.");
 			VertexRecord v4 = straightTrack.getOppositeVertex(v3);
 
 			double buf[] = new double[12];

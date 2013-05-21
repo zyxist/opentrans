@@ -23,11 +23,14 @@ import org.invenzzia.helium.exception.CommandExecutionException;
 import org.invenzzia.opentrans.lightweight.annotations.InModelThread;
 import org.invenzzia.opentrans.visitons.Project;
 import org.invenzzia.opentrans.visitons.network.NetworkConst;
+import org.invenzzia.opentrans.visitons.network.TrackRecord;
 import org.invenzzia.opentrans.visitons.network.Vertex;
 import org.invenzzia.opentrans.visitons.network.VertexRecord;
+import org.invenzzia.opentrans.visitons.network.World;
 import org.invenzzia.opentrans.visitons.network.transform.ops.CreateNewTrack;
 import org.invenzzia.opentrans.visitons.network.transform.ops.ExtendTrack;
 import org.invenzzia.opentrans.visitons.network.transform.ops.MoveVertex;
+import org.invenzzia.opentrans.visitons.network.transform.ops.SnapTrackToTrack;
 import org.invenzzia.opentrans.visitons.render.scene.HoveredItemSnapshot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -100,6 +103,20 @@ public class DrawTrackMode extends AbstractStateMachineEditMode {
 		}
 		this.boundVertex = currentUnit.importVertex(project.getWorld(), vertex);		
 		return true;
+	}
+	
+	@InModelThread(asynchronous = false)
+	public VertexRecord importSingleVertex(final World world, long vertexId) {
+		Vertex vertex = world.findVertex(vertexId);
+		if(vertex.hasAllTracks()) {
+			return null;
+		}
+		if(!this.hasUnitOfWork()) {
+			this.createUnitOfWork();
+		}
+		VertexRecord vr = currentUnit.importVertex(world, vertex);
+		currentUnit.importTrack(world, vertex.getTrack());
+		return vr;
 	}
 
 	@Override
@@ -183,6 +200,7 @@ public class DrawTrackMode extends AbstractStateMachineEditMode {
 					setState(STATE_CURSOR_FREE);
 					resetState();
 				} else {
+					addForIgnoring(boundVertex.getTrack(), boundVertex);
 					setState(STATE_DRAWING);
 				}
 			} finally {
@@ -220,6 +238,7 @@ public class DrawTrackMode extends AbstractStateMachineEditMode {
 				boundVertex = transformEngine.op(ExtendTrack.class).extend(boundVertex, worldX, worldY,
 						(altDown ? NetworkConst.MODE_ALT1 : NetworkConst.MODE_DEFAULT)
 					);
+				addForIgnoring(boundVertex.getTrack(), boundVertex);
 				currentUnit.exportScene(sceneManager);
 				setState(STATE_DRAWING);
 			} finally {
@@ -238,32 +257,29 @@ public class DrawTrackMode extends AbstractStateMachineEditMode {
 		@Override
 		public void leftActionPerformed(double worldX, double worldY, boolean altDown, boolean ctrlDown) {
 			if(null != boundVertex) {
-				/*
 				HoveredItemSnapshot snapshot = getHoveredItemSnapshot();
 				if(null != snapshot) {
+					TrackRecord importedTrack = null;
 					if(snapshot.getType() == HoveredItemSnapshot.TYPE_TRACK) {
-						// Check if we can snap to this track.
-						TrackRecord importedTrack = currentUnit.importTrack(getWorld(), snapshot.getId());
-						byte snapping = transformer.isSnappingToTrackPossible(boundVertex, importedTrack);
-						if(snapping == NetworkConst.SNAP_ADJUST) {
-							transformer.snapToAdjustingTrack(boundVertex, importedTrack);
+						importedTrack = currentUnit.importTrack(getWorld(), snapshot.getId());
+					} else if(snapshot.getType() == HoveredItemSnapshot.TYPE_VERTEX) {
+						VertexRecord vr = importSingleVertex(getWorld(), snapshot.getId());
+						importedTrack = (vr != null ? vr.getTrack() : null);
+					}
+					if(null != importedTrack && importedTrack.isOpen()) {
+						logger.debug("STATE_DRAWING: snap to another track.");
+						try {
+							transformEngine.op(SnapTrackToTrack.class).snap(boundVertex, importedTrack);
 							applyChanges();
+						} catch(Throwable thr) {
+							logger.error("Exception occurred while snapping the tracks.", thr);
+						} finally {
 							resetState();
 							setState(STATE_CURSOR_FREE);
 							return;
 						}
-
-					} else if(snapshot.getType() == HoveredItemSnapshot.TYPE_VERTEX) {
-						// Check if snapping to this vertex is possible.
 					}
 				}
-				logger.debug("leftAction: advancing the bound vertex.");
-				currentUnit.addVertex(boundVertex);
-				previousBoundVertex = boundVertex;
-				boundVertex = null;
-				nextType = (nextType == 0 ? 1 : 0);
-
-*				*/
 				logger.debug("STATE_DRAWING: finalizing the position of previous track.");
 				transformEngine.op(MoveVertex.class).move(boundVertex, worldX, worldY, (ctrlDown ? NetworkConst.MODE_ALT1 : NetworkConst.MODE_DEFAULT));
 				this.started = true; // Inform that by the next move, we start a new track.
@@ -285,6 +301,7 @@ public class DrawTrackMode extends AbstractStateMachineEditMode {
 				boundVertex = transformEngine.op(ExtendTrack.class).extend(boundVertex, worldX, worldY,
 						(altDown ? NetworkConst.MODE_ALT1 : NetworkConst.MODE_DEFAULT)
 					);
+				addForIgnoring(boundVertex.getTrack(), boundVertex);
 			} else {
 				transformEngine.op(MoveVertex.class).move(boundVertex, worldX, worldY,
 					(ctrlDown ? NetworkConst.MODE_ALT1 : NetworkConst.MODE_DEFAULT)

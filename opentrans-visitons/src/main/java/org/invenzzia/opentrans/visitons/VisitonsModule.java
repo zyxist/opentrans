@@ -27,6 +27,7 @@ import org.invenzzia.opentrans.visitons.network.transform.TransformEngine;
 import org.invenzzia.opentrans.visitons.network.transform.ops.CreateNewTrack;
 import org.invenzzia.opentrans.visitons.network.transform.ops.ExtendTrack;
 import org.invenzzia.opentrans.visitons.network.transform.ops.MoveVertex;
+import org.invenzzia.opentrans.visitons.network.transform.ops.SnapTrackToTrack;
 import org.invenzzia.opentrans.visitons.provider.CameraModelProvider;
 import org.invenzzia.opentrans.visitons.provider.SceneManagerProvider;
 import org.invenzzia.opentrans.visitons.provider.TransformEngineProvider;
@@ -64,7 +65,8 @@ public class VisitonsModule extends AbstractModule {
 		VisitonsExtensions.bindTransformOperations(this.binder(),
 			CreateNewTrack.class,
 			ExtendTrack.class,
-			MoveVertex.class
+			MoveVertex.class,
+			SnapTrackToTrack.class
 		);
 		
 		this.bind(IRecordImporter.class).annotatedWith(DefaultImporter.class).to(DefaultRecordImporter.class).in(Singleton.class);

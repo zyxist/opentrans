@@ -251,6 +251,36 @@ public class NetworkUnitOfWork {
 
 		return record;
 	}
+	
+	/**
+	 * Imports the track from the domain model. The method may be called only
+	 * in the model thread. If the record with the given ID is alread in the unit of work, no
+	 * import happens - the method simply returns the existing record then.
+	 * 
+	 * @param world
+	 * @param track The track to import
+	 * @return Imported or existing track record.
+	 */
+	public TrackRecord importTrack(World world, Track track) {
+		TrackRecord record = this.tracks.get(Long.valueOf(track.getId()));
+		if(null != record) {
+			return record;
+		}
+		VertexRecord v1, v2;
+		record = new TrackRecord(track);
+		this.tracks.put(track.getId(), record);
+		record.setVertices(
+			v1 = this.importVertex(world, track.getFirstVertex()),
+			v2 = this.importVertex(world, track.getSecondVertex())
+		);
+		
+		// Both of the vertices might have been imported earlier. We must update their references to the
+		// actual links.
+		v1.replaceReferenceWithRecord(record);
+		v2.replaceReferenceWithRecord(record);
+
+		return record;
+	}
 
 	/**
 	 * We can remove a previously added track from the unit of work. The method
@@ -327,6 +357,7 @@ public class NetworkUnitOfWork {
 		if(freeVertex.isPersisted()) {
 			this.removedVertices.add(freeVertex);
 		}
+		this.vertices.remove(freeVertex.getId());
 		if(mainVertex.getId() == IIdentifiable.NEUTRAL_ID) {
 			this.addVertex(mainVertex);
 		}

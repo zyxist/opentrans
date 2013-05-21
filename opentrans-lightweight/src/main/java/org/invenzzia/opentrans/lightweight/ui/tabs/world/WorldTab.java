@@ -104,6 +104,9 @@ public class WorldTab extends JPanel {
 		this.modeButtons[0].setIcon(iconService.getIcon("edit-select"));
 		this.modeButtons[1].setIcon(iconService.getIcon("draw-freehand"));
 		this.modeButtons[2].setIcon(iconService.getIcon("connect-tracks"));
+		this.modeButtons[3].setIcon(iconService.getIcon("convert-to-straight"));
+		this.modeButtons[4].setIcon(iconService.getIcon("convert-to-curve"));
+		this.modeButtons[5].setIcon(iconService.getIcon("convert-to-free"));
 	}
 	
 	/**
@@ -149,13 +152,19 @@ public class WorldTab extends JPanel {
 	}
 	
 	private void createModeButtons() {
-		this.modeButtons = new JToggleButton[3];
+		this.modeButtons = new JToggleButton[6];
 		this.modeButtons[0] = new JToggleButton();
 		this.modeButtons[0].setToolTipText("Select vertices and tracks");
 		this.modeButtons[1] = new JToggleButton();
 		this.modeButtons[1].setToolTipText("Draw new tracks");
 		this.modeButtons[2] = new JToggleButton();
 		this.modeButtons[2].setToolTipText("Connect two existing tracks.");
+		this.modeButtons[3] = new JToggleButton();
+		this.modeButtons[3].setToolTipText("Convert to straight track.");
+		this.modeButtons[4] = new JToggleButton();
+		this.modeButtons[4].setToolTipText("Convert to curved track.");
+		this.modeButtons[5] = new JToggleButton();
+		this.modeButtons[5].setToolTipText("Convert to free track.");
 		for(int i = 0; i < this.modeButtons.length; i++) {
 			this.createToggleButtonAction(this.modeButtons[i], i);
 			this.modeButtons[i].setSize(35, 35);

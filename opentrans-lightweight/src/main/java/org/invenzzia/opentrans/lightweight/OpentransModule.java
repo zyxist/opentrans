@@ -48,7 +48,10 @@ import org.invenzzia.opentrans.lightweight.ui.tabs.infrastructure.Infrastructure
 import org.invenzzia.opentrans.lightweight.ui.tabs.vehicles.VehicleEditorController;
 import org.invenzzia.opentrans.lightweight.ui.tabs.vehicles.VehicleTabController;
 import org.invenzzia.opentrans.lightweight.ui.tabs.vehicles.VehicleTabFactory;
+import org.invenzzia.opentrans.lightweight.ui.tabs.world.ConvertToStraightMode;
 import org.invenzzia.opentrans.lightweight.ui.tabs.world.ConnectTracksMode;
+import org.invenzzia.opentrans.lightweight.ui.tabs.world.ConvertToCurveMode;
+import org.invenzzia.opentrans.lightweight.ui.tabs.world.ConvertToFreeMode;
 import org.invenzzia.opentrans.lightweight.ui.tabs.world.DrawTrackMode;
 import org.invenzzia.opentrans.lightweight.ui.tabs.world.SelectionMode;
 import org.invenzzia.opentrans.lightweight.ui.toolbars.ToolbarManager;
@@ -140,7 +143,10 @@ public class OpentransModule extends AbstractModule {
 		OpentransExtensions.bindEditModes(this.binder(),
 			SelectionMode.class,
 			DrawTrackMode.class,
-			ConnectTracksMode.class
+			ConnectTracksMode.class,
+			ConvertToStraightMode.class,
+			ConvertToCurveMode.class,
+			ConvertToFreeMode.class
 		);
 
 		// Bind visitons items

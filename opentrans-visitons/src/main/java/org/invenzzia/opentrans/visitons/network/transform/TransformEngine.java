@@ -71,9 +71,10 @@ public class TransformEngine {
 	private Map<Class<? extends IOperation>, IOperation> operations;
 	
 	@Inject
-	public TransformEngine(@ActualImporter IRecordImporter recordImporter) {
+	public TransformEngine(@ActualImporter IRecordImporter recordImporter, SceneManager sceneManager) {
 		this.recordImporter = Preconditions.checkNotNull(recordImporter);
 		this.operations = new LinkedHashMap<>();
+		this.sceneManager = sceneManager;
 		this.api = new TransformAPI();
 	}
 	
@@ -176,12 +177,10 @@ public class TransformEngine {
 				LineOps.toOrthogonal(3, 9, buf, v2.x(), v2.y());
 
 				LineOps.middlePoint(v1.x(), v1.y(), v2.x(), v2.y(), 13, buf); // I'm G: 13
-				LineOps.toParallel(0, 15, buf, buf[13], buf[14]);
-				LineOps.intersection(15, 6, 18, buf);
-				LineOps.intersection(15, 9, 20, buf);
-
-				this.prepareCurveMetadata(buf[13], buf[14], v1.x(), v1.y(), buf[18], buf[19], 0, metadata);
-				this.prepareCurveMetadata(buf[13], buf[14], v2.x(), v2.y(), buf[20], buf[21], 12, metadata);
+				this.prepareCurveFreeMovement(v1, buf[13], buf[14], 15, buf);
+				this.prepareCurveFreeMovement(v2, buf[13], buf[14], 17, buf);
+				this.prepareCurveMetadata(buf[13], buf[14], v1.x(), v1.y(), buf[15], buf[16], 0, metadata);
+				this.prepareCurveMetadata(buf[13], buf[14], v2.x(), v2.y(), buf[17], buf[18], 12, metadata);
 			} else {
 				double buf[] = new double[60];
 				// Find points E and F
@@ -403,7 +402,7 @@ public class TransformEngine {
 		/**
 		 * These calculations are used for drawing curve, where one of the vertices has only one track connected:
 		 * the curve we are currently drawing. In this case, we must apply a bit different transformation to search
-		 * the curve centre point.
+		 * the curve centre point. Exported data to the buffer are: centre X, centre Y, tangent in the second point.
 		 * 
 		 * @param v1 Stationary vertex, connected somewhere.
 		 * @param x2 Second point, that is open.

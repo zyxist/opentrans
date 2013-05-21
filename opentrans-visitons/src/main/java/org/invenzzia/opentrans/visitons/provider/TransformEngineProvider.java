@@ -24,6 +24,7 @@ import org.invenzzia.opentrans.visitons.bindings.ActualImporter;
 import org.invenzzia.opentrans.visitons.network.transform.IRecordImporter;
 import org.invenzzia.opentrans.visitons.network.transform.TransformEngine;
 import org.invenzzia.opentrans.visitons.network.transform.ops.IOperation;
+import org.invenzzia.opentrans.visitons.render.SceneManager;
 
 /**
  * Builds the transformation engine by installing the operations in it.
@@ -34,11 +35,13 @@ public class TransformEngineProvider implements Provider<TransformEngine> {
 	@Inject @ActualImporter
 	private IRecordImporter importer;
 	@Inject
+	private SceneManager sceneManager;
+	@Inject
 	private Set<IOperation> transformOperations;
 
 	@Override
 	public TransformEngine get() {
-		TransformEngine engine = new TransformEngine(this.importer);
+		TransformEngine engine = new TransformEngine(this.importer, this.sceneManager);
 		for(IOperation operation: this.transformOperations) {
 			engine.addOperation(operation);
 		}

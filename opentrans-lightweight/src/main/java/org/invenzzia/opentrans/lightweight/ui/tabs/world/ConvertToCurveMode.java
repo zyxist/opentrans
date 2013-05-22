@@ -18,6 +18,10 @@
 package org.invenzzia.opentrans.lightweight.ui.tabs.world;
 
 import org.invenzzia.helium.exception.CommandExecutionException;
+import org.invenzzia.opentrans.visitons.network.NetworkConst;
+import org.invenzzia.opentrans.visitons.network.TrackRecord;
+import org.invenzzia.opentrans.visitons.network.transform.ops.ConvertToCurvedTrack;
+import org.invenzzia.opentrans.visitons.render.scene.HoveredItemSnapshot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,16 +36,41 @@ public class ConvertToCurveMode extends AbstractEditMode {
 	@Override
 	public void modeEnabled(IEditModeAPI api) {
 		logger.debug("ConnectTracksMode enabled.");
-	
+		this.api = api;
+		this.api.setStatusMessage("Click on a free track between two straight tracks to convert it back to a curve.");
 	}
 
 	@Override
 	public void modeDisabled() {
+		this.resetState();
 		logger.debug("ConnectTracksMode disabled.");
 	}
 	
 	@Override
 	protected void handleCommandExecutionError(CommandExecutionException exception) {
 		logger.error("Exception occurred while saving the network unit of work.", exception);
+	}
+	
+	protected void resetState() {
+		this.resetRenderingStream();
+		this.resetUnitOfWork();
+	}
+	
+	@Override
+	public void leftActionPerformed(double worldX, double worldY, boolean altDown, boolean ctrlDown) {
+		HoveredItemSnapshot snapshot = sceneManager.getResource(HoveredItemSnapshot.class, HoveredItemSnapshot.class);
+		if(null != snapshot && snapshot.getType() == HoveredItemSnapshot.TYPE_TRACK) {
+			this.createUnitOfWork();
+			try {
+				TrackRecord tr = this.currentUnit.importTrack(this.getWorld(), snapshot.getId());
+
+				if(tr.getType() != NetworkConst.TRACK_CURVED) {
+					this.transformEngine.op(ConvertToCurvedTrack.class).convert(tr);
+					this.applyChanges();
+				}
+			} finally {
+				this.resetState();
+			}
+		}
 	}
 }

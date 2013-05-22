@@ -25,6 +25,7 @@ import org.invenzzia.opentrans.visitons.network.transform.IRecordImporter;
 import org.invenzzia.opentrans.visitons.network.transform.NetworkUnitOfWork;
 import org.invenzzia.opentrans.visitons.network.transform.TransformEngine;
 import org.invenzzia.opentrans.visitons.network.transform.ops.BindVertices;
+import org.invenzzia.opentrans.visitons.network.transform.ops.ConvertToCurvedTrack;
 import org.invenzzia.opentrans.visitons.network.transform.ops.ConvertToFreeTrack;
 import org.invenzzia.opentrans.visitons.network.transform.ops.ConvertToStraightTrack;
 import org.invenzzia.opentrans.visitons.network.transform.ops.CreateNewTrack;
@@ -72,6 +73,7 @@ public class VisitonsModule extends AbstractModule {
 			SnapTrackToTrack.class,
 			BindVertices.class,
 			ConvertToFreeTrack.class,
+			ConvertToCurvedTrack.class,
 			ConvertToStraightTrack.class
 		);
 		

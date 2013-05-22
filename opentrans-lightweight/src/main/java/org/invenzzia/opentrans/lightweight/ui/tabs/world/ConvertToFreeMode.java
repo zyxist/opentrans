@@ -66,7 +66,7 @@ public class ConvertToFreeMode extends AbstractEditMode {
 
 				if(tr.getType() != NetworkConst.TRACK_FREE) {
 					this.transformEngine.op(ConvertToFreeTrack.class).convert(tr);
-					this.applyChanges();
+					this.applyChanges("Convert track to free");
 				}
 			} finally {
 				this.resetState();

@@ -100,7 +100,7 @@ public class ConnectTracksMode extends AbstractEditMode {
 				} else {
 					this.secondVertex = this.importFreeVertex(this.getProject(), snapshot.getId());
 					this.transformEngine.op(BindVertices.class).bind(this.firstVertex, this.secondVertex);
-					this.applyChanges();
+					this.applyChanges("Connect two tracks");
 					this.resetState();
 				}
 			}

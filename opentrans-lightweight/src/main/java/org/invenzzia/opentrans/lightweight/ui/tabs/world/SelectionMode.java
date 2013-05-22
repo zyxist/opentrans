@@ -25,7 +25,6 @@ import org.invenzzia.opentrans.lightweight.annotations.InModelThread;
 import org.invenzzia.opentrans.visitons.network.NetworkConst;
 import org.invenzzia.opentrans.visitons.network.TrackRecord;
 import org.invenzzia.opentrans.visitons.network.VertexRecord;
-import org.invenzzia.opentrans.visitons.network.transform.Transformations;
 import org.invenzzia.opentrans.visitons.network.transform.ops.MoveVertex;
 import org.invenzzia.opentrans.visitons.render.scene.HoveredItemSnapshot;
 import org.slf4j.Logger;
@@ -155,7 +154,7 @@ public class SelectionMode extends AbstractEditMode {
 	@Override
 	public void mouseStopsDragging(double worldX, double worldY, boolean altDown, boolean ctrlDown) {
 		this.api.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-		this.applyChanges();
+		this.applyChanges("Move single vertex");
 		this.resetState();
 	}
 	
@@ -165,14 +164,14 @@ public class SelectionMode extends AbstractEditMode {
 			for(TrackRecord tr: this.selectedTracks) {
 				this.currentUnit.removeTrack(tr);
 			}
-			this.applyChanges();
+			this.applyChanges("Delete tracks");
 			this.resetState();
 		} else if(this.selectedVertices.size() > 0) {
 			this.recordImporter.importAllMissingNeighbors(this.currentUnit, this.selectedVertices);
 			for(VertexRecord vr: this.selectedVertices) {
 				this.currentUnit.removeVertex(vr);
 			}
-			this.applyChanges();
+			this.applyChanges("Delete vertices");
 			this.resetState();
 		}
 	}

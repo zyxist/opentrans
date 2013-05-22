@@ -23,6 +23,7 @@ import com.google.common.collect.HashBiMap;
 import com.google.common.eventbus.EventBus;
 import java.util.Iterator;
 import org.invenzzia.helium.data.interfaces.IIdentifiable;
+import org.invenzzia.helium.history.ICommandDetails;
 import org.invenzzia.opentrans.visitons.Project;
 import org.invenzzia.opentrans.visitons.editing.ICommand;
 import org.invenzzia.opentrans.visitons.events.WorldSegmentUsageChangedEvent;
@@ -40,22 +41,33 @@ import org.invenzzia.opentrans.visitons.network.transform.NetworkUnitOfWork;
  * 
  * @author Tomasz Jędrzejewski
  */
-public class NetworkLayoutChangeCmd implements ICommand {
+public class NetworkLayoutChangeCmd implements ICommand, ICommandDetails {
 	private final NetworkUnitOfWork uw;
 	
 	private final BiMap<Long, Long> trackMapping;
 	
 	private final BiMap<Long, Long> vertexMapping;
+	/**
+	 * This command has a customizable name, because it may represent lots of different
+	 * operations.
+	 */
+	private final String commandName;
 	
 	/**
 	 * Creates a new command that modifies the network track layout.
 	 * 
 	 * @param uw Unit of work that describes the changes to apply.
 	 */
-	public NetworkLayoutChangeCmd(NetworkUnitOfWork uw) {
+	public NetworkLayoutChangeCmd(NetworkUnitOfWork uw, String commandName) {
 		this.uw = Preconditions.checkNotNull(uw);
 		this.trackMapping = HashBiMap.create();
 		this.vertexMapping = HashBiMap.create();
+		this.commandName = commandName;
+	}
+
+	@Override
+	public String getCommandName() {
+		return this.commandName;
 	}
 
 	@Override

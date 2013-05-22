@@ -66,7 +66,7 @@ public class ConvertToCurveMode extends AbstractEditMode {
 
 				if(tr.getType() != NetworkConst.TRACK_CURVED) {
 					this.transformEngine.op(ConvertToCurvedTrack.class).convert(tr);
-					this.applyChanges();
+					this.applyChanges("Convert track to curved");
 				}
 			} finally {
 				this.resetState();

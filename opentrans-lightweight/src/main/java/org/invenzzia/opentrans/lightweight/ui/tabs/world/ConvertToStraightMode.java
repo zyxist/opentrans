@@ -67,7 +67,7 @@ public class ConvertToStraightMode extends AbstractEditMode {
 
 				if(tr.getType() != NetworkConst.TRACK_STRAIGHT) {
 					this.transformEngine.op(ConvertToStraightTrack.class).convert(tr);
-					this.applyChanges();
+					this.applyChanges("Convert track to straight");
 				}
 			} finally {
 				this.resetState();

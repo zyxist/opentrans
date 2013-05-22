@@ -174,11 +174,13 @@ public abstract class AbstractTrackModeAPI {
 	
 	/**
 	 * Creates a history command and executes it.
+	 * 
+	 * @param commandName The name of the command for the history panel.
 	 */
-	protected void applyChanges() {
+	protected void applyChanges(String commandName) {
 		if(!this.currentUnit.isEmpty()) {
 			try {
-				this.history.execute(new NetworkLayoutChangeCmd(this.currentUnit));
+				this.history.execute(new NetworkLayoutChangeCmd(this.currentUnit, commandName));
 				this.exportScene(this.getWorld());
 			} catch(CommandExecutionException exception) {
 				this.handleCommandExecutionError(exception);

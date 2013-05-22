@@ -278,7 +278,7 @@ public class DrawTrackMode extends AbstractStateMachineEditMode {
 						logger.debug("STATE_DRAWING: snap to another track.");
 						try {
 							transformEngine.op(SnapTrackToTrack.class).snap(boundVertex, importedTrack);
-							applyChanges();
+							applyChanges("Draw tracks");
 						} catch(Throwable thr) {
 							logger.error("Exception occurred while snapping the tracks.", thr);
 						} finally {
@@ -327,7 +327,7 @@ public class DrawTrackMode extends AbstractStateMachineEditMode {
 				} else {
 					currentUnit.removeTrack(boundVertex.getTrack());
 				}
-				applyChanges();
+				applyChanges("Draw tracks");
 			} finally {
 				setState(STATE_CURSOR_FREE);
 				resetState();

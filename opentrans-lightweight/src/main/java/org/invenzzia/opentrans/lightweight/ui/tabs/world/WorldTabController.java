@@ -44,6 +44,7 @@ import org.invenzzia.opentrans.lightweight.ui.component.ZoomField.IZoomListener;
 import org.invenzzia.opentrans.lightweight.ui.component.ZoomField.ZoomChangeEvent;
 import org.invenzzia.opentrans.lightweight.ui.netview.NetworkView;
 import org.invenzzia.opentrans.lightweight.ui.tabs.world.WorldTab.IWorldTabListener;
+import org.invenzzia.opentrans.visitons.events.WorldSegmentUsageChangedEvent;
 import org.invenzzia.opentrans.visitons.events.WorldSizeChangedEvent;
 import org.invenzzia.opentrans.visitons.network.World;
 import org.invenzzia.opentrans.visitons.network.WorldRecord;
@@ -178,6 +179,13 @@ public class WorldTabController implements AdjustmentListener, IZoomListener, IW
 		this.worldTab.getNetworkView().updateScrollbarPositions();
 		this.currentEditMode.modeDisabled();
 		this.currentEditMode.modeEnabled(this);
+	}
+	
+	@Subscribe
+	@InModelThread(asynchronous = true)
+	public void notifyAboutNetworkStructureChangeEvents(WorldSegmentUsageChangedEvent event) {
+		World world = this.worldProvider.get();
+		world.exportScene(this.sceneManager, this.cameraModel, false);
 	}
 	
 	@Subscribe

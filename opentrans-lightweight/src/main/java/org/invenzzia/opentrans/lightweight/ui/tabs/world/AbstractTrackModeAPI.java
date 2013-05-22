@@ -109,9 +109,9 @@ public abstract class AbstractTrackModeAPI {
 	 * 
 	 * @param world World to export.
 	 */
-	@InModelThread(asynchronous = true)
+//	@InModelThread(asynchronous = true)
 	public void exportScene(final World world) {
-		world.exportScene(this.sceneManager, this.cameraModel, false);
+	//	world.exportScene(this.sceneManager, this.cameraModel, false);
 	}
 	
 	/**

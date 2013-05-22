@@ -34,19 +34,38 @@ import org.invenzzia.opentrans.visitons.network.VertexRecord;
 import org.invenzzia.opentrans.visitons.network.World;
 import org.invenzzia.opentrans.visitons.network.WorldRecord;
 import org.invenzzia.opentrans.visitons.network.transform.NetworkUnitOfWork;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The command carries the {@link NetworkUnitOfWork} to the model thread
- * and then applies all the changes to the original network model.
+ * and then applies all the changes to the original network model. Restoring the
+ * previous state is done from a single memento object, which does not actually
+ * follow the concept of Memento design pattern. Tracks and vertices are too complicated
+ * just to create the third representation of them, so we'll make a small trick: create
+ * a reversed <tt>NetworkUnitOfWork</tt> It contains records of the same vertices and
+ * tracks, as the original one, but with the original state, and the newly added items
+ * are marked there as "removed". In this way, we can use exactly the same code to
+ * revert the state, as to apply the original changes.
  * 
  * @author Tomasz Jędrzejewski
  */
 public class NetworkLayoutChangeCmd implements ICommand, ICommandDetails {
+	private static final Logger logger = LoggerFactory.getLogger(NetworkLayoutChangeCmd.class);
+	
 	private final NetworkUnitOfWork uw;
-	
+	/**
+	 * Mapping of temporary ID-s to actual ID-s.
+	 */
 	private final BiMap<Long, Long> trackMapping;
-	
+	/**
+	 * Mapping of temporary ID-s to actual ID-s.
+	 */
 	private final BiMap<Long, Long> vertexMapping;
+	/**
+	 * Old state of our tracks and vertices. 
+	 */
+	private NetworkUnitOfWork memento;
 	/**
 	 * This command has a customizable name, because it may represent lots of different
 	 * operations.
@@ -71,53 +90,124 @@ public class NetworkLayoutChangeCmd implements ICommand, ICommandDetails {
 	}
 
 	@Override
-	public void execute(Project project, EventBus eventBus) throws Exception {
-		World dieWelt = project.getWorld(); // Deutschland ist ein schones Land :)
+	public void execute(Project project, EventBus eventBus) throws Exception {		
+		if(logger.isDebugEnabled()) {
+			logger.debug("Network layout change:");
+			logger.debug("Updates: "+this.uw.getTrackNum()+" tracks; "+this.uw.getVertexNum()+" vertices");
+			logger.debug("Deleted: "+this.uw.getRemovedTrackNum()+" tracks; "+this.uw.getRemovedVertexNum()+" vertices");
+		}
+		this.memento = this.buildMemento(project.getWorld(), this.uw);
+		this.applyUnit(project, eventBus, this.uw);
+		this.finishMemento(this.memento);
+	}
 
+	@Override
+	public void undo(Project project, EventBus eventBus) {
+		if(logger.isDebugEnabled()) {
+			logger.debug("Network layout undo change:");
+			logger.debug("Updates: "+this.memento.getTrackNum()+" tracks; "+this.memento.getVertexNum()+" vertices");
+			logger.debug("Deleted: "+this.memento.getRemovedTrackNum()+" tracks; "+this.memento.getRemovedVertexNum()+" vertices");
+		}
+		this.applyUnit(project, eventBus, this.memento);
+	}
+
+	@Override
+	public void redo(Project project, EventBus eventBus) {
+		if(logger.isDebugEnabled()) {
+			logger.debug("Network layout redo change:");
+			logger.debug("Updates: "+this.uw.getTrackNum()+" tracks; "+this.uw.getVertexNum()+" vertices");
+			logger.debug("Deleted: "+this.uw.getRemovedTrackNum()+" tracks; "+this.uw.getRemovedVertexNum()+" vertices");
+		}
+		this.applyUnit(project, eventBus, this.uw);
+	}
+
+	/**
+	 * Constructs the memento.
+	 * 
+	 * @param sourceUnit 
+	 */
+	private NetworkUnitOfWork buildMemento(World world, NetworkUnitOfWork sourceUnit) {
+		NetworkUnitOfWork memento = new NetworkUnitOfWork();
 		Iterator<VertexRecord> vri = this.uw.overVertices();
+		while(vri.hasNext()) {
+			VertexRecord vr = vri.next();
+			if(vr.isPersisted()) {
+				memento.importVertex(world, vr.getId());
+			}
+		}
+		for(Long removedVertexId: this.uw.getRemovedVertices()) {
+			memento.importVertex(world, removedVertexId);
+		}
+		Iterator<TrackRecord> tri = this.uw.overTracks();
+		while(tri.hasNext()) {
+			TrackRecord tr = tri.next();
+			if(tr.isPersisted()) {
+				memento.importTrack(world, tr.getId());
+			}
+		}
+		for(Long removedTrackId: this.uw.getRemovedTracks()) {
+			memento.importVertex(world, removedTrackId);
+		}
+		return memento;
+	}
+	
+	/**
+	 * Finish the memento: take the list of inserted ID-s and set them in memento as "removed".
+	 * 
+	 * @param memento The memento to finalize.
+	 */
+	private void finishMemento(NetworkUnitOfWork memento) {
+		for(Long id: this.vertexMapping.values()) {
+			memento.addRemovedVertexId(id);
+		}
+		for(Long id: this.trackMapping.values()) {
+			memento.addRemovedTrackId(id);
+		}
+	}
+	
+	/**
+	 * Applies the changes brought by the network unit of work. This method is used both
+	 * for executing the initial changes, undoing them and replaying again.
+	 * 
+	 * @param unit Original unit of work or memento.
+	 */
+	private void applyUnit(Project project, EventBus eventBus, NetworkUnitOfWork unit) {
+		World dieWelt = project.getWorld(); // Deutschland ist ein schones Land :)
+		Iterator<VertexRecord> vri = unit.overVertices();
 		while(vri.hasNext()) {
 			VertexRecord vr = vri.next();
 			this.importVertex(vr, project);
 		}
-		
-		Iterator<TrackRecord> tri = this.uw.overTracks();
+		Iterator<TrackRecord> tri = unit.overTracks();
 		while(tri.hasNext()) {
 			TrackRecord tr = tri.next();
 			this.importTrack(tr, project);
 		}
-		vri = this.uw.overVertices();
+		vri = unit.overVertices();
 		while(vri.hasNext()) {
 			VertexRecord vr = vri.next();
 			this.importVertexConnections(vr, dieWelt);
 		}
 		
-		tri = this.uw.overTracks();
+		tri = unit.overTracks();
 		while(tri.hasNext()) {
 			TrackRecord tr = tri.next();
 			this.importTrackConnections(tr, dieWelt);
 		}
 		
-		for(TrackRecord removedTrack: this.uw.getRemovedTracks()) {
-			Track t = dieWelt.findTrack(removedTrack.getId());
+		for(Long removedTrackId: unit.getRemovedTracks()) {
+			Track t = dieWelt.findTrack(removedTrackId);
 			if(null != t) {
 				dieWelt.removeTrack(t);
 			}
 		}
-		for(VertexRecord removedVertex: this.uw.getRemovedVertices()) {
-			Vertex v = dieWelt.findVertex(removedVertex.getId());
+		for(Long removedVertexId: unit.getRemovedVertices()) {
+			Vertex v = dieWelt.findVertex(removedVertexId);
 			if(null != v) {
 				dieWelt.removeVertex(v);
 			}
 		}
 		eventBus.post(new WorldSegmentUsageChangedEvent(new WorldRecord(dieWelt)));
-	}
-
-	@Override
-	public void undo(Project project, EventBus eventBus) {
-	}
-
-	@Override
-	public void redo(Project project, EventBus eventBus) {
 	}
 
 	/**
@@ -129,11 +219,17 @@ public class NetworkLayoutChangeCmd implements ICommand, ICommandDetails {
 	private void importVertex(VertexRecord vr, Project project) {
 		if(vr.getId() < IIdentifiable.NEUTRAL_ID) {
 			// New vertex
-			long tempId = vr.getId();
+			Long tempId = vr.getId();
 			Vertex vertex = new Vertex();
 			vertex.importFrom(vr, project.getWorld());
-			project.getWorld().addVertex(vertex);
-			this.vertexMapping.put(Long.valueOf(tempId), Long.valueOf(vertex.getId()));
+			
+			if(this.vertexMapping.containsKey(tempId)) {
+				vertex.setId(this.vertexMapping.get(tempId));
+				project.getWorld().addVertex(vertex);
+			} else {
+				project.getWorld().addVertex(vertex);
+				this.vertexMapping.put(tempId, Long.valueOf(vertex.getId()));
+			}
 		} else {
 			// Existing vertex
 			Vertex vertex = project.getWorld().findVertex(vr.getId());
@@ -149,11 +245,16 @@ public class NetworkLayoutChangeCmd implements ICommand, ICommandDetails {
 	 */
 	private void importTrack(TrackRecord tr, Project project) {
 		if(tr.getId() < IIdentifiable.NEUTRAL_ID) {
-			long tempId = tr.getId();
+			Long tempId = tr.getId();
 			Track track = new Track();
 			track.importFrom(tr, project.getWorld(), this.vertexMapping);
-			project.getWorld().addTrack(track);
-			this.trackMapping.put(Long.valueOf(tempId), Long.valueOf(track.getId()));
+			if(this.trackMapping.containsKey(tempId)) {
+				track.setId(tempId);
+				project.getWorld().addTrack(track);
+			} else {
+				project.getWorld().addTrack(track);
+				this.trackMapping.put(Long.valueOf(tempId), Long.valueOf(track.getId()));
+			}
 		} else {
 			Track track = project.getWorld().findTrack(tr.getId());
 			track.importFrom(tr, project.getWorld(), this.vertexMapping);

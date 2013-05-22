@@ -57,11 +57,11 @@ public class NetworkUnitOfWork {
 	/**
 	 * Removed existing tracks - to be deleted from the world model.
 	 */
-	private Set<TrackRecord> removedTracks;
+	private Set<Long> removedTracks;
 	/**
 	 * Removed existing vertices - to be deleted from the world model.
 	 */
-	private Set<VertexRecord> removedVertices;
+	private Set<Long> removedVertices;
 	/**
 	 * Identify new tracks with negative ID-s to distinguish them from the
 	 * existing tracks.
@@ -102,6 +102,20 @@ public class NetworkUnitOfWork {
 	 */
 	public int getVertexNum() {
 		return this.vertices.size();
+	}
+	
+	/**
+	 * @return Number of removed tracks. 
+	 */
+	public int getRemovedTrackNum() {
+		return this.removedTracks.size();
+	}
+	
+	/**
+	 * @return Number of removed vertices. 
+	 */
+	public int getRemovedVertexNum() {
+		return this.removedVertices.size();
 	}
 	
 	/**
@@ -298,20 +312,14 @@ public class NetworkUnitOfWork {
 		secondVertex.removeTrack(track);
 		if(firstVertex.hasNoTracks()) {
 			this.vertices.remove(firstVertex.getId());
-			if(firstVertex.isPersisted()) {
-				this.removedVertices.add(firstVertex);
-			}
+			this.addRemovedVertexId(firstVertex.getId());
 		}
 		if(secondVertex.hasNoTracks()) {
 			this.vertices.remove(secondVertex.getId());
-			if(secondVertex.isPersisted()) {
-				this.removedVertices.add(secondVertex);
-			}
+			this.addRemovedVertexId(secondVertex.getId());
 		}
 		this.tracks.remove(track.getId());
-		if(track.isPersisted()) {
-			this.removedTracks.add(track);
-		}
+		this.addRemovedTrackId(track.getId());
 	}
 	
 	/**
@@ -331,9 +339,32 @@ public class NetworkUnitOfWork {
 		if(vertex.getSecondTrack() != null) {
 			this.removeTrack(vertex.getSecondTrack());
 		}
-		this.vertices.remove(Long.valueOf(vertex.getId()));
-		if(vertex.getId() > IIdentifiable.NEUTRAL_ID) {
-			this.removedVertices.add(vertex);
+		Long theId = Long.valueOf(vertex.getId());
+		this.vertices.remove(theId);
+		this.addRemovedVertexId(theId);
+	}
+	
+	/**
+	 * We can insert the ID of the track to remove by force. This is needed for {@link NetworkLayoutChangeCmd}
+	 * to create a memento. If the ID is temporary, nothing happens.
+	 * 
+	 * @param id 
+	 */
+	public void addRemovedTrackId(long id) {
+		if(id > IIdentifiable.NEUTRAL_ID) {
+			this.removedTracks.add(id);
+		}
+	}
+	
+	/**
+	 * We can insert the ID of the vertex to remove by force. This is needed for {@link NetworkLayoutChangeCmd}
+	 * to create a memento. If the ID is temporary, nothing happens.
+	 * 
+	 * @param id 
+	 */
+	public void addRemovedVertexId(long id) {
+		if(id > IIdentifiable.NEUTRAL_ID) {
+			this.removedVertices.add(id);
 		}
 	}
 	
@@ -354,9 +385,7 @@ public class NetworkUnitOfWork {
 		mainVertex.addTrack(tr);
 		
 		freeVertex.removeTrack(tr);
-		if(freeVertex.isPersisted()) {
-			this.removedVertices.add(freeVertex);
-		}
+		this.addRemovedVertexId(tr.getId());
 		this.vertices.remove(freeVertex.getId());
 		if(mainVertex.getId() == IIdentifiable.NEUTRAL_ID) {
 			this.addVertex(mainVertex);
@@ -373,20 +402,20 @@ public class NetworkUnitOfWork {
 	}
 	
 	/**
-	 * Returns the set of all existing, but removed tracks.
+	 * Returns the set of all existing, but removed track ID-s.
 	 * 
 	 * @return 
 	 */
-	public Set<TrackRecord> getRemovedTracks() {
+	public Set<Long> getRemovedTracks() {
 		return ImmutableSet.copyOf(this.removedTracks);
 	}
 	
 	/**
-	 * Returns the set of all existing, but removed vertices.
+	 * Returns the set of all existing, but removed vertex ID-s.
 	 * 
 	 * @return 
 	 */
-	public Set<VertexRecord> getRemovedVertices() {
+	public Set<Long> getRemovedVertices() {
 		return ImmutableSet.copyOf(this.removedVertices);
 	}
 	

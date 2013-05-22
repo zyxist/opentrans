@@ -31,7 +31,12 @@ public class GetTrackFromVertexModifier implements IModifier {
 	@Override
 	public void modify(TransformInput input) {
 		Preconditions.checkArgument(input.v1.hasOneTrack(), "The evaluated track must be connected to a single vertex.");
-		Preconditions.checkArgument(input.t2 == null, "The second track must not be set!");
-		input.t2 = input.v1.getTrack();
+		if(null == input.t1) {
+			input.t1 = input.v1.getTrack();
+		} else if(input.t2 == null) {
+			input.t2 = input.v1.getTrack();
+		} else {
+			throw new IllegalArgumentException("There is no free slot!");
+		}
 	}
 }

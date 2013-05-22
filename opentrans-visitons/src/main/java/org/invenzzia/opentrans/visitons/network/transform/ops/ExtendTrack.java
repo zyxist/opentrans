@@ -25,6 +25,7 @@ import org.invenzzia.opentrans.visitons.network.transform.ITransformAPI;
 import org.invenzzia.opentrans.visitons.network.transform.TransformInput;
 
 import static org.invenzzia.opentrans.visitons.network.transform.conditions.Conditions.*;
+import static org.invenzzia.opentrans.visitons.network.transform.modifiers.Modifiers.*;
 
 /**
  * The most basic operation of creating the new track, starting from the given point.
@@ -41,18 +42,24 @@ public class ExtendTrack extends AbstractOperation {
 			return null;
 		}
 		
-		this.evaluateCases(new TransformInput(vr.getTrack(), null, vr, null, x, y, mode));
+		this.evaluateCases(new TransformInput(null, null, vr, null, x, y, mode));
 		return this.createdVertex;
 	}
 	
 	@Override
 	protected void configure() {
+		this.initialModifier(extractTrack());
 		this.register(and(track(withType(NetworkConst.TRACK_STRAIGHT)), withMode(NetworkConst.MODE_DEFAULT)), this.spawnCurvedTrack());
 		this.register(and(track(withType(NetworkConst.TRACK_STRAIGHT)), withMode(NetworkConst.MODE_ALT1)), this.spawnFreeTrack());
 		this.register(and(track(withType(NetworkConst.TRACK_CURVED)), withMode(NetworkConst.MODE_DEFAULT)), this.spawnStraightTrack());
 		this.register(and(track(withType(NetworkConst.TRACK_CURVED)), withMode(NetworkConst.MODE_ALT1)), this.spawnFreeTrack());
 		this.register(and(track(withType(NetworkConst.TRACK_FREE)), withMode(NetworkConst.MODE_DEFAULT)), this.spawnStraightTrack());
 		this.register(and(track(withType(NetworkConst.TRACK_FREE)), withMode(NetworkConst.MODE_ALT1)), this.spawnCurvedTrack());
+	}
+	
+	@Override
+	protected void importData(TransformInput input, ITransformAPI api) {
+		api.getRecordImporter().importAllMissingNeighbors(api.getUnitOfWork(), input.v1);
 	}
 
 	private IOperationCase spawnCurvedTrack() {

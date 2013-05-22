@@ -45,6 +45,11 @@ public class MoveVertex extends AbstractOperation {
 	 * @return True, if the operation succeeded.
 	 */
 	public boolean move(VertexRecord vr, double x, double y, byte mode) {
+		if(!this.getAPI().getWorld().isWithinWorld(x, y)) {
+			// Don't run the machinery, if we are outside the world.
+			return false;
+		}
+		
 		return this.evaluateCases(new TransformInput(null, null, vr, null, x, y, mode));
 	}
 	
@@ -213,10 +218,6 @@ public class MoveVertex extends AbstractOperation {
 		return new IOperationCase() {
 			@Override
 			public void execute(TransformInput input, ITransformAPI api) {
-				if(!api.getWorld().isWithinWorld(input.a1, input.a2)) {
-					return;
-				}
-
 				double buf[] = new double[8];
 				VertexRecord opposite = input.t1.getOppositeVertex(input.v1);
 				LineOps.toGeneral(opposite.x(), opposite.y(), input.v1.x(), input.v1.y(), 0, buf);
@@ -234,9 +235,6 @@ public class MoveVertex extends AbstractOperation {
 		return new IOperationCase() {
 			@Override
 			public void execute(TransformInput input, ITransformAPI api) {
-				if(!api.getWorld().isWithinWorld(input.a1, input.a2)) {
-					return;
-				}
 				input.v1.setPosition(input.a1, input.a2);
 				
 				TrackRecord curvedTrack = input.t2;
@@ -279,9 +277,6 @@ public class MoveVertex extends AbstractOperation {
 				Preconditions.checkState(input.t2.getType() == NetworkConst.TRACK_FREE,
 					"Invalid state on map: curve-curve vertex detected (#"+input.v1.getId()+")"
 				);
-				if(!api.getWorld().isWithinWorld(input.a1, input.a2)) {
-					return;
-				}
 				input.v1.setPosition(input.a1, input.a2);
 				
 				if(input.t1.getType() == NetworkConst.TRACK_CURVED) {

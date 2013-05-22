@@ -18,6 +18,8 @@
 package org.invenzzia.opentrans.lightweight.ui.tabs.world;
 
 import org.invenzzia.helium.exception.CommandExecutionException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This mode allows changing the track type of a track to the free.
@@ -25,17 +27,21 @@ import org.invenzzia.helium.exception.CommandExecutionException;
  * @author Tomasz Jędrzejewski
  */
 public class ConvertToFreeMode extends AbstractEditMode {
-	@Override
-	protected void handleCommandExecutionError(CommandExecutionException exception) {
-		
-	}
+	private final Logger logger = LoggerFactory.getLogger(ConvertToFreeMode.class);
 
 	@Override
 	public void modeEnabled(IEditModeAPI api) {
+		logger.debug("ConnectTracksMode enabled.");
 	
 	}
 
 	@Override
 	public void modeDisabled() {
+		logger.debug("ConnectTracksMode disabled.");
+	}
+	
+	@Override
+	protected void handleCommandExecutionError(CommandExecutionException exception) {
+		logger.error("Exception occurred while saving the network unit of work.", exception);
 	}
 }

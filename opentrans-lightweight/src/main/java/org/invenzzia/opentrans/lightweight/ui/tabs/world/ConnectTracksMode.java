@@ -50,6 +50,7 @@ public class ConnectTracksMode extends AbstractEditMode {
 
 	@Override
 	public void modeEnabled(IEditModeAPI api) {
+		logger.debug("ConnectTracksMode enabled.");
 		this.api = api;
 		this.api.setStatusMessage(DEFAULT_STATUS);
 		this.firstVertex = null;
@@ -59,6 +60,7 @@ public class ConnectTracksMode extends AbstractEditMode {
 	@Override
 	public void modeDisabled() {
 		this.resetState();
+		logger.debug("ConnectTracksMode disabled.");
 	}
 	
 	@InModelThread(asynchronous = false)

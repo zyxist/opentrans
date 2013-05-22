@@ -19,6 +19,7 @@ package org.invenzzia.opentrans.lightweight.ui.tabs.world;
 
 import com.google.common.base.Preconditions;
 import java.awt.Cursor;
+import org.invenzzia.helium.data.interfaces.IIdentifiable;
 import org.invenzzia.helium.exception.CommandExecutionException;
 import org.invenzzia.opentrans.lightweight.annotations.InModelThread;
 import org.invenzzia.opentrans.visitons.Project;
@@ -107,6 +108,13 @@ public class DrawTrackMode extends AbstractStateMachineEditMode {
 	
 	@InModelThread(asynchronous = false)
 	public VertexRecord importSingleVertex(final World world, long vertexId) {
+		if(vertexId < IIdentifiable.NEUTRAL_ID) {
+			VertexRecord vr = currentUnit.findVertex(vertexId);
+			if(vr.hasAllTracks()) {
+				return null;
+			}
+			return vr;
+		}
 		Vertex vertex = world.findVertex(vertexId);
 		if(vertex.hasAllTracks()) {
 			return null;

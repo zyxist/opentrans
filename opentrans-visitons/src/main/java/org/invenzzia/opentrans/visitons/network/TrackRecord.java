@@ -178,6 +178,22 @@ public class TrackRecord {
 	}
 	
 	/**
+	 * Returns the vertex that connects the current track with the specified track.
+	 * 
+	 * @param firstTrack
+	 * @return Vertex that connects us with the specified track.
+	 */
+	public VertexRecord getVertexTo(TrackRecord firstTrack) {
+		Preconditions.checkNotNull(firstTrack);
+		if(firstTrack.hasVertex(this.v1)) {
+			return this.v1;
+		} else if(firstTrack.hasVertex(this.v2)) {
+			return this.v2;
+		}
+		throw new IllegalArgumentException("The specified track is not connected to this track.");
+	}
+	
+	/**
 	 * Returns true, if one of the vertices has <tt>hasOneTrack() == true</tt>.
 	 * 
 	 * @return 

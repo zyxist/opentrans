@@ -40,11 +40,6 @@ public class ConvertToFreeTrack extends AbstractOperation {
 		this.register(track(withType(NetworkConst.TRACK_STRAIGHT)), this.covertStraightToFree());
 		this.register(track(withType(NetworkConst.TRACK_CURVED)), this.convertCurvedToFree());
 	}
-	
-	@Override
-	protected void importData(TransformInput input, ITransformAPI api) {
-		api.getRecordImporter().importAllMissingNeighbors(api.getUnitOfWork(), input.t1.getFirstVertex(), input.t1.getSecondVertex());
-	}
 
 	private IOperationCase covertStraightToFree() {
 		return new IOperationCase() {

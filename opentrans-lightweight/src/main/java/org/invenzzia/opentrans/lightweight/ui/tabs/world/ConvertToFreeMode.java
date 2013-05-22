@@ -42,6 +42,7 @@ public class ConvertToFreeMode extends AbstractEditMode {
 
 	@Override
 	public void modeDisabled() {
+		this.resetState();
 		logger.debug("ConnectTracksMode disabled.");
 	}
 	

@@ -19,6 +19,7 @@ package org.invenzzia.opentrans.visitons.network.transform.conditions;
 
 import org.invenzzia.opentrans.visitons.network.TrackRecord;
 import org.invenzzia.opentrans.visitons.network.VertexRecord;
+import org.invenzzia.opentrans.visitons.network.transform.TransformInput;
 
 /**
  * Helper class for spawning condition objects in DSL-like manner.
@@ -71,6 +72,10 @@ public class Conditions {
 	 */
 	public static SecondVertexTrackCondition secVertexTrack(ICondition<TrackRecord> condition) {
 		return new SecondVertexTrackCondition(condition);
+	}
+	
+	public static SurroundedByCondition surroundedBy(ICondition<TrackRecord> condition) {
+		return new SurroundedByCondition(condition);
 	}
 
 	public static TrackTypeCondition withType(byte trackType) {

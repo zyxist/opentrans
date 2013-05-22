@@ -215,11 +215,15 @@ public class TransformEngine {
 				ArcOps.circleLineIntersection(30, 24, 39, buf);
 
 				// Choose one of these intersections.
-				LineOps.reorder(buf, 35, 37, 39, 41);
 				sceneManager.updateResource(DebugPointSnapshot.class, new DebugPointSnapshot(
 					new double[] { buf[35], buf[36], buf[37], buf[38], buf[39], buf[40], buf[41], buf[42],  }
 				));
-				int selectedPt = (v1.y() > v2.y() ? (v1.x() > v2.x() ? 39 : 37) : (v1.x() > v2.x() ? 37 : 39));
+				int selectedPt;
+				if(LineOps.isBetween(buf[39], buf[40], buf[35], buf[36], buf[41], buf[42])) {
+					selectedPt = 35;
+				} else {
+					selectedPt = 37;
+				}
 				
 				this.prepareCurveFreeMovement(v1, buf[selectedPt], buf[selectedPt+1], 43, buf);
 				this.prepareCurveFreeMovement(v2, buf[selectedPt], buf[selectedPt+1], 45, buf);
@@ -280,7 +284,8 @@ public class TransformEngine {
 
 		@Override
 		public void curveFollowsPoint(TrackRecord curvedTrack, VertexRecord boundVertex) {
-			Preconditions.checkState(boundVertex.hasOneTrack());
+			// If bound vertex does not have one track, be sure that you know what you are doing.
+			// This state is necessary for handling curve-free connections.
 			VertexRecord v2 = curvedTrack.getOppositeVertex(boundVertex);
 			Preconditions.checkState(v2.hasAllTracks());
 			

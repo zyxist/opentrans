@@ -25,6 +25,7 @@ import org.invenzzia.opentrans.visitons.network.transform.IRecordImporter;
 import org.invenzzia.opentrans.visitons.network.transform.NetworkUnitOfWork;
 import org.invenzzia.opentrans.visitons.network.transform.TransformEngine;
 import org.invenzzia.opentrans.visitons.network.transform.ops.BindVertices;
+import org.invenzzia.opentrans.visitons.network.transform.ops.ConvertToFreeTrack;
 import org.invenzzia.opentrans.visitons.network.transform.ops.CreateNewTrack;
 import org.invenzzia.opentrans.visitons.network.transform.ops.ExtendTrack;
 import org.invenzzia.opentrans.visitons.network.transform.ops.MoveVertex;
@@ -68,7 +69,8 @@ public class VisitonsModule extends AbstractModule {
 			ExtendTrack.class,
 			MoveVertex.class,
 			SnapTrackToTrack.class,
-			BindVertices.class
+			BindVertices.class,
+			ConvertToFreeTrack.class
 		);
 		
 		this.bind(IRecordImporter.class).annotatedWith(DefaultImporter.class).to(DefaultRecordImporter.class).in(Singleton.class);

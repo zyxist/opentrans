@@ -168,6 +168,29 @@ public class LineOps {
 	}
 	
 	/**
+	 * Checks if the second point lies between the other two ones. We assume that the tested
+	 * point lies on the line.
+	 * 
+	 * @param x1 X coordinate - first point of the line.
+	 * @param y1 Y coordinate - first point of the line.
+	 * @param x2 X coordinate - tested point.
+	 * @param y2 Y coordinate - tested point.
+	 * @param x3 X coordinate - second point of the line.
+	 * @param y3 Y coordinate - second point of the line.
+	 * @return The determinant value
+	 */
+	public static boolean isBetween(double x1, double y1, double x2, double y2, double x3, double y3) {
+		double t;
+		if(Geometry.isZero(x3 - x1)) {
+			// Perform calculations on Y axis
+			t = (y2 - y1) / (y3 - y1); 
+		} else {
+			t = (x2 - x1) / (x3 - x1);
+		}
+		return (t > 0.0 && t < 1.0);
+	}
+	
+	/**
 	 * Checks, on which side of the line given by the point A and tangent t, the point C lies.
 	 * 
 	 * @param x1 A point: X

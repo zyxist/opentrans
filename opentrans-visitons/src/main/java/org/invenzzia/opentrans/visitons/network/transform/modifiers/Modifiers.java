@@ -17,6 +17,8 @@
 
 package org.invenzzia.opentrans.visitons.network.transform.modifiers;
 
+import org.invenzzia.opentrans.visitons.network.NetworkConst;
+
 /**
  * Helper class for spawning filter objects in DSL-like manner.
  * 
@@ -46,8 +48,12 @@ public class Modifiers {
 		return new CombinedModifier(modifiers);
 	}
 	
-	public static MakeStraightFirstModifier makeStraightTrackFirst() {
-		return new MakeStraightFirstModifier();
+	public static MakeTypeFirstModifier makeStraightTrackFirst() {
+		return new MakeTypeFirstModifier(NetworkConst.TRACK_STRAIGHT);
+	}
+	
+	public static MakeTypeFirstModifier makeCurvedTrackFirst() {
+		return new MakeTypeFirstModifier(NetworkConst.TRACK_CURVED);
 	}
 	
 	public static GetVertexFromTrackModifier getOppositeVertexForFirstTrack() {

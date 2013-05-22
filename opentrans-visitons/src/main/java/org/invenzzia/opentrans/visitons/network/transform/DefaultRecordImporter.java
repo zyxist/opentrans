@@ -37,7 +37,9 @@ public class DefaultRecordImporter implements IRecordImporter {
 	public void importAllMissingNeighbors(NetworkUnitOfWork populatedUnit, Collection<VertexRecord> vertices) {
 		World world = this.worldProvider.get();
 		for(VertexRecord rec: vertices) {
-			this.processSingleRecord(populatedUnit, world, rec);
+			if(null != rec) {
+				this.processSingleRecord(populatedUnit, world, rec);
+			}
 		}
 	}
 	
@@ -45,7 +47,9 @@ public class DefaultRecordImporter implements IRecordImporter {
 	public void importAllMissingNeighbors(NetworkUnitOfWork populatedUnit, VertexRecord ... vertices) {
 		World world = this.worldProvider.get();
 		for(VertexRecord rec: vertices) {
-			this.processSingleRecord(populatedUnit, world, rec);
+			if(null != rec) {
+				this.processSingleRecord(populatedUnit, world, rec);
+			}
 		}
 	}
 	

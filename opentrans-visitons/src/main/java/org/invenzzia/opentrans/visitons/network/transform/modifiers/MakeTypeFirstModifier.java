@@ -22,21 +22,25 @@ import org.invenzzia.opentrans.visitons.network.TrackRecord;
 import org.invenzzia.opentrans.visitons.network.transform.TransformInput;
 
 /**
- * Ensures that the straight track is always on <tt>v1</tt>
+ * Ensures that the track of the given type is always on <tt>v1</tt>
  * 
  * @author Tomasz Jędrzejewski
  */
-public class MakeStraightFirstModifier implements IModifier {
-
+public class MakeTypeFirstModifier implements IModifier {
+	private final byte expectedType;
+	
+	public MakeTypeFirstModifier(byte expectedType) {
+		this.expectedType = expectedType;
+	}
+	
 	@Override
 	public void modify(TransformInput input) {
 		if(null != input.t1 && null != input.t2) {
-			if(input.t1.getType() != NetworkConst.TRACK_STRAIGHT) {
+			if(input.t1.getType() != this.expectedType) {
 				TrackRecord tr = input.t2;
 				input.t2 = input.t1;
 				input.t1 = tr;
 			}
 		}
 	}
-
 }

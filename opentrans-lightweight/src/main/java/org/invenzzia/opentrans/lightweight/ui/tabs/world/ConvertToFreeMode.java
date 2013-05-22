@@ -18,6 +18,10 @@
 package org.invenzzia.opentrans.lightweight.ui.tabs.world;
 
 import org.invenzzia.helium.exception.CommandExecutionException;
+import org.invenzzia.opentrans.visitons.network.NetworkConst;
+import org.invenzzia.opentrans.visitons.network.TrackRecord;
+import org.invenzzia.opentrans.visitons.network.transform.ops.ConvertToFreeTrack;
+import org.invenzzia.opentrans.visitons.render.scene.HoveredItemSnapshot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +36,8 @@ public class ConvertToFreeMode extends AbstractEditMode {
 	@Override
 	public void modeEnabled(IEditModeAPI api) {
 		logger.debug("ConnectTracksMode enabled.");
-	
+		this.api = api;
+		this.api.setStatusMessage("Click on a straight or curved track to convert it to a free track.");
 	}
 
 	@Override
@@ -43,5 +48,28 @@ public class ConvertToFreeMode extends AbstractEditMode {
 	@Override
 	protected void handleCommandExecutionError(CommandExecutionException exception) {
 		logger.error("Exception occurred while saving the network unit of work.", exception);
+	}
+	
+	protected void resetState() {
+		this.resetRenderingStream();
+		this.resetUnitOfWork();
+	}
+	
+	@Override
+	public void leftActionPerformed(double worldX, double worldY, boolean altDown, boolean ctrlDown) {
+		HoveredItemSnapshot snapshot = sceneManager.getResource(HoveredItemSnapshot.class, HoveredItemSnapshot.class);
+		if(null != snapshot && snapshot.getType() == HoveredItemSnapshot.TYPE_TRACK) {
+			this.createUnitOfWork();
+			try {
+				TrackRecord tr = this.currentUnit.importTrack(this.getWorld(), snapshot.getId());
+
+				if(tr.getType() != NetworkConst.TRACK_FREE) {
+					this.transformEngine.op(ConvertToFreeTrack.class).convert(tr);
+					this.applyChanges();
+				}
+			} finally {
+				this.resetState();
+			}
+		}
 	}
 }

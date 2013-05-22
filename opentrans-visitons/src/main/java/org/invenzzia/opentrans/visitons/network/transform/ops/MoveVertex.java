@@ -17,6 +17,7 @@
 
 package org.invenzzia.opentrans.visitons.network.transform.ops;
 
+import com.google.common.base.Preconditions;
 import org.invenzzia.opentrans.visitons.geometry.LineOps;
 import org.invenzzia.opentrans.visitons.network.NetworkConst;
 import org.invenzzia.opentrans.visitons.network.TrackRecord;
@@ -76,6 +77,12 @@ public class MoveVertex extends AbstractOperation {
 		this.register(
 			and(vertex(hasOneTrack()), track(withType(NetworkConst.TRACK_FREE))),
 			this.moveOpenFreeTrack()
+		);
+		this.register(
+			// The case, where we are moving a vertex that connects curve-free or free-free pairs.
+			track(withoutType(NetworkConst.TRACK_STRAIGHT)),
+			makeCurvedTrackFirst(),
+			this.moveVertexWithoutStraightTrack()
 		);
 		this.register(
 			and(
@@ -265,4 +272,25 @@ public class MoveVertex extends AbstractOperation {
 		};
 	}
 
+	private IOperationCase moveVertexWithoutStraightTrack() {
+		return new IOperationCase() {
+			@Override
+			public void execute(TransformInput input, ITransformAPI api) {
+				Preconditions.checkState(input.t2.getType() == NetworkConst.TRACK_FREE,
+					"Invalid state on map: curve-curve vertex detected (#"+input.v1.getId()+")"
+				);
+				if(!api.getWorld().isWithinWorld(input.a1, input.a2)) {
+					return;
+				}
+				input.v1.setPosition(input.a1, input.a2);
+				
+				if(input.t1.getType() == NetworkConst.TRACK_CURVED) {
+					api.curveFollowsPoint(input.t1, input.v1);
+				} else {
+					api.calculateFreeCurve(input.t1);
+				}
+				api.calculateFreeCurve(input.t2);
+			}
+		};
+	}
 }

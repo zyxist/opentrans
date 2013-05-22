@@ -23,10 +23,12 @@ import org.invenzzia.opentrans.visitons.render.Renderer;
 import org.invenzzia.opentrans.visitons.render.stream.DebugPointStream;
 import org.invenzzia.opentrans.visitons.render.stream.GridStream;
 import org.invenzzia.opentrans.visitons.render.stream.SegmentBitmapStream;
+import org.invenzzia.opentrans.visitons.render.stream.SelectionStream;
 import org.invenzzia.opentrans.visitons.render.stream.TrackStream;
 
 /**
- * Description here.
+ * This must be refactored some day to use multibindings. It's a bit shame
+ * to do it in this way.
  * 
  * @author Tomasz Jędrzejewski
  */
@@ -41,12 +43,15 @@ public class RendererTask implements ITask {
 	private TrackStream trackStream;
 	@Inject
 	private DebugPointStream debugStream;
+	@Inject
+	private SelectionStream selectionStream;
 
 	@Override
 	public void startup() throws TaskException {
 		this.renderer.addRenderingStream(this.gridStream);
 		this.renderer.addRenderingStream(this.bitmapStream);
 		this.renderer.addRenderingStream(this.trackStream);
+		this.renderer.addRenderingStream(this.selectionStream);
 		this.renderer.addRenderingStream(this.debugStream);
 	}
 

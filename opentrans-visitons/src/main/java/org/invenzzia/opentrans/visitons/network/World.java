@@ -21,6 +21,7 @@ import com.google.common.base.Preconditions;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
@@ -509,11 +510,11 @@ public class World {
 	 */
 	public Collection<Segment> getVisibleSegments(AbstractCameraModelFoundation camera) {
 		Collection<Segment> collection = new LinkedList<>();
-		int whereStartsX = (int) Math.round(Math.floor(camera.getPosX() / 1000.0));
-		int whereStartsY = (int) Math.round(Math.floor(camera.getPosY() / 1000.0));
+		int whereStartsX = (int) Math.round(Math.floor(camera.getPosX() / Segment.SIZE_D));
+		int whereStartsY = (int) Math.round(Math.floor(camera.getPosY() / Segment.SIZE_D));
 		
-		int whereEndsX = (int) Math.round(Math.floor((camera.getPosX() + camera.getViewportWidth()) / 1000.0));
-		int whereEndsY = (int) Math.round(Math.floor((camera.getPosY() + camera.getViewportHeight()) / 1000.0));
+		int whereEndsX = (int) Math.round(Math.floor((camera.getPosX() + camera.getViewportWidth()) / Segment.SIZE_D));
+		int whereEndsY = (int) Math.round(Math.floor((camera.getPosY() + camera.getViewportHeight()) / Segment.SIZE_D));
 		
 		int size = (int)((whereEndsX - whereStartsX + 1) * (whereEndsY - whereStartsY + 1));
 		
@@ -526,6 +527,73 @@ public class World {
 			}
 		}
 		return collection;
+	}
+	
+	/**
+	 * Searches for all tracks that are within the given area. The track is considered to be
+	 * in the area, if it has both vertices in it.
+	 * 
+	 * @param x1
+	 * @param y1
+	 * @param x2
+	 * @param y2
+	 * @return Set of matching tracks.
+	 */
+	public Set<Track> findTracksInArea(double x1, double y1, double x2, double y2) {
+		if(x1 > x2) {
+			double tmp = x1;
+			x1 = x2;
+			x2 = tmp;
+		}
+		if(y1 > y2) {
+			double tmp = y1;
+			y1 = y2;
+			y2 = tmp;
+		}
+		
+		LinkedHashSet<Track> selectedTracks = new LinkedHashSet<>();
+		int whereStartsX = (int) Math.round(Math.floor(x1 / Segment.SIZE_D));
+		int whereStartsY = (int) Math.round(Math.floor(y1 / Segment.SIZE_D));
+		
+		int whereEndsX = (int) Math.round(Math.floor(x2 / Segment.SIZE_D));
+		int whereEndsY = (int) Math.round(Math.floor(y2 / Segment.SIZE_D));
+
+		for(int x = whereStartsX; x <= whereEndsX; x++) {
+			for(int y = whereStartsY; y <= whereEndsY; y++) {
+				Segment s = this.findSegment(x, y);
+				if(null != s) {
+					for(Vertex vertex: s.getVertices()) {
+						double ox = vertex.pos().getAbsoluteX();
+						double oy = vertex.pos().getAbsoluteY();
+						
+						if(!(x1 <= ox && ox <= x2 && y1 <= oy && oy <= y2)) {
+							continue;
+						} else {
+						}
+						
+						Track t1 = vertex.getFirstTrack();
+						Track t2 = vertex.getSecondTrack();
+						if(null != t1) {
+							Vertex opposite = t1.getOppositeVertex(vertex);
+							ox = opposite.pos().getAbsoluteX();
+							oy = opposite.pos().getAbsoluteY();
+							if(x1 <= ox && ox <= x2 && y1 <= oy && oy <= y2) {
+								selectedTracks.add(t1);
+							}
+						}
+						if(null != t2) {
+							Vertex opposite = t2.getOppositeVertex(vertex);
+							ox = opposite.pos().getAbsoluteX();
+							oy = opposite.pos().getAbsoluteY();
+							if(x1 <= ox && ox <= x2 && y1 <= oy && oy <= y2) {
+								selectedTracks.add(t2);
+							}
+						}
+					}
+				}
+			}
+		}
+		return selectedTracks;
 	}
 	
 	/**

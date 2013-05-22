@@ -34,6 +34,10 @@ public final class Segment {
 	 */
 	public static final int SIZE = 1000;
 	/**
+	 * Segment size in metres (as double type).
+	 */
+	public static final double SIZE_D = 1000.0;
+	/**
 	 * Segment position on the world map.
 	 */
 	private int positionX;

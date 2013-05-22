@@ -32,6 +32,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.List;
+import java.util.Set;
 import javax.swing.event.MouseInputAdapter;
 import org.invenzzia.opentrans.lightweight.annotations.InModelThread;
 import org.invenzzia.opentrans.lightweight.annotations.InSwingThread;
@@ -46,6 +47,7 @@ import org.invenzzia.opentrans.lightweight.ui.netview.NetworkView;
 import org.invenzzia.opentrans.lightweight.ui.tabs.world.WorldTab.IWorldTabListener;
 import org.invenzzia.opentrans.visitons.events.WorldSegmentUsageChangedEvent;
 import org.invenzzia.opentrans.visitons.events.WorldSizeChangedEvent;
+import org.invenzzia.opentrans.visitons.network.Track;
 import org.invenzzia.opentrans.visitons.network.World;
 import org.invenzzia.opentrans.visitons.network.WorldRecord;
 import org.invenzzia.opentrans.visitons.render.CameraModel;
@@ -293,6 +295,13 @@ public class WorldTabController implements AdjustmentListener, IZoomListener, IW
 					double wy = cameraModel.pix2worldY(e.getY());
 					double deltaX = cameraModel.worldDistance(e.getX() - this.draggedX);
 					double deltaY = cameraModel.worldDistance(e.getY() - this.draggedY);
+					if(this.draggingEnabled == false) {
+						currentEditMode.mouseStartsDragging(
+							cameraModel.pix2worldX(this.draggedX),
+							cameraModel.pix2worldY(this.draggedY),
+							e.isShiftDown(), e.isControlDown()
+						);
+					}
 					currentEditMode.mouseDrags(wx, wy, deltaX, deltaY, e.isShiftDown(), e.isControlDown());
 					this.draggingEnabled = true;
 				}

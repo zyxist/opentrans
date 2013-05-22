@@ -23,10 +23,13 @@ import java.util.Set;
 import org.invenzzia.helium.exception.CommandExecutionException;
 import org.invenzzia.opentrans.lightweight.annotations.InModelThread;
 import org.invenzzia.opentrans.visitons.network.NetworkConst;
+import org.invenzzia.opentrans.visitons.network.Track;
 import org.invenzzia.opentrans.visitons.network.TrackRecord;
 import org.invenzzia.opentrans.visitons.network.VertexRecord;
+import org.invenzzia.opentrans.visitons.network.World;
 import org.invenzzia.opentrans.visitons.network.transform.ops.MoveVertex;
 import org.invenzzia.opentrans.visitons.render.scene.HoveredItemSnapshot;
+import org.invenzzia.opentrans.visitons.render.scene.SelectionSnapshot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,6 +39,11 @@ import org.slf4j.LoggerFactory;
  * @author Tomasz Jędrzejewski
  */
 public class SelectionMode extends AbstractEditMode {
+	private static final int NOTHING = 0;
+	private static final int SELECT_AREA = 1;
+	private static final int DRAG_VERTEX = 2;
+	private static final int DRAG_GROUP = 3;
+	
 	private final Logger logger = LoggerFactory.getLogger(SelectionMode.class);
 	
 	private static final String DEFAULT_STATUS = "Select track and vertices by clicking on them.";
@@ -52,6 +60,8 @@ public class SelectionMode extends AbstractEditMode {
 	
 	private double dragInitialPosX;
 	private double dragInitialPosY;
+	
+	private int selectionMode = NOTHING;
 	
 	public SelectionMode() {
 		this.selectedVertices = new LinkedHashSet<>();
@@ -88,9 +98,18 @@ public class SelectionMode extends AbstractEditMode {
 		return this.currentUnit.importTrack(this.getWorld(), trackId);
 	}
 	
+	
+	@InModelThread(asynchronous = false)
+	public void importTracksFromSelection(World world, double x1, double y1, double x2, double y2) {
+		Set<Track> tracks = world.findTracksInArea(x1, y1, x2, y2);
+		for(Track track: tracks) {
+			this.currentUnit.importTrack(world, track);
+		}
+	}
+	
 	@Override
 	public boolean captureDragEvents() {
-		return this.selectedTracks.size() > 0 || this.selectedVertices.size() > 0;
+		return true;
 	}
 	
 	@Override
@@ -126,36 +145,46 @@ public class SelectionMode extends AbstractEditMode {
 			VertexRecord vertexRecord = this.selectedVertices.iterator().next();
 			this.dragInitialPosX = worldX;
 			this.dragInitialPosY = worldY;
+			this.selectionMode = DRAG_VERTEX;
+		} else if(selectedVerticesNum == 0 && selectedTracksNum == 0) {
+			this.selectionMode = SELECT_AREA;
+			this.dragInitialPosX = worldX;
+			this.dragInitialPosY = worldY;
+		} else {
+			this.selectionMode = NOTHING;
 		}
 	}
 	
 	@Override
 	public void mouseDrags(double worldX, double worldY, double deltaX, double deltaY, boolean altDown, boolean ctrlDown) {
-		int selectedVerticesNum = this.selectedVertices.size();
-		int selectedTracksNum = this.selectedTracks.size();
-		
-		if(selectedVerticesNum == 1 && selectedTracksNum == 0) {
+		if(this.selectionMode == SELECT_AREA) {
+			this.sceneManager.updateResource(SelectionSnapshot.class, new SelectionSnapshot(this.dragInitialPosX, this.dragInitialPosY, worldX, worldY));
+		} else if(selectionMode == DRAG_VERTEX) {
 			this.transformEngine.op(MoveVertex.class).move(this.selectedVertices.iterator().next(), worldX, worldY,
 				(ctrlDown ? (altDown ? NetworkConst.MODE_ALT2 : NetworkConst.MODE_ALT1) : NetworkConst.MODE_DEFAULT)
 			);
-			/*
-			this.transformer.moveVertexToPosition(
-				this.selectedVertices.iterator().next(),
-				worldX, worldY,
-				(ctrlDown ? (altDown ? Transformations.STR_MODE_FREE_2 : Transformations.STR_MODE_FREE) : Transformations.STR_MODE_LENGHTEN)
-			);
-			*/
-		} else if(selectedTracksNum > 0 && selectedVerticesNum == 0) {
-		//	this.transformer.moveTracksByDelta(this.selectedTracks, deltaX, deltaY);
+			this.currentUnit.exportScene(this.sceneManager);
 		}
-		this.currentUnit.exportScene(this.sceneManager);
 	}
 	
 	@Override
 	public void mouseStopsDragging(double worldX, double worldY, boolean altDown, boolean ctrlDown) {
 		this.api.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-		this.applyChanges("Move single vertex");
-		this.resetState();
+		if(this.selectionMode == SELECT_AREA) {
+			this.createUnitOfWork();
+			this.importTracksFromSelection(this.getWorld(), this.dragInitialPosX, this.dragInitialPosY, worldX, worldY);
+			if(this.currentUnit.isEmpty()) {
+				this.resetState();
+			} else {
+				this.currentUnit.exportScene(this.sceneManager);
+			}
+			this.selectionMode = NOTHING;
+			this.sceneManager.updateResource(SelectionSnapshot.class, null);
+		} else if(this.selectionMode == DRAG_VERTEX) {
+			this.applyChanges("Move single vertex");
+			this.resetState();
+			this.selectionMode = NOTHING; 
+		}
 	}
 	
 	@Override

@@ -223,15 +223,7 @@ public class TransformEngine {
 					selectedPt = 35;
 				} else {
 					selectedPt = 37;
-				}
-				
-				this.prepareCurveFreeMovement(v1, buf[selectedPt], buf[selectedPt+1], 43, buf);
-				this.prepareCurveFreeMovement(v2, buf[selectedPt], buf[selectedPt+1], 45, buf);
-				this.prepareCurveMetadata(buf[selectedPt], buf[selectedPt+1], v1.x(), v1.y(), buf[43], buf[44], 0, metadata);
-				this.prepareCurveMetadata(buf[selectedPt], buf[selectedPt+1], v2.x(), v2.y(), buf[45], buf[46], 12, metadata);
-				
-				/*
-				
+				}			
 				LineOps.middlePoint(v1.x(), v1.y(), selectedPt, 41, buf);	// K
 				LineOps.middlePoint(v2.x(), v2.y(), selectedPt, 43, buf);	// L
 				
@@ -252,7 +244,6 @@ public class TransformEngine {
 				} else {
 					this.prepareCurveMetadata(buf[selectedPt], buf[selectedPt+1], v2.x(), v2.y(), buf[58], buf[59], 12, metadata);
 				}
-				*/
 			}
 			tr.setMetadata(metadata);
 		}

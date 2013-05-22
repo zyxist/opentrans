@@ -265,6 +265,8 @@ public class WorldTabController implements AdjustmentListener, IZoomListener, IW
 		private int draggedY;
 		private double posX;
 		private double posY;
+		private double prevX;
+		private double prevY;
 		private boolean draggingEnabled = false;
 		
 		private int button;
@@ -293,17 +295,19 @@ public class WorldTabController implements AdjustmentListener, IZoomListener, IW
 				if(currentEditMode.captureDragEvents()) {
 					double wx = cameraModel.pix2worldX(e.getX());
 					double wy = cameraModel.pix2worldY(e.getY());
-					double deltaX = cameraModel.worldDistance(e.getX() - this.draggedX);
-					double deltaY = cameraModel.worldDistance(e.getY() - this.draggedY);
 					if(this.draggingEnabled == false) {
+						this.prevX = cameraModel.pix2worldX(this.draggedX);
+						this.prevY = cameraModel.pix2worldY(this.draggedY);
 						currentEditMode.mouseStartsDragging(
-							cameraModel.pix2worldX(this.draggedX),
-							cameraModel.pix2worldY(this.draggedY),
+							this.prevX,
+							this.prevY,
 							e.isShiftDown(), e.isControlDown()
 						);
 					}
-					currentEditMode.mouseDrags(wx, wy, deltaX, deltaY, e.isShiftDown(), e.isControlDown());
+					currentEditMode.mouseDrags(wx, wy, wx - this.prevX, wy - this.prevY, e.isShiftDown(), e.isControlDown());
 					this.draggingEnabled = true;
+					this.prevX = wx;
+					this.prevY = wy;
 				}
 			}
 		}

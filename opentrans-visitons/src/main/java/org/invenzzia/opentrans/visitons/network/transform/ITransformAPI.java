@@ -48,10 +48,8 @@ public interface ITransformAPI {
 	 * of the curve, and they determine the order of drawing.
 	 * 
 	 * @param tr Curved track.
-	 * @param v1 First vertex of the curve.
-	 * @param v2 Second vertex of the curve.
 	 */
-	public void calculateCurve(TrackRecord tr, VertexRecord v1, VertexRecord v2);
+	public void calculateCurve(TrackRecord tr);
 	/**
 	 * Performs the calculations that find the parameters of the free (doubly-curved) track
 	 * that matches the tangents in vertices v1 and v2. The calculations do not change the

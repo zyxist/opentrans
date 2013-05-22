@@ -30,6 +30,7 @@ import org.invenzzia.opentrans.visitons.network.transform.ops.ConvertToFreeTrack
 import org.invenzzia.opentrans.visitons.network.transform.ops.ConvertToStraightTrack;
 import org.invenzzia.opentrans.visitons.network.transform.ops.CreateNewTrack;
 import org.invenzzia.opentrans.visitons.network.transform.ops.ExtendTrack;
+import org.invenzzia.opentrans.visitons.network.transform.ops.MoveGroup;
 import org.invenzzia.opentrans.visitons.network.transform.ops.MoveVertex;
 import org.invenzzia.opentrans.visitons.network.transform.ops.SnapTrackToTrack;
 import org.invenzzia.opentrans.visitons.provider.CameraModelProvider;
@@ -70,6 +71,7 @@ public class VisitonsModule extends AbstractModule {
 			CreateNewTrack.class,
 			ExtendTrack.class,
 			MoveVertex.class,
+			MoveGroup.class,
 			SnapTrackToTrack.class,
 			BindVertices.class,
 			ConvertToFreeTrack.class,

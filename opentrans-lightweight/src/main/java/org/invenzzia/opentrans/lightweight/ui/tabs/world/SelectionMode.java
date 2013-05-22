@@ -27,6 +27,7 @@ import org.invenzzia.opentrans.visitons.network.Track;
 import org.invenzzia.opentrans.visitons.network.TrackRecord;
 import org.invenzzia.opentrans.visitons.network.VertexRecord;
 import org.invenzzia.opentrans.visitons.network.World;
+import org.invenzzia.opentrans.visitons.network.transform.ops.MoveGroup;
 import org.invenzzia.opentrans.visitons.network.transform.ops.MoveVertex;
 import org.invenzzia.opentrans.visitons.render.scene.HoveredItemSnapshot;
 import org.invenzzia.opentrans.visitons.render.scene.SelectionSnapshot;
@@ -103,7 +104,7 @@ public class SelectionMode extends AbstractEditMode {
 	public void importTracksFromSelection(World world, double x1, double y1, double x2, double y2) {
 		Set<Track> tracks = world.findTracksInArea(x1, y1, x2, y2);
 		for(Track track: tracks) {
-			this.currentUnit.importTrack(world, track);
+			this.selectedTracks.add(this.currentUnit.importTrack(world, track));
 		}
 	}
 	
@@ -150,6 +151,8 @@ public class SelectionMode extends AbstractEditMode {
 			this.selectionMode = SELECT_AREA;
 			this.dragInitialPosX = worldX;
 			this.dragInitialPosY = worldY;
+		} else if(selectedTracksNum > 0) {
+			this.selectionMode = DRAG_GROUP;
 		} else {
 			this.selectionMode = NOTHING;
 		}
@@ -163,6 +166,9 @@ public class SelectionMode extends AbstractEditMode {
 			this.transformEngine.op(MoveVertex.class).move(this.selectedVertices.iterator().next(), worldX, worldY,
 				(ctrlDown ? (altDown ? NetworkConst.MODE_ALT2 : NetworkConst.MODE_ALT1) : NetworkConst.MODE_DEFAULT)
 			);
+			this.currentUnit.exportScene(this.sceneManager);
+		} else if(selectionMode == DRAG_GROUP) {
+			this.transformEngine.op(MoveGroup.class).moveByDelta(this.selectedTracks, deltaX, deltaY);
 			this.currentUnit.exportScene(this.sceneManager);
 		}
 	}
@@ -182,6 +188,11 @@ public class SelectionMode extends AbstractEditMode {
 			this.sceneManager.updateResource(SelectionSnapshot.class, null);
 		} else if(this.selectionMode == DRAG_VERTEX) {
 			this.applyChanges("Move single vertex");
+			this.resetState();
+			this.selectionMode = NOTHING; 
+		} else if(this.selectionMode == DRAG_GROUP) {
+			logger.debug("Dragging of group stopped.");
+			this.applyChanges("Move tracks");
 			this.resetState();
 			this.selectionMode = NOTHING; 
 		}

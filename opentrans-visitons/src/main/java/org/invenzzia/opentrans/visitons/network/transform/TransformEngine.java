@@ -151,15 +151,13 @@ public class TransformEngine {
 		}
 
 		@Override
-		public void calculateCurve(TrackRecord tr, VertexRecord v1, VertexRecord v2) {
-			double buf[] = new double[8];
-			LineOps.toGeneral(v1.x(), v1.y(), v1.tangent(), 0, buf);
-			LineOps.toGeneral(v2.x(), v2.y(), v2.tangent(), 3, buf);
-			LineOps.toOrthogonal(0, buf, v1.x(), v1.y());
-			LineOps.toOrthogonal(3, buf, v1.x(), v1.y());
-			LineOps.intersection(0, 3, 6, buf);
-
-			tr.setMetadata(this.prepareCurveMetadata(v1.x(), v1.y(), v2.x(), v2.y(), buf[6], buf[7], 0, null));
+		public void calculateCurve(TrackRecord tr) {
+			VertexRecord v1 = tr.getFirstVertex();
+			VertexRecord v2 = tr.getSecondVertex();
+			
+			double buf[] = new double[3];
+			this.prepareCurveFreeMovement(v2, v1.x(), v1.y(), 0, buf);
+			this.findCurveDirection(tr, v2, v1, buf[0], buf[1]);
 		}
 
 		@Override

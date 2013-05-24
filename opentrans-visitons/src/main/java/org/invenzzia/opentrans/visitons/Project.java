@@ -18,6 +18,7 @@ package org.invenzzia.opentrans.visitons;
 
 import org.invenzzia.helium.data.interfaces.IMemento;
 import org.invenzzia.helium.data.interfaces.IRecord;
+import org.invenzzia.opentrans.visitons.data.manager.LineManager;
 import org.invenzzia.opentrans.visitons.data.manager.MeanOfTransportManager;
 import org.invenzzia.opentrans.visitons.data.manager.StopManager;
 import org.invenzzia.opentrans.visitons.data.manager.VehicleManager;
@@ -114,6 +115,10 @@ public class Project extends ProjectBase implements IMemento<Project> {
 	 * Manages the available vehicles.
 	 */
 	private final VehicleManager vehicleManager;
+	/**
+	 * Manages the transportation lines.
+	 */
+	private final LineManager lineManager;
 
 	public Project() {
 		this.name = "New project";
@@ -125,6 +130,7 @@ public class Project extends ProjectBase implements IMemento<Project> {
 		this.meanOfTransportManager = new MeanOfTransportManager(this);
 		this.vehicleTypeManager = new VehicleTypeManager(this);
 		this.vehicleManager = new VehicleManager(this);
+		this.lineManager = new LineManager(this);
 	}
 	
 	/**
@@ -170,6 +176,15 @@ public class Project extends ProjectBase implements IMemento<Project> {
 	 */
 	public VehicleManager getVehicleManager() {
 		return this.vehicleManager;
+	}
+	
+	/**
+	 * Returns the object that manages the transportation lines within the project.
+	 * 
+	 * @return Line manager.
+	 */
+	public LineManager getLineManager() {
+		return this.lineManager;
 	}
 
 	@Override

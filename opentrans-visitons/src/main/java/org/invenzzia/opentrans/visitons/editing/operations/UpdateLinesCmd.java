@@ -17,6 +17,7 @@
 
 package org.invenzzia.opentrans.visitons.editing.operations;
 
+import org.invenzzia.helium.annotations.CommandDetails;
 import org.invenzzia.helium.data.UnitOfWork;
 import org.invenzzia.opentrans.visitons.Project;
 import org.invenzzia.opentrans.visitons.data.Line;
@@ -30,6 +31,7 @@ import org.invenzzia.opentrans.visitons.editing.common.AbstractUnitOfWorkCmd;
  * 
  * @author Tomasz Jędrzejewski
  */
+@CommandDetails(name = "Update lines")
 public class UpdateLinesCmd extends AbstractUnitOfWorkCmd<Line, LineRecord, LineManager> {
 	public UpdateLinesCmd(UnitOfWork<LineRecord> unitOfWork) {
 		super(unitOfWork);

@@ -79,6 +79,7 @@ public class LineDialogController extends AbstractDialogController<LineDialog> i
 		this.model.loadData(this.projectHolder.getCurrentProject());
 		this.dialog.setModel(this.model);
 		this.dialog.addItemListener(this);
+		this.dialog.disableForm();
 	}
 	
 	@Action("okAction")

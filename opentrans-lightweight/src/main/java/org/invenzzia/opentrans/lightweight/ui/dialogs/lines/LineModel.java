@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 zyxist
+ * Copyright (C) 2013 Tomasz Jędrzejewski
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,10 +16,32 @@
  */
 package org.invenzzia.opentrans.lightweight.ui.dialogs.lines;
 
+import java.util.Comparator;
+import org.invenzzia.opentrans.lightweight.model.EntityListModel;
+import org.invenzzia.opentrans.visitons.Project;
+import org.invenzzia.opentrans.visitons.data.Line;
+import org.invenzzia.opentrans.visitons.data.Line.LineRecord;
+import org.invenzzia.opentrans.visitons.data.manager.LineManager;
+import org.invenzzia.opentrans.visitons.data.utils.LineComparator;
+
 /**
- *
- * @author zyxist
+ * Data model for the item list in the dialog window.
+ * 
+ * @author Tomasz Jędrzejewski
  */
-public class LineModel {
+public class LineModel extends EntityListModel<Line, LineRecord, LineManager> {
+	@Override
+	protected LineManager getDataManager(Project project) {
+		return project.getLineManager();
+	}
+
+	@Override
+	protected LineRecord createRecord() {
+		return new LineRecord();
+	}
 	
+	@Override
+	protected Comparator<LineRecord> getComparator() {
+		return LineComparator.get();
+	}
 }

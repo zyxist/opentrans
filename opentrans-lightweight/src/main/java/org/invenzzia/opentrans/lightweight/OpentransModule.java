@@ -111,6 +111,7 @@ public class OpentransModule extends AbstractModule {
 		MapBinder<Class, IFormScannerComponentHandler> fieldHandlerBinder =
 			MapBinder.newMapBinder(this.binder(), Class.class, IFormScannerComponentHandler.class);
 		fieldHandlerBinder.addBinding(JTextField.class).to(TextFieldHandler.class).in(Singleton.class);
+		fieldHandlerBinder.addBinding(JTextArea.class).to(TextAreaHandler.class).in(Singleton.class);
 		fieldHandlerBinder.addBinding(JCheckBox.class).to(CheckboxHandler.class).in(Singleton.class);
 		fieldHandlerBinder.addBinding(JComboBox.class).to(ComboBoxHandler.class).in(Singleton.class);
 		fieldHandlerBinder.addBinding(JReportingSlider.class).to(ReportingSliderHandler.class).in(Singleton.class);

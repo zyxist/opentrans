@@ -38,6 +38,8 @@ import org.invenzzia.opentrans.lightweight.annotations.Action;
 import org.invenzzia.opentrans.lightweight.controllers.IActionScanner;
 import org.invenzzia.opentrans.lightweight.ui.dialogs.about.AboutDialog;
 import org.invenzzia.opentrans.lightweight.ui.dialogs.about.AboutDialogController;
+import org.invenzzia.opentrans.lightweight.ui.dialogs.lines.LineDialog;
+import org.invenzzia.opentrans.lightweight.ui.dialogs.lines.LineDialogController;
 import org.invenzzia.opentrans.lightweight.ui.dialogs.means.MeanOfTransportController;
 import org.invenzzia.opentrans.lightweight.ui.dialogs.means.MeanOfTransportDialog;
 import org.invenzzia.opentrans.lightweight.ui.dialogs.resize.ResizeDialog;
@@ -91,6 +93,8 @@ public class MainMenuController {
 	private Provider<MeanOfTransportController> meanOfTransportControllerProvider;
 	@Inject
 	private Provider<VehicleTypeController> vehicleTypeControllerProvider;
+	@Inject
+	private Provider<LineDialogController> lineControllerProvider;
 	@Inject
 	private Provider<AboutDialogController> aboutDialogControllerProvider;
 	/**
@@ -211,6 +215,14 @@ public class MainMenuController {
 		VehicleTypeController controller = this.vehicleTypeControllerProvider.get();
 		controller.setView(dialog);
 		dialog.setVisible(true);
+	}
+	
+	@Action("lines")
+	public void linesAction() {
+		LineDialog theDialog = this.dialogBuilder.createModalDialog(LineDialog.class);
+		LineDialogController controller = this.lineControllerProvider.get();
+		controller.setView(theDialog);
+		theDialog.setVisible(true);
 	}
 	
 	@Action("closeAllTabs")

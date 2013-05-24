@@ -74,6 +74,11 @@ class LineBase implements IIdentifiable {
 			this.description = description;
 		}
 	}
+	
+	@Override
+	public String toString() {
+		return this.number.toString();
+	}
 }
 
 /**

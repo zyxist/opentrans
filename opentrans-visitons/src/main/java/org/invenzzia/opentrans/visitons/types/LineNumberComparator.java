@@ -49,6 +49,12 @@ public class LineNumberComparator implements Comparator<LineNumber>, Serializabl
 				return result;
 			}
 		}
+		if((o1.getAlphanumerical() != null) != (o2.getAlphanumerical() != null)) {
+			if(o1.getAlphanumerical() != null) {
+				return 1;
+			}
+			return -1;
+		}		
 		if(null != o1.getAlphanumerical()) {
 			String a1 = o1.getAlphanumerical();
 			String a2 = o2.getAlphanumerical();

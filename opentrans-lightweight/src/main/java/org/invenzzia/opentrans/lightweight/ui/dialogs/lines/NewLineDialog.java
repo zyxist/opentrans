@@ -17,16 +17,27 @@
 package org.invenzzia.opentrans.lightweight.ui.dialogs.lines;
 
 /**
- *
+ * Dialog used for creating a new line.
+ * 
  * @author zyxist
  */
 public class NewLineDialog extends javax.swing.JDialog {
 	/**
-	 * Creates new form NewLineDialog
+	 * Whether the choice has been confirmed?
 	 */
+	private boolean confirmed = false;
+	
 	public NewLineDialog(java.awt.Frame parent, boolean modal) {
 		super(parent, modal);
-		initComponents();
+		this.initComponents();
+	}
+	
+	public String getEnteredNumber() {
+		return this.lineNumberField.getText();
+	}
+	
+	public boolean isConfirmed() {
+		return this.confirmed;
 	}
 
 	/**
@@ -47,13 +58,27 @@ public class NewLineDialog extends javax.swing.JDialog {
 
         lineNumberLabel.setText("Enter the line number:");
 
-        lineNumberField.setText("jTextField1");
+        lineNumberField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                lineNumberFieldActionPerformed(evt);
+            }
+        });
 
         cancelButton.setText("Cancel");
         cancelButton.setPreferredSize(new java.awt.Dimension(90, 25));
+        cancelButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cancelButtonActionPerformed(evt);
+            }
+        });
 
         okButton.setText("OK");
         okButton.setPreferredSize(new java.awt.Dimension(90, 25));
+        okButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                okButtonActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -88,52 +113,20 @@ public class NewLineDialog extends javax.swing.JDialog {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-	/**
-	 * @param args the command line arguments
-	 */
-	public static void main(String args[]) {
-		/*
-		 * Set the Nimbus look and feel
-		 */
-		//<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /*
-		 * If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel. For details see
-		 * http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html
-		 */
-		try {
-			for(javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-				if("Nimbus".equals(info.getName())) {
-					javax.swing.UIManager.setLookAndFeel(info.getClassName());
-					break;
-				}
-			}
-		} catch(ClassNotFoundException ex) {
-			java.util.logging.Logger.getLogger(NewLineDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-		} catch(InstantiationException ex) {
-			java.util.logging.Logger.getLogger(NewLineDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-		} catch(IllegalAccessException ex) {
-			java.util.logging.Logger.getLogger(NewLineDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-		} catch(javax.swing.UnsupportedLookAndFeelException ex) {
-			java.util.logging.Logger.getLogger(NewLineDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-		}
-		//</editor-fold>
+    private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okButtonActionPerformed
+		this.confirmed = true;
+		this.dispose();
+    }//GEN-LAST:event_okButtonActionPerformed
 
-		/*
-		 * Create and display the dialog
-		 */
-		java.awt.EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				NewLineDialog dialog = new NewLineDialog(new javax.swing.JFrame(), true);
-				dialog.addWindowListener(new java.awt.event.WindowAdapter() {
-					@Override
-					public void windowClosing(java.awt.event.WindowEvent e) {
-						System.exit(0);
-					}
-				});
-				dialog.setVisible(true);
-			}
-		});
-	}
+    private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
+		this.confirmed = false;
+		this.dispose();
+    }//GEN-LAST:event_cancelButtonActionPerformed
+
+    private void lineNumberFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lineNumberFieldActionPerformed
+		this.confirmed = true;
+		this.dispose();
+    }//GEN-LAST:event_lineNumberFieldActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton cancelButton;
     private javax.swing.JTextField lineNumberField;

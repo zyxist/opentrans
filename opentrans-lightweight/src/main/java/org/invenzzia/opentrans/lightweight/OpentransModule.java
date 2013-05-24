@@ -45,6 +45,7 @@ import org.invenzzia.opentrans.lightweight.ui.providers.WorkspacePanelProvider;
 import org.invenzzia.opentrans.lightweight.ui.tabs.ProjectTabFactory;
 import org.invenzzia.opentrans.lightweight.ui.tabs.world.WorldTabFactory;
 import org.invenzzia.opentrans.lightweight.ui.tabs.infrastructure.InfrastructureTabFactory;
+import org.invenzzia.opentrans.lightweight.ui.tabs.timetable.TimetableTabFactory;
 import org.invenzzia.opentrans.lightweight.ui.tabs.vehicles.VehicleEditorController;
 import org.invenzzia.opentrans.lightweight.ui.tabs.vehicles.VehicleTabController;
 import org.invenzzia.opentrans.lightweight.ui.tabs.vehicles.VehicleTabFactory;
@@ -138,6 +139,7 @@ public class OpentransModule extends AbstractModule {
 		factoryBinder.addBinding().to(WorldTabFactory.class);
 		factoryBinder.addBinding().to(InfrastructureTabFactory.class);
 		factoryBinder.addBinding().to(VehicleTabFactory.class);
+		factoryBinder.addBinding().to(TimetableTabFactory.class);
 		
 		// Bind edit modes.
 		OpentransExtensions.bindEditModes(this.binder(),

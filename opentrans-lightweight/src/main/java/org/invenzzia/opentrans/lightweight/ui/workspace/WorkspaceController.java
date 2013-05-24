@@ -27,6 +27,7 @@ import org.invenzzia.opentrans.lightweight.ui.component.IconButton;
 import org.invenzzia.opentrans.lightweight.ui.minimap.MinimapController;
 import org.invenzzia.opentrans.lightweight.ui.tabs.*;
 import org.invenzzia.opentrans.lightweight.ui.tabs.infrastructure.InfrastructureTab;
+import org.invenzzia.opentrans.lightweight.ui.tabs.timetable.TimetableTab;
 import org.invenzzia.opentrans.lightweight.ui.tabs.vehicles.VehicleTab;
 
 /**
@@ -90,6 +91,9 @@ public class WorkspaceController implements ComponentListener, ActionListener {
 					break;
 				case "vehicles":
 					this.desktopManager.setFocus(VehicleTab.class);
+					break;
+				case "timetable":
+					this.desktopManager.setFocus(TimetableTab.class);
 					break;
 			}
 		}

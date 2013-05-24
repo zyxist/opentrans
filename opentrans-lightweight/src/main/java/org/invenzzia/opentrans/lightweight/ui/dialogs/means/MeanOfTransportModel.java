@@ -19,7 +19,6 @@ package org.invenzzia.opentrans.lightweight.ui.dialogs.means;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import javax.swing.ListModel;

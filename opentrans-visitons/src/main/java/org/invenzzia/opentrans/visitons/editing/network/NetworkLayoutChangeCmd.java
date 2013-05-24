@@ -233,7 +233,14 @@ public class NetworkLayoutChangeCmd implements ICommand, ICommandDetails {
 		} else {
 			// Existing vertex
 			Vertex vertex = project.getWorld().findVertex(vr.getId());
-			vertex.importFrom(vr, project.getWorld());
+			if(null == vertex) {
+				vertex = new Vertex();
+				vertex.importFrom(vr, project.getWorld());
+				vertex.setId(vr.getId());
+				project.getWorld().addVertex(vertex);
+			} else {
+				vertex.importFrom(vr, project.getWorld());
+			}
 		}
 	}
 

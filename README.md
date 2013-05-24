@@ -11,7 +11,7 @@ Requirements
 
 * Java 7
 * Maven 3
-* [Helium libraries](http://github.com/zyxist/helium)
+* [Helium library](http://github.com/zyxist/helium)
 
 Structure
 ---------
@@ -28,10 +28,10 @@ In addition, it defines the concept of transport simulation
 project, and provides I/O operations that allow to read and
 save the simulation state.
 
-The actual application can be found in `opentrans-client`
-directory. It is written with Helium GUI Framework developed
-as a separate project, so that it could be used as a standalone
-library.
+The actual application can be found in `opentrans-lightweight`
+directory. It is written in Swing, using a custom application
+mini-framework built around Google Guice, Google Guava and
+other tools.
 
 License and authors
 -------------------
@@ -39,7 +39,7 @@ License and authors
 The software is available as a free software under the terms
 of GNU Lesser General Public License 3.
 
-(c) Invenzzia Group 2011-2012
+(c) Invenzzia Group 2011-2013
 
 * Author: Tomasz Jędrzejewski
 

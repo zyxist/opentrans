@@ -24,13 +24,14 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import org.invenzzia.opentrans.lightweight.annotations.Action;
 import org.invenzzia.opentrans.lightweight.annotations.FormField;
+import org.invenzzia.opentrans.lightweight.controllers.IFormErrorView;
 import org.invenzzia.opentrans.visitons.data.MeanOfTransport.MeanOfTransportRecord;
 
 /**
  *
  * @author Tomasz Jędrzejewski
  */
-public class MeanOfTransportDialog extends javax.swing.JDialog {
+public class MeanOfTransportDialog extends javax.swing.JDialog implements IFormErrorView {
 	/**
 	 * Currently selected mean of transport.
 	 */
@@ -157,6 +158,7 @@ public class MeanOfTransportDialog extends javax.swing.JDialog {
 	 * 
 	 * @param message New error message.
 	 */
+	@Override
 	public void setErrorMessage(String message) {
 		this.errorLabel.setText(message);
 	}
@@ -166,6 +168,7 @@ public class MeanOfTransportDialog extends javax.swing.JDialog {
 	 * 
 	 * @return 
 	 */
+	@Override
 	public String getErrorMessage() {
 		return this.errorLabel.getText();
 	}

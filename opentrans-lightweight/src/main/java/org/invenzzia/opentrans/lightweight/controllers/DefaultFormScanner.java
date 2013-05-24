@@ -119,10 +119,16 @@ public class DefaultFormScanner implements IFormScanner {
 			for(IValidator validator: validators) {
 				if(!validator.validate(value)) {
 					handler.setValid(this.fields.get(fieldName), this.viewInstance, false);
+					if(this.viewInstance instanceof IFormErrorView) {
+						((IFormErrorView)this.viewInstance).setErrorMessage(validator.getErrorMessage());
+					}
 					return false;
 				}
 			}
 			handler.setValid(this.fields.get(fieldName), this.viewInstance, true);
+			if(this.viewInstance instanceof IFormErrorView) {
+				((IFormErrorView)this.viewInstance).setErrorMessage("");
+			}
 			return true;
 		} catch(Exception exception) {
 			throw new IllegalStateException("Cannot validate the field '"+fieldName+"'.", exception);

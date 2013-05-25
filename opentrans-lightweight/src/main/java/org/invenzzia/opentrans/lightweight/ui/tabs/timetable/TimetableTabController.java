@@ -17,13 +17,17 @@
 package org.invenzzia.opentrans.lightweight.ui.tabs.timetable;
 
 import com.google.common.base.Preconditions;
+import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import org.invenzzia.helium.events.HistoryChangedEvent;
 import org.invenzzia.helium.history.History;
 import org.invenzzia.opentrans.lightweight.IProjectHolder;
+import org.invenzzia.opentrans.lightweight.annotations.Action;
 import org.invenzzia.opentrans.lightweight.controllers.IActionScanner;
 import org.invenzzia.opentrans.lightweight.model.selectors.RouteSelectionModel;
 import org.invenzzia.opentrans.lightweight.ui.IDialogBuilder;
+import org.invenzzia.opentrans.lightweight.ui.dialogs.routes.RouteDialog;
 import org.invenzzia.opentrans.lightweight.ui.dialogs.routes.RouteDialogController;
 import org.invenzzia.opentrans.visitons.editing.ICommand;
 
@@ -40,7 +44,7 @@ public class TimetableTabController {
 	@Inject
 	private IDialogBuilder dialogBuilder;
 	@Inject
-	private Provider<RouteDialogController> lineDialogControllerProvider;
+	private Provider<RouteDialogController> routeDialogControllerProvider;
 	@Inject
 	private IProjectHolder projectHolder;
 	@Inject
@@ -74,5 +78,44 @@ public class TimetableTabController {
 	
 	public TimetableTab getView() {
 		return this.view;
+	}
+	
+	@Action("manageRoutes")
+	public void manageRoutesAction() {
+		RouteDialog dialog = this.dialogBuilder.createModalDialog(RouteDialog.class);
+		RouteDialogController controller = this.routeDialogControllerProvider.get();
+		controller.setView(dialog);
+		dialog.setVisible(true);
+	}
+	
+	@Action("serviceTypes")
+	public void serviceTypesAction() {
+		
+	}
+	
+	@Action("addService")
+	public void addService() {
+		
+	}
+	
+	@Action("editService")
+	public void editService() {
+		
+	}
+	
+	@Action("removeService")
+	public void removeService() {
+		
+	}
+	
+	/**
+	 * When the history is changed, we must probably refresh the data in the tab
+	 * in order to be up-to-date.
+	 * 
+	 * @param event History change event.
+	 */
+	@Subscribe
+	public void notifyHistoryChanged(HistoryChangedEvent<ICommand> event) {
+		this.model.updateData();
 	}
 }

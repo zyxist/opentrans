@@ -17,6 +17,7 @@
 package org.invenzzia.opentrans.lightweight.ui.tabs.timetable;
 
 import java.util.Set;
+import org.invenzzia.opentrans.lightweight.annotations.Action;
 import org.invenzzia.opentrans.lightweight.model.IBatchModelListener;
 import org.invenzzia.opentrans.lightweight.model.selectors.RouteSelectionModel;
 
@@ -140,7 +141,7 @@ public class TimetableTab extends javax.swing.JPanel implements IBatchModelListe
         servicePanelLayout.setVerticalGroup(
             servicePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(servicePanelLayout.createSequentialGroup()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 411, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 412, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -207,21 +208,25 @@ public class TimetableTab extends javax.swing.JPanel implements IBatchModelListe
         );
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    @Action("addService")
     private javax.swing.JButton addServiceButton;
+    @Action("editService")
     private javax.swing.JButton editServiceButton;
     private javax.swing.JScrollPane jScrollPane1;
+    @Action("manageRoutes")
     private javax.swing.JButton manageRoutesbutton;
+    @Action("removeService")
     private javax.swing.JButton removeServiceButton;
     private javax.swing.JLabel routeLabel;
     private javax.swing.JComboBox routeSelectionBox;
     private javax.swing.JPanel servicePanel;
     private javax.swing.JTable serviceTable;
+    @Action("serviceTypes")
     private javax.swing.JButton serviceTypeButton;
     // End of variables declaration//GEN-END:variables
 
 	@Override
 	public void modelDataAvailable(TimetableTabModel model) {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
 	}
 	
 	public static class TimetableTabEvent {

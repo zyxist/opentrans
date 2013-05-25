@@ -32,7 +32,7 @@ import org.invenzzia.opentrans.visitons.data.manager.RouteManager;
  */
 public class TimetableTabModel extends AbstractBatchModel {
 	/**
-	 * All the selected lines.
+	 * All the selected routes.
 	 */
 	private List<RouteRecord> routes;
 	

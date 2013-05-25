@@ -108,21 +108,6 @@ public class VehicleTab extends javax.swing.JPanel implements IBatchModelListene
 	@Override
 	public void modelDataAvailable(VehicleTabModel model) {
 		this.model.updateModel(model.getVehicles(), model.getVehicleTypes());
-		int size = this.meanOfTransportSelector.getModel().getSize();
-		Object selectedItem = this.meanOfTransportSelector.getModel().getSelectedItem();
-		if(size > 0 && selectedItem == null) {
-			this.meanOfTransportSelector.getModel().setSelectedItem(this.meanOfTransportSelector.getModel().getElementAt(0));
-		} else if(size == 0 && selectedItem != null) {
-			this.meanOfTransportSelector.getModel().setSelectedItem(null);
-		} else {
-			for(int i = 0; i < size; i++) {
-				MeanOfTransportRecord rec = (MeanOfTransportRecord) this.meanOfTransportSelector.getModel().getElementAt(i);
-				if(rec.getId() == ((MeanOfTransportRecord) selectedItem).getId()) {
-					this.meanOfTransportSelector.getModel().setSelectedItem(rec);
-					break;
-				}
-			}
-		}
 	}
 
 	/**

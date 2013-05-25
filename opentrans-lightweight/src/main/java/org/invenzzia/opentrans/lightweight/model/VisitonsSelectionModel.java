@@ -27,6 +27,7 @@ import javax.swing.event.ListDataListener;
 import org.invenzzia.helium.data.interfaces.IIdentifiable;
 import org.invenzzia.helium.data.interfaces.IRecord;
 import org.invenzzia.opentrans.lightweight.annotations.InModelThread;
+import org.invenzzia.opentrans.lightweight.annotations.InSwingThread;
 import org.invenzzia.opentrans.visitons.Project;
 
 /**
@@ -98,8 +99,10 @@ public abstract class VisitonsSelectionModel<P, R extends IRecord<P, Project> & 
 	 * 
 	 * @param newRecords 
 	 */
+	@InSwingThread(asynchronous = true)
 	public void installModel(List<R> newRecords) {
 		this.records = newRecords;
+		this.updateSelectedItem();
 		final ListDataEvent evt = new ListDataEvent(this, ListDataEvent.CONTENTS_CHANGED, 0, this.records.size());
 		for(ListDataListener listener: this.listeners) {
 			listener.contentsChanged(evt);
@@ -182,4 +185,31 @@ public abstract class VisitonsSelectionModel<P, R extends IRecord<P, Project> & 
 	 * @param suspectedRecord The uncasted object to check.
 	 */
 	protected abstract void checkCasting(Object suspectedRecord);
+	
+	/**
+	 * The method is used, when the contents of the model are changed to determine,
+	 * which record shall be selected.
+	 */
+	private void updateSelectedItem() {
+		int size = this.getSize();
+		Object selectedItem = this.getSelectedItem();
+		if(size > 0 && selectedItem == null) {
+			this.setSelectedItem(this.getElementAt(0));
+		} else if(size == 0 && selectedItem != null) {
+			this.setSelectedItem(null);
+		} else {
+			boolean found = false;
+			for(int i = 0; i < size; i++) {
+				R rec = (R) this.getElementAt(i);
+				if(rec.getId() == ((R) selectedItem).getId()) {
+					this.setSelectedItem(rec);
+					found = true;
+					break;
+				}
+			}
+			if(!found) {
+				this.setSelectedItem(size > 0 ? this.getElementAt(0) : null);
+			}
+		}
+	}
 }

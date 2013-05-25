@@ -42,7 +42,7 @@ import org.invenzzia.opentrans.visitons.render.scene.MouseSnapshot;
  * @author Tomasz Jędrzejewski
  */
 public class TrackStream extends RenderingStreamAdapter {
-	public static final Stroke TRACK_STROKE = new BasicStroke();
+	public static final Stroke DEFAULT_STROKE = new BasicStroke();
 	
 	/**
 	 * Details: how to draw edited tracks?
@@ -55,6 +55,10 @@ public class TrackStream extends RenderingStreamAdapter {
 	
 	private byte hoveredItem = 0;
 	private long hoveredItemId = IIdentifiable.NEUTRAL_ID;
+	/**
+	 * Stroke is generated dynamically, depending on the zoom.
+	 */
+	private Stroke currentStroke;
 	
 	public TrackStream() {
 		super();
@@ -101,10 +105,13 @@ public class TrackStream extends RenderingStreamAdapter {
 			trackSnapshot.refreshTrackPainters(camera);
 		}
 
+		float height = camera.world2pix(1.5);
+		this.currentStroke = new BasicStroke(height > 1.0f ? height : 1.0f);
 		strategy.prepareTrackStroke(graphics);
 		boolean restore = false;
 		boolean found = false;
 		boolean checkHover;
+
 		for(ITrackPainter painter: trackSnapshot.getTracks()) {
 			checkHover = true;
 			if(null != ignoreHover) {
@@ -170,7 +177,7 @@ public class TrackStream extends RenderingStreamAdapter {
 
 		@Override
 		public void prepareTrackStroke(Graphics2D graphics) {
-			graphics.setStroke(TrackStream.TRACK_STROKE);
+			graphics.setStroke(currentStroke);
 			graphics.setColor(Color.BLUE);
 		}
 		
@@ -186,6 +193,7 @@ public class TrackStream extends RenderingStreamAdapter {
 
 		@Override
 		public void prepareVertexStroke(Graphics2D graphics) {
+			graphics.setStroke(DEFAULT_STROKE);
 			graphics.setColor(Color.RED);
 		}
 		
@@ -213,7 +221,7 @@ public class TrackStream extends RenderingStreamAdapter {
 
 		@Override
 		public void prepareTrackStroke(Graphics2D graphics) {
-			graphics.setStroke(TrackStream.TRACK_STROKE);
+			graphics.setStroke(currentStroke);
 			graphics.setColor(Color.BLACK);
 		}
 		
@@ -229,6 +237,7 @@ public class TrackStream extends RenderingStreamAdapter {
 
 		@Override
 		public void prepareVertexStroke(Graphics2D graphics) {
+			graphics.setStroke(DEFAULT_STROKE);
 			graphics.setColor(Color.RED);
 		}
 		

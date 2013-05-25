@@ -160,7 +160,8 @@ public class Track {
 	 * @param vertexMapping Vertices in track record may be new - we need a mapping to the actual ID-s.
 	 */
 	public void importFrom(TrackRecord tr, World world, BiMap<Long, Long> vertexMapping) {
-		this.type = tr.getType();
+		this.type = tr.getType();		
+		
 		this.metadata = tr.getMetadata();
 		long actualId = tr.getFirstVertex().getId();
 		if(actualId < IIdentifiable.NEUTRAL_ID) {
@@ -172,6 +173,38 @@ public class Track {
 			actualId = vertexMapping.get(Long.valueOf(actualId));
 		}
 		this.v2 = world.findVertex(actualId);
+		
+		// Metadata must be converted to relative coordinates.
+		double originalMeta[] = tr.getMetadata();
+		if(null != originalMeta) {
+			double metadata[] = new double[originalMeta.length];
+			System.arraycopy(originalMeta, 0, metadata, 0, originalMeta.length);
+			double dx = tr.getFirstVertex().x();
+			double dy = tr.getFirstVertex().y();
+			switch(this.type) {
+				case NetworkConst.TRACK_STRAIGHT:
+					metadata[0] -= dx;
+					metadata[1] -= dy;
+					metadata[2] -= dx;
+					metadata[3] -= dy;
+					break;
+				case NetworkConst.TRACK_FREE:
+					metadata[12] -= dx;
+					metadata[13] -= dy;
+					metadata[18] -= dx;
+					metadata[19] -= dy;
+					// Do not add break here.
+				case NetworkConst.TRACK_CURVED:
+					metadata[0] -= dx;
+					metadata[1] -= dy;
+					metadata[6] -= dx;
+					metadata[7] -= dy;
+					break;
+
+			}
+			this.metadata = metadata;
+		}
+		
 		this.length = tr.getLength();
 	}
 	
@@ -193,5 +226,16 @@ public class Track {
 		}
 		this.v1 = world.findVertex(id1);
 		this.v2 = world.findVertex(id2);
+	}
+	
+	/**
+	 * When the world is being extended, the absolute coordinates stored in the 
+	 * metadata might be a bit problematic. We must modify them.
+	 * 
+	 * @param dx
+	 * @param dy 
+	 */
+	public void adjustMetadata(double dx, double dy) {
+		
 	}
 }

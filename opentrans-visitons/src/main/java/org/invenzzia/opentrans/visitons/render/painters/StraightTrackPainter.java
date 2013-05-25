@@ -33,11 +33,25 @@ public class StraightTrackPainter implements ITrackPainter {
 	 */
 	private final long id;
 	private final double coordinates[];
+	/**
+	 * Committed track metadata are represented in relative values to the segment boundaries
+	 * in order to survive world size change. The delta is passed separately then.
+	 */
+	private double dx, dy;
 	private Line2D.Double line;
 		
+	public StraightTrackPainter(long id, double metadata[], double dx, double dy) {
+		this.coordinates = metadata;
+		this.id = id;
+		this.dx = dx;
+		this.dy = dy;
+	}
+	
 	public StraightTrackPainter(long id, double metadata[]) {
 		this.coordinates = metadata;
 		this.id = id;
+		this.dx = 0.0;
+		this.dy = 0.0;
 	}
 	
 	@Override
@@ -55,10 +69,10 @@ public class StraightTrackPainter implements ITrackPainter {
 	@Override
 	public void refreshData(CameraModelSnapshot camera) {
 		this.line = new Line2D.Double(
-			camera.world2pixX(this.coordinates[0]),
-			camera.world2pixY(this.coordinates[1]),
-			camera.world2pixX(this.coordinates[2]),
-			camera.world2pixY(this.coordinates[3])
+			camera.world2pixX(this.coordinates[0] + this.dx),
+			camera.world2pixY(this.coordinates[1] + this.dy),
+			camera.world2pixX(this.coordinates[2] + this.dx),
+			camera.world2pixY(this.coordinates[3] + this.dy)
 		);
 	}
 	

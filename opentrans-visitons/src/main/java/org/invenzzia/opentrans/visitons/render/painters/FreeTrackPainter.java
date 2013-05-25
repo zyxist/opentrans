@@ -33,12 +33,26 @@ public class FreeTrackPainter implements ITrackPainter {
 	 */
 	private final long id;
 	private double coordinates[];
+	/**
+	 * Committed track metadata are represented in relative values to the segment boundaries
+	 * in order to survive world size change. The delta is passed separately then.
+	 */
+	private double dx, dy;
 	private Arc2D.Double firstArc;
 	private Arc2D.Double secondArc;
+	
+	public FreeTrackPainter(long id, double metadata[], double dx, double dy) {
+		this.id = id;
+		this.coordinates = metadata;
+		this.dx = dx;
+		this.dy = dy;
+	}
 	
 	public FreeTrackPainter(long id, double metadata[]) {
 		this.id = id;
 		this.coordinates = metadata;
+		this.dx = 0.0;
+		this.dy = 0.0;
 	}
 	
 	@Override
@@ -57,19 +71,19 @@ public class FreeTrackPainter implements ITrackPainter {
 	@Override
 	public void refreshData(CameraModelSnapshot camera) {
 		this.firstArc = new Arc2D.Double(
-			(double) camera.world2pixX(this.coordinates[0]),
-			(double) camera.world2pixY(this.coordinates[1]),
-			(double) camera.world2pix(this.coordinates[2]),
-			(double) camera.world2pix(this.coordinates[3]),
+			(double) camera.world2pixX(this.coordinates[0] + this.dx),
+			(double) camera.world2pixY(this.coordinates[1] + this.dy),
+			(double) camera.world2pix(this.coordinates[2] + this.dx),
+			(double) camera.world2pix(this.coordinates[3] + this.dy),
 			this.coordinates[4],
 			this.coordinates[5],
 			Arc2D.OPEN
 		);
 		this.secondArc = new Arc2D.Double(
-			(double) camera.world2pixX(this.coordinates[12]),
-			(double) camera.world2pixY(this.coordinates[13]),
-			(double) camera.world2pix(this.coordinates[14]),
-			(double) camera.world2pix(this.coordinates[15]),
+			(double) camera.world2pixX(this.coordinates[12] + this.dx),
+			(double) camera.world2pixY(this.coordinates[13] + this.dy),
+			(double) camera.world2pix(this.coordinates[14] + this.dx),
+			(double) camera.world2pix(this.coordinates[15] + this.dy),
 			this.coordinates[16],
 			this.coordinates[17],
 			Arc2D.OPEN

@@ -37,13 +37,27 @@ public class CurvedTrackPainter implements ITrackPainter {
 	 */
 	private double coordinates[];
 	/**
+	 * Committed track metadata are represented in relative values to the segment boundaries
+	 * in order to survive world size change. The delta is passed separately then.
+	 */
+	private final double dx, dy;
+	/**
 	 * Precomputed arc object.
 	 */
 	private Arc2D.Double arc;
 	
+	public CurvedTrackPainter(long id, double metadata[], double dx, double dy) {
+		this.id = id;
+		this.coordinates = metadata;
+		this.dx = dx;
+		this.dy = dy;
+	}
+	
 	public CurvedTrackPainter(long id, double metadata[]) {
 		this.id = id;
 		this.coordinates = metadata;
+		this.dx = 0.0;
+		this.dy = 0.0;
 	}
 	
 	@Override
@@ -61,8 +75,8 @@ public class CurvedTrackPainter implements ITrackPainter {
 	@Override
 	public void refreshData(CameraModelSnapshot camera) {
 		this.arc = new Arc2D.Double(
-			(double) camera.world2pixX(this.coordinates[0]),
-			(double) camera.world2pixY(this.coordinates[1]),
+			(double) camera.world2pixX(this.coordinates[0] + this.dx),
+			(double) camera.world2pixY(this.coordinates[1] + this.dy),
 			(double) camera.world2pix(this.coordinates[2]),
 			(double) camera.world2pix(this.coordinates[3]),
 			this.coordinates[4],

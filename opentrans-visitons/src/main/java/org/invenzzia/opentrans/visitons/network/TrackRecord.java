@@ -78,6 +78,39 @@ public class TrackRecord {
 		this.id = track.getId();
 		this.type = track.getType();
 		this.metadata = track.getMetadata();
+		
+		// Metadata must be converted to absolute coordinates.
+		double originalMeta[] = track.getMetadata();
+		if(null != originalMeta) {
+			double metadata[] = new double[originalMeta.length];
+			System.arraycopy(originalMeta, 0, metadata, 0, originalMeta.length);
+			Segment segment = track.getFirstVertex().pos().getSegment();
+
+			double dx = track.getFirstVertex().pos().getAbsoluteX();
+			double dy = track.getFirstVertex().pos().getAbsoluteY();
+			switch(this.type) {
+				case NetworkConst.TRACK_STRAIGHT:
+					metadata[0] += dx;
+					metadata[1] += dy;
+					metadata[2] += dx;
+					metadata[3] += dy;
+					break;
+				case NetworkConst.TRACK_FREE:
+					metadata[12] += dx;
+					metadata[13] += dy;
+					metadata[18] += dx;
+					metadata[19] += dy;
+					// Do not add break here.
+				case NetworkConst.TRACK_CURVED:
+					metadata[0] += dx;
+					metadata[1] += dy;
+					metadata[6] += dx;
+					metadata[7] += dy;
+					break;
+
+			}
+			this.metadata = metadata;
+		}
 	}
 	
 	public long getId() {

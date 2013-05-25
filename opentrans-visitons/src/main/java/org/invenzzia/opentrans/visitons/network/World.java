@@ -633,15 +633,19 @@ public class World {
 		snap.setVertexArray(points, ids);
 		i = 0;
 		for(Track track: visibleTracks) {
+			// calculate deltas for the metadata - here, they are given in the relative coordinates.
+			Segment segment = track.getFirstVertex().pos().getSegment();
+			double dx = track.getFirstVertex().pos().getAbsoluteX();
+			double dy = track.getFirstVertex().pos().getAbsoluteY();
 			switch(track.getType()) {
 				case NetworkConst.TRACK_STRAIGHT:
-					snap.setTrackPainter(i++, new StraightTrackPainter(track.getId(), track.getMetadata()));
+					snap.setTrackPainter(i++, new StraightTrackPainter(track.getId(), track.getMetadata(), dx, dy));
 					break;
 				case NetworkConst.TRACK_CURVED:
-					snap.setTrackPainter(i++, new CurvedTrackPainter(track.getId(), track.getMetadata()));
+					snap.setTrackPainter(i++, new CurvedTrackPainter(track.getId(), track.getMetadata(), dx, dy));
 					break;
 				case NetworkConst.TRACK_FREE:
-					snap.setTrackPainter(i++, new FreeTrackPainter(track.getId(), track.getMetadata()));
+					snap.setTrackPainter(i++, new FreeTrackPainter(track.getId(), track.getMetadata(), dx, dy));
 					break;
 			}
 		}

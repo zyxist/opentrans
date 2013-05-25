@@ -104,7 +104,7 @@ public class LineDialogController extends AbstractDialogController<LineDialog> i
 	public void helpAction() {
 		
 	}
-	
+
 	@Action("addAction")
 	public void addAction() {
 		NewLineDialog subDialog = this.dialogBuilder.createModalDialog(NewLineDialog.class);
@@ -128,6 +128,7 @@ public class LineDialogController extends AbstractDialogController<LineDialog> i
 		if(null != record) {
 			this.model.removeRecord(record);
 			this.dialog.disableForm();
+			this.formScanner.clear();
 		}
 	}
 	
@@ -163,6 +164,7 @@ public class LineDialogController extends AbstractDialogController<LineDialog> i
 			this.formScanner.setString("description", record.getDescription());
 		} else {
 			this.dialog.disableForm();
+			this.formScanner.clear();
 		}
 	}
 }

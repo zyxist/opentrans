@@ -35,11 +35,10 @@ public interface IFormScanner {
 	 */
 	public boolean isDiscovered();
 	/**
-	 * Clears all the bindings.
+	 * Clears the values of all the discovered form fields.
 	 */
 	public void clear();
-	
-	/**\
+	/**
 	 * Performs the validation of the given form field. The method shall
 	 * change the state of the field, if the field is invalid, and display
 	 * the error somehow.

@@ -22,7 +22,7 @@ import org.invenzzia.opentrans.lightweight.annotations.Action;
 import org.invenzzia.opentrans.lightweight.annotations.FormField;
 import org.invenzzia.opentrans.lightweight.controllers.IActionScanner;
 import org.invenzzia.opentrans.lightweight.controllers.IFormScanner;
-import org.invenzzia.opentrans.lightweight.model.visitons.VehicleTypeSelectionModel;
+import org.invenzzia.opentrans.lightweight.model.selectors.VehicleTypeSelectionModel;
 import org.invenzzia.opentrans.visitons.data.Vehicle.VehicleRecord;
 import org.invenzzia.opentrans.visitons.data.VehicleType.VehicleTypeRecord;
 

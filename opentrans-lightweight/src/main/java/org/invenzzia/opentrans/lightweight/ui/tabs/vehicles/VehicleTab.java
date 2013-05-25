@@ -26,7 +26,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import org.invenzzia.opentrans.lightweight.annotations.Action;
 import org.invenzzia.opentrans.lightweight.model.IBatchModelListener;
-import org.invenzzia.opentrans.lightweight.model.visitons.VisitonsSelectionModel;
+import org.invenzzia.opentrans.lightweight.model.VisitonsSelectionModel;
 import org.invenzzia.opentrans.visitons.data.MeanOfTransport.MeanOfTransportRecord;
 import org.invenzzia.opentrans.visitons.data.Vehicle.VehicleRecord;
 

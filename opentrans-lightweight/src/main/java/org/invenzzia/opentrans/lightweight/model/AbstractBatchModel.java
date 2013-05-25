@@ -27,7 +27,6 @@ import java.util.Set;
 import org.invenzzia.opentrans.lightweight.IProjectHolder;
 import org.invenzzia.opentrans.lightweight.annotations.InModelThread;
 import org.invenzzia.opentrans.lightweight.annotations.InSwingThread;
-import org.invenzzia.opentrans.lightweight.model.visitons.VisitonsSelectionModel;
 import org.invenzzia.opentrans.visitons.Project;
 
 /**

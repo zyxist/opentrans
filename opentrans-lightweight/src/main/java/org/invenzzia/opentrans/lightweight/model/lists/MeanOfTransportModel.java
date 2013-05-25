@@ -14,34 +14,28 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.invenzzia.opentrans.lightweight.model.visitons;
 
-import java.util.List;
+package org.invenzzia.opentrans.lightweight.model.lists;
+
+import org.invenzzia.opentrans.lightweight.model.EntityListModel;
 import org.invenzzia.opentrans.visitons.Project;
-import org.invenzzia.opentrans.visitons.data.VehicleType;
-import org.invenzzia.opentrans.visitons.data.VehicleType.VehicleTypeRecord;
+import org.invenzzia.opentrans.visitons.data.MeanOfTransport;
+import org.invenzzia.opentrans.visitons.data.MeanOfTransport.MeanOfTransportRecord;
+import org.invenzzia.opentrans.visitons.data.manager.MeanOfTransportManager;
 
 /**
- * Allows displaying the list of vehicle types in a combo box.
+ * Data model for the item list that contains means of transport.
  * 
  * @author Tomasz Jędrzejewski
  */
-public class VehicleTypeSelectionModel extends VisitonsSelectionModel<VehicleType, VehicleTypeRecord> {
-
+public class MeanOfTransportModel extends EntityListModel<MeanOfTransport, MeanOfTransportRecord, MeanOfTransportManager> {
 	@Override
-	protected List<VehicleType> getRecordsFromManager(final Project project) {
-		return project.getVehicleTypeManager().getRecords();
+	protected MeanOfTransportManager getDataManager(Project project) {
+		return project.getMeanOfTransportManager();
 	}
 
 	@Override
-	protected VehicleTypeRecord createNewRecord() {
-		return new VehicleTypeRecord();
-	}
-
-	@Override
-	protected void checkCasting(Object suspectedRecord) {
-		if(!(suspectedRecord instanceof VehicleTypeRecord)) {
-			throw new IllegalArgumentException("The selected item must be a record of vehicle type.");
-		}
+	protected MeanOfTransportRecord createRecord() {
+		return new MeanOfTransportRecord();
 	}
 }

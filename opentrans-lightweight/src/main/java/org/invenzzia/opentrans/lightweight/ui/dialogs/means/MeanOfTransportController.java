@@ -17,6 +17,7 @@
 
 package org.invenzzia.opentrans.lightweight.ui.dialogs.means;
 
+import org.invenzzia.opentrans.lightweight.model.lists.MeanOfTransportModel;
 import com.google.inject.Inject;
 import java.awt.event.WindowEvent;
 import org.invenzzia.helium.data.UnitOfWork;

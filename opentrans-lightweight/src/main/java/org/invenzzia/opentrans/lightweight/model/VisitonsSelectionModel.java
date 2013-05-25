@@ -15,7 +15,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.invenzzia.opentrans.lightweight.model.visitons;
+package org.invenzzia.opentrans.lightweight.model;
 
 import java.util.LinkedHashSet;
 import java.util.LinkedList;

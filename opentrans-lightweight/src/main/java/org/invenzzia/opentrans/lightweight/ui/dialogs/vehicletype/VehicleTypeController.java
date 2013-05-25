@@ -16,6 +16,7 @@
  */
 package org.invenzzia.opentrans.lightweight.ui.dialogs.vehicletype;
 
+import org.invenzzia.opentrans.lightweight.model.lists.VehicleTypeModel;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import org.invenzzia.helium.data.UnitOfWork;
@@ -26,7 +27,7 @@ import org.invenzzia.opentrans.lightweight.annotations.Action;
 import org.invenzzia.opentrans.lightweight.annotations.FormField;
 import org.invenzzia.opentrans.lightweight.controllers.IActionScanner;
 import org.invenzzia.opentrans.lightweight.controllers.IFormScanner;
-import org.invenzzia.opentrans.lightweight.model.visitons.MeanSelectionModel;
+import org.invenzzia.opentrans.lightweight.model.selectors.MeanSelectionModel;
 import org.invenzzia.opentrans.lightweight.ui.AbstractDialogController;
 import org.invenzzia.opentrans.lightweight.ui.IDialogBuilder;
 import org.invenzzia.opentrans.lightweight.ui.dialogs.vehicletype.VehicleTypeDialog.IItemListener;

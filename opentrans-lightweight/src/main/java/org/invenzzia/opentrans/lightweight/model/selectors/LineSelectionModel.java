@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Tomasz Jędrzejewski
+ * Copyright (C) 2013 Invenzzia Group <http://www.invenzzia.org/>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,36 +12,37 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.invenzzia.opentrans.lightweight.ui.dialogs.lines;
 
-import java.util.Comparator;
-import org.invenzzia.opentrans.lightweight.model.EntityListModel;
+package org.invenzzia.opentrans.lightweight.model.selectors;
+
+import java.util.List;
+import org.invenzzia.opentrans.lightweight.model.VisitonsSelectionModel;
 import org.invenzzia.opentrans.visitons.Project;
 import org.invenzzia.opentrans.visitons.data.Line;
 import org.invenzzia.opentrans.visitons.data.Line.LineRecord;
-import org.invenzzia.opentrans.visitons.data.manager.LineManager;
-import org.invenzzia.opentrans.visitons.data.utils.LineComparator;
 
 /**
- * Data model for the item list in the dialog window.
+ * Model for displaying the list of lines in the combo box.
  * 
  * @author Tomasz Jędrzejewski
  */
-public class LineModel extends EntityListModel<Line, LineRecord, LineManager> {
+public class LineSelectionModel extends VisitonsSelectionModel<Line, LineRecord> {
 	@Override
-	protected LineManager getDataManager(Project project) {
-		return project.getLineManager();
+	protected List<Line> getRecordsFromManager(Project project) {
+		return project.getLineManager().getRecords();
 	}
 
 	@Override
-	protected LineRecord createRecord() {
+	protected LineRecord createNewRecord() {
 		return new LineRecord();
 	}
-	
+
 	@Override
-	protected Comparator<LineRecord> getComparator() {
-		return LineComparator.get();
+	protected void checkCasting(Object suspectedRecord) {
+		if(!(suspectedRecord instanceof LineRecord)) {
+			throw new IllegalArgumentException("The selected item must be a record of line.");
+		}
 	}
 }

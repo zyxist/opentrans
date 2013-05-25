@@ -16,6 +16,7 @@
  */
 package org.invenzzia.opentrans.lightweight.ui.dialogs.lines;
 
+import org.invenzzia.opentrans.lightweight.model.lists.LineModel;
 import com.google.inject.Inject;
 import org.invenzzia.helium.data.UnitOfWork;
 import org.invenzzia.helium.exception.CommandExecutionException;

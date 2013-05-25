@@ -14,8 +14,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.invenzzia.opentrans.lightweight.model.visitons;
+package org.invenzzia.opentrans.lightweight.model.selectors;
 
+import org.invenzzia.opentrans.lightweight.model.VisitonsSelectionModel;
 import java.util.List;
 import org.invenzzia.opentrans.visitons.Project;
 import org.invenzzia.opentrans.visitons.data.MeanOfTransport;

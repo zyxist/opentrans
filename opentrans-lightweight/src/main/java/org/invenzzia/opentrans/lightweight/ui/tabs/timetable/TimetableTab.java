@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 zyxist
+ * Copyright (C) 2013 Invenzzia Group <http://www.invenzzia.org/>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,20 +12,64 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 package org.invenzzia.opentrans.lightweight.ui.tabs.timetable;
 
+import java.util.Set;
+import org.invenzzia.opentrans.lightweight.model.IBatchModelListener;
+import org.invenzzia.opentrans.lightweight.model.selectors.LineSelectionModel;
+
 /**
- *
- * @author zyxist
+ * The contents of the panel for managing the lines and timetables.
+ * 
+ * @author Tomasz Jędrzejewski
  */
-public class TimetableTab extends javax.swing.JPanel {
+public class TimetableTab extends javax.swing.JPanel implements IBatchModelListener<TimetableTabModel> {
+	/**
+	 * Timetable event listeners.
+	 */
+	private Set<ITimetableTabListener> listeners;
+	
 	/**
 	 * Creates new form TimetableTab
 	 */
 	public TimetableTab() {
-		initComponents();
+		this.initComponents();
+	}
+	
+	/**
+	 * Adds a new timetable tab event listener.
+	 *
+	 * @param listener
+	 */
+	public void addTimetableTabListener(ITimetableTabListener listener) {
+		this.listeners.add(listener);
+	}
+
+	/**
+	 * Removes the existing timetable tab event listener.
+	 *
+	 * @param listener
+	 */
+	public void removeTimetableTabListener(ITimetableTabListener listener) {
+		this.listeners.remove(listener);
+	}
+
+	/**
+	 * Clears all the timetable tab event listeners.
+	 */
+	public void removeTimetableTabListeners() {
+		this.listeners.clear();
+	}
+	
+	/**
+	 * Sets the model for the line selection box.
+	 * 
+	 * @param model 
+	 */
+	public void setLineSelectionModel(LineSelectionModel model) {
+		this.lineSelectionBox.setModel(model);
 	}
 
 	/**
@@ -37,33 +81,33 @@ public class TimetableTab extends javax.swing.JPanel {
     private void initComponents() {
 
         lineLabel = new javax.swing.JLabel();
-        jComboBox1 = new javax.swing.JComboBox();
+        lineSelectionBox = new javax.swing.JComboBox();
         manageLinesButton = new javax.swing.JButton();
-        courseTypeButton = new javax.swing.JButton();
-        jPanel1 = new javax.swing.JPanel();
+        serviceTypeButton = new javax.swing.JButton();
+        servicePanel = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        serviceTable = new javax.swing.JTable();
         addCourseButton = new javax.swing.JButton();
         editCourseButton = new javax.swing.JButton();
         removeCourseButton = new javax.swing.JButton();
 
         lineLabel.setText("Line:");
 
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        lineSelectionBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
         manageLinesButton.setText("Manage");
         manageLinesButton.setMaximumSize(new java.awt.Dimension(130, 25));
         manageLinesButton.setMinimumSize(new java.awt.Dimension(130, 25));
         manageLinesButton.setPreferredSize(new java.awt.Dimension(130, 25));
 
-        courseTypeButton.setText("Course types");
-        courseTypeButton.setMaximumSize(new java.awt.Dimension(130, 25));
-        courseTypeButton.setMinimumSize(new java.awt.Dimension(130, 25));
-        courseTypeButton.setPreferredSize(new java.awt.Dimension(130, 25));
+        serviceTypeButton.setText("Service types");
+        serviceTypeButton.setMaximumSize(new java.awt.Dimension(130, 25));
+        serviceTypeButton.setMinimumSize(new java.awt.Dimension(130, 25));
+        serviceTypeButton.setPreferredSize(new java.awt.Dimension(130, 25));
 
-        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Courses"));
+        servicePanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Services"));
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        serviceTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null, null},
                 {null, null, null, null, null},
@@ -82,20 +126,20 @@ public class TimetableTab extends javax.swing.JPanel {
                 return canEdit [columnIndex];
             }
         });
-        jScrollPane1.setViewportView(jTable1);
+        jScrollPane1.setViewportView(serviceTable);
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
+        javax.swing.GroupLayout servicePanelLayout = new javax.swing.GroupLayout(servicePanel);
+        servicePanel.setLayout(servicePanelLayout);
+        servicePanelLayout.setHorizontalGroup(
+            servicePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(servicePanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 513, Short.MAX_VALUE)
                 .addContainerGap())
         );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
+        servicePanelLayout.setVerticalGroup(
+            servicePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(servicePanelLayout.createSequentialGroup()
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 410, Short.MAX_VALUE)
                 .addContainerGap())
         );
@@ -122,7 +166,7 @@ public class TimetableTab extends javax.swing.JPanel {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(servicePanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
@@ -134,11 +178,11 @@ public class TimetableTab extends javax.swing.JPanel {
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(lineLabel)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(lineSelectionBox, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(manageLinesButton, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(courseTypeButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addComponent(serviceTypeButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
@@ -148,11 +192,11 @@ public class TimetableTab extends javax.swing.JPanel {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(lineLabel)
-                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lineSelectionBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(manageLinesButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(courseTypeButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(serviceTypeButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(servicePanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -164,14 +208,38 @@ public class TimetableTab extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addCourseButton;
-    private javax.swing.JButton courseTypeButton;
     private javax.swing.JButton editCourseButton;
-    private javax.swing.JComboBox jComboBox1;
-    private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTable jTable1;
     private javax.swing.JLabel lineLabel;
+    private javax.swing.JComboBox lineSelectionBox;
     private javax.swing.JButton manageLinesButton;
     private javax.swing.JButton removeCourseButton;
+    private javax.swing.JPanel servicePanel;
+    private javax.swing.JTable serviceTable;
+    private javax.swing.JButton serviceTypeButton;
     // End of variables declaration//GEN-END:variables
+
+	@Override
+	public void modelDataAvailable(TimetableTabModel model) {
+		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+	}
+	
+	public static class TimetableTabEvent {
+	}
+	
+	/**
+	 * Allows writing notification handlers about GUI state changes.
+	 */
+	public static interface ITimetableTabListener {
+		/**
+		 * Notifies that a course has been selected.
+		 */
+		public void courseSelected(TimetableTabEvent event);
+		/**
+		 * The user has clicked the 'Edit' button.
+		 * 
+		 * @param event 
+		 */
+		public void editRequested(TimetableTabEvent event);
+	}
 }

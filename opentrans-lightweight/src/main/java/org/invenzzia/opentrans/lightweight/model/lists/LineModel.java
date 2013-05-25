@@ -22,7 +22,7 @@ import org.invenzzia.opentrans.visitons.Project;
 import org.invenzzia.opentrans.visitons.data.Line;
 import org.invenzzia.opentrans.visitons.data.Line.LineRecord;
 import org.invenzzia.opentrans.visitons.data.manager.LineManager;
-import org.invenzzia.opentrans.visitons.data.utils.LineComparator;
+import org.invenzzia.opentrans.visitons.data.utils.LineRecordComparator;
 
 /**
  * Data model for the item list in the dialog window.
@@ -42,6 +42,6 @@ public class LineModel extends EntityListModel<Line, LineRecord, LineManager> {
 	
 	@Override
 	protected Comparator<LineRecord> getComparator() {
-		return LineComparator.get();
+		return LineRecordComparator.get();
 	}
 }

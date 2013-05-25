@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 import org.invenzzia.opentrans.lightweight.model.AbstractBatchModel;
 import org.invenzzia.opentrans.visitons.Project;
-import org.invenzzia.opentrans.visitons.data.MeanOfTransport.MeanOfTransportRecord;
 import org.invenzzia.opentrans.visitons.data.Vehicle;
 import org.invenzzia.opentrans.visitons.data.Vehicle.VehicleRecord;
 import org.invenzzia.opentrans.visitons.data.VehicleType;

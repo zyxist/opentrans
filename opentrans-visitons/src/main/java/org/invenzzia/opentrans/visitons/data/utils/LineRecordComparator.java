@@ -19,25 +19,24 @@ package org.invenzzia.opentrans.visitons.data.utils;
 
 import java.io.Serializable;
 import java.util.Comparator;
-import org.invenzzia.opentrans.visitons.data.Line;
+import org.invenzzia.opentrans.visitons.data.Line.LineRecord;
 import org.invenzzia.opentrans.visitons.types.LineNumberComparator;
 
 /**
- * Comparator for {@link Line} objects that allows them being sorted
- * by their line number.
+ * For making ordered lists of lines.
  * 
  * @author Tomasz Jędrzejewski
  */
-public class LineComparator implements Comparator<Line>, Serializable {
+public class LineRecordComparator implements Comparator<LineRecord>, Serializable {
 	private LineNumberComparator comparator = LineNumberComparator.get();
-	private static final LineComparator DEFAULT_COMPARATOR = new LineComparator();
+	private static final LineRecordComparator DEFAULT_COMPARATOR = new LineRecordComparator();
 
-	public static LineComparator get() {
+	public static LineRecordComparator get() {
 		return DEFAULT_COMPARATOR;
 	}
 
 	@Override
-	public int compare(Line o1, Line o2) {
+	public int compare(LineRecord o1, LineRecord o2) {
 		return this.comparator.compare(o1.getNumber(), o2.getNumber());
 	}
 }

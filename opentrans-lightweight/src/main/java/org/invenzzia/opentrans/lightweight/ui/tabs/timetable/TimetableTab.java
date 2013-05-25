@@ -16,7 +16,11 @@
  */
 package org.invenzzia.opentrans.lightweight.ui.tabs.timetable;
 
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.util.Set;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import org.invenzzia.opentrans.lightweight.annotations.Action;
 import org.invenzzia.opentrans.lightweight.model.IBatchModelListener;
 import org.invenzzia.opentrans.lightweight.model.selectors.RouteSelectionModel;
@@ -91,10 +95,12 @@ public class TimetableTab extends javax.swing.JPanel implements IBatchModelListe
         addServiceButton = new javax.swing.JButton();
         editServiceButton = new javax.swing.JButton();
         removeServiceButton = new javax.swing.JButton();
+        copyButton = new javax.swing.JButton();
 
         routeLabel.setText("Route:");
 
         routeSelectionBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        this.routeSelectionBox.addItemListener(new RouteSelectionListener());
 
         manageRoutesbutton.setText("Manage");
         manageRoutesbutton.setMaximumSize(new java.awt.Dimension(130, 25));
@@ -110,17 +116,17 @@ public class TimetableTab extends javax.swing.JPanel implements IBatchModelListe
 
         serviceTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null}
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null}
             },
             new String [] {
-                "Name", "From", "To", "Brigade", "Status"
+                "From", "At", "To", "At", "Brigade", "Status"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, true
+                false, true, false, true, false, true
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -135,7 +141,7 @@ public class TimetableTab extends javax.swing.JPanel implements IBatchModelListe
             servicePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(servicePanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 513, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 836, Short.MAX_VALUE)
                 .addContainerGap())
         );
         servicePanelLayout.setVerticalGroup(
@@ -160,6 +166,11 @@ public class TimetableTab extends javax.swing.JPanel implements IBatchModelListe
         removeServiceButton.setMinimumSize(new java.awt.Dimension(90, 25));
         removeServiceButton.setPreferredSize(new java.awt.Dimension(90, 25));
 
+        copyButton.setText("Copy");
+        copyButton.setMaximumSize(new java.awt.Dimension(90, 25));
+        copyButton.setMinimumSize(new java.awt.Dimension(90, 25));
+        copyButton.setPreferredSize(new java.awt.Dimension(90, 25));
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -171,11 +182,13 @@ public class TimetableTab extends javax.swing.JPanel implements IBatchModelListe
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(addServiceButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(addServiceButton, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(editServiceButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(editServiceButton, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(removeServiceButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addComponent(removeServiceButton, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(copyButton, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(routeLabel)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -202,14 +215,17 @@ public class TimetableTab extends javax.swing.JPanel implements IBatchModelListe
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(editServiceButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(removeServiceButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(removeServiceButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(copyButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(addServiceButton, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(13, 13, 13))
         );
     }// </editor-fold>//GEN-END:initComponents
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     @Action("addService")
     private javax.swing.JButton addServiceButton;
+    private javax.swing.JButton copyButton;
     @Action("editService")
     private javax.swing.JButton editServiceButton;
     private javax.swing.JScrollPane jScrollPane1;
@@ -227,6 +243,25 @@ public class TimetableTab extends javax.swing.JPanel implements IBatchModelListe
 
 	@Override
 	public void modelDataAvailable(TimetableTabModel model) {
+	}
+	
+	class RouteSelectionListener implements ItemListener {
+		@Override
+		public void itemStateChanged(ItemEvent e) {
+			Object selectedItem = routeSelectionBox.getModel().getSelectedItem();
+			if(null == selectedItem) {
+				serviceTypeButton.setEnabled(false);
+				addServiceButton.setEnabled(false);
+				editServiceButton.setEnabled(false);
+				removeServiceButton.setEnabled(false);
+				copyButton.setEnabled(false);
+			} else {
+				serviceTypeButton.setEnabled(true);
+				addServiceButton.setEnabled(true);
+				editServiceButton.setEnabled(true);
+				removeServiceButton.setEnabled(true);
+				copyButton.setEnabled(true);
+			}		}
 	}
 	
 	public static class TimetableTabEvent {

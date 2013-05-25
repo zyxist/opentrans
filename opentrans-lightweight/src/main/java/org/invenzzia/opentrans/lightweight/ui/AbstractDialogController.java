@@ -58,7 +58,12 @@ public class AbstractDialogController<T extends JDialog> {
 			if(logger.isDebugEnabled()) {
 				logger.debug("Deregistering the dialog '"+AbstractDialogController.this.getClass().getSimpleName()+"' from the event bus.");
 			}
-			eventBus.unregister(AbstractDialogController.this);
+			try {
+				eventBus.unregister(AbstractDialogController.this);
+			} catch(IllegalArgumentException exception) {
+				// We shouldn't do that, but Guava EventBus interface makes us impossible to check if we have been
+				// actually registered, and it throws this exception, if we haven't.
+			}
 		}
 	}
 }

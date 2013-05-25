@@ -29,6 +29,8 @@ import org.invenzzia.opentrans.lightweight.model.selectors.RouteSelectionModel;
 import org.invenzzia.opentrans.lightweight.ui.IDialogBuilder;
 import org.invenzzia.opentrans.lightweight.ui.dialogs.routes.RouteDialog;
 import org.invenzzia.opentrans.lightweight.ui.dialogs.routes.RouteDialogController;
+import org.invenzzia.opentrans.lightweight.ui.dialogs.servicetypes.ServiceTypeDialog;
+import org.invenzzia.opentrans.lightweight.ui.dialogs.servicetypes.ServiceTypeDialogController;
 import org.invenzzia.opentrans.visitons.editing.ICommand;
 
 /**
@@ -45,6 +47,8 @@ public class TimetableTabController {
 	private IDialogBuilder dialogBuilder;
 	@Inject
 	private Provider<RouteDialogController> routeDialogControllerProvider;
+	@Inject
+	private Provider<ServiceTypeDialogController> serviceTypeDialogControllerProvider;
 	@Inject
 	private IProjectHolder projectHolder;
 	@Inject
@@ -87,12 +91,17 @@ public class TimetableTabController {
 		controller.setView(dialog);
 		dialog.setVisible(true);
 	}
-	
+
 	@Action("serviceTypes")
 	public void serviceTypesAction() {
-		
+		if(this.routeSelectionModel.getSelectedItem() != null) {
+			ServiceTypeDialog dialog = this.dialogBuilder.createModalDialog(ServiceTypeDialog.class);
+			ServiceTypeDialogController controller = this.serviceTypeDialogControllerProvider.get();
+			controller.setView(dialog);
+			dialog.setVisible(true);
+		}
 	}
-	
+
 	@Action("addService")
 	public void addService() {
 		
@@ -118,4 +127,5 @@ public class TimetableTabController {
 	public void notifyHistoryChanged(HistoryChangedEvent<ICommand> event) {
 		this.model.updateData();
 	}
+
 }

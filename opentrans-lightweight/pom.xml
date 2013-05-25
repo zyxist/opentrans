@@ -14,6 +14,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<netbeans.hint.license>gpl30</netbeans.hint.license>
+		<visitons.version>0.1.0</visitons.version>
 	</properties>
 	<licenses>
 		<license>
@@ -33,13 +34,67 @@
 					<target>1.7</target>
 				</configuration>
 			</plugin>
+			<!-- building the final software -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>2.4</version>
+				<configuration>
+					<archive>
+						<manifest>
+							<addClasspath>true</addClasspath>
+							<mainClass>org.invenzzia.opentrans.lightweight.Application</mainClass>
+						</manifest>
+					</archive>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>2.0</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+						<configuration>
+							<!-- and do not change this, or you will break Guice -->
+							<minimizeJar>false</minimizeJar>
+							<shadedArtifactAttached>true</shadedArtifactAttached>
+							<shadedClassifierName>everything</shadedClassifierName>
+							<transformers>
+								<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+									<mainClass>org.invenzzia.opentrans.lightweight.Application</mainClass>
+								</transformer>
+							</transformers>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>2.4</version>
+				<configuration>
+					<descriptor>src/main/assembly/distribution.xml</descriptor>
+					<finalName>opentrans-${project.version}</finalName>
+				</configuration>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>assembly</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
     <dependencies>
 		<dependency>
 			<groupId>org.invenzzia</groupId>
 			<artifactId>opentrans-visitons</artifactId>
-			<version>0.1.0</version>
+			<version>${visitons.version}</version>
 		</dependency>
     </dependencies>
 </project>

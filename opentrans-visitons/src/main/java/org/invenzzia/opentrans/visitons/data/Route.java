@@ -23,7 +23,8 @@ import org.invenzzia.helium.data.interfaces.IMemento;
 import org.invenzzia.helium.data.interfaces.IRecord;
 import org.invenzzia.helium.data.utils.MementoUtils;
 import org.invenzzia.opentrans.visitons.Project;
-import org.invenzzia.opentrans.visitons.types.LineNumber;
+import org.invenzzia.opentrans.visitons.types.RouteNumber;
+
 
 
 /**
@@ -31,17 +32,17 @@ import org.invenzzia.opentrans.visitons.types.LineNumber;
  * 
  * @author Tomasz Jędrzejewski
  */
-class LineBase implements IIdentifiable {
+class RouteBase implements IIdentifiable {
 	/**
 	 * Internal unique ID used for recovery.
 	 */
 	protected long id = IIdentifiable.NEUTRAL_ID;
 	/**
-	 * Number of the line.
+	 * Number of the route.
 	 */
-	protected LineNumber number = LineNumber.DEFAULT_NUMBER;
+	protected RouteNumber number = RouteNumber.DEFAULT_NUMBER;
 	/**
-	 * Optional extra description about this line.
+	 * Optional extra description about this route.
 	 */
 	protected String description;
 
@@ -55,11 +56,11 @@ class LineBase implements IIdentifiable {
 		this.id = id;
 	}
 	
-	public LineNumber getNumber() {
+	public RouteNumber getNumber() {
 		return this.number;
 	}
 	
-	public void setNumber(LineNumber number) {
+	public void setNumber(RouteNumber number) {
 		this.number = Preconditions.checkNotNull(number);
 	}
 	
@@ -82,36 +83,36 @@ class LineBase implements IIdentifiable {
 }
 
 /**
- * Represents a regular transportation line operated by vehicles. Each line has
+ * Represents a regular transport route operated by vehicles. Each route has
  * an identification number, and a timetable.
  * 
  * @author Tomasz Jędrzejewski
  */
-public final class Line extends LineBase implements IMemento<Project> {
+public final class Route extends RouteBase implements IMemento<Project> {
 
 	@Override
 	public Object getMemento(Project domainModel) {
-		LineRecord record = new LineRecord();
+		RouteRecord record = new RouteRecord();
 		record.importData(this, domainModel);
 		return record;
 	}
 
 	@Override
 	public void restoreMemento(Object memento, Project domainModel) {
-		LineRecord record = MementoUtils.checkMemento(memento, LineRecord.class, Line.class);
+		RouteRecord record = MementoUtils.checkMemento(memento, RouteRecord.class, Route.class);
 		record.exportData(this, domainModel);
 		this.id = record.id;
 	}
 	
-	public final static class LineRecord extends LineBase implements IRecord<Line, Project> {
+	public final static class RouteRecord extends RouteBase implements IRecord<Route, Project> {
 		@Override
-		public void exportData(Line original, Project domainModel) {
+		public void exportData(Route original, Project domainModel) {
 			original.setNumber(this.getNumber());
 			original.setDescription(this.getDescription());
 		}
 
 		@Override
-		public void importData(Line original, Project domainModel) {
+		public void importData(Route original, Project domainModel) {
 			this.setId(original.getId());
 			this.setNumber(original.getNumber());
 			this.setDescription(original.getDescription());

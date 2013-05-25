@@ -102,7 +102,7 @@ public abstract class EntityListModel<
 	}
 	
 	/**
-	 * Allows importing the full set of lines from the given project... but this must be done
+	 * Allows importing the full set of items from the given project... but this must be done
 	 * in the model thread.
 	 * 
 	 * @param project 

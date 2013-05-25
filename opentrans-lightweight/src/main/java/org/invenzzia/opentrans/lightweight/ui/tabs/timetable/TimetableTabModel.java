@@ -21,9 +21,9 @@ import java.util.ArrayList;
 import java.util.List;
 import org.invenzzia.opentrans.lightweight.model.AbstractBatchModel;
 import org.invenzzia.opentrans.visitons.Project;
-import org.invenzzia.opentrans.visitons.data.Line;
-import org.invenzzia.opentrans.visitons.data.Line.LineRecord;
-import org.invenzzia.opentrans.visitons.data.manager.LineManager;
+import org.invenzzia.opentrans.visitons.data.Route;
+import org.invenzzia.opentrans.visitons.data.Route.RouteRecord;
+import org.invenzzia.opentrans.visitons.data.manager.RouteManager;
 
 /**
  * The model that provides the data for the timetable tab.
@@ -34,25 +34,25 @@ public class TimetableTabModel extends AbstractBatchModel {
 	/**
 	 * All the selected lines.
 	 */
-	private List<LineRecord> lines;
+	private List<RouteRecord> routes;
 	
-	public List<LineRecord> getLines() {
-		return this.lines;
+	public List<RouteRecord> getLines() {
+		return this.routes;
 	}
 	
 	public void clear() {
-		this.lines = null;
+		this.routes = null;
 	}
 
 	@Override
 	protected void collectData(Project project) {
-		LineManager lm = project.getLineManager();
-		List<LineRecord> records = new ArrayList<>(lm.size());
-		for(Line line: lm) {
-			LineRecord record = new LineRecord();
-			record.importData(line, project);
+		RouteManager lm = project.getRouteManager();
+		List<RouteRecord> records = new ArrayList<>(lm.size());
+		for(Route route: lm) {
+			RouteRecord record = new RouteRecord();
+			record.importData(route, project);
 			records.add(record);
 		}
-		this.lines = records;
+		this.routes = records;
 	}
 }

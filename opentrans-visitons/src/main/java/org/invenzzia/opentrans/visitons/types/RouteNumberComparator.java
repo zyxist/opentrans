@@ -22,20 +22,20 @@ import java.util.Comparator;
 import net.jcip.annotations.Immutable;
 
 /**
- * Defines the sorting order for line numbers.
+ * Defines the sorting order for route numbers.
  * 
  * @author Tomasz Jędrzejewski
  */
 @Immutable
-public class LineNumberComparator implements Comparator<LineNumber>, Serializable {
-	private static final LineNumberComparator DEFAULT_INSTANCE = new LineNumberComparator();
+public class RouteNumberComparator implements Comparator<RouteNumber>, Serializable {
+	private static final RouteNumberComparator DEFAULT_INSTANCE = new RouteNumberComparator();
 	
-	public static LineNumberComparator get() {
+	public static RouteNumberComparator get() {
 		return DEFAULT_INSTANCE;
 	}
 	
 	@Override
-	public int compare(LineNumber o1, LineNumber o2) {
+	public int compare(RouteNumber o1, RouteNumber o2) {
 		if(o1.isNumericalPresent() != o2.isNumericalPresent()) {
 			if(o1.isNumericalPresent()) {
 				return -1;

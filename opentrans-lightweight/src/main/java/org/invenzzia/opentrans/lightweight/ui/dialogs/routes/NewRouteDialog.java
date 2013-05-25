@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 zyxist
+ * Copyright (C) 2013 Invenzzia Group <http://www.invenzzia.org/>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,28 +12,29 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.invenzzia.opentrans.lightweight.ui.dialogs.lines;
+
+package org.invenzzia.opentrans.lightweight.ui.dialogs.routes;
 
 /**
- * Dialog used for creating a new line.
+ * Dialog used for creating a new route.
  * 
- * @author zyxist
+ * @author Tomasz Jędrzejewski
  */
-public class NewLineDialog extends javax.swing.JDialog {
+public class NewRouteDialog extends javax.swing.JDialog {
 	/**
 	 * Whether the choice has been confirmed?
 	 */
 	private boolean confirmed = false;
 	
-	public NewLineDialog(java.awt.Frame parent, boolean modal) {
+	public NewRouteDialog(java.awt.Frame parent, boolean modal) {
 		super(parent, modal);
 		this.initComponents();
 	}
 	
 	public String getEnteredNumber() {
-		return this.lineNumberField.getText();
+		return this.routeNumberField.getText();
 	}
 	
 	public boolean isConfirmed() {
@@ -48,19 +49,20 @@ public class NewLineDialog extends javax.swing.JDialog {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        lineNumberLabel = new javax.swing.JLabel();
-        lineNumberField = new javax.swing.JTextField();
+        routeNumberLabel = new javax.swing.JLabel();
+        routeNumberField = new javax.swing.JTextField();
         cancelButton = new javax.swing.JButton();
         okButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setTitle("New route");
         setResizable(false);
 
-        lineNumberLabel.setText("Enter the line number:");
+        routeNumberLabel.setText("Enter the route number:");
 
-        lineNumberField.addActionListener(new java.awt.event.ActionListener() {
+        routeNumberField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                lineNumberFieldActionPerformed(evt);
+                routeNumberFieldActionPerformed(evt);
             }
         });
 
@@ -92,17 +94,17 @@ public class NewLineDialog extends javax.swing.JDialog {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(cancelButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addComponent(lineNumberLabel)
-                        .addComponent(lineNumberField, javax.swing.GroupLayout.PREFERRED_SIZE, 236, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(routeNumberLabel)
+                        .addComponent(routeNumberField, javax.swing.GroupLayout.PREFERRED_SIZE, 236, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(lineNumberLabel)
+                .addComponent(routeNumberLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(lineNumberField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(routeNumberField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(cancelButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -123,14 +125,14 @@ public class NewLineDialog extends javax.swing.JDialog {
 		this.dispose();
     }//GEN-LAST:event_cancelButtonActionPerformed
 
-    private void lineNumberFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lineNumberFieldActionPerformed
+    private void routeNumberFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_routeNumberFieldActionPerformed
 		this.confirmed = true;
 		this.dispose();
-    }//GEN-LAST:event_lineNumberFieldActionPerformed
+    }//GEN-LAST:event_routeNumberFieldActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton cancelButton;
-    private javax.swing.JTextField lineNumberField;
-    private javax.swing.JLabel lineNumberLabel;
     private javax.swing.JButton okButton;
+    private javax.swing.JTextField routeNumberField;
+    private javax.swing.JLabel routeNumberLabel;
     // End of variables declaration//GEN-END:variables
 }

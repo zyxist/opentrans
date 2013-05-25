@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 zyxist
+ * Copyright (C) 2013 Invenzzia Group <http://www.invenzzia.org/>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,11 +12,11 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.invenzzia.opentrans.lightweight.ui.dialogs.lines;
+package org.invenzzia.opentrans.lightweight.ui.dialogs.routes;
 
-import org.invenzzia.opentrans.lightweight.model.lists.LineModel;
+import org.invenzzia.opentrans.lightweight.model.lists.RouteModel;
 import com.google.inject.Inject;
 import org.invenzzia.helium.data.UnitOfWork;
 import org.invenzzia.helium.exception.CommandExecutionException;
@@ -28,19 +28,19 @@ import org.invenzzia.opentrans.lightweight.controllers.IActionScanner;
 import org.invenzzia.opentrans.lightweight.controllers.IFormScanner;
 import org.invenzzia.opentrans.lightweight.ui.AbstractDialogController;
 import org.invenzzia.opentrans.lightweight.ui.IDialogBuilder;
-import org.invenzzia.opentrans.lightweight.ui.dialogs.lines.LineDialog.IItemListener;
+import org.invenzzia.opentrans.lightweight.ui.dialogs.routes.RouteDialog.IItemListener;
 import org.invenzzia.opentrans.lightweight.validator.Validators;
-import org.invenzzia.opentrans.visitons.data.Line.LineRecord;
+import org.invenzzia.opentrans.visitons.data.Route.RouteRecord;
 import org.invenzzia.opentrans.visitons.editing.ICommand;
-import org.invenzzia.opentrans.visitons.editing.operations.UpdateLinesCmd;
-import org.invenzzia.opentrans.visitons.types.LineNumber;
+import org.invenzzia.opentrans.visitons.editing.operations.UpdateRoutesCmd;
+import org.invenzzia.opentrans.visitons.types.RouteNumber;
 
 /**
- * Controller for the line management dialog.
+ * Controller for the route management dialog.
  * 
- * @author zyxist
+ * @author Tomasz Jędrzejewski
  */
-public class LineDialogController extends AbstractDialogController<LineDialog> implements IItemListener {
+public class RouteDialogController extends AbstractDialogController<RouteDialog> implements IItemListener {
 	/**
 	 * Required to save the state at the end of work.
 	 */
@@ -59,7 +59,7 @@ public class LineDialogController extends AbstractDialogController<LineDialog> i
 	@Inject
 	private IFormScanner formScanner;
 	@Inject
-	private LineModel model;
+	private RouteModel model;
 	@Inject
 	private IProjectHolder projectHolder;
 	
@@ -69,13 +69,13 @@ public class LineDialogController extends AbstractDialogController<LineDialog> i
 	 * @param view The dialog view.
 	 */
 	@Override
-	public void setView(LineDialog dialog) {
+	public void setView(RouteDialog dialog) {
 		super.setView(dialog);
-		this.actionScanner.discoverActions(LineDialogController.class, this);
-		this.actionScanner.bindComponents(LineDialog.class, dialog);
+		this.actionScanner.discoverActions(RouteDialogController.class, this);
+		this.actionScanner.bindComponents(RouteDialog.class, dialog);
 		
-		this.formScanner.discoverValidators(LineDialogController.class, this);
-		this.formScanner.bindFields(LineDialog.class, dialog);
+		this.formScanner.discoverValidators(RouteDialogController.class, this);
+		this.formScanner.bindFields(RouteDialog.class, dialog);
 		
 		this.model.loadData(this.projectHolder.getCurrentProject());
 		this.dialog.setModel(this.model);
@@ -85,10 +85,10 @@ public class LineDialogController extends AbstractDialogController<LineDialog> i
 	
 	@Action("okAction")
 	public void okAction() {
-		UnitOfWork<LineRecord> unitOfWork = this.model.getUnitOfWork();
+		UnitOfWork<RouteRecord> unitOfWork = this.model.getUnitOfWork();
 		try {
 			if(!unitOfWork.isEmpty()) {
-				this.history.execute(new UpdateLinesCmd(unitOfWork));
+				this.history.execute(new UpdateRoutesCmd(unitOfWork));
 			}
 		} catch(CommandExecutionException exception) {
 			this.dialogBuilder.showError("Cannot save means of transport", exception);
@@ -108,15 +108,15 @@ public class LineDialogController extends AbstractDialogController<LineDialog> i
 
 	@Action("addAction")
 	public void addAction() {
-		NewLineDialog subDialog = this.dialogBuilder.createModalDialog(NewLineDialog.class);
+		NewRouteDialog subDialog = this.dialogBuilder.createModalDialog(NewRouteDialog.class);
 		subDialog.setVisible(true);
 		if(subDialog.isConfirmed()) {
 			String enteredName = subDialog.getEnteredNumber();
 			if(enteredName.isEmpty() || enteredName.length() > 10) {
-				this.dialogBuilder.showError("Invalid name", "Invalid line number.");
+				this.dialogBuilder.showError("Invalid name", "Invalid route number.");
 			} else {
-				LineRecord record = new LineRecord();
-				record.setNumber(LineNumber.parseString(enteredName));
+				RouteRecord record = new RouteRecord();
+				record.setNumber(RouteNumber.parseString(enteredName));
 				record.setDescription("");
 				this.model.insertRecord(record);
 			}
@@ -125,7 +125,7 @@ public class LineDialogController extends AbstractDialogController<LineDialog> i
 	
 	@Action("removeAction")
 	public void removeAction() {
-		LineRecord record = this.dialog.getSelectedRecord();
+		RouteRecord record = this.dialog.getSelectedRecord();
 		if(null != record) {
 			this.model.removeRecord(record);
 			this.dialog.disableForm();
@@ -136,9 +136,9 @@ public class LineDialogController extends AbstractDialogController<LineDialog> i
 	@FormField(name="number")
 	public void onNumberChanged() {
 		if(formScanner.validate("number", Validators.lengthBetween(1, 10))) {
-			LineRecord record = this.dialog.getSelectedRecord();
+			RouteRecord record = this.dialog.getSelectedRecord();
 			if(null != record) {
-				record.setNumber(LineNumber.parseString(this.formScanner.getString("number")));
+				record.setNumber(RouteNumber.parseString(this.formScanner.getString("number")));
 				this.model.updateRecord(record);
 			}
 		}
@@ -147,7 +147,7 @@ public class LineDialogController extends AbstractDialogController<LineDialog> i
 	@FormField(name="description")
 	public void onDescriptionChanged() {
 		if(formScanner.validate("number", Validators.lengthBetween(0, 300))) {
-			LineRecord record = this.dialog.getSelectedRecord();
+			RouteRecord record = this.dialog.getSelectedRecord();
 			if(null != record) {
 				record.setDescription(this.formScanner.getString("description"));
 				this.model.updateRecord(record);
@@ -156,9 +156,9 @@ public class LineDialogController extends AbstractDialogController<LineDialog> i
 	}
 
 	@Override
-	public void onItemSelected(LineDialog.ItemEvent event) {
+	public void onItemSelected(RouteDialog.ItemEvent event) {
 		if(event.hasRecord()) {
-			LineRecord record = event.getRecord();
+			RouteRecord record = event.getRecord();
 			this.dialog.enableForm();
 			
 			this.formScanner.setString("number", record.getNumber().toString());

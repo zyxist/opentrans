@@ -19,29 +19,29 @@ package org.invenzzia.opentrans.lightweight.model.lists;
 import java.util.Comparator;
 import org.invenzzia.opentrans.lightweight.model.EntityListModel;
 import org.invenzzia.opentrans.visitons.Project;
-import org.invenzzia.opentrans.visitons.data.Line;
-import org.invenzzia.opentrans.visitons.data.Line.LineRecord;
-import org.invenzzia.opentrans.visitons.data.manager.LineManager;
-import org.invenzzia.opentrans.visitons.data.utils.LineRecordComparator;
+import org.invenzzia.opentrans.visitons.data.Route;
+import org.invenzzia.opentrans.visitons.data.Route.RouteRecord;
+import org.invenzzia.opentrans.visitons.data.manager.RouteManager;
+import org.invenzzia.opentrans.visitons.data.utils.RouteRecordComparator;
 
 /**
  * Data model for the item list in the dialog window.
  * 
  * @author Tomasz Jędrzejewski
  */
-public class LineModel extends EntityListModel<Line, LineRecord, LineManager> {
+public class RouteModel extends EntityListModel<Route, RouteRecord, RouteManager> {
 	@Override
-	protected LineManager getDataManager(Project project) {
-		return project.getLineManager();
+	protected RouteManager getDataManager(Project project) {
+		return project.getRouteManager();
 	}
 
 	@Override
-	protected LineRecord createRecord() {
-		return new LineRecord();
+	protected RouteRecord createRecord() {
+		return new RouteRecord();
 	}
 	
 	@Override
-	protected Comparator<LineRecord> getComparator() {
-		return LineRecordComparator.get();
+	protected Comparator<RouteRecord> getComparator() {
+		return RouteRecordComparator.get();
 	}
 }

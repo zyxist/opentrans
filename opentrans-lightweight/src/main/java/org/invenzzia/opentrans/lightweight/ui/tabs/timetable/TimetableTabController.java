@@ -22,15 +22,15 @@ import com.google.inject.Provider;
 import org.invenzzia.helium.history.History;
 import org.invenzzia.opentrans.lightweight.IProjectHolder;
 import org.invenzzia.opentrans.lightweight.controllers.IActionScanner;
-import org.invenzzia.opentrans.lightweight.model.selectors.LineSelectionModel;
+import org.invenzzia.opentrans.lightweight.model.selectors.RouteSelectionModel;
 import org.invenzzia.opentrans.lightweight.ui.IDialogBuilder;
-import org.invenzzia.opentrans.lightweight.ui.dialogs.lines.LineDialogController;
+import org.invenzzia.opentrans.lightweight.ui.dialogs.routes.RouteDialogController;
 import org.invenzzia.opentrans.visitons.editing.ICommand;
 
 /**
  * Controller for the whole timetable tab: it handles all the button actions
  * and is responsible for handling the list of courses for a currently
- * selected line.
+ * selected route.
  * 
  * @author Tomasz Jędrzejewski
  */
@@ -40,7 +40,7 @@ public class TimetableTabController {
 	@Inject
 	private IDialogBuilder dialogBuilder;
 	@Inject
-	private Provider<LineDialogController> lineDialogControllerProvider;
+	private Provider<RouteDialogController> lineDialogControllerProvider;
 	@Inject
 	private IProjectHolder projectHolder;
 	@Inject
@@ -48,15 +48,15 @@ public class TimetableTabController {
 	@Inject
 	private TimetableTabModel model;
 	@Inject
-	private Provider<LineSelectionModel> lineSelectionModelProvider;
+	private Provider<RouteSelectionModel> routeSelectionModelProvider;
 	/**
 	 * Managed view
 	 */
 	private TimetableTab view;
 	/**
-	 * The currently used model for selecting the lines.
+	 * The currently used model for selecting the routes.
 	 */
-	private LineSelectionModel lineSelectionModel;
+	private RouteSelectionModel routeSelectionModel;
 	
 	public void setView(TimetableTab view) {
 		this.view = Preconditions.checkNotNull(view);
@@ -64,10 +64,10 @@ public class TimetableTabController {
 		this.actionScanner.discoverActions(TimetableTabController.class, this);
 		this.actionScanner.bindComponents(TimetableTab.class, this.view);
 		
-		this.lineSelectionModel = this.lineSelectionModelProvider.get();
-		this.model.addSelectionModel(lineSelectionModel);
+		this.routeSelectionModel = this.routeSelectionModelProvider.get();
+		this.model.addSelectionModel(routeSelectionModel);
 		this.model.addBatchModelListener(this.view);
-		this.view.setLineSelectionModel(this.lineSelectionModel);
+		this.view.setRouteSelectionModel(this.routeSelectionModel);
 		
 		this.model.updateData();
 	}

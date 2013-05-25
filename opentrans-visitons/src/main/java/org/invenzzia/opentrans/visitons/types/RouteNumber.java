@@ -20,19 +20,19 @@ package org.invenzzia.opentrans.visitons.types;
 import java.util.Objects;
 
 /**
- * In order to provide better sorting of lines, we introduce a special
- * type for representing the line numbers. Line number consists of two
+ * In order to provide better sorting of routes, we introduce a special
+ * type for representing the route numbers. Route number consists of two
  * parts: `numerical component` and `alphanumerical component`. At least one
- * of them must be set. The line number is displayed in the following
+ * of them must be set. The route number is displayed in the following
  * manner: <tt>[numerical component][alphanumerical component]</tt>.
  * 
  * @author Tomasz Jędrzejewski
  */
-public final class LineNumber {
-	public static final LineNumber DEFAULT_NUMBER = new LineNumber(0, null, true);
+public final class RouteNumber {
+	public static final RouteNumber DEFAULT_NUMBER = new RouteNumber(0, null, true);
 	
 	/**
-	 * Line number usually starts with a number.
+	 * Route number usually starts with a number.
 	 */
 	private final int numerical;
 	/**
@@ -44,9 +44,9 @@ public final class LineNumber {
 	 */
 	private final boolean numericalPresent;
 	
-	private LineNumber(int numerical, String alphanumerical, boolean numericalPresent) {
+	private RouteNumber(int numerical, String alphanumerical, boolean numericalPresent) {
 		if(!numericalPresent && null == alphanumerical) {
-			throw new IllegalArgumentException("The line number must have one of these components.");
+			throw new IllegalArgumentException("The route number must have one of these components.");
 		}
 		this.numerical = numerical;
 		this.alphanumerical = alphanumerical;
@@ -54,12 +54,12 @@ public final class LineNumber {
 	}
 	
 	/**
-	 * Converts a string representation to a {@link LineNumber} object.
+	 * Converts a string representation to a {@link RouteNumber} object.
 	 * 
 	 * @param value
 	 * @return 
 	 */
-	public static LineNumber parseString(String value) {
+	public static RouteNumber parseString(String value) {
 		if("".equals(value)) {
 			throw new IllegalArgumentException("Cannot parse an empty string.");
 		}
@@ -81,9 +81,9 @@ public final class LineNumber {
 			}
 		}
 		if(nc.length() == 0) {
-			return new LineNumber(0, alc.toString(), false);
+			return new RouteNumber(0, alc.toString(), false);
 		} else {
-			return new LineNumber(Integer.parseInt(nc.toString()), (alc.length() == 0 ? null : alc.toString()), true);
+			return new RouteNumber(Integer.parseInt(nc.toString()), (alc.length() == 0 ? null : alc.toString()), true);
 		}
 	}
 	
@@ -121,7 +121,7 @@ public final class LineNumber {
 		if(getClass() != obj.getClass()) {
 			return false;
 		}
-		final LineNumber other = (LineNumber) obj;
+		final RouteNumber other = (RouteNumber) obj;
 		if(this.numericalPresent != other.numericalPresent) {
 			return false;
 		}

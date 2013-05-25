@@ -102,7 +102,7 @@
                   <EmptySpace type="separate" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel3" min="-2" max="-2" attributes="0"/>
                   <EmptySpace min="-2" max="-2" attributes="0"/>
-                  <Component id="jScrollPane1" pref="132" max="32767" attributes="0"/>
+                  <Component id="jScrollPane1" pref="133" max="32767" attributes="0"/>
                   <EmptySpace min="-2" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Component id="formInfoLabel" alignment="0" min="-2" pref="26" max="-2" attributes="0"/>
@@ -267,7 +267,7 @@
         </Component>
         <Component class="javax.swing.JLabel" name="jLabel6">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Number of lines:"/>
+            <Property name="text" type="java.lang.String" value="Number of routes:"/>
           </Properties>
         </Component>
         <Component class="javax.swing.JTextField" name="jTextField5">

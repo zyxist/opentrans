@@ -127,15 +127,16 @@
                 <AuxValue name="JavaCodeGenerator_DeclarationPre" type="java.lang.String" value="@Action(&quot;vehicleTypes&quot;)"/>
               </AuxValues>
             </MenuItem>
-            <MenuItem class="javax.swing.JMenuItem" name="linesMenuItem">
+            <MenuItem class="javax.swing.JMenuItem" name="routesMenuItem">
               <Properties>
                 <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
-                  <KeyStroke key="Shift+Ctrl+L"/>
+                  <KeyStroke key="Shift+Ctrl+R"/>
                 </Property>
-                <Property name="text" type="java.lang.String" value="Lines"/>
+                <Property name="text" type="java.lang.String" value="Routes"/>
+                <Property name="actionCommand" type="java.lang.String" value=""/>
               </Properties>
               <AuxValues>
-                <AuxValue name="JavaCodeGenerator_DeclarationPre" type="java.lang.String" value="@Action(&quot;lines&quot;)"/>
+                <AuxValue name="JavaCodeGenerator_DeclarationPre" type="java.lang.String" value="@Action(&quot;routes&quot;)"/>
               </AuxValues>
             </MenuItem>
           </SubComponents>

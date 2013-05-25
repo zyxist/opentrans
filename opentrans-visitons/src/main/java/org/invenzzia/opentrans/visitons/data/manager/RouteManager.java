@@ -25,55 +25,55 @@ import org.invenzzia.helium.data.AbstractDataManager;
 import org.invenzzia.helium.data.interfaces.IManagerMemento;
 import org.invenzzia.helium.exception.ModelException;
 import org.invenzzia.opentrans.visitons.Project;
-import org.invenzzia.opentrans.visitons.data.Line;
-import org.invenzzia.opentrans.visitons.data.utils.LineComparator;
+import org.invenzzia.opentrans.visitons.data.Route;
+import org.invenzzia.opentrans.visitons.data.utils.RouteComparator;
 
 /**
- * Manages the list of transportation lines within the project.
+ * Manages the list of transportation routes within the project.
  * 
  * @author Tomasz Jędrzejewski
  */
-public class LineManager extends AbstractDataManager<Line> implements IManagerMemento, Iterable<Line> {
+public class RouteManager extends AbstractDataManager<Route> implements IManagerMemento, Iterable<Route> {
 	/**
 	 * The managing project.
 	 */
 	private final Project project;
 	/**
-	 * Allows listing the lines in the proper order.
+	 * Allows listing the routes in the proper order.
 	 */
-	private Set<Line> lines;
+	private Set<Route> routes;
 	
-	public LineManager(Project project) {
+	public RouteManager(Project project) {
 		super();
 		this.project = Preconditions.checkNotNull(project);
-		this.lines = new TreeSet<>(LineComparator.get());
+		this.routes = new TreeSet<>(RouteComparator.get());
 	}
 
 	@Override
 	public void restoreMemento(Object object) {
-		Line line = new Line();
-		line.restoreMemento(object, this.project);
-		this.addObject(line.getId(), line);
+		Route route = new Route();
+		route.restoreMemento(object, this.project);
+		this.addObject(route.getId(), route);
 	}
 
 	@Override
-	public Iterator<Line> iterator() {
-		return this.lines.iterator();
+	public Iterator<Route> iterator() {
+		return this.routes.iterator();
 	}
 	
 	@Override
-	protected void afterCreate(Line item) {
-		this.lines.add(item);
+	protected void afterCreate(Route item) {
+		this.routes.add(item);
 	}
 	
 	@Override
-	public void updateItem(Line item) throws ModelException {
-		this.lines.remove(item);
-		this.lines.add(item);
+	public void updateItem(Route item) throws ModelException {
+		this.routes.remove(item);
+		this.routes.add(item);
 	}
 	
 	@Override
-	protected void afterRemove(Line item) {
-		this.lines.remove(item);
+	protected void afterRemove(Route item) {
+		this.routes.remove(item);
 	}
 }

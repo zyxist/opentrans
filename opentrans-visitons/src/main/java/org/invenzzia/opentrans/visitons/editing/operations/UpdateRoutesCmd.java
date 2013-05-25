@@ -20,30 +20,30 @@ package org.invenzzia.opentrans.visitons.editing.operations;
 import org.invenzzia.helium.annotations.CommandDetails;
 import org.invenzzia.helium.data.UnitOfWork;
 import org.invenzzia.opentrans.visitons.Project;
-import org.invenzzia.opentrans.visitons.data.Line;
-import org.invenzzia.opentrans.visitons.data.Line.LineRecord;
-import org.invenzzia.opentrans.visitons.data.manager.LineManager;
+import org.invenzzia.opentrans.visitons.data.Route;
+import org.invenzzia.opentrans.visitons.data.Route.RouteRecord;
+import org.invenzzia.opentrans.visitons.data.manager.RouteManager;
 import org.invenzzia.opentrans.visitons.editing.common.AbstractUnitOfWorkCmd;
 
 /**
  * Atomic history operation that provides a batch update of all
- * lines available within the project.
+ * routes available within the project.
  * 
  * @author Tomasz Jędrzejewski
  */
-@CommandDetails(name = "Update lines")
-public class UpdateLinesCmd extends AbstractUnitOfWorkCmd<Line, LineRecord, LineManager> {
-	public UpdateLinesCmd(UnitOfWork<LineRecord> unitOfWork) {
+@CommandDetails(name = "Update routes")
+public class UpdateRoutesCmd extends AbstractUnitOfWorkCmd<Route, RouteRecord, RouteManager> {
+	public UpdateRoutesCmd(UnitOfWork<RouteRecord> unitOfWork) {
 		super(unitOfWork);
 	}
 	
 	@Override
-	protected LineManager getManager(Project project) {
-		return project.getLineManager();
+	protected RouteManager getManager(Project project) {
+		return project.getRouteManager();
 	}
 
 	@Override
-	protected Line createNewDataObject() {
-		return new Line();
+	protected Route createNewDataObject() {
+		return new Route();
 	}
 }

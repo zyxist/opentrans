@@ -154,7 +154,7 @@ public class MainWindow extends JFrame {
         jSeparator2 = new javax.swing.JPopupMenu.Separator();
         meanOfTransportMenuItem = new javax.swing.JMenuItem();
         vehicleTypeMenuItem = new javax.swing.JMenuItem();
-        linesMenuItem = new javax.swing.JMenuItem();
+        routesMenuItem = new javax.swing.JMenuItem();
         simulationMenu = new javax.swing.JMenu();
         toolsMenu = new javax.swing.JMenu();
         windowMenu = new javax.swing.JMenu();
@@ -251,9 +251,10 @@ public class MainWindow extends JFrame {
         vehicleTypeMenuItem.setText("Vehicle types");
         projectMenu.add(vehicleTypeMenuItem);
 
-        linesMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_L, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
-        linesMenuItem.setText("Lines");
-        projectMenu.add(linesMenuItem);
+        routesMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_R, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
+        routesMenuItem.setText("Routes");
+        routesMenuItem.setActionCommand("");
+        projectMenu.add(routesMenuItem);
 
         jMenuBar1.add(projectMenu);
 
@@ -324,8 +325,6 @@ public class MainWindow extends JFrame {
     private javax.swing.JPopupMenu.Separator jSeparator1;
     private javax.swing.JPopupMenu.Separator jSeparator2;
     private javax.swing.JPopupMenu.Separator jSeparator3;
-    @Action("lines")
-    private javax.swing.JMenuItem linesMenuItem;
     @Action("meansOfTransport")
     private javax.swing.JMenuItem meanOfTransportMenuItem;
     private javax.swing.JMenuItem newProjectMenuItem;
@@ -338,6 +337,8 @@ public class MainWindow extends JFrame {
     private javax.swing.JMenuItem redoMenuItem;
     @Action("resizeWorld")
     private javax.swing.JMenuItem resizeWorldMenuItem;
+    @Action("routes")
+    private javax.swing.JMenuItem routesMenuItem;
     private javax.swing.JMenuItem saveAsMenuItem;
     private javax.swing.JMenuItem saveProjectMenuItem;
     private javax.swing.JLabel secondLocationBox;

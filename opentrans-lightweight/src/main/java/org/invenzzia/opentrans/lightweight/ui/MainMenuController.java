@@ -38,8 +38,8 @@ import org.invenzzia.opentrans.lightweight.annotations.Action;
 import org.invenzzia.opentrans.lightweight.controllers.IActionScanner;
 import org.invenzzia.opentrans.lightweight.ui.dialogs.about.AboutDialog;
 import org.invenzzia.opentrans.lightweight.ui.dialogs.about.AboutDialogController;
-import org.invenzzia.opentrans.lightweight.ui.dialogs.lines.LineDialog;
-import org.invenzzia.opentrans.lightweight.ui.dialogs.lines.LineDialogController;
+import org.invenzzia.opentrans.lightweight.ui.dialogs.routes.RouteDialog;
+import org.invenzzia.opentrans.lightweight.ui.dialogs.routes.RouteDialogController;
 import org.invenzzia.opentrans.lightweight.ui.dialogs.means.MeanOfTransportController;
 import org.invenzzia.opentrans.lightweight.ui.dialogs.means.MeanOfTransportDialog;
 import org.invenzzia.opentrans.lightweight.ui.dialogs.resize.ResizeDialog;
@@ -94,7 +94,7 @@ public class MainMenuController {
 	@Inject
 	private Provider<VehicleTypeController> vehicleTypeControllerProvider;
 	@Inject
-	private Provider<LineDialogController> lineControllerProvider;
+	private Provider<RouteDialogController> lineControllerProvider;
 	@Inject
 	private Provider<AboutDialogController> aboutDialogControllerProvider;
 	/**
@@ -217,10 +217,10 @@ public class MainMenuController {
 		dialog.setVisible(true);
 	}
 	
-	@Action("lines")
-	public void linesAction() {
-		LineDialog theDialog = this.dialogBuilder.createModalDialog(LineDialog.class);
-		LineDialogController controller = this.lineControllerProvider.get();
+	@Action("routes")
+	public void routesAction() {
+		RouteDialog theDialog = this.dialogBuilder.createModalDialog(RouteDialog.class);
+		RouteDialogController controller = this.lineControllerProvider.get();
 		controller.setView(theDialog);
 		theDialog.setVisible(true);
 	}

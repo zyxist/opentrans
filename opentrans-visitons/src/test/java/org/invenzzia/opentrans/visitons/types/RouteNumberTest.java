@@ -20,21 +20,21 @@ package org.invenzzia.opentrans.visitons.types;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class LineNumberTest {
+public class RouteNumberTest {
 	
 	@Test
 	public void testParsing() {
-		LineNumber ln = LineNumber.parseString("1");
+		RouteNumber ln = RouteNumber.parseString("1");
 		Assert.assertEquals(1, ln.getNumerical());
 		Assert.assertTrue(ln.isNumericalPresent());
 		Assert.assertNull(ln.getAlphanumerical());
 		
-		ln = LineNumber.parseString("1A");
+		ln = RouteNumber.parseString("1A");
 		Assert.assertEquals(1, ln.getNumerical());
 		Assert.assertTrue(ln.isNumericalPresent());
 		Assert.assertEquals("A", ln.getAlphanumerical());
 		
-		ln = LineNumber.parseString("A1");
+		ln = RouteNumber.parseString("A1");
 		Assert.assertEquals(0, ln.getNumerical());
 		Assert.assertFalse(ln.isNumericalPresent());
 		Assert.assertEquals("A1", ln.getAlphanumerical());
@@ -42,61 +42,61 @@ public class LineNumberTest {
 	
 	@Test
 	public void testCheckingEquality() {
-		LineNumber fst = LineNumber.parseString("1");
-		LineNumber sec = LineNumber.parseString("1");
+		RouteNumber fst = RouteNumber.parseString("1");
+		RouteNumber sec = RouteNumber.parseString("1");
 		Assert.assertTrue(fst.equals(sec));
 		Assert.assertTrue(sec.equals(fst));
 		
-		fst = LineNumber.parseString("1A");
-		sec = LineNumber.parseString("1A");
+		fst = RouteNumber.parseString("1A");
+		sec = RouteNumber.parseString("1A");
 		Assert.assertTrue(fst.equals(sec));
 		Assert.assertTrue(sec.equals(fst));
 		
-		fst = LineNumber.parseString("A1");
-		sec = LineNumber.parseString("A1");
+		fst = RouteNumber.parseString("A1");
+		sec = RouteNumber.parseString("A1");
 		Assert.assertTrue(fst.equals(sec));
 		Assert.assertTrue(sec.equals(fst));
 		
-		fst = LineNumber.parseString("1A");
-		sec = LineNumber.parseString("A1");
+		fst = RouteNumber.parseString("1A");
+		sec = RouteNumber.parseString("A1");
 		Assert.assertFalse(fst.equals(sec));
 		Assert.assertFalse(sec.equals(fst));
 		
-		fst = LineNumber.parseString("1");
-		sec = LineNumber.parseString("A1");
+		fst = RouteNumber.parseString("1");
+		sec = RouteNumber.parseString("A1");
 		Assert.assertFalse(fst.equals(sec));
 		Assert.assertFalse(sec.equals(fst));
 		
-		fst = LineNumber.parseString("1");
-		sec = LineNumber.parseString("1A");
+		fst = RouteNumber.parseString("1");
+		sec = RouteNumber.parseString("1A");
 		Assert.assertFalse(fst.equals(sec));
 		Assert.assertFalse(sec.equals(fst));
 	}
 	
 	@Test
-	public void testCompareLineNumbersSameCategory() {
-		LineNumberComparator cmp = LineNumberComparator.get();
+	public void testCompareRouteNumbersSameCategory() {
+		RouteNumberComparator cmp = RouteNumberComparator.get();
 		
-		LineNumber fst = LineNumber.parseString("1");
-		LineNumber sec = LineNumber.parseString("2");
-		LineNumber trd = LineNumber.parseString("2");
-		
-		Assert.assertEquals(0, cmp.compare(sec, trd));
-		Assert.assertEquals(1, cmp.compare(sec, fst));
-		Assert.assertEquals(-1, cmp.compare(fst, sec));
-		
-		fst = LineNumber.parseString("A");
-		sec = LineNumber.parseString("B");
-		trd = LineNumber.parseString("B");
+		RouteNumber fst = RouteNumber.parseString("1");
+		RouteNumber sec = RouteNumber.parseString("2");
+		RouteNumber trd = RouteNumber.parseString("2");
 		
 		Assert.assertEquals(0, cmp.compare(sec, trd));
 		Assert.assertEquals(1, cmp.compare(sec, fst));
 		Assert.assertEquals(-1, cmp.compare(fst, sec));
 		
-		fst = LineNumber.parseString("AA");
-		sec = LineNumber.parseString("AB");
-		trd = LineNumber.parseString("AB");
-		LineNumber fth = LineNumber.parseString("BA");
+		fst = RouteNumber.parseString("A");
+		sec = RouteNumber.parseString("B");
+		trd = RouteNumber.parseString("B");
+		
+		Assert.assertEquals(0, cmp.compare(sec, trd));
+		Assert.assertEquals(1, cmp.compare(sec, fst));
+		Assert.assertEquals(-1, cmp.compare(fst, sec));
+		
+		fst = RouteNumber.parseString("AA");
+		sec = RouteNumber.parseString("AB");
+		trd = RouteNumber.parseString("AB");
+		RouteNumber fth = RouteNumber.parseString("BA");
 		
 		Assert.assertEquals(0, cmp.compare(sec, trd));
 		Assert.assertEquals(1, cmp.compare(sec, fst));
@@ -105,13 +105,13 @@ public class LineNumberTest {
 	}
 	
 	@Test
-	public void testCompareLineNumbersMixedCategories() {
-		LineNumberComparator cmp = LineNumberComparator.get();
+	public void testCompareRouteNumbersMixedCategories() {
+		RouteNumberComparator cmp = RouteNumberComparator.get();
 		
-		LineNumber fst = LineNumber.parseString("1A");
-		LineNumber sec = LineNumber.parseString("2A");
-		LineNumber trd = LineNumber.parseString("2A");
-		LineNumber fth = LineNumber.parseString("1B");
+		RouteNumber fst = RouteNumber.parseString("1A");
+		RouteNumber sec = RouteNumber.parseString("2A");
+		RouteNumber trd = RouteNumber.parseString("2A");
+		RouteNumber fth = RouteNumber.parseString("1B");
 		
 		Assert.assertEquals(0, cmp.compare(sec, trd));
 		Assert.assertEquals(-1, cmp.compare(fst, sec));
@@ -124,11 +124,11 @@ public class LineNumberTest {
 	}
 	
 	@Test
-	public void testCompareLineNumbersDifferentCategories() {
-		LineNumberComparator cmp = LineNumberComparator.get();
+	public void testCompareRouteNumbersDifferentCategories() {
+		RouteNumberComparator cmp = RouteNumberComparator.get();
 		
-		LineNumber fst = LineNumber.parseString("1A");
-		LineNumber sec = LineNumber.parseString("A");
+		RouteNumber fst = RouteNumber.parseString("1A");
+		RouteNumber sec = RouteNumber.parseString("A");
 		
 		Assert.assertEquals(-1, cmp.compare(fst, sec));
 		Assert.assertEquals(1, cmp.compare(sec, fst));

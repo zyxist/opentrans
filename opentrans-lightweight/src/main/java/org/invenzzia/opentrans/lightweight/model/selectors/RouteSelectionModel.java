@@ -20,29 +20,29 @@ package org.invenzzia.opentrans.lightweight.model.selectors;
 import java.util.List;
 import org.invenzzia.opentrans.lightweight.model.VisitonsSelectionModel;
 import org.invenzzia.opentrans.visitons.Project;
-import org.invenzzia.opentrans.visitons.data.Line;
-import org.invenzzia.opentrans.visitons.data.Line.LineRecord;
+import org.invenzzia.opentrans.visitons.data.Route;
+import org.invenzzia.opentrans.visitons.data.Route.RouteRecord;
 
 /**
- * Model for displaying the list of lines in the combo box.
+ * Model for displaying the list of routes in the combo box.
  * 
  * @author Tomasz Jędrzejewski
  */
-public class LineSelectionModel extends VisitonsSelectionModel<Line, LineRecord> {
+public class RouteSelectionModel extends VisitonsSelectionModel<Route, RouteRecord> {
 	@Override
-	protected List<Line> getRecordsFromManager(Project project) {
-		return project.getLineManager().getRecords();
+	protected List<Route> getRecordsFromManager(Project project) {
+		return project.getRouteManager().getRecords();
 	}
 
 	@Override
-	protected LineRecord createNewRecord() {
-		return new LineRecord();
+	protected RouteRecord createNewRecord() {
+		return new RouteRecord();
 	}
 
 	@Override
 	protected void checkCasting(Object suspectedRecord) {
-		if(!(suspectedRecord instanceof LineRecord)) {
-			throw new IllegalArgumentException("The selected item must be a record of line.");
+		if(!(suspectedRecord instanceof RouteRecord)) {
+			throw new IllegalArgumentException("The selected item must be a record of route.");
 		}
 	}
 }

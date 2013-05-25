@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.invenzzia.opentrans.lightweight.ui.dialogs.lines;
+package org.invenzzia.opentrans.lightweight.ui.dialogs.routes;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -24,17 +24,18 @@ import javax.swing.event.ListSelectionListener;
 import org.invenzzia.opentrans.lightweight.annotations.Action;
 import org.invenzzia.opentrans.lightweight.annotations.FormField;
 import org.invenzzia.opentrans.lightweight.controllers.IFormErrorView;
-import org.invenzzia.opentrans.visitons.data.Line.LineRecord;
+import org.invenzzia.opentrans.visitons.data.Route.RouteRecord;
 
 /**
- * Dialog window for batch managing of transportation lines.
+ * Dialog window for batch managing of transportation routes.
+ * 
  * @author Tomasz Jędrzejewski
  */
-public class LineDialog extends javax.swing.JDialog implements IFormErrorView {
+public class RouteDialog extends javax.swing.JDialog implements IFormErrorView {
 	/**
-	 * Currently selected line.
+	 * Currently selected route.
 	 */
-	private LineRecord selectedRecord;
+	private RouteRecord selectedRecord;
 	/**
 	 * Listeners for the selection events.
 	 */
@@ -43,7 +44,7 @@ public class LineDialog extends javax.swing.JDialog implements IFormErrorView {
 	/**
 	 * Creates new form LineDialog
 	 */
-	public LineDialog(java.awt.Frame parent, boolean modal) {
+	public RouteDialog(java.awt.Frame parent, boolean modal) {
 		super(parent, modal);
 		initComponents();
 	}
@@ -78,7 +79,7 @@ public class LineDialog extends javax.swing.JDialog implements IFormErrorView {
 	 * 
 	 * @param model 
 	 */
-	public void setModel(ListModel<LineRecord> model) {
+	public void setModel(ListModel<RouteRecord> model) {
 		this.itemList.setModel(model);
 	}
 	
@@ -87,7 +88,7 @@ public class LineDialog extends javax.swing.JDialog implements IFormErrorView {
 	 * 
 	 * @return Current management model.
 	 */
-	public ListModel<LineRecord> getModel() {
+	public ListModel<RouteRecord> getModel() {
 		return this.itemList.getModel();
 	}
 	
@@ -96,7 +97,7 @@ public class LineDialog extends javax.swing.JDialog implements IFormErrorView {
 	 * 
 	 * @return Selected item.
 	 */
-	public LineRecord getSelectedRecord() {
+	public RouteRecord getSelectedRecord() {
 		return this.selectedRecord;
 	}
 	
@@ -160,7 +161,7 @@ public class LineDialog extends javax.swing.JDialog implements IFormErrorView {
         helpButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle("Manage lines");
+        setTitle("Manage routes");
 
         jScrollPane1.setHorizontalScrollBar(null);
         jScrollPane1.setPreferredSize(new java.awt.Dimension(200, 139));
@@ -301,7 +302,7 @@ public class LineDialog extends javax.swing.JDialog implements IFormErrorView {
 	class ItemSelectionListener implements ListSelectionListener {
 		@Override
 		public void valueChanged(ListSelectionEvent e) {
-			LineRecord record = (LineRecord) itemList.getSelectedValue();
+			RouteRecord record = (RouteRecord) itemList.getSelectedValue();
 			selectedRecord = record;
 			
 			final ItemEvent event = new ItemEvent(record);
@@ -312,13 +313,13 @@ public class LineDialog extends javax.swing.JDialog implements IFormErrorView {
 	}
 	
 	public static class ItemEvent {
-		private final LineRecord record;
+		private final RouteRecord record;
 		
-		public ItemEvent(LineRecord record) {
+		public ItemEvent(RouteRecord record) {
 			this.record = record;
 		}
 		
-		public LineRecord getRecord() {
+		public RouteRecord getRecord() {
 			return this.record;
 		}
 		

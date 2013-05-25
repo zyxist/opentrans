@@ -23,18 +23,18 @@
                   <Group type="102" attributes="0">
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Group type="102" attributes="0">
-                              <Component id="addCourseButton" min="-2" max="-2" attributes="0"/>
+                              <Component id="addServiceButton" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="editCourseButton" min="-2" max="-2" attributes="0"/>
+                              <Component id="editServiceButton" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="removeCourseButton" min="-2" max="-2" attributes="0"/>
+                              <Component id="removeServiceButton" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <Group type="102" alignment="0" attributes="0">
-                              <Component id="lineLabel" min="-2" max="-2" attributes="0"/>
+                              <Component id="routeLabel" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="lineSelectionBox" min="-2" pref="127" max="-2" attributes="0"/>
+                              <Component id="routeSelectionBox" min="-2" pref="127" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="manageLinesButton" min="-2" pref="130" max="-2" attributes="0"/>
+                              <Component id="manageRoutesbutton" min="-2" pref="130" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="serviceTypeButton" min="-2" max="-2" attributes="0"/>
                           </Group>
@@ -51,9 +51,9 @@
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="lineLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="lineSelectionBox" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="manageLinesButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="routeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="routeSelectionBox" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="manageRoutesbutton" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="serviceTypeButton" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
@@ -61,10 +61,10 @@
               <EmptySpace type="unrelated" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="103" alignment="1" groupAlignment="3" attributes="0">
-                      <Component id="editCourseButton" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="removeCourseButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="editServiceButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="removeServiceButton" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <Component id="addCourseButton" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="addServiceButton" alignment="1" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="13" pref="13" max="-2" attributes="0"/>
           </Group>
@@ -72,12 +72,12 @@
     </DimensionLayout>
   </Layout>
   <SubComponents>
-    <Component class="javax.swing.JLabel" name="lineLabel">
+    <Component class="javax.swing.JLabel" name="routeLabel">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Line:"/>
+        <Property name="text" type="java.lang.String" value="Route:"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JComboBox" name="lineSelectionBox">
+    <Component class="javax.swing.JComboBox" name="routeSelectionBox">
       <Properties>
         <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
           <StringArray count="4">
@@ -89,7 +89,7 @@
         </Property>
       </Properties>
     </Component>
-    <Component class="javax.swing.JButton" name="manageLinesButton">
+    <Component class="javax.swing.JButton" name="manageRoutesbutton">
       <Properties>
         <Property name="text" type="java.lang.String" value="Manage"/>
         <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
@@ -139,7 +139,7 @@
         <DimensionLayout dim="1">
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" alignment="0" attributes="0">
-                  <Component id="jScrollPane1" pref="410" max="32767" attributes="0"/>
+                  <Component id="jScrollPane1" pref="411" max="32767" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
               </Group>
           </Group>
@@ -170,7 +170,7 @@
         </Container>
       </SubComponents>
     </Container>
-    <Component class="javax.swing.JButton" name="addCourseButton">
+    <Component class="javax.swing.JButton" name="addServiceButton">
       <Properties>
         <Property name="text" type="java.lang.String" value="Add"/>
         <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
@@ -184,7 +184,7 @@
         </Property>
       </Properties>
     </Component>
-    <Component class="javax.swing.JButton" name="editCourseButton">
+    <Component class="javax.swing.JButton" name="editServiceButton">
       <Properties>
         <Property name="text" type="java.lang.String" value="Edit"/>
         <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
@@ -198,7 +198,7 @@
         </Property>
       </Properties>
     </Component>
-    <Component class="javax.swing.JButton" name="removeCourseButton">
+    <Component class="javax.swing.JButton" name="removeServiceButton">
       <Properties>
         <Property name="text" type="java.lang.String" value="Remove"/>
         <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">

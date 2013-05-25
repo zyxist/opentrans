@@ -1,3 +1,4 @@
 *.class
 */target/*
 */nbactions.xml
+opentrans-lightweight/dependency-reduced-pom.xml

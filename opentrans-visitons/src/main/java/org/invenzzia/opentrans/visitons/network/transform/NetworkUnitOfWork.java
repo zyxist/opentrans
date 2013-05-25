@@ -385,8 +385,10 @@ public class NetworkUnitOfWork {
 		mainVertex.addTrack(tr);
 		
 		freeVertex.removeTrack(tr);
-		this.addRemovedVertexId(tr.getId());
-		this.vertices.remove(freeVertex.getId());
+		this.addRemovedVertexId(freeVertex.getId());
+		// We must leave the removed vertex in the vertex buffer, because it must be synchronized
+		// to inform the model that it does not have any tracks connected. Without it, the synchronization
+		// process would also remove the track previously connected to it.
 		if(mainVertex.getId() == IIdentifiable.NEUTRAL_ID) {
 			this.addVertex(mainVertex);
 		}

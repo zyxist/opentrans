@@ -227,15 +227,4 @@ public class Track {
 		this.v1 = world.findVertex(id1);
 		this.v2 = world.findVertex(id2);
 	}
-	
-	/**
-	 * When the world is being extended, the absolute coordinates stored in the 
-	 * metadata might be a bit problematic. We must modify them.
-	 * 
-	 * @param dx
-	 * @param dy 
-	 */
-	public void adjustMetadata(double dx, double dy) {
-		
-	}
 }

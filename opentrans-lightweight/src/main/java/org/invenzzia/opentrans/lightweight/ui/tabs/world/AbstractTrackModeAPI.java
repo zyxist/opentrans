@@ -22,7 +22,6 @@ import com.google.inject.Provider;
 import org.invenzzia.helium.exception.CommandExecutionException;
 import org.invenzzia.helium.history.History;
 import org.invenzzia.opentrans.lightweight.IProjectHolder;
-import org.invenzzia.opentrans.lightweight.annotations.InModelThread;
 import org.invenzzia.opentrans.visitons.Project;
 import org.invenzzia.opentrans.visitons.bindings.ActualImporter;
 import org.invenzzia.opentrans.visitons.editing.ICommand;
@@ -33,7 +32,6 @@ import org.invenzzia.opentrans.visitons.network.World;
 import org.invenzzia.opentrans.visitons.network.transform.IRecordImporter;
 import org.invenzzia.opentrans.visitons.network.transform.NetworkUnitOfWork;
 import org.invenzzia.opentrans.visitons.network.transform.TransformEngine;
-import org.invenzzia.opentrans.visitons.network.transform.Transformations;
 import org.invenzzia.opentrans.visitons.render.CameraModel;
 import org.invenzzia.opentrans.visitons.render.SceneManager;
 import org.invenzzia.opentrans.visitons.render.scene.DebugPointSnapshot;
@@ -70,17 +68,12 @@ public abstract class AbstractTrackModeAPI {
 	 * Currently constructed unit of work.
 	 */
 	protected NetworkUnitOfWork currentUnit;
-	/**
-	 * Transformations performed on that unit.
-	 */
-	protected Transformations transformer;
 	
 	/**
 	 * Creates a new unit of work. You must first check whether the unit of work exists.
 	 */
 	protected void createUnitOfWork() {
 		this.currentUnit = this.unitOfWorkProvider.get();
-		this.transformer = new Transformations(this.currentUnit, this.recordImporter, this.api.getWorldRecord(), this.sceneManager);
 		this.transformEngine.setUnitOfWork(this.currentUnit);
 		this.transformEngine.setWorld(this.api.getWorldRecord());
 	}
@@ -99,7 +92,6 @@ public abstract class AbstractTrackModeAPI {
 	 */
 	protected void resetUnitOfWork() {
 		this.currentUnit = null;
-		this.transformer = null;
 		this.transformEngine.setUnitOfWork(null);
 	}
 	

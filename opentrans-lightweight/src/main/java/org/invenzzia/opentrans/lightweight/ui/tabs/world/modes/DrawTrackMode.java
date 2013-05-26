@@ -85,7 +85,6 @@ public class DrawTrackMode extends AbstractStateMachineEditMode {
 	
 	public void resetState() {
 		this.currentUnit = null;
-		this.transformer = null;
 		this.boundVertex = null;
 		this.resetIgnoring();
 		this.resetRenderingStream();

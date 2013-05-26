@@ -395,8 +395,8 @@ public class TransformEngine {
 			buf[from+1] = y3 - radius;
 			buf[from+2] = 2 * radius;
 			buf[from+3] = 2 * radius;
-			buf[from+4] = Math.toDegrees(angle1);
-			buf[from+5] = Math.toDegrees(diff);
+			buf[from+4] = angle1;
+			buf[from+5] = diff;
 			buf[from+6] = x3;
 			buf[from+7] = y3;
 			return buf;

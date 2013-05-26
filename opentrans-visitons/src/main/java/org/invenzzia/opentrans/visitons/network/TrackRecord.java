@@ -19,6 +19,7 @@ package org.invenzzia.opentrans.visitons.network;
 
 import com.google.common.base.Preconditions;
 import org.invenzzia.helium.data.interfaces.IIdentifiable;
+import org.invenzzia.opentrans.visitons.geometry.ArcOps;
 import org.invenzzia.opentrans.visitons.geometry.LineOps;
 import org.invenzzia.opentrans.visitons.geometry.Point;
 
@@ -335,9 +336,11 @@ public class TrackRecord {
 			case NetworkConst.TRACK_STRAIGHT:
 				return LineOps.lineLength(this.v1.x(), this.v1.y(), this.v2.x(), this.v2.y());
 			case NetworkConst.TRACK_CURVED:
-				throw new UnsupportedOperationException("Implement me!");
+				return ArcOps.arcLength(this.metadata[5], LineOps.distance(this.v1.x(), this.v1.y(), this.metadata[6], this.metadata[7]));
 			case NetworkConst.TRACK_FREE:
-				throw new UnsupportedOperationException("Implement me!");
+				return
+					ArcOps.arcLength(this.metadata[5], LineOps.distance(this.v1.x(), this.v1.y(), this.metadata[6], this.metadata[7]))
+					+ ArcOps.arcLength(this.metadata[17], LineOps.distance(this.v1.x(), this.v1.y(), this.metadata[18], this.metadata[19]));
 		}
 		throw new IllegalStateException("Invalid track type: "+this.type+" (track ID: "+this.id+")");
 	}

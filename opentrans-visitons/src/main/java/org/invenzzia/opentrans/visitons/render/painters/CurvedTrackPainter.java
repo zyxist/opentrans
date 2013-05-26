@@ -79,8 +79,8 @@ public class CurvedTrackPainter implements ITrackPainter {
 			(double) camera.world2pixY(this.coordinates[1] + this.dy),
 			(double) camera.world2pix(this.coordinates[2]),
 			(double) camera.world2pix(this.coordinates[3]),
-			this.coordinates[4],
-			this.coordinates[5],
+			Math.toDegrees(this.coordinates[4]),
+			Math.toDegrees(this.coordinates[5]),
 			Arc2D.OPEN
 		);
 	}

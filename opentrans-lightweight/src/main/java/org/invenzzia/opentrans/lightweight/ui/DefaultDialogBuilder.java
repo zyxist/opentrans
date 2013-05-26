@@ -22,13 +22,15 @@ import java.awt.Frame;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Description here.
+ * Default implementation of the service for building and managing dialogs within application.
+ * It guarantees us that every dialog is bound to the main window.
  * 
  * @author Tomasz Jędrzejewski
  */
@@ -115,5 +117,17 @@ public class DefaultDialogBuilder implements IDialogBuilder {
 		if(messageHolder instanceof RuntimeException) {
 			this.logger.error("Runtime exception captured.", messageHolder);
 		}
+	}
+
+	@Override
+	public boolean showOpenDialog(JFileChooser fileChooser) {
+		int retVal = fileChooser.showOpenDialog(this.getMainFrame());
+		return retVal == JFileChooser.APPROVE_OPTION;
+	}
+
+	@Override
+	public boolean showSaveDialog(JFileChooser fileChooser) {
+		int retVal = fileChooser.showSaveDialog(this.getMainFrame());
+		return retVal == JFileChooser.APPROVE_OPTION;
 	}
 }

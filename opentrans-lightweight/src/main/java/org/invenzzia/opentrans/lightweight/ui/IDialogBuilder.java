@@ -18,6 +18,7 @@
 package org.invenzzia.opentrans.lightweight.ui;
 
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 
 /**
  * Contains several utilities for quick dialog displaying.
@@ -85,4 +86,18 @@ public interface IDialogBuilder {
 	 * @return True, if the user answered 'Yes'.
 	 */
 	public boolean showConfirmDialog(String title, String message);
+	/**
+	 * Shows the file chooser, and returns <strong>true</strong>, if the user
+	 * has approved the choice.
+	 * 
+	 * @param fileChooser The file chooser to display.
+	 */
+	public boolean showOpenDialog(JFileChooser fileChooser);
+	/**
+	 * Shows the file chooser, and returns <strong>true</strong>, if the user
+	 * has approved the choice.
+	 * 
+	 * @param fileChooser The file chooser to display.
+	 */
+	public boolean showSaveDialog(JFileChooser fileChooser);
 }

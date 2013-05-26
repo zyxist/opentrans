@@ -18,6 +18,9 @@
 package org.invenzzia.opentrans.visitons.network;
 
 import com.google.common.base.Preconditions;
+import java.awt.Image;
+import java.io.File;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -25,6 +28,7 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
+import javax.imageio.ImageIO;
 import org.invenzzia.helium.data.interfaces.IIdentifiable;
 import org.invenzzia.opentrans.visitons.exception.WorldException;
 import org.invenzzia.opentrans.visitons.render.AbstractCameraModelFoundation;
@@ -33,7 +37,11 @@ import org.invenzzia.opentrans.visitons.render.painters.CurvedTrackPainter;
 import org.invenzzia.opentrans.visitons.render.painters.FreeTrackPainter;
 import org.invenzzia.opentrans.visitons.render.painters.StraightTrackPainter;
 import org.invenzzia.opentrans.visitons.render.scene.CommittedTrackSnapshot;
+import org.invenzzia.opentrans.visitons.render.scene.VisibleSegmentSnapshot;
+import org.invenzzia.opentrans.visitons.render.scene.VisibleSegmentSnapshot.SegmentInfo;
 import org.invenzzia.opentrans.visitons.utils.SegmentCoordinate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Keeps all the information about the transportation network infrastructure
@@ -49,6 +57,7 @@ import org.invenzzia.opentrans.visitons.utils.SegmentCoordinate;
  * @author Tomasz Jędrzejewski
  */
 public class World {
+	private final Logger logger = LoggerFactory.getLogger(World.class);
 	/**
 	 * A helper enumerator to specify the vertical directions.
 	 */
@@ -90,6 +99,10 @@ public class World {
 	 * All the tracks managed by the project.
 	 */
 	private Map<Long, Track> tracks;
+	/**
+	 * Buffer for pre-loaded segment bitmaps.
+	 */
+	private Map<String, Image> loadedSegmentBitmaps;
 
 	/**
 	 * Initializes an empty world with the dimensions 1x1.
@@ -99,6 +112,7 @@ public class World {
 		this.dimY = 1;
 		this.vertices = new LinkedHashMap<>();
 		this.tracks = new LinkedHashMap<>();
+		this.loadedSegmentBitmaps = new LinkedHashMap<>();
 		this.createWorld();
 	}
 
@@ -607,8 +621,23 @@ public class World {
 		Collection<Segment> visibleSegments = this.getVisibleSegments(camera);
 		
 		int vertexNum = 0;
+		VisibleSegmentSnapshot vss = new VisibleSegmentSnapshot();
 		for(Segment segment: visibleSegments) {
+			// TODO: Add some smarter buffering that recovers the unused segment image memory.
 			vertexNum += segment.getVertexNum();
+			Image img = null;
+			if(null != segment.getImagePath()) {
+				img = this.loadedSegmentBitmaps.get(segment.getImagePath());
+				if(null == img) {
+					try {
+						img = ImageIO.read(new File(segment.getImagePath()));
+						this.loadedSegmentBitmaps.put(segment.getImagePath(), img);
+					} catch(IOException exception) {
+						logger.error("Exception occurred while loading the segment bitmap.", exception);
+					}
+				}
+			}
+			vss.addSegmentInfo(new SegmentInfo(segment, img));
 		}
 		
 		double points[] = new double[vertexNum * 2];
@@ -649,10 +678,16 @@ public class World {
 					break;
 			}
 		}
-		if(batch) {
+		if(!batch) {
+			sm.guard();
+		}
+		try {
+			sm.batchUpdateResource(VisibleSegmentSnapshot.class, vss);
 			sm.batchUpdateResource(CommittedTrackSnapshot.class, snap);
-		} else {
-			sm.updateResource(CommittedTrackSnapshot.class, snap);
+		} finally {
+			if(!batch) {
+				sm.unguard();
+			}
 		}
 	}
 }

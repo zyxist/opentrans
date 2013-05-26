@@ -109,7 +109,7 @@ public class ExtendTrack extends AbstractOperation {
 	private VertexRecord buildVertex(ITransformAPI api, TransformInput input) {
 		VertexRecord vr = new VertexRecord();
 		vr.setPosition(input.a1, input.a2);
-		vr.setTangent(input.v1.tangent());
+		vr.setFirstTangent(input.v1.tangent());
 		
 		api.getUnitOfWork().addVertex(vr);
 		return vr;

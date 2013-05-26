@@ -46,10 +46,6 @@ public class VertexRecord {
 	 */
 	private double y;
 	/**
-	 * The curve tangent in this vertex.
-	 */
-	private double tangent;
-	/**
 	 * First connected track.
 	 */
 	private TrackRecord firstTrack;
@@ -65,6 +61,16 @@ public class VertexRecord {
 	 * For the import from the domain model: ID of the connected, but unimported second track.
 	 */
 	private long secondTrackId = IIdentifiable.NEUTRAL_ID;
+	/**
+	 * Tangent for the first track: specifies, which direction this track goes out to.
+	 * Condition: <tt>t1 = t2 + PI</tt>
+	 */
+	private double t1;
+	/**
+	 * Tangent for the second track: specifies, which direction this track goes out to.
+	 * Condition: <tt>t2 = t1 + PI</tt>
+	 */
+	private double t2;
 	
 	/**
 	 * Creates a new, empty vertex record.
@@ -83,7 +89,8 @@ public class VertexRecord {
 		SegmentCoordinate coord = vertex.pos();
 		this.x = coord.getAbsoluteX();
 		this.y = coord.getAbsoluteY();
-		this.tangent = vertex.tangent();
+		this.t1 = vertex.firstTangent();
+		this.t2 = vertex.secondTangent();
 		if(null != vertex.getFirstTrack()) {
 			this.firstTrackId = vertex.getFirstTrack().getId();
 		}
@@ -152,17 +159,86 @@ public class VertexRecord {
 	 * @return Tangent in this point.
 	 */
 	public double tangent() {
-		return this.tangent;
+		return this.t1;
+	}
+	
+	public double firstTangent() {
+		return this.t1;
+	}
+	
+	public double secondTangent() {
+		return this.t2;
 	}
 	
 	/**
-	 * Tangent specifies the slope of the tangent line given in this vertex. It is calculated
-	 * from the tracks connected to it.
+	 * Returns the tangent for the given track in this vertex.
 	 * 
-	 * @param tangent New tangent value.
+	 * @param tr Track record.
+	 * @return Tangent for this track.
 	 */
-	public void setTangent(double tangent) {
-		this.tangent = tangent;
+	public double tangentFor(TrackRecord tr) {
+		if(tr == this.firstTrack) {
+			return this.t1;
+		} else if(tr == this.secondTrack) {
+			return this.t2;
+		} else {
+			throw new IllegalArgumentException("The track #"+tr.getId()+" is not connected to vertex #"+this.getId());
+		}
+	}
+
+	/**
+	 * Basic setter for the tangent of the first vertex. Usually, you won't be interested
+	 * in using this raw method.
+	 * 
+	 * @param tangent
+	 * @return Fluent interface.
+	 */
+	public VertexRecord setFirstTangent(double tangent) {
+		this.t1 = tangent;
+		return this;
+	}
+	
+	/**
+	 * Basic setter for the tangent of the second vertex. Usually, you won't be interested
+	 * in using this raw method.
+	 * 
+	 * @param tangent
+	 * @return Fluent interface.
+	 */
+	public VertexRecord setSecondTangent(double tangent) {
+		this.t2 = tangent;
+		return this;
+	}
+	
+	/**
+	 * Sets the tangent for the specified track. Before applying this method, the
+	 * user must ensure that the operation won't break the tangent condition.
+	 * 
+	 * @param tr
+	 * @param tangent
+	 * @return Fluent interface.
+	 */
+	public VertexRecord setTangentFor(TrackRecord tr, double tangent) {
+		if(tr == this.firstTrack) {
+			this.t1 = tangent;
+		} else if(tr == this.secondTrack) {
+			this.t2 = tangent;
+		} else {
+			throw new IllegalArgumentException("The track #"+tr.getId()+" is not connected to vertex #"+this.getId());
+		}
+		return this;
+	}
+	
+	/**
+	 * Validates the tangent condition. Returns true, if changing the tangent for
+	 * the given track to the specified value is possible.
+	 * 
+	 * @param tr
+	 * @param tangent
+	 * @return True, if change is possible and won't break anything.
+	 */
+	public boolean tangentChangePossible(TrackRecord tr, double tangent) {
+		return false;
 	}
 	
 	public boolean hasAllTracks() {

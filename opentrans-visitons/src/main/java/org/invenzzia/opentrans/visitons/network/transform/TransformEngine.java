@@ -29,7 +29,6 @@ import org.invenzzia.opentrans.visitons.network.NetworkConst;
 import org.invenzzia.opentrans.visitons.network.TrackRecord;
 import org.invenzzia.opentrans.visitons.network.VertexRecord;
 import org.invenzzia.opentrans.visitons.network.WorldRecord;
-import org.invenzzia.opentrans.visitons.network.transform.ops.AbstractOperation;
 import org.invenzzia.opentrans.visitons.network.transform.ops.IOperation;
 import org.invenzzia.opentrans.visitons.render.SceneManager;
 import org.invenzzia.opentrans.visitons.render.scene.DebugPointSnapshot;
@@ -145,8 +144,8 @@ public class TransformEngine {
 			VertexRecord v1 = tr.getFirstVertex();
 			VertexRecord v2 = tr.getSecondVertex();
 			double tangent = LineOps.getTangent(v1.x(), v1.y(), v2.x(), v2.y());
-			v1.setTangent(tangent);
-			v2.setTangent(tangent);
+			v1.setFirstTangent(tangent);
+			v2.setFirstTangent(tangent);
 			tr.setMetadata(new double[] { v1.x(), v1.y(), v2.x(), v2.y() } );
 		}
 
@@ -280,7 +279,7 @@ public class TransformEngine {
 			
 			double buf[] = new double[3];
 			this.prepareCurveFreeMovement(v2, boundVertex.x(), boundVertex.y(), 0, buf);
-			boundVertex.setTangent(buf[2]);
+			boundVertex.setFirstTangent(buf[2]);
 			this.findCurveDirection(curvedTrack, v2, boundVertex, buf[0], buf[1]);
 		}
 

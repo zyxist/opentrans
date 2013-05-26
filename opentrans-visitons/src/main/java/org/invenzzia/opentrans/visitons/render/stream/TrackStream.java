@@ -21,6 +21,7 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.awt.Shape;
 import java.awt.Stroke;
 import java.util.Map;
 import org.invenzzia.helium.data.interfaces.IIdentifiable;
@@ -43,6 +44,8 @@ import org.invenzzia.opentrans.visitons.render.scene.MouseSnapshot;
  */
 public class TrackStream extends RenderingStreamAdapter {
 	public static final Stroke DEFAULT_STROKE = new BasicStroke();
+	public static final Color TRACK_COLOR = new Color(0x33, 0x33, 0xff, 0xff);
+	public static final Color SELECTED_COLOR = new Color(0x00, 0xc8, 0xff, 0xf4);
 	
 	/**
 	 * Details: how to draw edited tracks?
@@ -118,14 +121,14 @@ public class TrackStream extends RenderingStreamAdapter {
 				checkHover = ignoreHover.getTrackId() != painter.getId();
 			}
 			if(!found && checkHover && painter.hits(graphics, mouseRect)) {
-				graphics.setColor(Color.ORANGE);
+				strategy.prepareSelectedTrackStroke(graphics);
 				restore = true;
 				found = true;
 				hoverCollector.registerHoveredItem(HoveredItemSnapshot.TYPE_TRACK, painter.getId());
 			}
 			painter.draw(camera, graphics, true);
 			if(restore) {
-				graphics.setColor(Color.BLACK);
+				strategy.restoreTrackStroke(graphics);
 				restore = false;
 			}
 		}
@@ -135,6 +138,13 @@ public class TrackStream extends RenderingStreamAdapter {
 		restore = false;
 		found = false;
 		if(null != points) {
+			float radius = camera.world2pix(2.0);
+			if(radius < 3.0f) {
+				radius = 3.0f;
+			}
+			int radiusInt = (int)Math.ceil(radius);
+			int halfRadius = (int) Math.floor(radiusInt / 2.0);
+			
 			for(int i = 0, j = 0; i < points.length; i += 2, j++) {
 				int x = camera.world2pixX(points[i]) ;
 				int y = camera.world2pixY(points[i+1]);
@@ -144,16 +154,16 @@ public class TrackStream extends RenderingStreamAdapter {
 					if(null != ignoreHover) {
 						checkHover = ignoreHover.getVertexId() != ids[j];
 					}
-					if(!found && checkHover && mouse.hits(x - 1, y - 1, 3, 3)) {
-						graphics.setColor(Color.GREEN);
+					if(!found && checkHover && mouse.hits(x - halfRadius, y - halfRadius, radiusInt, radiusInt)) {
+						strategy.prepareSelectedVertexStroke(graphics);
 						restore = true;
 						found = true;
 						hoverCollector.registerHoveredItem(HoveredItemSnapshot.TYPE_VERTEX, ids[j]);
 					}
 				}
-				strategy.drawVertex(graphics, x, y, prevTimeFrame);
+				strategy.drawVertex(graphics, x, y, radiusInt, halfRadius, prevTimeFrame);
 				if(restore == true) {
-					graphics.setColor(Color.RED);
+					strategy.restoreVertexStroke(graphics);
 				}
 			}
 		}
@@ -170,7 +180,7 @@ public class TrackStream extends RenderingStreamAdapter {
 		public void prepareVertexStroke(Graphics2D graphics);
 		public void prepareSelectedVertexStroke(Graphics2D graphics);
 		public void restoreVertexStroke(Graphics2D graphics);
-		public void drawVertex(Graphics2D graphics, int x, int y, long prevTimeFrame);
+		public void drawVertex(Graphics2D graphics, int x, int y, int radius, int halfRadius, long prevTimeFrame);
 	}
 	
 	class EditStrategy implements ITrackDrawingStrategy {
@@ -178,7 +188,7 @@ public class TrackStream extends RenderingStreamAdapter {
 		@Override
 		public void prepareTrackStroke(Graphics2D graphics) {
 			graphics.setStroke(currentStroke);
-			graphics.setColor(Color.BLUE);
+			graphics.setColor(SELECTED_COLOR);
 		}
 		
 		@Override
@@ -188,7 +198,7 @@ public class TrackStream extends RenderingStreamAdapter {
 		
 		@Override
 		public void restoreTrackStroke(Graphics2D graphics) {
-			graphics.setColor(Color.BLUE);
+			graphics.setColor(SELECTED_COLOR);
 		}
 
 		@Override
@@ -208,12 +218,14 @@ public class TrackStream extends RenderingStreamAdapter {
 		}
 
 		@Override
-		public void drawVertex(Graphics2D graphics, int x, int y, long prevTimeFrame) {
-			graphics.fillOval(x - 1, y - 1, 3, 3);
+		public void drawVertex(Graphics2D graphics, int x, int y, int radius, int halfRadius, long prevTimeFrame) {
+			graphics.fillOval(x - halfRadius, y - halfRadius, radius, radius);
 					
 			int angle = (int)((prevTimeFrame / 4)) % 360;
-			graphics.drawArc(x-4, y-4, 9, 9, angle, 45);
-			graphics.drawArc(x-4, y-4, 9, 9, (angle + 180) % 360, 45);
+			halfRadius += 3;
+			radius += 6;
+			graphics.drawArc(x-halfRadius, y-halfRadius, radius, radius, angle, 45);
+			graphics.drawArc(x-halfRadius, y-halfRadius, radius, radius, (angle + 180) % 360, 45);
 		}
 	}
 	
@@ -222,7 +234,7 @@ public class TrackStream extends RenderingStreamAdapter {
 		@Override
 		public void prepareTrackStroke(Graphics2D graphics) {
 			graphics.setStroke(currentStroke);
-			graphics.setColor(Color.BLACK);
+			graphics.setColor(TRACK_COLOR);
 		}
 		
 		@Override
@@ -232,7 +244,7 @@ public class TrackStream extends RenderingStreamAdapter {
 		
 		@Override
 		public void restoreTrackStroke(Graphics2D graphics) {
-			graphics.setColor(Color.BLACK);
+			graphics.setColor(TRACK_COLOR);
 		}
 
 		@Override
@@ -252,8 +264,8 @@ public class TrackStream extends RenderingStreamAdapter {
 		}
 
 		@Override
-		public void drawVertex(Graphics2D graphics, int x, int y, long prevTimeFrame) {
-			graphics.fillOval(x - 1, y - 1, 3, 3);
+		public void drawVertex(Graphics2D graphics, int x, int y, int radius, int halfRadius, long prevTimeFrame) {
+			graphics.fillOval(x - halfRadius, y - halfRadius, radius, radius);
 		}
 	}
 }

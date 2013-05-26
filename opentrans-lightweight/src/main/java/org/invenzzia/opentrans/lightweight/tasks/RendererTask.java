@@ -48,8 +48,8 @@ public class RendererTask implements ITask {
 
 	@Override
 	public void startup() throws TaskException {
-		this.renderer.addRenderingStream(this.gridStream);
 		this.renderer.addRenderingStream(this.bitmapStream);
+		this.renderer.addRenderingStream(this.gridStream);
 		this.renderer.addRenderingStream(this.trackStream);
 		this.renderer.addRenderingStream(this.selectionStream);
 		this.renderer.addRenderingStream(this.debugStream);

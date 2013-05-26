@@ -51,6 +51,6 @@ public class SegmentBitmapStream extends RenderingStreamAdapter {
 					}
 				}
 			}
-		}	
+		}
 	}
 } 

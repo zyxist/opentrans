@@ -17,6 +17,7 @@
 
 package org.invenzzia.opentrans.lightweight.ui.tabs.world;
 
+import com.google.common.base.Preconditions;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
@@ -32,7 +33,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.List;
-import java.util.Set;
+import javax.swing.JPopupMenu;
 import javax.swing.event.MouseInputAdapter;
 import org.invenzzia.opentrans.lightweight.annotations.InModelThread;
 import org.invenzzia.opentrans.lightweight.annotations.InSwingThread;
@@ -47,7 +48,6 @@ import org.invenzzia.opentrans.lightweight.ui.netview.NetworkView;
 import org.invenzzia.opentrans.lightweight.ui.tabs.world.WorldTab.IWorldTabListener;
 import org.invenzzia.opentrans.visitons.events.WorldSegmentUsageChangedEvent;
 import org.invenzzia.opentrans.visitons.events.WorldSizeChangedEvent;
-import org.invenzzia.opentrans.visitons.network.Track;
 import org.invenzzia.opentrans.visitons.network.World;
 import org.invenzzia.opentrans.visitons.network.WorldRecord;
 import org.invenzzia.opentrans.visitons.render.CameraModel;
@@ -55,6 +55,8 @@ import org.invenzzia.opentrans.visitons.render.CameraModelSnapshot;
 import org.invenzzia.opentrans.visitons.render.Renderer;
 import org.invenzzia.opentrans.visitons.render.SceneManager;
 import org.invenzzia.opentrans.visitons.render.scene.MouseSnapshot;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Handles user input for the world tab.
@@ -63,6 +65,7 @@ import org.invenzzia.opentrans.visitons.render.scene.MouseSnapshot;
  */
 @Singleton
 public class WorldTabController implements AdjustmentListener, IZoomListener, IWorldTabListener, IEditModeAPI {
+	private final Logger logger = LoggerFactory.getLogger(WorldTabController.class);
 	@Inject
 	private CameraModel cameraModel;
 	@Inject
@@ -104,6 +107,18 @@ public class WorldTabController implements AdjustmentListener, IZoomListener, IW
 	 * Snapshot of the basic information about the world model.
 	 */
 	private WorldRecord worldRecord;
+	/**
+	 * If we want to show popups, we must remember this.
+	 */
+	private PopupBuilder popupBuilder;
+	/**
+	 * Temporary storage for mouse event that can spawn a pop-up.
+	 */
+	private MouseEvent popupEvent;
+	
+	private double popupWorldX;
+	
+	private double popupWorldY;
 	
 	public void setWorldTab(WorldTab worldTab) {
 		if(null != this.worldTab) {
@@ -206,6 +221,7 @@ public class WorldTabController implements AdjustmentListener, IZoomListener, IW
 	@Override
 	public void modeChanged(WorldTab.WorldTabEvent event) {
 		if(null != this.currentEditMode) {
+			this.popupBuilder = null;
 			this.currentEditMode.modeDisabled();
 			this.currentEditMode = null;
 		}
@@ -228,6 +244,30 @@ public class WorldTabController implements AdjustmentListener, IZoomListener, IW
 	@Override
 	public void setStatusMessage(String message) {
 		this.eventBus.post(new StatusEvent(message));
+	}
+
+	@Override
+	public void setPopup(PopupBuilder builder) {
+		if(null != this.popupBuilder) {
+			throw new IllegalStateException("The pop-up is already installed for this mode.");
+		}
+		this.popupBuilder = Preconditions.checkNotNull(builder, "Cannot set an empty pop-up");
+	}
+	
+	@Override
+	public void showPopup() {
+		if(null == this.popupBuilder) {
+			throw new IllegalStateException("This edit mode has not installed any pop-up!");
+		}
+		if(null != this.popupEvent) {
+			JPopupMenu menu = this.popupBuilder.getMenu();
+			if(menu.isPopupTrigger(this.popupEvent)) {
+				this.popupBuilder.setCoordinates(this, this.popupWorldX, this.popupWorldY);
+				menu.show(this.popupEvent.getComponent(), this.popupEvent.getX(), this.popupEvent.getY());
+			}
+		} else {
+			logger.info("Not an pop-up event!");
+		}
 	}
 
 	/**
@@ -332,22 +372,23 @@ public class WorldTabController implements AdjustmentListener, IZoomListener, IW
 
 		@Override
 		public void mouseReleased(MouseEvent e) {
-
+			popupEvent = e;
 			// We do not want to emit dragging-related events to the edit mode, because this event
 			// has already been consumed by the scroll process and it could distrupt the edition.
 			if(e.getButton() == MouseEvent.BUTTON3 && !this.draggingEnabled) {
-				currentEditMode.rightActionPerformed(cameraModel.pix2worldX(e.getX()),
-					cameraModel.pix2worldY(e.getY()), e.isShiftDown(), e.isControlDown());
+				currentEditMode.rightActionPerformed(popupWorldX = cameraModel.pix2worldX(e.getX()),
+					popupWorldY = cameraModel.pix2worldY(e.getY()), e.isShiftDown(), e.isControlDown());
 			}
 			if(e.getButton() == MouseEvent.BUTTON1) {
 				if(this.draggingEnabled) {
-					currentEditMode.mouseStopsDragging(cameraModel.pix2worldX(e.getX()),
-						cameraModel.pix2worldY(e.getY()), e.isShiftDown(), e.isControlDown());
+					currentEditMode.mouseStopsDragging(popupWorldX = cameraModel.pix2worldX(e.getX()),
+						popupWorldY = cameraModel.pix2worldY(e.getY()), e.isShiftDown(), e.isControlDown());
 				} else {
-					currentEditMode.leftActionPerformed(cameraModel.pix2worldX(e.getX()),
-						cameraModel.pix2worldY(e.getY()), e.isShiftDown(), e.isControlDown());
+					currentEditMode.leftActionPerformed(popupWorldX = cameraModel.pix2worldX(e.getX()),
+						popupWorldY = cameraModel.pix2worldY(e.getY()), e.isShiftDown(), e.isControlDown());
 				}
 			}
+			popupEvent = null;
 			this.draggingEnabled = false;
 			this.button = 0;
 		}

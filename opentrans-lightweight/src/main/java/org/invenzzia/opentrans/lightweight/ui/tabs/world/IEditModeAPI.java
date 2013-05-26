@@ -43,4 +43,16 @@ public interface IEditModeAPI {
 	 * @param message Message content.
 	 */
 	public void setStatusMessage(String message);
+	/**
+	 * Installs a pop-up menu for the edit mode. The method shall be used, when the
+	 * mode is enabled. The popup is removed automatically, when the mode that set it
+	 * is disabled.
+	 * 
+	 * @param builder 
+	 */
+	public void setPopup(PopupBuilder builder);
+	/**
+	 * Shows the pop-up menu.
+	 */
+	public void showPopup();
 }

@@ -15,9 +15,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.invenzzia.opentrans.lightweight.ui.tabs.world;
+package org.invenzzia.opentrans.lightweight.ui.tabs.world.modes;
 
 import org.invenzzia.helium.exception.CommandExecutionException;
+import org.invenzzia.opentrans.lightweight.ui.tabs.world.AbstractEditMode;
+import org.invenzzia.opentrans.lightweight.ui.tabs.world.IEditModeAPI;
 import org.invenzzia.opentrans.visitons.network.NetworkConst;
 import org.invenzzia.opentrans.visitons.network.TrackRecord;
 import org.invenzzia.opentrans.visitons.network.transform.ops.ConvertToStraightTrack;

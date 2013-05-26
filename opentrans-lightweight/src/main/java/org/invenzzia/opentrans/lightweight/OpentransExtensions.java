@@ -22,10 +22,12 @@ import com.google.inject.Binder;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
+import com.google.inject.Singleton;
 import com.google.inject.TypeLiteral;
 import java.util.ArrayList;
 import java.util.List;
 import org.invenzzia.opentrans.lightweight.ui.tabs.world.IEditMode;
+import org.invenzzia.opentrans.lightweight.ui.tabs.world.IPopupAction;
 
 /**
  * Description here.
@@ -40,6 +42,18 @@ public class OpentransExtensions {
 		ListProvider<IEditMode> lp = new ListProvider<>(editModeClasses);
 		binder.requestInjection(lp);
 		binder.bind(new TypeLiteral<List<IEditMode>>(){}).toProvider(lp);
+	}
+	
+	/**
+	 * Popup actions shall be bound in the same manner.
+	 * 
+	 * @param binder
+	 * @param popupActionClasses 
+	 */
+	public static void bindPopupActions(Binder binder, Class<? extends IPopupAction> ... popupActionClasses) {
+		for(Class<? extends IPopupAction> cls: popupActionClasses) {
+			binder.bind(cls).in(Singleton.class);
+		}
 	}
 }
 

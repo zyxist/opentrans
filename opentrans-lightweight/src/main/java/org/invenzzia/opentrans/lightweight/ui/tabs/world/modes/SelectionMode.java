@@ -15,13 +15,21 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.invenzzia.opentrans.lightweight.ui.tabs.world;
+package org.invenzzia.opentrans.lightweight.ui.tabs.world.modes;
 
+import com.google.inject.Inject;
+import com.google.inject.Provider;
 import java.awt.Cursor;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import org.invenzzia.helium.exception.CommandExecutionException;
 import org.invenzzia.opentrans.lightweight.annotations.InModelThread;
+import org.invenzzia.opentrans.lightweight.ui.tabs.world.AbstractEditMode;
+import org.invenzzia.opentrans.lightweight.ui.tabs.world.IEditModeAPI;
+import org.invenzzia.opentrans.lightweight.ui.tabs.world.PopupBuilder;
+import org.invenzzia.opentrans.lightweight.ui.tabs.world.popups.CenterAction;
+import org.invenzzia.opentrans.lightweight.ui.tabs.world.popups.ClearBitmapAction;
+import org.invenzzia.opentrans.lightweight.ui.tabs.world.popups.SelectBitmapAction;
 import org.invenzzia.opentrans.visitons.network.NetworkConst;
 import org.invenzzia.opentrans.visitons.network.Track;
 import org.invenzzia.opentrans.visitons.network.TrackRecord;
@@ -48,6 +56,14 @@ public class SelectionMode extends AbstractEditMode {
 	private final Logger logger = LoggerFactory.getLogger(SelectionMode.class);
 	
 	private static final String DEFAULT_STATUS = "Select track and vertices by clicking on them.";
+	
+	@Inject
+	private Provider<CenterAction> centerAction;
+	@Inject
+	private Provider<SelectBitmapAction> selectBitmapAction;
+	@Inject
+	private Provider<ClearBitmapAction> clearBitmapAction;
+	
 	/**
 	 * We keep selected vertices separately to distinguish them from vertices imported due
 	 * to the transformation requirements.
@@ -74,6 +90,13 @@ public class SelectionMode extends AbstractEditMode {
 		logger.debug("SelectionMode enabled.");
 		this.api = api;
 		this.api.setStatusMessage(DEFAULT_STATUS);
+		
+		this.api.setPopup(PopupBuilder.create()
+			.action(this.centerAction)
+			.sep()
+			.action(this.selectBitmapAction)
+			.action(this.clearBitmapAction)
+		);
 	}
 
 	@Override
@@ -134,6 +157,7 @@ public class SelectionMode extends AbstractEditMode {
 	
 	@Override
 	public void rightActionPerformed(double worldX, double worldY, boolean altDown, boolean ctrlDown) {
+		this.api.showPopup();
 		this.resetState();
 	}
 	

@@ -15,29 +15,31 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.invenzzia.opentrans.lightweight.ui.tabs.world;
+package org.invenzzia.opentrans.lightweight.ui.tabs.world.modes;
 
 import org.invenzzia.helium.exception.CommandExecutionException;
+import org.invenzzia.opentrans.lightweight.ui.tabs.world.AbstractEditMode;
+import org.invenzzia.opentrans.lightweight.ui.tabs.world.IEditModeAPI;
 import org.invenzzia.opentrans.visitons.network.NetworkConst;
 import org.invenzzia.opentrans.visitons.network.TrackRecord;
-import org.invenzzia.opentrans.visitons.network.transform.ops.ConvertToFreeTrack;
+import org.invenzzia.opentrans.visitons.network.transform.ops.ConvertToCurvedTrack;
 import org.invenzzia.opentrans.visitons.render.scene.HoveredItemSnapshot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This mode allows changing the track type of a track to the free.
+ * This mode allows changing the track type of a track to the curve.
  * 
  * @author Tomasz Jędrzejewski
  */
-public class ConvertToFreeMode extends AbstractEditMode {
-	private final Logger logger = LoggerFactory.getLogger(ConvertToFreeMode.class);
+public class ConvertToCurveMode extends AbstractEditMode {
+	private final Logger logger = LoggerFactory.getLogger(ConvertToCurveMode.class);
 
 	@Override
 	public void modeEnabled(IEditModeAPI api) {
 		logger.debug("ConnectTracksMode enabled.");
 		this.api = api;
-		this.api.setStatusMessage("Click on a straight or curved track to convert it to a free track.");
+		this.api.setStatusMessage("Click on a free track between two straight tracks to convert it back to a curve.");
 	}
 
 	@Override
@@ -64,9 +66,9 @@ public class ConvertToFreeMode extends AbstractEditMode {
 			try {
 				TrackRecord tr = this.currentUnit.importTrack(this.getWorld(), snapshot.getId());
 
-				if(tr.getType() != NetworkConst.TRACK_FREE) {
-					this.transformEngine.op(ConvertToFreeTrack.class).convert(tr);
-					this.applyChanges("Convert track to free");
+				if(tr.getType() != NetworkConst.TRACK_CURVED) {
+					this.transformEngine.op(ConvertToCurvedTrack.class).convert(tr);
+					this.applyChanges("Convert track to curved");
 				}
 			} finally {
 				this.resetState();

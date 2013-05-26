@@ -15,13 +15,16 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.invenzzia.opentrans.lightweight.ui.tabs.world;
+package org.invenzzia.opentrans.lightweight.ui.tabs.world.modes;
 
 import com.google.common.base.Preconditions;
 import java.awt.Cursor;
 import org.invenzzia.helium.data.interfaces.IIdentifiable;
 import org.invenzzia.helium.exception.CommandExecutionException;
 import org.invenzzia.opentrans.lightweight.annotations.InModelThread;
+import org.invenzzia.opentrans.lightweight.ui.tabs.world.AbstractEditState;
+import org.invenzzia.opentrans.lightweight.ui.tabs.world.AbstractStateMachineEditMode;
+import org.invenzzia.opentrans.lightweight.ui.tabs.world.IEditModeAPI;
 import org.invenzzia.opentrans.visitons.Project;
 import org.invenzzia.opentrans.visitons.network.NetworkConst;
 import org.invenzzia.opentrans.visitons.network.TrackRecord;

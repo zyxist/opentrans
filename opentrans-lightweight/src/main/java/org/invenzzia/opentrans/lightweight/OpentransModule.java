@@ -49,12 +49,13 @@ import org.invenzzia.opentrans.lightweight.ui.tabs.timetable.TimetableTabFactory
 import org.invenzzia.opentrans.lightweight.ui.tabs.vehicles.VehicleEditorController;
 import org.invenzzia.opentrans.lightweight.ui.tabs.vehicles.VehicleTabController;
 import org.invenzzia.opentrans.lightweight.ui.tabs.vehicles.VehicleTabFactory;
-import org.invenzzia.opentrans.lightweight.ui.tabs.world.ConvertToStraightMode;
-import org.invenzzia.opentrans.lightweight.ui.tabs.world.ConnectTracksMode;
-import org.invenzzia.opentrans.lightweight.ui.tabs.world.ConvertToCurveMode;
-import org.invenzzia.opentrans.lightweight.ui.tabs.world.ConvertToFreeMode;
-import org.invenzzia.opentrans.lightweight.ui.tabs.world.DrawTrackMode;
-import org.invenzzia.opentrans.lightweight.ui.tabs.world.SelectionMode;
+import org.invenzzia.opentrans.lightweight.ui.tabs.world.modes.ConvertToStraightMode;
+import org.invenzzia.opentrans.lightweight.ui.tabs.world.modes.ConnectTracksMode;
+import org.invenzzia.opentrans.lightweight.ui.tabs.world.modes.ConvertToCurveMode;
+import org.invenzzia.opentrans.lightweight.ui.tabs.world.modes.ConvertToFreeMode;
+import org.invenzzia.opentrans.lightweight.ui.tabs.world.modes.DrawTrackMode;
+import org.invenzzia.opentrans.lightweight.ui.tabs.world.modes.SelectionMode;
+import org.invenzzia.opentrans.lightweight.ui.tabs.world.popups.*;
 import org.invenzzia.opentrans.lightweight.ui.toolbars.ToolbarManager;
 import org.invenzzia.opentrans.lightweight.ui.workspace.DesktopManager;
 import org.invenzzia.opentrans.lightweight.ui.workspace.IDesktopPaneFactory;
@@ -150,6 +151,11 @@ public class OpentransModule extends AbstractModule {
 			ConvertToStraightMode.class,
 			ConvertToCurveMode.class,
 			ConvertToFreeMode.class
+		);
+		OpentransExtensions.bindPopupActions(this.binder(),
+			CenterAction.class,
+			SelectBitmapAction.class,
+			ClearBitmapAction.class
 		);
 
 		// Bind visitons items

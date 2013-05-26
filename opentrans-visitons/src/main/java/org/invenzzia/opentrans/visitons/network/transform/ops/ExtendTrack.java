@@ -17,6 +17,7 @@
 
 package org.invenzzia.opentrans.visitons.network.transform.ops;
 
+import org.invenzzia.opentrans.visitons.geometry.Geometry;
 import org.invenzzia.opentrans.visitons.geometry.LineOps;
 import org.invenzzia.opentrans.visitons.network.NetworkConst;
 import org.invenzzia.opentrans.visitons.network.TrackRecord;
@@ -108,21 +109,22 @@ public class ExtendTrack extends AbstractOperation {
 	
 	private VertexRecord buildVertex(ITransformAPI api, TransformInput input) {
 		VertexRecord vr = new VertexRecord();
-		vr.setPosition(input.a1, input.a2);
-		vr.setFirstTangent(input.v1.tangent());
-		
+		vr.setPosition(input.a1, input.a2);		
 		api.getUnitOfWork().addVertex(vr);
 		return vr;
 	}
 	
 	private TrackRecord buildTrack(ITransformAPI api, TransformInput input, VertexRecord newVertex) {
+		double openTangent = input.v1.getOpenTangent();
+		
 		TrackRecord tr = new TrackRecord();
-		tr.setVertices(newVertex, input.v1);
+		tr.setVertices(newVertex, input.v1);	
 		newVertex.addTrack(tr);
 		input.v1.addTrack(tr);
 		
+		input.v1.setTangentFor(tr, openTangent);
+		newVertex.setTangentFor(tr, Geometry.normalizeAngle(openTangent + Math.PI));
 		api.getUnitOfWork().addTrack(tr);
-		
 		return tr;
 	}
 }

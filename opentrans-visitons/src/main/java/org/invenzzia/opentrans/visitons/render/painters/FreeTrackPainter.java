@@ -73,19 +73,19 @@ public class FreeTrackPainter implements ITrackPainter {
 		this.firstArc = new Arc2D.Double(
 			(double) camera.world2pixX(this.coordinates[0] + this.dx),
 			(double) camera.world2pixY(this.coordinates[1] + this.dy),
-			(double) camera.world2pix(this.coordinates[2] + this.dx),
-			(double) camera.world2pix(this.coordinates[3] + this.dy),
+			(double) camera.world2pix(this.coordinates[2]),
+			(double) camera.world2pix(this.coordinates[3]),
 			Math.toDegrees(this.coordinates[4]),
 			Math.toDegrees(this.coordinates[5]),
 			Arc2D.OPEN
 		);
 		this.secondArc = new Arc2D.Double(
-			(double) camera.world2pixX(this.coordinates[12] + this.dx),
-			(double) camera.world2pixY(this.coordinates[13] + this.dy),
-			(double) camera.world2pix(this.coordinates[14] + this.dx),
-			(double) camera.world2pix(this.coordinates[15] + this.dy),
-			Math.toDegrees(this.coordinates[16]),
-			Math.toDegrees(this.coordinates[17]),
+			(double) camera.world2pixX(this.coordinates[8] + this.dx),
+			(double) camera.world2pixY(this.coordinates[9] + this.dy),
+			(double) camera.world2pix(this.coordinates[10]),
+			(double) camera.world2pix(this.coordinates[11]),
+			Math.toDegrees(this.coordinates[12]),
+			Math.toDegrees(this.coordinates[13]),
 			Arc2D.OPEN
 		);
 	}

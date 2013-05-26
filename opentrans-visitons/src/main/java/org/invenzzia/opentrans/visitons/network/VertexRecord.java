@@ -19,6 +19,7 @@ package org.invenzzia.opentrans.visitons.network;
 
 import com.google.common.base.Preconditions;
 import org.invenzzia.helium.data.interfaces.IIdentifiable;
+import org.invenzzia.opentrans.visitons.geometry.Geometry;
 import org.invenzzia.opentrans.visitons.utils.SegmentCoordinate;
 
 /**
@@ -183,6 +184,37 @@ public class VertexRecord {
 			return this.t2;
 		} else {
 			throw new IllegalArgumentException("The track #"+tr.getId()+" is not connected to vertex #"+this.getId());
+		}
+	}
+	
+	/**
+	 * Returns the tangent for the opposite track.
+	 * 
+	 * @param tr
+	 * @return 
+	 */
+	public double oppositeTangentFor(TrackRecord tr) {
+		if(tr == this.firstTrack) {
+			return this.t2;
+		} else if(tr == this.secondTrack) {
+			return this.t1;
+		} else {
+			throw new IllegalArgumentException("The track #"+tr.getId()+" is not connected to vertex #"+this.getId());
+		}
+	}
+	
+	/**
+	 * This method can be used, if the vertex has only one track connected. It returns the opposite value
+	 * of the tangent, so that it can be used to derive a new track.
+	 * 
+	 * @return The opposite tangent to the one already set.
+	 */
+	public double getOpenTangent() {
+		Preconditions.checkState(this.hasOneTrack(), "This method can be used only for one-track vertices.");
+		if(null != this.firstTrack || this.firstTrackId != IIdentifiable.NEUTRAL_ID) {
+			return Geometry.normalizeAngle(this.t1 + Math.PI);
+		} else {
+			return Geometry.normalizeAngle(this.t2 + Math.PI);
 		}
 	}
 

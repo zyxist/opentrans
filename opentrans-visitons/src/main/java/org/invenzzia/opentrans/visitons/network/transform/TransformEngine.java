@@ -23,8 +23,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import org.invenzzia.opentrans.visitons.bindings.ActualImporter;
 import org.invenzzia.opentrans.visitons.geometry.ArcOps;
+import org.invenzzia.opentrans.visitons.geometry.Geometry;
 import org.invenzzia.opentrans.visitons.geometry.LineOps;
-import org.invenzzia.opentrans.visitons.geometry.Point;
 import org.invenzzia.opentrans.visitons.network.NetworkConst;
 import org.invenzzia.opentrans.visitons.network.TrackRecord;
 import org.invenzzia.opentrans.visitons.network.VertexRecord;
@@ -144,8 +144,8 @@ public class TransformEngine {
 			VertexRecord v1 = tr.getFirstVertex();
 			VertexRecord v2 = tr.getSecondVertex();
 			double tangent = LineOps.getTangent(v1.x(), v1.y(), v2.x(), v2.y());
-			v1.setFirstTangent(tangent);
-			v2.setFirstTangent(tangent);
+			v1.setTangentFor(tr, tangent);
+			v2.setTangentFor(tr, Geometry.normalizeAngle(tangent + Math.PI));
 			tr.setMetadata(new double[] { v1.x(), v1.y(), v2.x(), v2.y() } );
 		}
 
@@ -156,7 +156,7 @@ public class TransformEngine {
 			
 			double buf[] = new double[3];
 			this.prepareCurveFreeMovement(v2, v1.x(), v1.y(), 0, buf);
-			this.findCurveDirection(tr, v2, v1, buf[0], buf[1]);
+			this.findCurveDirection(tr, buf[0], buf[1]);
 		}
 
 		@Override
@@ -164,8 +164,29 @@ public class TransformEngine {
 			Preconditions.checkArgument(tr.getType() == NetworkConst.TRACK_FREE, "Invalid track type: TRACK_FREE expected.");
 			VertexRecord v1 = tr.getFirstVertex();
 			VertexRecord v2 = tr.getSecondVertex();
-			double metadata[] = new double[24];
-			if(Math.abs(v1.tangent() - v2.tangent()) < EPSILON) {
+			int v1Loc = 0;
+			int v2Loc = 8;
+			if(v1.hasOneTrack()) {
+				VertexRecord tmp = v2;
+				v2 = v1;
+				v1 = tmp;
+				v1Loc = 8;
+				v2Loc = 0;
+			}
+			
+			double tv1 = Geometry.normalizeAngle(v1.oppositeTangentFor(tr) + Math.PI);
+			double tv2;
+			if(v2.hasOneTrack()) {
+				tv2 = LineOps.getTangent(v2.x(), v2.y(), v1.x(), v1.y());
+			} else {
+				tv2 = Geometry.normalizeAngle(v2.oppositeTangentFor(tr) + Math.PI);
+			}
+			
+			// Here we should write the results of our calculation: center points of both circles and the middle point.
+			double c1x, c1y, c2x, c2y, mx, my;
+			
+			double metadata[] = new double[16];
+			if(LineOps.areParallel(tv1, tv2)) {
 				// If the lines are parallel, we need a special handling.
 				double buf[] = new double[22];
 				LineOps.toGeneral(v1.x(), v1.y(), v1.tangent(), 0, buf);
@@ -174,10 +195,12 @@ public class TransformEngine {
 				LineOps.toOrthogonal(3, 9, buf, v2.x(), v2.y());
 
 				LineOps.middlePoint(v1.x(), v1.y(), v2.x(), v2.y(), 13, buf); // I'm G: 13
-				this.prepareCurveFreeMovement(v1, buf[13], buf[14], 15, buf);
-				this.prepareCurveFreeMovement(v2, buf[13], buf[14], 17, buf);
-				this.prepareCurveMetadata(buf[13], buf[14], v1.x(), v1.y(), buf[15], buf[16], 0, metadata);
-				this.prepareCurveMetadata(buf[13], buf[14], v2.x(), v2.y(), buf[17], buf[18], 12, metadata);
+				mx = buf[13];
+				my = buf[14];
+				c1x = buf[15];
+				c1y = buf[16];
+				c2x = buf[17];
+				c2y = buf[18];
 			} else {
 				double buf[] = new double[60];
 				// Find points E and F
@@ -228,20 +251,36 @@ public class TransformEngine {
 				LineOps.toOrthogonal(v2.x(), v2.y(), 43, 53, buf);
 				LineOps.intersection(6, 50, 56, buf); // M point - center of the first arc
 				LineOps.intersection(9, 53, 58, buf); // N point - center of the second arc
-
-
-				if(LineOps.onWhichSide(v1.x(), v1.y(), v1.tangent(), buf[selectedPt], buf[selectedPt + 1]) == (v1.x() > v2.x() ? 1 : -1)) {
-					this.prepareCurveMetadata(buf[selectedPt], buf[selectedPt+1], v1.x(), v1.y(), buf[56], buf[57], 0, metadata);
-				} else {
-					this.prepareCurveMetadata(v1.x(), v1.y(), buf[selectedPt], buf[selectedPt+1], buf[56], buf[57], 0, metadata);
-				}
-				if(LineOps.onWhichSide(v2.x(), v2.y(), v2.tangent(), buf[selectedPt], buf[selectedPt + 1]) == (v1.x() > v2.x() ? 1 : -1)) {
-					this.prepareCurveMetadata(v2.x(), v2.y(), buf[selectedPt], buf[selectedPt+1], buf[58], buf[59], 12, metadata);
-
-				} else {
-					this.prepareCurveMetadata(buf[selectedPt], buf[selectedPt+1], v2.x(), v2.y(), buf[58], buf[59], 12, metadata);
-				}
+				
+				c1x = buf[56];
+				c1y = buf[57];
+				c2x = buf[58];
+				c2y = buf[59];
+				mx = buf[selectedPt];
+				my = buf[selectedPt+1];
 			}
+
+			// Calculations for the arrangement of the curves.
+			double tan = v1.tangentFor(tr);
+			double towards = LineOps.getTangent(v1.x(), v1.y(), mx, my);
+			double diff = Math.atan2(Math.sin(towards-tan), Math.cos(towards-tan));
+			if(diff > 0.0) {
+				this.prepareCurveMetadata(mx, my, v1.x(), v1.y(), c1x, c1y, v1Loc, metadata);
+			} else {
+				this.prepareCurveMetadata(v1.x(), v1.y(), mx, my, c1x, c1y, v1Loc, metadata);
+			}
+			// The second arc...
+			tan = v2.tangentFor(tr);
+			towards = LineOps.getTangent(v2.x(), v2.y(), mx, my);
+			diff = Math.atan2(Math.sin(towards-tan), Math.cos(towards-tan));
+			
+			if(diff > 0.0) {
+				this.prepareCurveMetadata(mx, my, v2.x(), v2.y(), c2x, c2y, v2Loc, metadata);
+			} else {
+				this.prepareCurveMetadata(v2.x(), v2.y(), mx, my, c2x, c2y, v2Loc, metadata);
+			}
+			v1.setTangentFor(tr, tv1);
+			v2.setTangentFor(tr, tv2);
 			tr.setMetadata(metadata);
 		}
 
@@ -267,7 +306,7 @@ public class TransformEngine {
 
 			this.calculateStraightLine(straight);
 			this.prepareCurveFreeMovement(v3, v2.x(), v2.y(), 0, buf);
-			this.findCurveDirection(curve, v2, v3, buf[0], buf[1]);
+			this.findCurveDirection(curve, buf[0], buf[1]);
 		}
 
 		@Override
@@ -279,8 +318,7 @@ public class TransformEngine {
 			
 			double buf[] = new double[3];
 			this.prepareCurveFreeMovement(v2, boundVertex.x(), boundVertex.y(), 0, buf);
-			boundVertex.setFirstTangent(buf[2]);
-			this.findCurveDirection(curvedTrack, v2, boundVertex, buf[0], buf[1]);
+			this.findCurveDirection(curvedTrack, buf[0], buf[1]);
 		}
 
 		// hint: v1 - stationary
@@ -341,7 +379,7 @@ public class TransformEngine {
 		
 			v3.setPosition(x1, y1);
 			straightTrack.setMetadata(new double[] { v3.x(), v3.y(), v4.x(), v4.y() });
-			this.findCurveDirection(curvedTrack, v1, v3, x2, y2);
+			this.findCurveDirection(curvedTrack, x2, y2);
 			return true;
 		}
 
@@ -435,56 +473,27 @@ public class TransformEngine {
 		 * @param cy Center of the arc: Y
 		 * @return Direction: negative if tracks are replaced.
 		 */
-		private int findCurveDirection(TrackRecord tr, VertexRecord v1, VertexRecord v2, double cx, double cy) {
-			Point c = v1.getOppositeTrack(tr).controlPoint(v1);
-			if(LineOps.onWhichSide(c.x(), c.y(), v1.x(), v1.y(), v2.x(), v2.y()) < 0) {
-				double metadata[] = this.prepareCurveMetadata(v1.x(), v1.y(), v2.x(), v2.y(), cx, cy, 0, null);
-				this.prepareCurveControlPoint(v1.x(), v1.y(), v1.tangent(), v2.x(), v2.y(), cx, cy, 8, metadata);
-				this.prepareCurveControlPoint(v2.x(), v2.y(), v2.tangent(), v1.x(), v1.y(), cx, cy, 10, metadata);
-				tr.setMetadata(metadata);
-				return 1;
+		private void findCurveDirection(TrackRecord tr, double cx, double cy) {
+			VertexRecord v1 = tr.getFirstVertex();
+			VertexRecord v2 = tr.getSecondVertex();
+			if(v1.hasOneTrack()) {
+				VertexRecord tmp = v2;
+				v2 = v1;
+				v1 = tmp;
+			}
+			double tan = v1.tangentFor(tr);
+			double towards = LineOps.getTangent(v1.x(), v1.y(), v2.x(), v2.y());
+			double diff = Math.atan2(Math.sin(towards-tan), Math.cos(towards-tan));
+			
+			if(diff > 0.0) {
+				tr.setMetadata(this.prepareCurveMetadata(v2.x(), v2.y(), v1.x(), v1.y(), cx, cy, 0, null));
+				tan = LineOps.getTangent(cx, cy, v2.x(), v2.y());
+				v2.setTangentFor(tr, Geometry.normalizeAngle(tan - Math.PI / 2.0));
 			} else {
-				double metadata[] = this.prepareCurveMetadata(v2.x(), v2.y(), v1.x(), v1.y(), cx, cy, 0, null);
-				this.prepareCurveControlPoint(v1.x(), v1.y(), v1.tangent(), v2.x(), v2.y(), cx, cy, 10, metadata);
-				this.prepareCurveControlPoint(v2.x(), v2.y(), v2.tangent(), v1.x(), v1.y(), cx, cy, 8, metadata);
-				tr.setMetadata(metadata);
-				return -1;
+				tr.setMetadata(this.prepareCurveMetadata(v1.x(), v1.y(), v2.x(), v2.y(), cx, cy, 0, null));
+				tan = LineOps.getTangent(cx, cy, v2.x(), v2.y());
+				v2.setTangentFor(tr, Geometry.normalizeAngle(tan + Math.PI / 2.0));
 			}
-		}
-		
-		/**
-		 * Calculates the arc control point for the given vertex position. This is necessary for proper orientation
-		 * calculations.
-		 * 
-		 * @param x1 Point on a circle.
-		 * @param y1 Point on a circle.
-		 * @param tangent Tangent in that point.
-		 * @param x3 Circle centre.
-		 * @param y3 Circle centre.
-		 * @param to Where to store output values?
-		 * @param buf Output data buffer.
-		 */
-		private void prepareCurveControlPoint(double x1, double y1, double tangent, double x2, double y2, double x3, double y3, int to, double buf[]) {
-			double angle1 = -Math.atan2(y1 - y3, x1 - x3);
-			if(angle1 < 0.0) {
-				angle1 += 2* Math.PI;
-			}
-			double angle2 = -Math.atan2(y2 - y3, x2 - x3);
-			if(angle2 < 0.0) {
-				angle2 += 2* Math.PI;
-			}
-			double diff;
-			if(angle1 < angle2) {
-				diff = -0.01;
-			} else {
-				diff = 0.01;
-			}
-			double tmp[] = new double[8];
-			LineOps.toGeneral(x1, y1, tangent, 0, tmp);
-			LineOps.toGeneral(x3, y3, Math.toRadians(angle1+diff), 3, tmp);
-			LineOps.intersection(0, 3, 6, tmp);
-			buf[to] = tmp[6];
-			buf[to+1] = tmp[7];
 		}
 	}
 }

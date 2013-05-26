@@ -399,6 +399,10 @@ public class LineOps {
 		return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
 	}
 	
+	public static boolean areParallel(double tan1, double tan2) {
+		return Geometry.isZero(tan1 - tan2) || Geometry.isZero(Math.abs(tan1 - tan2) - Math.PI);
+	}
+	
 	/**
 	 * If the points lie on the same line, we can sort them in the ascending order.
 	 * 

@@ -97,10 +97,10 @@ public class TrackRecord {
 					metadata[3] += dy;
 					break;
 				case NetworkConst.TRACK_FREE:
-					metadata[12] += dx;
-					metadata[13] += dy;
-					metadata[18] += dx;
-					metadata[19] += dy;
+					metadata[8] += dx;
+					metadata[9] += dy;
+					metadata[14] += dx;
+					metadata[15] += dy;
 					// Do not add break here.
 				case NetworkConst.TRACK_CURVED:
 					metadata[0] += dx;
@@ -289,40 +289,6 @@ public class TrackRecord {
 	 */
 	public double[] getMetadata() {
 		return this.metadata;
-	}
-	
-	/**
-	 * Returns the control point for vertex <tt>vr</tt>, and this track. Control points
-	 * help finding the proper orientation of some geometrical shapes.
-	 * 
-	 * @param vr Vertex belonging to this track.
-	 * @return X coordinate of the control point for this vertex.
-	 */
-	public Point controlPoint(VertexRecord vr) {
-		switch(this.type) {
-			// In the straight track, we take the opposite vertex as a control point.
-			case NetworkConst.TRACK_STRAIGHT:
-				if(vr == this.v1) {
-					return new Point(this.v2.x(), this.v2.y());
-				} else {
-					return new Point(this.v1.x(), this.v1.y());
-				}
-			// In other track types, control points must be calculated and provided in the
-			// metadata.
-			case NetworkConst.TRACK_CURVED:
-				if(vr == this.v1) {
-					return new Point(this.metadata[8], this.metadata[9]);
-				} else {
-					return new Point(this.metadata[10], this.metadata[11]);
-				}
-			case NetworkConst.TRACK_FREE:
-				if(vr == this.v1) {
-					return new Point(this.metadata[8], this.metadata[9]);
-				} else {
-					return new Point(this.metadata[22], this.metadata[23]);
-				}
-		}
-		throw new IllegalStateException("Invalid track type: "+this.type);
 	}
 	
 	/**

@@ -22,7 +22,6 @@ import org.invenzzia.helium.data.interfaces.IIdentifiable;
 import org.invenzzia.helium.data.interfaces.ILightMemento;
 import org.invenzzia.opentrans.visitons.geometry.ArcOps;
 import org.invenzzia.opentrans.visitons.geometry.LineOps;
-import org.invenzzia.opentrans.visitons.geometry.Point;
 
 /**
  * Track record can be used by the GUI thread to represent the currently edited
@@ -90,28 +89,8 @@ public class TrackRecord implements ILightMemento {
 
 			double dx = track.getFirstVertex().pos().getAbsoluteX();
 			double dy = track.getFirstVertex().pos().getAbsoluteY();
-			switch(this.type) {
-				case NetworkConst.TRACK_STRAIGHT:
-					metadata[0] += dx;
-					metadata[1] += dy;
-					metadata[2] += dx;
-					metadata[3] += dy;
-					break;
-				case NetworkConst.TRACK_FREE:
-					metadata[8] += dx;
-					metadata[9] += dy;
-					metadata[14] += dx;
-					metadata[15] += dy;
-					// Do not add break here.
-				case NetworkConst.TRACK_CURVED:
-					metadata[0] += dx;
-					metadata[1] += dy;
-					metadata[6] += dx;
-					metadata[7] += dy;
-					break;
-
-			}
 			this.metadata = metadata;
+			this.moveMetadataPointsByDelta(dx, dy);			
 		}
 	}
 	
@@ -290,6 +269,36 @@ public class TrackRecord implements ILightMemento {
 	 */
 	public double[] getMetadata() {
 		return this.metadata;
+	}
+	
+	/**
+	 * Sometimes there is a need to modify the positions set in the metadata by adding
+	 * some DX,DY vector to them.
+	 * 
+	 * @param dx
+	 * @param dy 
+	 */
+	public final void moveMetadataPointsByDelta(double dx, double dy) {
+		switch(this.type) {
+			case NetworkConst.TRACK_STRAIGHT:
+				metadata[0] += dx;
+				metadata[1] += dy;
+				metadata[2] += dx;
+				metadata[3] += dy;
+				break;
+			case NetworkConst.TRACK_FREE:
+				metadata[8] += dx;
+				metadata[9] += dy;
+				metadata[14] += dx;
+				metadata[15] += dy;
+				// Do not add break here.
+			case NetworkConst.TRACK_CURVED:
+				metadata[0] += dx;
+				metadata[1] += dy;
+				metadata[6] += dx;
+				metadata[7] += dy;
+				break;
+		}
 	}
 	
 	/**

@@ -17,14 +17,13 @@
 
 package org.invenzzia.opentrans.visitons.network.transform.ops;
 
+import org.invenzzia.helium.data.StateReverter;
 import org.invenzzia.opentrans.visitons.geometry.Geometry;
 import org.invenzzia.opentrans.visitons.network.NetworkConst;
 import org.invenzzia.opentrans.visitons.network.TrackRecord;
 import org.invenzzia.opentrans.visitons.network.VertexRecord;
 import org.invenzzia.opentrans.visitons.network.transform.ITransformAPI;
 import org.invenzzia.opentrans.visitons.network.transform.TransformInput;
-import org.invenzzia.opentrans.visitons.network.transform.TransformReverter;
-
 import static org.invenzzia.opentrans.visitons.network.transform.conditions.Conditions.*;
 
 /**
@@ -57,7 +56,7 @@ public class ConvertToStraightTrack extends AbstractOperation {
 				TrackRecord firstTrack = (input.t1.getFirstVertex().hasAllTracks() ? input.t1.getFirstVertex().getOppositeTrack(input.t1) : null);
 				TrackRecord secondTrack = (input.t1.getSecondVertex().hasAllTracks() ? input.t1.getSecondVertex().getOppositeTrack(input.t1) : null);
 				
-				TransformReverter reverter = new TransformReverter();
+				StateReverter reverter = new StateReverter();
 				reverter.remember(firstTrack);
 				reverter.remember(secondTrack);
 				reverter.remember(input.t1);

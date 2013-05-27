@@ -21,7 +21,6 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
-import java.awt.Shape;
 import java.awt.Stroke;
 import java.util.Map;
 import org.invenzzia.helium.data.interfaces.IIdentifiable;
@@ -135,6 +134,8 @@ public class TrackStream extends RenderingStreamAdapter {
 		strategy.prepareVertexStroke(graphics);
 		double points[] = trackSnapshot.getVertices();
 		long ids[] = trackSnapshot.getVertexIds();
+		double vertexDebug1[] = trackSnapshot.getVertexDebugBuf1();
+		double vertexDebug2[] = trackSnapshot.getVertexDebugBuf2();
 		restore = false;
 		found = false;
 		if(null != points) {
@@ -162,6 +163,12 @@ public class TrackStream extends RenderingStreamAdapter {
 					}
 				}
 				strategy.drawVertex(graphics, x, y, radiusInt, halfRadius, prevTimeFrame);
+				if(null != vertexDebug1) {
+					graphics.drawString("VD #"+ids[j]+": "+vertexDebug1[j], x + 8, y + 8);
+				}
+				if(null != vertexDebug2) {
+					graphics.drawString("VD #"+ids[j]+": "+vertexDebug2[j], x + 8, y + 20);
+				}
 				if(restore == true) {
 					strategy.restoreVertexStroke(graphics);
 				}

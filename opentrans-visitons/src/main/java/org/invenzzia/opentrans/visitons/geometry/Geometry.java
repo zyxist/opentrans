@@ -69,15 +69,15 @@ public class Geometry {
 	}
 	
 	/**
-	 * Reduces the angle to the domain [0, 360]. The angle is specified in radians.
+	 * Reduces the angle to the domain <tt>[-PI, +PI]</tt>. The angle is specified in radians.
 	 * 
 	 * @param angle The angle in radians.
 	 * @return Normalized angle in radians.
 	 */
 	public static double normalizeAngle(double angle) {
-		if(angle < 0.0) {
+		if(angle < -Math.PI) {
 			return angle + PI_2;
-		} else if(angle > PI_2) {
+		} else if(angle > Math.PI) {
 			return angle - PI_2;
 		}
 		return angle;

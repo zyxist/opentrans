@@ -189,10 +189,10 @@ public class Track {
 					metadata[3] -= dy;
 					break;
 				case NetworkConst.TRACK_FREE:
-					metadata[12] -= dx;
-					metadata[13] -= dy;
-					metadata[18] -= dx;
-					metadata[19] -= dy;
+					metadata[8] -= dx;
+					metadata[9] -= dy;
+					metadata[14] -= dx;
+					metadata[15] -= dy;
 					// Do not add break here.
 				case NetworkConst.TRACK_CURVED:
 					metadata[0] -= dx;

@@ -82,7 +82,6 @@ public class ConnectTracksMode extends AbstractEditMode {
 		this.firstVertex = null;
 		this.secondVertex = null;
 		this.currentUnit = null;
-		this.transformer = null;
 		this.sceneManager.updateResource(EditableTrackSnapshot.class, null);
 	}
 

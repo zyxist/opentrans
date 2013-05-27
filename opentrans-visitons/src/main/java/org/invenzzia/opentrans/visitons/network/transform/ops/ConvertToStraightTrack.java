@@ -17,12 +17,13 @@
 
 package org.invenzzia.opentrans.visitons.network.transform.ops;
 
+import org.invenzzia.helium.data.StateReverter;
+import org.invenzzia.opentrans.visitons.geometry.Geometry;
 import org.invenzzia.opentrans.visitons.network.NetworkConst;
 import org.invenzzia.opentrans.visitons.network.TrackRecord;
 import org.invenzzia.opentrans.visitons.network.VertexRecord;
 import org.invenzzia.opentrans.visitons.network.transform.ITransformAPI;
 import org.invenzzia.opentrans.visitons.network.transform.TransformInput;
-
 import static org.invenzzia.opentrans.visitons.network.transform.conditions.Conditions.*;
 
 /**
@@ -55,8 +56,17 @@ public class ConvertToStraightTrack extends AbstractOperation {
 				TrackRecord firstTrack = (input.t1.getFirstVertex().hasAllTracks() ? input.t1.getFirstVertex().getOppositeTrack(input.t1) : null);
 				TrackRecord secondTrack = (input.t1.getSecondVertex().hasAllTracks() ? input.t1.getSecondVertex().getOppositeTrack(input.t1) : null);
 				
+				StateReverter reverter = new StateReverter();
+				reverter.remember(firstTrack);
+				reverter.remember(secondTrack);
+				reverter.remember(input.t1);
+				reverter.remember(input.t1.getFirstVertex());
+				reverter.remember(input.t1.getSecondVertex());
+				
 				input.t1.setType(NetworkConst.TRACK_STRAIGHT);
 				api.calculateStraightLine(input.t1);
+				input.t1.getFirstVertex().setTangentFor(firstTrack, Geometry.normalizeAngle(input.t1.getFirstVertex().tangentFor(input.t1) + Math.PI));
+				input.t1.getSecondVertex().setTangentFor(secondTrack, Geometry.normalizeAngle(input.t1.getSecondVertex().tangentFor(input.t1) + Math.PI));
 				if(null != firstTrack) {
 					if(firstTrack.getType() == NetworkConst.TRACK_FREE) {
 						api.calculateFreeCurve(firstTrack);
@@ -76,6 +86,10 @@ public class ConvertToStraightTrack extends AbstractOperation {
 						VertexRecord cuv = secondTrack.getOppositeVertex(vr);
 						api.curveFollowsStraightTrack(stv, vr, cuv);
 					}
+				}
+				
+				if(!input.t1.getFirstVertex().areTangentsOK() || !input.t1.getSecondVertex().areTangentsOK()) {
+					reverter.restore();
 				}
 			}
 		};

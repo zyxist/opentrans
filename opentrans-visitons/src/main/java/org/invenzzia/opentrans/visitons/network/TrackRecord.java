@@ -19,9 +19,9 @@ package org.invenzzia.opentrans.visitons.network;
 
 import com.google.common.base.Preconditions;
 import org.invenzzia.helium.data.interfaces.IIdentifiable;
+import org.invenzzia.helium.data.interfaces.ILightMemento;
 import org.invenzzia.opentrans.visitons.geometry.ArcOps;
 import org.invenzzia.opentrans.visitons.geometry.LineOps;
-import org.invenzzia.opentrans.visitons.geometry.Point;
 
 /**
  * Track record can be used by the GUI thread to represent the currently edited
@@ -31,7 +31,7 @@ import org.invenzzia.opentrans.visitons.geometry.Point;
  * 
  * @author Tomasz Jędrzejewski
  */
-public class TrackRecord {
+public class TrackRecord implements ILightMemento {
 	/**
 	 * The unique ID used for the identification.
 	 */
@@ -89,28 +89,8 @@ public class TrackRecord {
 
 			double dx = track.getFirstVertex().pos().getAbsoluteX();
 			double dy = track.getFirstVertex().pos().getAbsoluteY();
-			switch(this.type) {
-				case NetworkConst.TRACK_STRAIGHT:
-					metadata[0] += dx;
-					metadata[1] += dy;
-					metadata[2] += dx;
-					metadata[3] += dy;
-					break;
-				case NetworkConst.TRACK_FREE:
-					metadata[12] += dx;
-					metadata[13] += dy;
-					metadata[18] += dx;
-					metadata[19] += dy;
-					// Do not add break here.
-				case NetworkConst.TRACK_CURVED:
-					metadata[0] += dx;
-					metadata[1] += dy;
-					metadata[6] += dx;
-					metadata[7] += dy;
-					break;
-
-			}
 			this.metadata = metadata;
+			this.moveMetadataPointsByDelta(dx, dy);			
 		}
 	}
 	
@@ -292,37 +272,33 @@ public class TrackRecord {
 	}
 	
 	/**
-	 * Returns the control point for vertex <tt>vr</tt>, and this track. Control points
-	 * help finding the proper orientation of some geometrical shapes.
+	 * Sometimes there is a need to modify the positions set in the metadata by adding
+	 * some DX,DY vector to them.
 	 * 
-	 * @param vr Vertex belonging to this track.
-	 * @return X coordinate of the control point for this vertex.
+	 * @param dx
+	 * @param dy 
 	 */
-	public Point controlPoint(VertexRecord vr) {
+	public final void moveMetadataPointsByDelta(double dx, double dy) {
 		switch(this.type) {
-			// In the straight track, we take the opposite vertex as a control point.
 			case NetworkConst.TRACK_STRAIGHT:
-				if(vr == this.v1) {
-					return new Point(this.v2.x(), this.v2.y());
-				} else {
-					return new Point(this.v1.x(), this.v1.y());
-				}
-			// In other track types, control points must be calculated and provided in the
-			// metadata.
-			case NetworkConst.TRACK_CURVED:
-				if(vr == this.v1) {
-					return new Point(this.metadata[8], this.metadata[9]);
-				} else {
-					return new Point(this.metadata[10], this.metadata[11]);
-				}
+				metadata[0] += dx;
+				metadata[1] += dy;
+				metadata[2] += dx;
+				metadata[3] += dy;
+				break;
 			case NetworkConst.TRACK_FREE:
-				if(vr == this.v1) {
-					return new Point(this.metadata[8], this.metadata[9]);
-				} else {
-					return new Point(this.metadata[22], this.metadata[23]);
-				}
+				metadata[8] += dx;
+				metadata[9] += dy;
+				metadata[14] += dx;
+				metadata[15] += dy;
+				// Do not add break here.
+			case NetworkConst.TRACK_CURVED:
+				metadata[0] += dx;
+				metadata[1] += dy;
+				metadata[6] += dx;
+				metadata[7] += dy;
+				break;
 		}
-		throw new IllegalStateException("Invalid track type: "+this.type);
 	}
 	
 	/**
@@ -368,5 +344,37 @@ public class TrackRecord {
 		VertexRecord tmp = this.v1;
 		this.v1 = this.v2;
 		this.v2 = tmp;
+	}
+
+	@Override
+	public Object getMemento() {
+		return new TrackRecordLightMemento(this.metadata, this.length, this.type);
+	}
+
+	@Override
+	public void restoreMemento(Object memento) {
+		TrackRecordLightMemento casted = (TrackRecordLightMemento) memento;
+		this.metadata = casted.metadata;
+		this.length = casted.length;
+		this.type = casted.type;
+	}
+}
+
+/**
+ * These light mementos are used by transformation to remember the initial geometry
+ * state before applying the transformations. If we encounter that we have broken
+ * anything, we can restore the original state and send cancellation.
+ * 
+ * @author Tomasz Jędrzejewski
+ */
+class TrackRecordLightMemento {
+	public final double metadata[];
+	public final double length;
+	public final byte type;
+	
+	public TrackRecordLightMemento(double metadata[], double length, byte type) {
+		this.metadata = metadata;
+		this.length = length;
+		this.type = type;
 	}
 }

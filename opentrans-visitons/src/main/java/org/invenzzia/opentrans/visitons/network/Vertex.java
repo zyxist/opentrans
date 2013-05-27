@@ -37,10 +37,6 @@ public class Vertex implements IIdentifiable {
 	 */
 	private SegmentCoordinate position;
 	/**
-	 * The vertex tangent.
-	 */
-	private double tangent;
-	/**
 	 * The first connected track.
 	 */
 	private Track firstTrack;
@@ -48,6 +44,16 @@ public class Vertex implements IIdentifiable {
 	 * The second connected track.
 	 */
 	private Track secondTrack;
+	/**
+	 * Tangent for the first track: specifies, which direction this track goes out to.
+	 * Condition: <tt>t1 = t2 + PI</tt>
+	 */
+	private double t1;
+	/**
+	 * Tangent for the second track: specifies, which direction this track goes out to.
+	 * Condition: <tt>t2 = t1 + PI</tt>
+	 */
+	private double t2;
 	
 	@Override
 	public long getId() {
@@ -89,7 +95,15 @@ public class Vertex implements IIdentifiable {
 	 * @return Tangent in this point.
 	 */
 	public double tangent() {
-		return this.tangent;
+		return this.t1;
+	}
+	
+	public double firstTangent() {
+		return this.t1;
+	}
+	
+	public double secondTangent() {
+		return this.t2;
 	}
 	
 	public Track getFirstTrack() {
@@ -161,7 +175,8 @@ public class Vertex implements IIdentifiable {
 		this.position = world.findPosition(vr.x(), vr.y());
 		this.position.getSegment().addVertex(this);
 		
-		this.tangent = vr.tangent();
+		this.t1 = vr.firstTangent();
+		this.t2 = vr.secondTangent();
 	}
 	
 	/**

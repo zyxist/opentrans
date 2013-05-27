@@ -19,6 +19,8 @@ package org.invenzzia.opentrans.visitons.network;
 
 import com.google.common.base.Preconditions;
 import org.invenzzia.helium.data.interfaces.IIdentifiable;
+import org.invenzzia.helium.data.interfaces.ILightMemento;
+import org.invenzzia.opentrans.visitons.geometry.Geometry;
 import org.invenzzia.opentrans.visitons.utils.SegmentCoordinate;
 
 /**
@@ -32,7 +34,7 @@ import org.invenzzia.opentrans.visitons.utils.SegmentCoordinate;
  * 
  * @author Tomasz Jędrzejewski
  */
-public class VertexRecord {
+public class VertexRecord implements ILightMemento {
 	/**
 	 * The unique ID of the vertex. Allows proper mapping to the actual vertices. 
 	 */
@@ -45,10 +47,6 @@ public class VertexRecord {
 	 * The Y location of the vertex. <strong>This is an absolute coordinate!</strong>
 	 */
 	private double y;
-	/**
-	 * The curve tangent in this vertex.
-	 */
-	private double tangent;
 	/**
 	 * First connected track.
 	 */
@@ -65,6 +63,16 @@ public class VertexRecord {
 	 * For the import from the domain model: ID of the connected, but unimported second track.
 	 */
 	private long secondTrackId = IIdentifiable.NEUTRAL_ID;
+	/**
+	 * Tangent for the first track: specifies, which direction this track goes out to.
+	 * Condition: <tt>t1 = t2 + PI</tt>
+	 */
+	private double t1;
+	/**
+	 * Tangent for the second track: specifies, which direction this track goes out to.
+	 * Condition: <tt>t2 = t1 + PI</tt>
+	 */
+	private double t2;
 	
 	/**
 	 * Creates a new, empty vertex record.
@@ -83,7 +91,8 @@ public class VertexRecord {
 		SegmentCoordinate coord = vertex.pos();
 		this.x = coord.getAbsoluteX();
 		this.y = coord.getAbsoluteY();
-		this.tangent = vertex.tangent();
+		this.t1 = vertex.firstTangent();
+		this.t2 = vertex.secondTangent();
 		if(null != vertex.getFirstTrack()) {
 			this.firstTrackId = vertex.getFirstTrack().getId();
 		}
@@ -152,17 +161,120 @@ public class VertexRecord {
 	 * @return Tangent in this point.
 	 */
 	public double tangent() {
-		return this.tangent;
+		return this.t1;
+	}
+	
+	public double firstTangent() {
+		return this.t1;
+	}
+	
+	public double secondTangent() {
+		return this.t2;
 	}
 	
 	/**
-	 * Tangent specifies the slope of the tangent line given in this vertex. It is calculated
-	 * from the tracks connected to it.
+	 * Returns the tangent for the given track in this vertex.
 	 * 
-	 * @param tangent New tangent value.
+	 * @param tr Track record.
+	 * @return Tangent for this track.
 	 */
-	public void setTangent(double tangent) {
-		this.tangent = tangent;
+	public double tangentFor(TrackRecord tr) {
+		if(tr == this.firstTrack) {
+			return this.t1;
+		} else if(tr == this.secondTrack) {
+			return this.t2;
+		} else {
+			throw new IllegalArgumentException("The track #"+tr.getId()+" is not connected to vertex #"+this.getId());
+		}
+	}
+	
+	/**
+	 * Returns the tangent for the opposite track.
+	 * 
+	 * @param tr
+	 * @return 
+	 */
+	public double oppositeTangentFor(TrackRecord tr) {
+		if(tr == this.firstTrack) {
+			return this.t2;
+		} else if(tr == this.secondTrack) {
+			return this.t1;
+		} else {
+			throw new IllegalArgumentException("The track #"+tr.getId()+" is not connected to vertex #"+this.getId());
+		}
+	}
+	
+	/**
+	 * This method can be used, if the vertex has only one track connected. It returns the opposite value
+	 * of the tangent, so that it can be used to derive a new track.
+	 * 
+	 * @return The opposite tangent to the one already set.
+	 */
+	public double getOpenTangent() {
+		Preconditions.checkState(this.hasOneTrack(), "This method can be used only for one-track vertices.");
+		if(null != this.firstTrack || this.firstTrackId != IIdentifiable.NEUTRAL_ID) {
+			return Geometry.normalizeAngle(this.t1 + Math.PI);
+		} else {
+			return Geometry.normalizeAngle(this.t2 + Math.PI);
+		}
+	}
+
+	/**
+	 * Basic setter for the tangent of the first vertex. Usually, you won't be interested
+	 * in using this raw method.
+	 * 
+	 * @param tangent
+	 * @return Fluent interface.
+	 */
+	public VertexRecord setFirstTangent(double tangent) {
+		this.t1 = tangent;
+		return this;
+	}
+	
+	/**
+	 * Basic setter for the tangent of the second vertex. Usually, you won't be interested
+	 * in using this raw method.
+	 * 
+	 * @param tangent
+	 * @return Fluent interface.
+	 */
+	public VertexRecord setSecondTangent(double tangent) {
+		this.t2 = tangent;
+		return this;
+	}
+	
+	/**
+	 * Sets the tangent for the specified track. Before applying this method, the
+	 * user must ensure that the operation won't break the tangent condition.
+	 * 
+	 * @param tr
+	 * @param tangent
+	 * @return Fluent interface.
+	 */
+	public VertexRecord setTangentFor(TrackRecord tr, double tangent) {
+		if(tr == this.firstTrack) {
+			this.t1 = tangent;
+		} else if(tr == this.secondTrack) {
+			this.t2 = tangent;
+		} else {
+			throw new IllegalArgumentException("The track #"+tr.getId()+" is not connected to vertex #"+this.getId());
+		}
+		return this;
+	}
+	
+	/**
+	 * Validates the tangent condition. Returns true, if changing the tangent for
+	 * the given track to the specified value is possible.
+	 * 
+	 * @param tr
+	 * @param tangent
+	 * @return True, if change is possible and won't break anything.
+	 */
+	public boolean areTangentsOK() {
+		if(!this.hasAllTracks()) {
+			return true;
+		}
+		return Geometry.isZero(this.t1 - Geometry.normalizeAngle(this.t2 + Math.PI));
 	}
 	
 	public boolean hasAllTracks() {
@@ -336,5 +448,40 @@ public class VertexRecord {
 			this.secondTrack = tr;
 			this.secondTrackId = IIdentifiable.NEUTRAL_ID;
 		}
+	}
+
+	@Override
+	public Object getMemento() {
+		return new VertexRecordLightMemento(this.x, this.y, this.t1, this.t2);
+	}
+
+	@Override
+	public void restoreMemento(Object memento) {
+		VertexRecordLightMemento casted = (VertexRecordLightMemento) memento;
+		this.x = casted.x;
+		this.y = casted.y;
+		this.t1 = casted.t1;
+		this.t2 = casted.t2;
+	}
+}
+
+/**
+ * These light mementos are used by transformation to remember the initial geometry
+ * state before applying the transformations. If we encounter that we have broken
+ * anything, we can restore the original state and send cancellation.
+ * 
+ * @author Tomasz Jędrzejewski
+ */
+class VertexRecordLightMemento {
+	public final double x;
+	public final double y;
+	public final double t1;
+	public final double t2;
+	
+	public VertexRecordLightMemento(double x, double y, double t1, double t2) {
+		this.x = x;
+		this.y = y;
+		this.t1 = t1;
+		this.t2 = t2;
 	}
 }

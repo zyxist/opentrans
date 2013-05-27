@@ -51,50 +51,26 @@ public class MoveGroup implements IOperation {
 		// Move all vertices.
 		Set<Object> updatedElements = new LinkedHashSet<>();
 		for(TrackRecord tr: tracks) {
-			this.updatePosition(tr.getFirstVertex(), dx, dy, updatedElements);
-			this.updatePosition(tr.getSecondVertex(), dx, dy, updatedElements);
+			tr.moveMetadataPointsByDelta(dx, dy);
+			this.updatePosition(tr.getFirstVertex(), tr, dx, dy, updatedElements, tracks);
+			this.updatePosition(tr.getSecondVertex(), tr, dx, dy, updatedElements, tracks);
 		}
-		updatedElements.clear();
-		// Check the neighbouring tracks, if they need adjusting.
-		Set<Object> adjustedTracks = new LinkedHashSet<>();
-		for(TrackRecord tr: tracks) {
-			if(tr.getFirstVertex().hasUnimportedTracks() || tr.getSecondVertex().hasUnimportedTracks()) {
-				this.api.getRecordImporter().importAllMissingNeighbors(this.api.getUnitOfWork(), tr.getFirstVertex(), tr.getSecondVertex());
-			}
-			if(tr.getFirstVertex().hasAllTracks()) {
-				this.adjustTrackType(tr.getFirstVertex().getOppositeTrack(tr), tracks, updatedElements);
-			}
-			if(tr.getSecondVertex().hasAllTracks()) {
-				this.adjustTrackType(tr.getSecondVertex().getOppositeTrack(tr), tracks, updatedElements);
-			}
-		}		
+
 		return true;
 	}
 
-	private void adjustTrackType(TrackRecord track, Set<TrackRecord> movedTracks, Set<Object> alreadyAdjustedTracks) {
-		if(alreadyAdjustedTracks.contains(track)) {
-			return;
-		}
-		if(!movedTracks.contains(track)) {
-			track.setType(NetworkConst.TRACK_FREE);
-		}
-		switch(track.getType()) {
-			case NetworkConst.TRACK_STRAIGHT:
-				this.api.calculateStraightLine(track);
-				break;
-			case NetworkConst.TRACK_CURVED:
-				this.api.calculateCurve(track);
-				break;
-			case NetworkConst.TRACK_FREE:
-				this.api.calculateFreeCurve(track);
-		}
-		alreadyAdjustedTracks.add(track);
-	}
-
-	private void updatePosition(VertexRecord vertex, double dx, double dy, Set<Object> updatedVertices) {
+	private void updatePosition(VertexRecord vertex, TrackRecord examinedTrack, double dx, double dy, Set<Object> updatedVertices, Set<TrackRecord> tracks) {
 		if(!updatedVertices.contains(vertex)) {
 			vertex.setPosition(vertex.x() + dx, vertex.y() + dy);
 			updatedVertices.add(vertex);
+			if(vertex.hasAllTracks()) {
+				this.api.getRecordImporter().importAllMissingNeighbors(this.api.getUnitOfWork(), vertex);
+				TrackRecord opposite = vertex.getOppositeTrack(examinedTrack);
+				if(!tracks.contains(opposite)) {
+					opposite.setType(NetworkConst.TRACK_FREE);
+					this.api.calculateFreeCurve(opposite);
+				}
+			}
 		}
 	}
 }

@@ -19,6 +19,7 @@ package org.invenzzia.opentrans.visitons.network;
 
 import com.google.common.base.Preconditions;
 import org.invenzzia.helium.data.interfaces.IIdentifiable;
+import org.invenzzia.helium.data.interfaces.ILightMemento;
 import org.invenzzia.opentrans.visitons.geometry.Geometry;
 import org.invenzzia.opentrans.visitons.utils.SegmentCoordinate;
 
@@ -33,7 +34,7 @@ import org.invenzzia.opentrans.visitons.utils.SegmentCoordinate;
  * 
  * @author Tomasz Jędrzejewski
  */
-public class VertexRecord {
+public class VertexRecord implements ILightMemento {
 	/**
 	 * The unique ID of the vertex. Allows proper mapping to the actual vertices. 
 	 */
@@ -269,8 +270,11 @@ public class VertexRecord {
 	 * @param tangent
 	 * @return True, if change is possible and won't break anything.
 	 */
-	public boolean tangentChangePossible(TrackRecord tr, double tangent) {
-		return false;
+	public boolean areTangentsOK() {
+		if(!this.hasAllTracks()) {
+			return true;
+		}
+		return Geometry.isZero(this.t1 - Geometry.normalizeAngle(this.t2 + Math.PI));
 	}
 	
 	public boolean hasAllTracks() {
@@ -444,5 +448,40 @@ public class VertexRecord {
 			this.secondTrack = tr;
 			this.secondTrackId = IIdentifiable.NEUTRAL_ID;
 		}
+	}
+
+	@Override
+	public Object getMemento() {
+		return new VertexRecordLightMemento(this.x, this.y, this.t1, this.t2);
+	}
+
+	@Override
+	public void restoreMemento(Object memento) {
+		VertexRecordLightMemento casted = (VertexRecordLightMemento) memento;
+		this.x = casted.x;
+		this.y = casted.y;
+		this.t1 = casted.t1;
+		this.t2 = casted.t2;
+	}
+}
+
+/**
+ * These light mementos are used by transformation to remember the initial geometry
+ * state before applying the transformations. If we encounter that we have broken
+ * anything, we can restore the original state and send cancellation.
+ * 
+ * @author Tomasz Jędrzejewski
+ */
+class VertexRecordLightMemento {
+	public final double x;
+	public final double y;
+	public final double t1;
+	public final double t2;
+	
+	public VertexRecordLightMemento(double x, double y, double t1, double t2) {
+		this.x = x;
+		this.y = y;
+		this.t1 = t1;
+		this.t2 = t2;
 	}
 }

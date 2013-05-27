@@ -19,6 +19,7 @@ package org.invenzzia.opentrans.visitons.network;
 
 import com.google.common.base.Preconditions;
 import org.invenzzia.helium.data.interfaces.IIdentifiable;
+import org.invenzzia.helium.data.interfaces.ILightMemento;
 import org.invenzzia.opentrans.visitons.geometry.ArcOps;
 import org.invenzzia.opentrans.visitons.geometry.LineOps;
 import org.invenzzia.opentrans.visitons.geometry.Point;
@@ -31,7 +32,7 @@ import org.invenzzia.opentrans.visitons.geometry.Point;
  * 
  * @author Tomasz Jędrzejewski
  */
-public class TrackRecord {
+public class TrackRecord implements ILightMemento {
 	/**
 	 * The unique ID used for the identification.
 	 */
@@ -334,5 +335,37 @@ public class TrackRecord {
 		VertexRecord tmp = this.v1;
 		this.v1 = this.v2;
 		this.v2 = tmp;
+	}
+
+	@Override
+	public Object getMemento() {
+		return new TrackRecordLightMemento(this.metadata, this.length, this.type);
+	}
+
+	@Override
+	public void restoreMemento(Object memento) {
+		TrackRecordLightMemento casted = (TrackRecordLightMemento) memento;
+		this.metadata = casted.metadata;
+		this.length = casted.length;
+		this.type = casted.type;
+	}
+}
+
+/**
+ * These light mementos are used by transformation to remember the initial geometry
+ * state before applying the transformations. If we encounter that we have broken
+ * anything, we can restore the original state and send cancellation.
+ * 
+ * @author Tomasz Jędrzejewski
+ */
+class TrackRecordLightMemento {
+	public final double metadata[];
+	public final double length;
+	public final byte type;
+	
+	public TrackRecordLightMemento(double metadata[], double length, byte type) {
+		this.metadata = metadata;
+		this.length = length;
+		this.type = type;
 	}
 }

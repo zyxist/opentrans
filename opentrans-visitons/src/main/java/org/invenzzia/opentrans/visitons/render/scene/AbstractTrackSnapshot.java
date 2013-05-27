@@ -41,6 +41,14 @@ public abstract class AbstractTrackSnapshot {
 	 */
 	private long[] vertexIds;
 	/**
+	 * For passing graphics debug information.
+	 */
+	private double[] vertexDebugBuf1;
+	/**
+	 * For passing graphics debug information.
+	 */
+	private double[] vertexDebugBuf2;
+	/**
 	 * Shall the painters recalculate the shape objects?
 	 */
 	private boolean refresh;
@@ -59,6 +67,14 @@ public abstract class AbstractTrackSnapshot {
 		this.vertexIds = vid;
 	}
 	
+	public void setVertexDebugBuf1(double buf[]) {
+		this.vertexDebugBuf1 = buf;
+	}
+	
+	public void setVertexDebugBuf2(double buf[]) {
+		this.vertexDebugBuf2 = buf;
+	}
+	
 	public ITrackPainter[] getTracks() {
 		return this.tracks;
 	}
@@ -69,6 +85,14 @@ public abstract class AbstractTrackSnapshot {
 	
 	public long[] getVertexIds() {
 		return this.vertexIds;
+	}
+	
+	public double[] getVertexDebugBuf1() {
+		return this.vertexDebugBuf1;
+	}
+	
+	public double[] getVertexDebugBuf2() {
+		return this.vertexDebugBuf2;
 	}
 	
 	/**

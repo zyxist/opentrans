@@ -318,7 +318,7 @@ public class TransformEngine {
 			
 			double buf[] = new double[3];
 			this.prepareCurveFreeMovement(v2, boundVertex.x(), boundVertex.y(), 0, buf);
-			this.findCurveDirection(curvedTrack, buf[0], buf[1]);
+			this.findCurveDirection(curvedTrack, boundVertex, buf[0], buf[1]);
 		}
 
 		// hint: v1 - stationary
@@ -481,6 +481,7 @@ public class TransformEngine {
 				v2 = v1;
 				v1 = tmp;
 			}
+			
 			double tan = v1.tangentFor(tr);
 			double towards = LineOps.getTangent(v1.x(), v1.y(), v2.x(), v2.y());
 			double diff = Math.atan2(Math.sin(towards-tan), Math.cos(towards-tan));
@@ -494,6 +495,34 @@ public class TransformEngine {
 				tan = LineOps.getTangent(cx, cy, v2.x(), v2.y());
 				v2.setTangentFor(tr, Geometry.normalizeAngle(tan + Math.PI / 2.0));
 			}
+			v1.setTangentFor(tr, Geometry.normalizeAngle(v1.oppositeTangentFor(tr) + Math.PI));
+		}
+		
+		/**
+		 * Applies the proper direction to the curve, but allows choosing the bound vertex.
+		 * 
+		 * @param tr The curved track.
+		 * @param v2 Bound vertex.
+		 * @param cx Center of the arc: X
+		 * @param cy Center of the arc: Y
+		 * @return Direction: negative if tracks are replaced.
+		 */
+		private void findCurveDirection(TrackRecord tr, VertexRecord v2, double cx, double cy) {
+			VertexRecord v1 = tr.getOppositeVertex(v2);
+			double tan = v1.tangentFor(tr);
+			double towards = LineOps.getTangent(v1.x(), v1.y(), v2.x(), v2.y());
+			double diff = Math.atan2(Math.sin(towards-tan), Math.cos(towards-tan));
+			
+			if(diff > 0.0) {
+				tr.setMetadata(this.prepareCurveMetadata(v2.x(), v2.y(), v1.x(), v1.y(), cx, cy, 0, null));
+				tan = LineOps.getTangent(cx, cy, v2.x(), v2.y());
+				v2.setTangentFor(tr, Geometry.normalizeAngle(tan - Math.PI / 2.0));
+			} else {
+				tr.setMetadata(this.prepareCurveMetadata(v1.x(), v1.y(), v2.x(), v2.y(), cx, cy, 0, null));
+				tan = LineOps.getTangent(cx, cy, v2.x(), v2.y());
+				v2.setTangentFor(tr, Geometry.normalizeAngle(tan + Math.PI / 2.0));
+			}
+			v1.setTangentFor(tr, Geometry.normalizeAngle(v1.oppositeTangentFor(tr) + Math.PI));
 		}
 	}
 }

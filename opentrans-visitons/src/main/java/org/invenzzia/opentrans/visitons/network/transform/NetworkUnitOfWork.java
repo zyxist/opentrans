@@ -450,20 +450,20 @@ public class NetworkUnitOfWork {
 		int j = 0;
 		
 		// DEBUG
-		double tangents1[] = new double[this.vertices.size()];
-		double tangents2[] = new double[this.vertices.size()];
+		//double tangents1[] = new double[this.vertices.size()];
+		//double tangents2[] = new double[this.vertices.size()];
 		// /DEBUG
 		
 		for(VertexRecord rec: this.vertices.values()) {
 			points[i++] = rec.x();
 			points[i++] = rec.y();
 			ids[j] = rec.getId();
-			tangents1[j] = rec.firstTangent();
-			tangents2[j] = rec.secondTangent();
+		//	tangents1[j] = rec.firstTangent();
+		//	tangents2[j] = rec.secondTangent();
 			j++;
 		}
-		snap.setVertexDebugBuf1(tangents1);
-		snap.setVertexDebugBuf2(tangents2);
+		//snap.setVertexDebugBuf1(tangents1);
+		//snap.setVertexDebugBuf2(tangents2);
 		snap.setVertexArray(points, ids);
 		sm.updateResource(EditableTrackSnapshot.class, snap);
 	}

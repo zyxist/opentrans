@@ -18,6 +18,8 @@
 package org.invenzzia.opentrans.visitons.network;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import org.invenzzia.helium.data.interfaces.IIdentifiable;
@@ -25,6 +27,7 @@ import org.invenzzia.helium.data.interfaces.ILightMemento;
 import org.invenzzia.opentrans.visitons.geometry.ArcOps;
 import org.invenzzia.opentrans.visitons.geometry.Characteristics;
 import org.invenzzia.opentrans.visitons.geometry.LineOps;
+import org.invenzzia.opentrans.visitons.network.objects.TrackObject;
 import org.invenzzia.opentrans.visitons.network.objects.TrackObject.TrackObjectRecord;
 
 /**
@@ -60,14 +63,15 @@ public class TrackRecord implements ILightMemento {
 	 * Geometrical metadata.
 	 */
 	private double metadata[];
-	
+	/**
+	 * Records of all the track objects on this track.
+	 */
 	private List<TrackObjectRecord> trackObjects;
 	
 	/**
 	 * Creates a new, empty instance of track.
 	 */
 	public TrackRecord() {
-		this.trackObjects = new LinkedList<>();
 	}
 	
 	/**
@@ -101,6 +105,15 @@ public class TrackRecord implements ILightMemento {
 			double dy = track.getFirstVertex().pos().getAbsoluteY();
 			this.metadata = metadata;
 			this.moveMetadataPointsByDelta(dx, dy);			
+		}
+		if(track.hasTrackObjects()) {
+			List<TrackObject> localList = track.getTrackObjects();
+			this.trackObjects = new ArrayList<>(localList.size());
+			for(TrackObject to: localList) {
+				TrackObjectRecord record = new TrackObjectRecord();
+				record.importFrom(to);
+				this.trackObjects.add(record);
+			}
 		}
 	}
 	
@@ -389,17 +402,25 @@ public class TrackRecord implements ILightMemento {
 		this.type = casted.type;
 	}
 	
-	public TrackRecord addTrackObject(TrackObjectRecord tor) {
-		this.trackObjects.add(tor);
-		return this;
+	/**
+	 * Returns an immutable copy of the track object list.
+	 * 
+	 * @return Immutable copy of the track object list.
+	 */
+	public List<TrackObjectRecord> getTrackObjects() {
+		if(null == this.trackObjects) {
+			return ImmutableList.of();
+		}
+		return ImmutableList.copyOf(this.trackObjects);
 	}
 	
-	public int countTrackObjects() {
-		return this.trackObjects.size();
-	}
-	
-	public Iterable getTrackObjectIterable() {
-		return this.trackObjects;
+	/**
+	 * Returns true, if the track has any track objects.
+	 * 
+	 * @return 
+	 */
+	public boolean hasTrackObjects() {
+		return this.trackObjects != null;
 	}
 }
 

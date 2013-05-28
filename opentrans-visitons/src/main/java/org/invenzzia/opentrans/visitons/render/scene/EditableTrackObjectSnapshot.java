@@ -18,7 +18,7 @@
 package org.invenzzia.opentrans.visitons.render.scene;
 
 import org.invenzzia.opentrans.visitons.network.TrackRecord;
-import org.invenzzia.opentrans.visitons.network.objects.TrackObject;
+import org.invenzzia.opentrans.visitons.network.objects.TrackObject.TrackObjectRecord;
 
 /**
  * Snapshot of the track objects on edited tracks.
@@ -26,8 +26,13 @@ import org.invenzzia.opentrans.visitons.network.objects.TrackObject;
  * @author Tomasz Jędrzejewski
  */
 public class EditableTrackObjectSnapshot extends AbstractTrackObjectSnapshot<TrackRecord> {
-	@Override
-	public void addTrackObject(TrackRecord track, TrackObject object) {
+	/**
+	 * Adds a new track object to the buffer.
+	 * 
+	 * @param track The track that owns this object.
+	 * @param object The track object to render.
+	 */
+	public void addTrackObject(TrackRecord track, TrackObjectRecord object) {
 		this.addTrackObjectInt(object, track.getPointCharacteristics(object.getPosition()));
 	}
 }

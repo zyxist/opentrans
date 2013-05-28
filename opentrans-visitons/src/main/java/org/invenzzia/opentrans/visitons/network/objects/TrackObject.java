@@ -18,6 +18,8 @@
 package org.invenzzia.opentrans.visitons.network.objects;
 
 import com.google.common.base.Preconditions;
+import org.invenzzia.helium.data.interfaces.IIdentifiable;
+import org.invenzzia.helium.data.interfaces.INumberable;
 
 
 class TrackObjectBase {
@@ -106,6 +108,22 @@ public class TrackObject<T extends ITrackObject> extends TrackObjectBase {
 		
 		public int getNumber() {
 			return this.number;
+		}
+		
+		/**
+		 * Imports the data from the original track object.
+		 */
+		public void importFrom(TrackObject original) {
+			this.setOrientation(original.getOrientation());
+			this.setPosition(original.getPosition());
+			
+			ITrackObject backedObject = original.getObject();
+			
+			this.setObject(
+				backedObject.getType(),
+				backedObject instanceof IIdentifiable ? ((IIdentifiable) backedObject).getId() : IIdentifiable.NEUTRAL_ID,
+				backedObject instanceof INumberable ? ((INumberable) backedObject).getNumber() : INumberable.NEUTRAL_ID
+			);
 		}
 	}
 }

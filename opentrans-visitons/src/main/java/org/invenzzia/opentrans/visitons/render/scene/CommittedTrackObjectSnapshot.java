@@ -25,7 +25,12 @@ import org.invenzzia.opentrans.visitons.network.objects.TrackObject;
  * @author Tomasz Jędrzejewski
  */
 public class CommittedTrackObjectSnapshot extends AbstractTrackObjectSnapshot<Track> {
-	@Override
+	/**
+	 * Adds a new track object to the buffer.
+	 * 
+	 * @param track The track that owns this object.
+	 * @param object The track object to render.
+	 */
 	public void addTrackObject(Track track, TrackObject object) {
 		this.addTrackObjectInt(object, track.getPointCharacteristics(object.getPosition()));
 	}

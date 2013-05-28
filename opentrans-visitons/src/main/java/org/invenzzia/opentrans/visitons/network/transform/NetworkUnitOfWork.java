@@ -31,10 +31,13 @@ import org.invenzzia.opentrans.visitons.network.TrackRecord;
 import org.invenzzia.opentrans.visitons.network.Vertex;
 import org.invenzzia.opentrans.visitons.network.VertexRecord;
 import org.invenzzia.opentrans.visitons.network.World;
+import org.invenzzia.opentrans.visitons.network.objects.TrackObject;
+import org.invenzzia.opentrans.visitons.network.objects.TrackObject.TrackObjectRecord;
 import org.invenzzia.opentrans.visitons.render.SceneManager;
 import org.invenzzia.opentrans.visitons.render.painters.CurvedTrackPainter;
 import org.invenzzia.opentrans.visitons.render.painters.FreeTrackPainter;
 import org.invenzzia.opentrans.visitons.render.painters.StraightTrackPainter;
+import org.invenzzia.opentrans.visitons.render.scene.EditableTrackObjectSnapshot;
 import org.invenzzia.opentrans.visitons.render.scene.EditableTrackSnapshot;
 
 /**
@@ -428,7 +431,7 @@ public class NetworkUnitOfWork {
 	 */
 	public void exportScene(SceneManager sm) {
 		EditableTrackSnapshot snap = new EditableTrackSnapshot(tracks.size());
-		
+		EditableTrackObjectSnapshot trackObjectSnap = null;
 		int i = 0;
 		for(TrackRecord rec: this.tracks.values()) {
 			Preconditions.checkState(rec.getId() != IIdentifiable.NEUTRAL_ID, "Track record has a neutral ID.");
@@ -442,6 +445,14 @@ public class NetworkUnitOfWork {
 				case NetworkConst.TRACK_FREE:
 					snap.setTrackPainter(i++, new FreeTrackPainter(rec.getId(), rec.getMetadata()));
 					break;
+			}
+			if(rec.hasTrackObjects()) {
+				if(null == trackObjectSnap) {
+					trackObjectSnap = new EditableTrackObjectSnapshot();
+				}
+				for(TrackObjectRecord to: rec.getTrackObjects()) {
+					trackObjectSnap.addTrackObject(rec, to);
+				}
 			}
 		}
 		double points[] = new double[this.vertices.size() * 2];
@@ -465,6 +476,12 @@ public class NetworkUnitOfWork {
 		//snap.setVertexDebugBuf1(tangents1);
 		//snap.setVertexDebugBuf2(tangents2);
 		snap.setVertexArray(points, ids);
-		sm.updateResource(EditableTrackSnapshot.class, snap);
+		sm.guard();
+		try {
+			sm.batchUpdateResource(EditableTrackSnapshot.class, snap);
+			sm.batchUpdateResource(EditableTrackObjectSnapshot.class, trackObjectSnap);
+		} finally {
+			sm.unguard();
+		}
 	}
 }

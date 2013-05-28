@@ -80,7 +80,7 @@ public class TrackObjectStream extends RenderingStreamAdapter {
 			graphics.setColor(PLATFORM_COLOR);
 		}
 		graphics.fillRect(x - width / 2, y - height / 2, width, height);
-		graphics.translate(0, 0);
+		graphics.translate(0, dist);
 		graphics.rotate(-object.tangent, x, y);
 		
 		graphics.drawString("X: "+object.x+"; Y: "+object.y, x, y);

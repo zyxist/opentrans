@@ -23,6 +23,7 @@ import org.invenzzia.helium.data.interfaces.IIdentifiable;
 import org.invenzzia.helium.data.interfaces.INumberable;
 import org.invenzzia.opentrans.visitons.geometry.Characteristics;
 import org.invenzzia.opentrans.visitons.network.objects.TrackObject;
+import org.invenzzia.opentrans.visitons.network.objects.TrackObject.TrackObjectRecord;
 
 /**
  * Contains information about all track objects to draw.
@@ -31,14 +32,6 @@ import org.invenzzia.opentrans.visitons.network.objects.TrackObject;
  */
 public abstract class AbstractTrackObjectSnapshot<T> {
 	private List<RenderableTrackObject> records = new LinkedList<>();
-	
-	/**
-	 * Adds a new track object to the buffer.
-	 * 
-	 * @param track The track that owns this object.
-	 * @param object The track object to render.
-	 */
-	public abstract void addTrackObject(T track, TrackObject object);
 	
 	/**
 	 * Local version, with no dependency on the actual track, so it can be reused
@@ -54,6 +47,23 @@ public abstract class AbstractTrackObjectSnapshot<T> {
 			object.getOrientation(),
 			(object.getObject() instanceof IIdentifiable) ? ((IIdentifiable)object.getObject()).getId() : IIdentifiable.NEUTRAL_ID,
 			(object.getObject() instanceof INumberable) ? ((INumberable)object.getObject()).getNumber(): INumberable.NEUTRAL_ID
+		));
+	}
+	
+	/**
+	 * Local version, with no dependency on the actual track, so it can be reused
+	 * in both implementations.
+	 * 
+	 * @param object Track object.
+	 * @param point Characteristics of the point, where we should draw. We shall obtain this info from the track.
+	 */
+	protected void addTrackObjectInt(TrackObjectRecord object, Characteristics point) {
+		this.records.add(new RenderableTrackObject(
+			object.getType(),
+			point.x(), point.y(), point.tangent(),
+			object.getOrientation(),
+			object.getId(),
+			object.getNumber()
 		));
 	}
 	

@@ -106,6 +106,22 @@ public class Vertex implements IIdentifiable {
 		return this.t2;
 	}
 	
+	/**
+	 * Returns the tangent for the given track in this vertex.
+	 * 
+	 * @param tr Track.
+	 * @return Tangent for this track.
+	 */
+	public double tangentFor(Track tr) {
+		if(tr == this.firstTrack) {
+			return this.t1;
+		} else if(tr == this.secondTrack) {
+			return this.t2;
+		} else {
+			throw new IllegalArgumentException("The track #"+tr.getId()+" is not connected to vertex #"+this.getId());
+		}
+	}
+	
 	public Track getFirstTrack() {
 		return this.firstTrack;
 	}

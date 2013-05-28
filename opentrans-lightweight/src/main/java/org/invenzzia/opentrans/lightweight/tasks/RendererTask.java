@@ -24,6 +24,7 @@ import org.invenzzia.opentrans.visitons.render.stream.DebugPointStream;
 import org.invenzzia.opentrans.visitons.render.stream.GridStream;
 import org.invenzzia.opentrans.visitons.render.stream.SegmentBitmapStream;
 import org.invenzzia.opentrans.visitons.render.stream.SelectionStream;
+import org.invenzzia.opentrans.visitons.render.stream.TrackObjectStream;
 import org.invenzzia.opentrans.visitons.render.stream.TrackStream;
 
 /**
@@ -45,12 +46,15 @@ public class RendererTask implements ITask {
 	private DebugPointStream debugStream;
 	@Inject
 	private SelectionStream selectionStream;
+	@Inject
+	private TrackObjectStream trackObjectStream;
 
 	@Override
 	public void startup() throws TaskException {
 		this.renderer.addRenderingStream(this.bitmapStream);
 		this.renderer.addRenderingStream(this.gridStream);
 		this.renderer.addRenderingStream(this.trackStream);
+		this.renderer.addRenderingStream(this.trackObjectStream);
 		this.renderer.addRenderingStream(this.selectionStream);
 		this.renderer.addRenderingStream(this.debugStream);
 	}

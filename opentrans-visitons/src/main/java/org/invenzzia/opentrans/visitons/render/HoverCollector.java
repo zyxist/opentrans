@@ -30,8 +30,18 @@ import org.invenzzia.opentrans.visitons.render.scene.HoveredItemSnapshot;
  * @author Tomasz Jędrzejewski
  */
 public class HoverCollector {
+	/**
+	 * Type of the selected item.
+	 */
 	private byte type;
+	/**
+	 * ID of the selected element (from the domain model).
+	 */
 	private long id;
+	/**
+	 * Additional information about the hover, i.e. which part is actually selected.
+	 */
+	private double position;
 	
 	public void resetHoveredItem() {
 		this.type = 0;
@@ -43,9 +53,13 @@ public class HoverCollector {
 		this.id = id;
 	}
 	
+	public void registerPosition(double position) {
+		this.position = position;
+	}
+	
 	public void emitSnapshot(SceneManager sceneManager) {
 		if(IIdentifiable.NEUTRAL_ID != this.id) {
-			sceneManager.updateResource(HoveredItemSnapshot.class, new HoveredItemSnapshot(this.type, this.id));
+			sceneManager.updateResource(HoveredItemSnapshot.class, new HoveredItemSnapshot(this.type, this.id, this.position));
 		} else {
 			sceneManager.updateResource(HoveredItemSnapshot.class, null);
 		}

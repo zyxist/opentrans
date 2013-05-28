@@ -41,6 +41,7 @@ import org.invenzzia.opentrans.lightweight.ui.DefaultDialogBuilder;
 import org.invenzzia.opentrans.lightweight.ui.IDialogBuilder;
 import org.invenzzia.opentrans.lightweight.ui.MainWindowController;
 import org.invenzzia.opentrans.lightweight.ui.component.JReportingSlider;
+import org.invenzzia.opentrans.lightweight.ui.navigator.NavigatorController;
 import org.invenzzia.opentrans.lightweight.ui.providers.WorkspacePanelProvider;
 import org.invenzzia.opentrans.lightweight.ui.tabs.ProjectTabFactory;
 import org.invenzzia.opentrans.lightweight.ui.tabs.world.WorldTabFactory;
@@ -55,6 +56,7 @@ import org.invenzzia.opentrans.lightweight.ui.tabs.world.modes.ConvertToCurveMod
 import org.invenzzia.opentrans.lightweight.ui.tabs.world.modes.ConvertToFreeMode;
 import org.invenzzia.opentrans.lightweight.ui.tabs.world.modes.DrawTrackMode;
 import org.invenzzia.opentrans.lightweight.ui.tabs.world.modes.SelectionMode;
+import org.invenzzia.opentrans.lightweight.ui.tabs.world.modes.StopMode;
 import org.invenzzia.opentrans.lightweight.ui.tabs.world.popups.*;
 import org.invenzzia.opentrans.lightweight.ui.toolbars.ToolbarManager;
 import org.invenzzia.opentrans.lightweight.ui.workspace.DesktopManager;
@@ -125,6 +127,7 @@ public class OpentransModule extends AbstractModule {
 		this.bind(WorkspaceController.class);
 		this.bind(VehicleTabController.class);
 		this.bind(VehicleEditorController.class);
+		this.bind(NavigatorController.class).in(Singleton.class);
 
 		// Toolbars
 		this.bind(WorkspacePanel.class).toProvider(WorkspacePanelProvider.class);
@@ -150,7 +153,8 @@ public class OpentransModule extends AbstractModule {
 			ConnectTracksMode.class,
 			ConvertToStraightMode.class,
 			ConvertToCurveMode.class,
-			ConvertToFreeMode.class
+			ConvertToFreeMode.class,
+			StopMode.class
 		);
 		OpentransExtensions.bindPopupActions(this.binder(),
 			CenterAction.class,

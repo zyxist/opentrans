@@ -15,31 +15,19 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.invenzzia.opentrans.visitons.geometry;
+package org.invenzzia.opentrans.visitons.render.scene;
 
-import net.jcip.annotations.Immutable;
+import org.invenzzia.opentrans.visitons.network.TrackRecord;
+import org.invenzzia.opentrans.visitons.network.objects.TrackObject;
 
 /**
- * Helper class for returning point coordinates. The instances of this
- * class are immutable.
+ * Snapshot of the track objects on edited tracks.
  * 
  * @author Tomasz Jędrzejewski
  */
-@Immutable
-public class Point {
-	private final double x;
-	private final double y;
-	
-	public Point(double x, double y) {
-		this.x = x;
-		this.y = y;
-	}
-	
-	public double x() {
-		return this.x;
-	}
-	
-	public double y() {
-		return this.y;
+public class EditableTrackObjectSnapshot extends AbstractTrackObjectSnapshot<TrackRecord> {
+	@Override
+	public void addTrackObject(TrackRecord track, TrackObject object) {
+		this.addTrackObjectInt(object, track.getPointCharacteristics(object.getPosition()));
 	}
 }

@@ -20,7 +20,9 @@ package org.invenzzia.opentrans.visitons.render.painters;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.geom.Line2D;
+import org.invenzzia.opentrans.visitons.geometry.LineOps;
 import org.invenzzia.opentrans.visitons.render.CameraModelSnapshot;
+import org.invenzzia.opentrans.visitons.render.scene.MouseSnapshot;
 
 /**
  * Draws a straight track.
@@ -82,5 +84,19 @@ public class StraightTrackPainter implements ITrackPainter {
 			return graphics.hit(rect, this.line, true) || graphics.hit(rect, this.line, true);
 		}
 		return false;
+	}
+
+	@Override
+	public double computePosition(MouseSnapshot snapshot) {
+		double cursorDist = LineOps.distance(this.line.getX1(), this.line.getY1(), snapshot.x(), snapshot.y());
+		double lineLength = LineOps.distance(this.line.getX1(), this.line.getY1(), this.line.getX2(), this.line.getY2());
+		
+		double result = cursorDist / lineLength;
+		if(result > 1.0) {
+			result = 1.0;
+		} else if(result < 0.0) {
+			result = 0.0;
+		}
+		return result;
 	}
 }

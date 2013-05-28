@@ -17,32 +17,26 @@
 
 package org.invenzzia.opentrans.visitons.network.objects;
 
-import org.invenzzia.opentrans.visitons.network.Track;
+import org.invenzzia.helium.data.interfaces.IIdentifiable;
 
 /**
- * Represents an object that can be put on a track.
+ * This interface shall be implemented by the entities that can be placed
+ * on the tracks.
  * 
  * @author Tomasz Jędrzejewski
  */
 public interface ITrackObject {
 	/**
-	 * Track location.
+	 * Returns the possessed track object.
 	 * 
 	 * @return 
 	 */
-	public Track getTrack();
+	public TrackObject getTrackObject();
 	/**
-	 * Returns the position of this object on the track. The returned value
-	 * shall be within the range <tt>0.0 ... 1.0</tt>.
+	 * Identifies the type of this object. The value returned by this method
+	 * shall be unique for all the track object types.
 	 * 
-	 * @return Position of this object on a track.
+	 * @return 
 	 */
-	public double getTrackPosition();
-	/**
-	 * Sets the position of this object on the track.
-	 * 
-	 * @param track
-	 * @param position Position on this track: from ranges 0.0 to 1.0
-	 */
-	public void setPosition(Track track, double position);
+	public int getType();
 }

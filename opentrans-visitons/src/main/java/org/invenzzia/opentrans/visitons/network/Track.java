@@ -20,7 +20,14 @@ package org.invenzzia.opentrans.visitons.network;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.BiMap;
+import com.google.common.collect.ImmutableList;
+import java.util.LinkedList;
+import java.util.List;
 import org.invenzzia.helium.data.interfaces.IIdentifiable;
+import org.invenzzia.opentrans.visitons.geometry.Characteristics;
+import org.invenzzia.opentrans.visitons.geometry.LineOps;
+import org.invenzzia.opentrans.visitons.network.objects.ITrackObject;
+import org.invenzzia.opentrans.visitons.network.objects.TrackObject;
 
 /**
  * Represents a track in the network infrastructure graph. Tracks are created from
@@ -53,6 +60,10 @@ public class Track {
 	 * Extra metadata for certain forms of tracks.
 	 */
 	private double metadata[];
+	/**
+	 * Various stationary objects put on the track.
+	 */
+	private List<TrackObject> trackObjects;
 	
 	/**
 	 * @return Unique track ID.
@@ -150,6 +161,82 @@ public class Track {
 	public void removeFromVertices() {
 		this.v1.removeTrack(this);
 		this.v2.removeTrack(this);
+	}
+	
+	/**
+	 * Surprise! This method is the part of the public API, because track objects are added directly
+	 * to the real tracks.
+	 * 
+	 * @param trackObject 
+	 */
+	public void addTrackObject(TrackObject trackObject) {
+		if(null == this.trackObjects) {
+			this.trackObjects = new LinkedList<>();
+		}
+		this.trackObjects.add(trackObject);
+	}
+	
+	/**
+	 * Returns an immutable copy of the track object list.
+	 * 
+	 * @return Immutable copy of the track object list.
+	 */
+	public List<TrackObject> getTrackObjects() {
+		if(null == this.trackObjects) {
+			return ImmutableList.of();
+		}
+		return ImmutableList.copyOf(this.trackObjects);
+	}
+	
+	/**
+	 * Returns true, if the track has any track objects.
+	 * 
+	 * @return 
+	 */
+	public boolean hasTrackObjects() {
+		return this.trackObjects != null;
+	}
+	
+	/**
+	 * We remove the track object by providing the actual object backed by it.
+	 * 
+	 * @param backedObject 
+	 */
+	public void removeTrackObject(ITrackObject backedObject) {
+		if(null != this.trackObjects) {
+			TrackObject toRemove = null;
+			for(TrackObject to: this.trackObjects) {
+				if(to.getObject().equals(backedObject)) {
+					toRemove = to;
+				}
+			}
+			if(null != toRemove) {
+				this.trackObjects.remove(toRemove);
+				if(this.trackObjects.isEmpty()) {
+					this.trackObjects = null;
+				}
+			}
+		}
+	}
+	
+	/**
+	 * Converts the position from range <tt>[0.0, 1.0]</tt> to the point-tangent information.
+	 * 
+	 * @param t Position on a track.
+	 * @return Point coordinates and the tangent.
+	 */
+	public Characteristics getPointCharacteristics(double t) {
+		switch(this.type) {
+			case NetworkConst.TRACK_STRAIGHT:
+				return new Characteristics(
+					LineOps.linePoint(t, this.v1.pos().getAbsoluteX(), this.v2.pos().getAbsoluteX()),
+					LineOps.linePoint(t, this.v1.pos().getAbsoluteY(), this.v2.pos().getAbsoluteY()),
+					this.v1.tangentFor(this)
+				);
+			case NetworkConst.TRACK_CURVED:
+			case NetworkConst.TRACK_FREE:
+		}
+		throw new UnsupportedOperationException("Not supported yet.");
 	}
 	
 	/**

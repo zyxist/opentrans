@@ -21,6 +21,7 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.geom.Arc2D;
 import org.invenzzia.opentrans.visitons.render.CameraModelSnapshot;
+import org.invenzzia.opentrans.visitons.render.scene.MouseSnapshot;
 
 /**
  * Draws a curved track.
@@ -91,5 +92,10 @@ public class CurvedTrackPainter implements ITrackPainter {
 			return graphics.hit(rect, this.arc, true);
 		}
 		return false;
+	}
+
+	@Override
+	public double computePosition(MouseSnapshot snapshot) {
+		return 0.5;
 	}
 }

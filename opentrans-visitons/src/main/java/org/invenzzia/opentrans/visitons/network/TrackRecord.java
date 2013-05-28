@@ -18,10 +18,14 @@
 package org.invenzzia.opentrans.visitons.network;
 
 import com.google.common.base.Preconditions;
+import java.util.LinkedList;
+import java.util.List;
 import org.invenzzia.helium.data.interfaces.IIdentifiable;
 import org.invenzzia.helium.data.interfaces.ILightMemento;
 import org.invenzzia.opentrans.visitons.geometry.ArcOps;
+import org.invenzzia.opentrans.visitons.geometry.Characteristics;
 import org.invenzzia.opentrans.visitons.geometry.LineOps;
+import org.invenzzia.opentrans.visitons.network.objects.TrackObject.TrackObjectRecord;
 
 /**
  * Track record can be used by the GUI thread to represent the currently edited
@@ -57,10 +61,13 @@ public class TrackRecord implements ILightMemento {
 	 */
 	private double metadata[];
 	
+	private List<TrackObjectRecord> trackObjects;
+	
 	/**
 	 * Creates a new, empty instance of track.
 	 */
 	public TrackRecord() {
+		this.trackObjects = new LinkedList<>();
 	}
 	
 	/**
@@ -76,6 +83,9 @@ public class TrackRecord implements ILightMemento {
 	 */
 	public TrackRecord(Track track) {
 		Preconditions.checkNotNull(track);
+		
+		this.trackObjects = new LinkedList<>();
+		
 		this.id = track.getId();
 		this.type = track.getType();
 		this.metadata = track.getMetadata();
@@ -251,6 +261,26 @@ public class TrackRecord implements ILightMemento {
 	}
 	
 	/**
+	 * Converts the position from range <tt>[0.0, 1.0]</tt> to the point-tangent information.
+	 * 
+	 * @param t Position on a track.
+	 * @return Point coordinates and the tangent.
+	 */
+	public Characteristics getPointCharacteristics(double t) {
+		switch(this.type) {
+			case NetworkConst.TRACK_STRAIGHT:
+				return new Characteristics(
+					LineOps.linePoint(t, this.v1.x(), this.v2.x()),
+					LineOps.linePoint(t, this.v1.y(), this.v2.y()),
+					this.v1.tangentFor(this)
+				);
+			case NetworkConst.TRACK_CURVED:
+			case NetworkConst.TRACK_FREE:
+		}
+		throw new UnsupportedOperationException("Not supported yet.");
+	}
+	
+	/**
 	 * Sets the track geometry metadata. The exact array structure and size depend on the track
 	 * type.
 	 * 
@@ -357,6 +387,19 @@ public class TrackRecord implements ILightMemento {
 		this.metadata = casted.metadata;
 		this.length = casted.length;
 		this.type = casted.type;
+	}
+	
+	public TrackRecord addTrackObject(TrackObjectRecord tor) {
+		this.trackObjects.add(tor);
+		return this;
+	}
+	
+	public int countTrackObjects() {
+		return this.trackObjects.size();
+	}
+	
+	public Iterable getTrackObjectIterable() {
+		return this.trackObjects;
 	}
 }
 

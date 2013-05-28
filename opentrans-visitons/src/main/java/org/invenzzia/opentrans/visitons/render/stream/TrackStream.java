@@ -124,6 +124,7 @@ public class TrackStream extends RenderingStreamAdapter {
 				restore = true;
 				found = true;
 				hoverCollector.registerHoveredItem(HoveredItemSnapshot.TYPE_TRACK, painter.getId());
+				hoverCollector.registerPosition(painter.computePosition(mouse));
 			}
 			painter.draw(camera, graphics, true);
 			if(restore) {

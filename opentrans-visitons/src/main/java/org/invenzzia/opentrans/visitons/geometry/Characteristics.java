@@ -17,29 +17,23 @@
 
 package org.invenzzia.opentrans.visitons.geometry;
 
-import net.jcip.annotations.Immutable;
-
 /**
- * Helper class for returning point coordinates. The instances of this
- * class are immutable.
+ * Extension of point that contains tangent information.
  * 
  * @author Tomasz Jędrzejewski
  */
-@Immutable
-public class Point {
-	private final double x;
-	private final double y;
-	
-	public Point(double x, double y) {
-		this.x = x;
-		this.y = y;
+public class Characteristics extends Point {
+	private final double tangent;
+
+	public Characteristics(double x, double y, double tangent) {
+		super(x, y);
+		this.tangent = tangent;
 	}
-	
-	public double x() {
-		return this.x;
-	}
-	
-	public double y() {
-		return this.y;
+
+	/**
+	 * @return Tangent in the point.
+	 */
+	public double tangent() {
+		return this.tangent;
 	}
 }

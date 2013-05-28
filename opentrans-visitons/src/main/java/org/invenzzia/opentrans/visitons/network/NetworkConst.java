@@ -62,6 +62,10 @@ public class NetworkConst {
 	 * scenario).
 	 */
 	public static final byte MODE_ALT2 = 2;
+	/**
+	 * The type value for the 'platform' track objects.
+	 */
+	public static final int TRACK_OBJECT_PLATFORM = 2;
 
 	private NetworkConst() {
 	}

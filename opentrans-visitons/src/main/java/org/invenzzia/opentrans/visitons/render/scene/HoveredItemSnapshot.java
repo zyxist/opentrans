@@ -29,17 +29,32 @@ public class HoveredItemSnapshot {
 	
 	private final byte type;
 	private final long id;
+	private final double position;
 	
-	public HoveredItemSnapshot(byte type, long id) {
+	public HoveredItemSnapshot(byte type, long id, double position) {
 		this.type = type;
 		this.id = id;
+		this.position = position;
 	}
 	
+	/**
+	 * @return Type of the hovered element.
+	 */
 	public byte getType() {
 		return this.type;
 	}
 	
+	/**
+	 * @return Domain model ID of the hovered element. 
+	 */
 	public long getId() {
 		return this.id;
+	}
+	
+	/**
+	 * @return Information about relative position of the cursor above the hovered element. 
+	 */
+	public double getPosition() {
+		return this.position;
 	}
 }

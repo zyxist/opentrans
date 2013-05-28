@@ -21,6 +21,7 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.geom.Arc2D;
 import org.invenzzia.opentrans.visitons.render.CameraModelSnapshot;
+import org.invenzzia.opentrans.visitons.render.scene.MouseSnapshot;
 
 /**
  * Draws a free track (two curved tracks).
@@ -96,5 +97,10 @@ public class FreeTrackPainter implements ITrackPainter {
 			return graphics.hit(rect, this.firstArc, true) || graphics.hit(rect, this.secondArc, true);
 		}
 		return false;
+	}
+
+	@Override
+	public double computePosition(MouseSnapshot snapshot) {
+		return 0.5;
 	}
 }

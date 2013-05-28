@@ -27,6 +27,7 @@ import org.invenzzia.opentrans.lightweight.lf.icons.IIconClient;
 import org.invenzzia.opentrans.lightweight.lf.icons.IconService;
 import org.invenzzia.opentrans.lightweight.ui.component.AdvancedTabPane;
 import org.invenzzia.opentrans.lightweight.ui.component.Minimap;
+import org.invenzzia.opentrans.lightweight.ui.navigator.NavigatorPanel;
 
 /**
  * The main window of the application.
@@ -43,6 +44,10 @@ public class WorkspacePanel extends JPanel implements IIconClient {
 	 * The panel displayed under the "History" name.
 	 */
 	private JPanel historyPanel;
+	/**
+	 * The panel displayed under the "Navigator" name.
+	 */
+	private JPanel navigatorPanel;
 
 	/**
 	 * Creates new form WorkspacePanel
@@ -68,6 +73,30 @@ public class WorkspacePanel extends JPanel implements IIconClient {
 	
 	public JPanel getHistoryPanel() {
 		return this.historyPanel;
+	}
+	
+	/**
+	 * Sets the content of the 'Navigator' tab.
+	 * 
+	 * @param panel 
+	 */
+	public void setNavigatorPanel(JPanel panel) {
+		if(null != this.navigatorPanel) {
+			this.extraTabs.remove(this.navigatorPanel);
+		}
+		this.navigatorPanel = panel;
+		if(null != this.navigatorPanel) {
+			this.extraTabs.add("Navigator", this.navigatorPanel);
+		}
+	}
+	
+	/**
+	 * Returns the current navigator panel.
+	 * 
+	 * @return 
+	 */
+	public JPanel getNavigatorPanel() {
+		return this.navigatorPanel;
 	}
 	
 	/**
@@ -332,5 +361,4 @@ public class WorkspacePanel extends JPanel implements IIconClient {
 		button.setIcon(icon);
 		button.setPreferredSize(new Dimension(80, 80));
 	}
-
 }

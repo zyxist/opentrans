@@ -31,11 +31,13 @@ import java.util.Set;
 import javax.imageio.ImageIO;
 import org.invenzzia.helium.data.interfaces.IIdentifiable;
 import org.invenzzia.opentrans.visitons.exception.WorldException;
+import org.invenzzia.opentrans.visitons.network.objects.TrackObject;
 import org.invenzzia.opentrans.visitons.render.AbstractCameraModelFoundation;
 import org.invenzzia.opentrans.visitons.render.SceneManager;
 import org.invenzzia.opentrans.visitons.render.painters.CurvedTrackPainter;
 import org.invenzzia.opentrans.visitons.render.painters.FreeTrackPainter;
 import org.invenzzia.opentrans.visitons.render.painters.StraightTrackPainter;
+import org.invenzzia.opentrans.visitons.render.scene.CommittedTrackObjectSnapshot;
 import org.invenzzia.opentrans.visitons.render.scene.CommittedTrackSnapshot;
 import org.invenzzia.opentrans.visitons.render.scene.VisibleSegmentSnapshot;
 import org.invenzzia.opentrans.visitons.render.scene.VisibleSegmentSnapshot.SegmentInfo;
@@ -659,6 +661,7 @@ public class World {
 			}
 		}
 		CommittedTrackSnapshot snap = new CommittedTrackSnapshot(visibleTracks.size());
+		CommittedTrackObjectSnapshot trackObjectSnap = null;
 		snap.setVertexArray(points, ids);
 		i = 0;
 		for(Track track: visibleTracks) {
@@ -677,6 +680,14 @@ public class World {
 					snap.setTrackPainter(i++, new FreeTrackPainter(track.getId(), track.getMetadata(), dx, dy));
 					break;
 			}
+			if(track.hasTrackObjects()) {
+				if(null == trackObjectSnap) {
+					trackObjectSnap = new CommittedTrackObjectSnapshot();
+				}
+				for(TrackObject to: track.getTrackObjects()) {
+					trackObjectSnap.addTrackObject(track, to);
+				}
+			}
 		}
 		if(!batch) {
 			sm.guard();
@@ -684,6 +695,7 @@ public class World {
 		try {
 			sm.batchUpdateResource(VisibleSegmentSnapshot.class, vss);
 			sm.batchUpdateResource(CommittedTrackSnapshot.class, snap);
+			sm.batchUpdateResource(CommittedTrackObjectSnapshot.class, trackObjectSnap);
 		} finally {
 			if(!batch) {
 				sm.unguard();

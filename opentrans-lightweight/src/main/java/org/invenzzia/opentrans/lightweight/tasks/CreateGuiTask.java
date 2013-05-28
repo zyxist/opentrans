@@ -29,6 +29,8 @@ import org.invenzzia.opentrans.lightweight.lf.icons.IconService;
 import org.invenzzia.opentrans.lightweight.ui.MainMenuController;
 import org.invenzzia.opentrans.lightweight.ui.MainWindow;
 import org.invenzzia.opentrans.lightweight.ui.MainWindowController;
+import org.invenzzia.opentrans.lightweight.ui.navigator.NavigatorController;
+import org.invenzzia.opentrans.lightweight.ui.navigator.NavigatorPanel;
 import org.invenzzia.opentrans.lightweight.ui.tabs.world.WorldTab;
 import org.invenzzia.opentrans.lightweight.ui.toolbars.AbstractToolbar;
 import org.invenzzia.opentrans.lightweight.ui.toolbars.HistoryToolbar;
@@ -62,6 +64,8 @@ public class CreateGuiTask implements ITask {
 	private WorkspaceController workspaceController;
 	@Inject
 	private HistoryController historyController;
+	@Inject
+	private NavigatorController navigatorController;
 	@Inject
 	private DesktopManager desktopManager;
 	@Inject
@@ -120,7 +124,12 @@ public class CreateGuiTask implements ITask {
 		HistoryPanel historyPanel = new HistoryPanel();
 		workspacePanel.setHistoryPanel(historyPanel);
 		
+		// Create the navigator tab.
+		NavigatorPanel navigatorPanel = new NavigatorPanel();
+		workspacePanel.setNavigatorPanel(navigatorPanel);
+		
 		this.historyController.setView(historyPanel);
+		this.navigatorController.setView(navigatorPanel);
 		
 		// Create toolbars
 		this.toolbarManager.setToolbarPanel(window.getToolbarPanel());

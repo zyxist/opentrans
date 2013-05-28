@@ -86,6 +86,10 @@ public class TrackObject<T extends ITrackObject> extends TrackObjectBase {
 		 * Optional field for extra identification. Used mostly by platforms.
 		 */
 		private int number;
+		/**
+		 * Optional track object name.
+		 */
+		private String name;
 		
 		public void setObject(int type, long id) {
 			this.type = type;
@@ -110,6 +114,10 @@ public class TrackObject<T extends ITrackObject> extends TrackObjectBase {
 			return this.number;
 		}
 		
+		public String getName() {
+			return this.name;
+		}
+		
 		/**
 		 * Imports the data from the original track object.
 		 */
@@ -118,6 +126,9 @@ public class TrackObject<T extends ITrackObject> extends TrackObjectBase {
 			this.setPosition(original.getPosition());
 			
 			ITrackObject backedObject = original.getObject();
+			if(backedObject instanceof INamedTrackObject) {
+				this.name = ((INamedTrackObject)backedObject).getTrackObjectName();
+			}
 			
 			this.setObject(
 				backedObject.getType(),

@@ -22,7 +22,6 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import java.awt.Color;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
@@ -76,12 +75,17 @@ public final class Renderer {
 	 * Collects information about the hovered objects.
 	 */
 	private HoverCollector hoverCollector;
+	/**
+	 * Storage for the fonts that supports size scaling.
+	 */
+	private FontRepository fontRepository;
 	
 	@Inject
 	public Renderer(SceneManager sceneManager, Provider<HoverCollector> hoverCollectorProvider) {
 		this.sceneManager = Preconditions.checkNotNull(sceneManager, "The renderer cannot operate without a scene manager.");
 		this.hoverCollector = Preconditions.checkNotNull(hoverCollectorProvider, "The hover collector cannot be empty.").get();
 		this.createBuffers();
+		this.createFontRepository();
 	}
 	
 	/**
@@ -117,6 +121,14 @@ public final class Renderer {
 			}
 			this.drawnImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 		}
+	}
+	
+	/**
+	 * Initializes the font repository.
+	 */
+	private void createFontRepository() {
+		this.fontRepository = new FontRepository();
+		this.fontRepository.addFont("platform-name", "Verdana", 3, true);
 	}
 	
 	/**
@@ -168,6 +180,9 @@ public final class Renderer {
 		this.updateBuffers(snapshot);
 		this.hoverCollector.resetHoveredItem();
 		
+		CameraModelSnapshot camera = (CameraModelSnapshot) snapshot.get(CameraModelSnapshot.class);
+		this.fontRepository.recalculateFonts(camera.getMpp());
+		
 		Graphics2D g = (Graphics2D) this.drawnImage.getGraphics();
 		g.setColor(Renderer.BACKGROUND_COLOR);
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -176,6 +191,7 @@ public final class Renderer {
 		// Run the rendering streams.
 		long current = System.currentTimeMillis();
 		for(IRenderingStream stream: this.renderingStreams) {
+			stream.setFontRepository(this.fontRepository);
 			stream.render((Graphics2D) g, snapshot, this.hoverCollector, current);
 		}
 		this.hoverCollector.emitSnapshot(this.sceneManager);

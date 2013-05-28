@@ -68,6 +68,7 @@ public class AddPlatformCmd implements ICommand, ICommandDetails {
 		TrackObject trackObject = new TrackObject();
 		trackObject.setPosition(this.position);
 		Platform platform = new Platform(theStop, trackObject);
+		platform.setName("Platform "+platform.getNumber());
 		Track theTrack = project.getWorld().findTrack(this.tr.getId());
 		theTrack.addTrackObject(trackObject);
 		this.platformNumber = platform.getNumber();

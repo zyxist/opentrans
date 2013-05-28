@@ -36,6 +36,7 @@ import org.invenzzia.opentrans.visitons.render.scene.EditableTrackObjectSnapshot
  */
 public class TrackObjectStream extends RenderingStreamAdapter {
 	private static final Color PLATFORM_COLOR = new Color(0xAA, 0xAA, 0xAA, 0xFF);
+	private static final Color PLATFORM_NAME_COLOR = new Color(0x33, 0x33, 0x33, 0xFF);
 	private static final Color PLATFORM_EDITABLE_COLOR = new Color(0xAA, 0xAA, 0xAA, 0xAA);
 
 	@Override
@@ -78,11 +79,18 @@ public class TrackObjectStream extends RenderingStreamAdapter {
 			graphics.setColor(PLATFORM_EDITABLE_COLOR);
 		} else {
 			graphics.setColor(PLATFORM_COLOR);
-		}
+		}		
 		graphics.fillRect(x - width / 2, y - height / 2, width, height);
+		
+		if(camera.getMpp() < 0.50) {
+			graphics.setColor(PLATFORM_NAME_COLOR);
+			graphics.setFont(this.fontRepository.getFont("platform-name"));
+			int textWidth = graphics.getFontMetrics().stringWidth(object.name);
+			int textHeight = graphics.getFontMetrics().getHeight();
+			graphics.drawString(object.name, x - textWidth / 2, y + textHeight / 4);
+		}
+		
 		graphics.translate(0, dist);
 		graphics.rotate(-object.tangent, x, y);
-		
-		graphics.drawString("X: "+object.x+"; Y: "+object.y, x, y);
 	}
 }

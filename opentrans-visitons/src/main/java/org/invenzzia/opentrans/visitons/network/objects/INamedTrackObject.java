@@ -18,23 +18,16 @@
 package org.invenzzia.opentrans.visitons.network.objects;
 
 /**
- * This interface shall be implemented by the entities that can be placed
- * on the tracks.
+ * Some track objects may contain names. This interface allows the whole
+ * infrastructure to retrieve them.
  * 
  * @author Tomasz Jędrzejewski
  */
-public interface ITrackObject {
+public interface INamedTrackObject extends ITrackObject {
 	/**
-	 * Returns the possessed track object.
+	 * Returns the name of this track object (may be used for rendering).
 	 * 
-	 * @return 
+	 * @return Track object name.
 	 */
-	public TrackObject getTrackObject();
-	/**
-	 * Identifies the type of this object. The value returned by this method
-	 * shall be unique for all the track object types.
-	 * 
-	 * @return 
-	 */
-	public int getType();
+	public String getTrackObjectName();
 }

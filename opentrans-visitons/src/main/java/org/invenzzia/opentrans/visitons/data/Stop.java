@@ -17,7 +17,6 @@
 
 package org.invenzzia.opentrans.visitons.data;
 
-import com.google.common.collect.ImmutableMap;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -203,7 +202,7 @@ public final class Stop extends StopBase implements IMemento<Project> {
 				record.exportData(existingPlatform);
 				newPlatformMap.put(Integer.valueOf(existingPlatform.getNumber()), existingPlatform);
 			}
-			original.platforms = ImmutableMap.copyOf(newPlatformMap);
+			original.platforms = newPlatformMap;
 		}
 
 		@Override

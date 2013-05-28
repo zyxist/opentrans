@@ -32,6 +32,13 @@ import java.util.Map;
  */
 public interface IRenderingStream {
 	/**
+	 * Useful for everyone who can type some text.
+	 * 
+	 * @param fontRepository 
+	 */
+	public void setFontRepository(FontRepository fontRepository);
+	
+	/**
 	 * Renders a single frame of the animation using the given graphics device and viewport
 	 * settings. For animations, the actual time of rendering the previous frame is given.
 	 * The method is called sequentially for all the registered streams, and all of them

@@ -22,7 +22,7 @@ import org.invenzzia.helium.data.interfaces.IIdentifiable;
 import org.invenzzia.helium.data.interfaces.INumberable;
 import org.invenzzia.opentrans.visitons.data.Stop.StopRecord;
 import org.invenzzia.opentrans.visitons.network.NetworkConst;
-import org.invenzzia.opentrans.visitons.network.objects.ITrackObject;
+import org.invenzzia.opentrans.visitons.network.objects.INamedTrackObject;
 import org.invenzzia.opentrans.visitons.network.objects.TrackObject;
 
 
@@ -55,6 +55,11 @@ class PlatformBase implements INumberable {
 	public void setName(String name) {
 		this.name = name;
 	}
+	
+	@Override
+	public String toString() {
+		return this.name;
+	}
 }
 
 /**
@@ -63,7 +68,7 @@ class PlatformBase implements INumberable {
  * 
  * @author Tomasz Jędrzejewski
  */
-public class Platform extends PlatformBase implements ITrackObject, IIdentifiable {
+public class Platform extends PlatformBase implements INamedTrackObject, IIdentifiable {
 	/**
 	 * Which stop owns this platform?
 	 */
@@ -75,6 +80,7 @@ public class Platform extends PlatformBase implements ITrackObject, IIdentifiabl
 	
 	public Platform(final Stop stop, TrackObject<Platform> trackObject) {
 		this.stop = Preconditions.checkNotNull(stop);
+		this.stop.bindPlatform(this);
 		this.trackObject = Preconditions.checkNotNull(trackObject);
 		this.trackObject.setObject(this);
 	}
@@ -101,6 +107,11 @@ public class Platform extends PlatformBase implements ITrackObject, IIdentifiabl
 	@Override
 	public void setId(long id) {
 		throw new UnsupportedOperationException("This operation is not supported for platforms.");
+	}
+	
+	@Override
+	public String getTrackObjectName() {
+		return this.getName();
 	}
 	
 	/**

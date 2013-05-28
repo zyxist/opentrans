@@ -22,6 +22,7 @@ import java.util.List;
 import org.invenzzia.helium.data.interfaces.IIdentifiable;
 import org.invenzzia.helium.data.interfaces.INumberable;
 import org.invenzzia.opentrans.visitons.geometry.Characteristics;
+import org.invenzzia.opentrans.visitons.network.objects.INamedTrackObject;
 import org.invenzzia.opentrans.visitons.network.objects.TrackObject;
 import org.invenzzia.opentrans.visitons.network.objects.TrackObject.TrackObjectRecord;
 
@@ -46,7 +47,8 @@ public abstract class AbstractTrackObjectSnapshot<T> {
 			point.x(), point.y(), point.tangent(),
 			object.getOrientation(),
 			(object.getObject() instanceof IIdentifiable) ? ((IIdentifiable)object.getObject()).getId() : IIdentifiable.NEUTRAL_ID,
-			(object.getObject() instanceof INumberable) ? ((INumberable)object.getObject()).getNumber(): INumberable.NEUTRAL_ID
+			(object.getObject() instanceof INumberable) ? ((INumberable)object.getObject()).getNumber(): INumberable.NEUTRAL_ID,
+			(object.getObject() instanceof INamedTrackObject) ? ((INamedTrackObject)object.getObject()).getTrackObjectName() : null
 		));
 	}
 	
@@ -63,7 +65,8 @@ public abstract class AbstractTrackObjectSnapshot<T> {
 			point.x(), point.y(), point.tangent(),
 			object.getOrientation(),
 			object.getId(),
-			object.getNumber()
+			object.getNumber(),
+			object.getName()
 		));
 	}
 	
@@ -84,8 +87,9 @@ public abstract class AbstractTrackObjectSnapshot<T> {
 		public final byte orientation;
 		public final long id;
 		public final int number;
+		public final String name;
 
-		RenderableTrackObject(int type, double x, double y, double tangent, byte orientation, long id, int number) {
+		RenderableTrackObject(int type, double x, double y, double tangent, byte orientation, long id, int number, String name) {
 			this.type = type;
 			this.x = x;
 			this.y = y;
@@ -93,6 +97,7 @@ public abstract class AbstractTrackObjectSnapshot<T> {
 			this.orientation = orientation;
 			this.id = id;
 			this.number = number;
+			this.name = name;
 		}
 	}
 }

@@ -30,6 +30,16 @@ import org.invenzzia.opentrans.visitons.render.scene.MouseSnapshot;
  */
 public abstract class RenderingStreamAdapter implements IRenderingStream {
 	/**
+	 * Provides access to all the fonts in the application.
+	 */
+	protected FontRepository fontRepository;
+	
+	@Override
+	public void setFontRepository(FontRepository repository) {
+		this.fontRepository = repository;
+	}
+	
+	/**
 	 * Helps extracting the data from the scene manager snapshot by casting
 	 * them to the destination object. The method assumes that the key is
 	 * the class.

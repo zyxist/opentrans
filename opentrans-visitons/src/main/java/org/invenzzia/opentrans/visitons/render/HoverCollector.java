@@ -33,11 +33,15 @@ public class HoverCollector {
 	/**
 	 * Type of the selected item.
 	 */
-	private byte type;
+	private int type;
 	/**
 	 * ID of the selected element (from the domain model).
 	 */
 	private long id;
+	/**
+	 * Secondary-level number of the selected item (from the domain model).
+	 */
+	private int number;
 	/**
 	 * Additional information about the hover, i.e. which part is actually selected.
 	 */
@@ -48,9 +52,16 @@ public class HoverCollector {
 		this.id = IIdentifiable.NEUTRAL_ID;
 	}
 	
-	public void registerHoveredItem(byte type, long id) {
+	public void registerHoveredItem(int type, long id) {
 		this.type = type;
 		this.id = id;
+		this.number = 0;
+	}
+	
+	public void registerHoveredItem(int type, long id, int number) {
+		this.type = type;
+		this.id = id;
+		this.number = number;
 	}
 	
 	public void registerPosition(double position) {
@@ -59,7 +70,7 @@ public class HoverCollector {
 	
 	public void emitSnapshot(SceneManager sceneManager) {
 		if(IIdentifiable.NEUTRAL_ID != this.id) {
-			sceneManager.updateResource(HoveredItemSnapshot.class, new HoveredItemSnapshot(this.type, this.id, this.position));
+			sceneManager.updateResource(HoveredItemSnapshot.class, new HoveredItemSnapshot(this.type, this.id, this.number, this.position));
 		} else {
 			sceneManager.updateResource(HoveredItemSnapshot.class, null);
 		}

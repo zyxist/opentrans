@@ -27,20 +27,22 @@ public class HoveredItemSnapshot {
 	public static final byte TYPE_TRACK = 1;
 	public static final byte TYPE_VERTEX = 2;
 	
-	private final byte type;
+	private final int type;
 	private final long id;
+	private final int number;
 	private final double position;
 	
-	public HoveredItemSnapshot(byte type, long id, double position) {
+	public HoveredItemSnapshot(int type, long id, int number, double position) {
 		this.type = type;
 		this.id = id;
+		this.number = number;
 		this.position = position;
 	}
 	
 	/**
 	 * @return Type of the hovered element.
 	 */
-	public byte getType() {
+	public int getType() {
 		return this.type;
 	}
 	

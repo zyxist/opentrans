@@ -19,6 +19,8 @@ package org.invenzzia.opentrans.visitons.render.stream;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
+import java.awt.geom.Rectangle2D;
 import java.util.List;
 import java.util.Map;
 import org.invenzzia.opentrans.visitons.network.NetworkConst;
@@ -28,6 +30,7 @@ import org.invenzzia.opentrans.visitons.render.RenderingStreamAdapter;
 import org.invenzzia.opentrans.visitons.render.scene.AbstractTrackObjectSnapshot.RenderableTrackObject;
 import org.invenzzia.opentrans.visitons.render.scene.CommittedTrackObjectSnapshot;
 import org.invenzzia.opentrans.visitons.render.scene.EditableTrackObjectSnapshot;
+import org.invenzzia.opentrans.visitons.render.scene.MouseSnapshot;
 
 /**
  * Paints all types of track objects.
@@ -35,15 +38,23 @@ import org.invenzzia.opentrans.visitons.render.scene.EditableTrackObjectSnapshot
  * @author Tomasz Jędrzejewski
  */
 public class TrackObjectStream extends RenderingStreamAdapter {
-	private static final Color PLATFORM_COLOR = new Color(0xAA, 0xAA, 0xAA, 0xFF);
 	private static final Color PLATFORM_NAME_COLOR = new Color(0x33, 0x33, 0x33, 0xFF);
+	
+	private static final Color PLATFORM_COLOR = new Color(0xAA, 0xAA, 0xAA, 0xFF);
 	private static final Color PLATFORM_EDITABLE_COLOR = new Color(0xAA, 0xAA, 0xAA, 0xAA);
+	private static final Color PLATFORM_HOVER_COLOR = new Color(0xAA, 0xAA, 0x00, 0xCC);
 
+	private Rectangle mouseRect;
+	private HoverCollector hoverCollector;
+	
 	@Override
 	public void render(Graphics2D graphics, Map<Object, Object> scene, HoverCollector hoverCollector, long prevTimeFrame) {
 		CommittedTrackObjectSnapshot committedTrackSnapshot = this.extract(scene, CommittedTrackObjectSnapshot.class);
 		EditableTrackObjectSnapshot editableTrackSnapshot = this.extract(scene, EditableTrackObjectSnapshot.class);
 		CameraModelSnapshot camera = this.extract(scene, CameraModelSnapshot.class);
+		MouseSnapshot mouse = this.extract(scene, MouseSnapshot.class);
+		this.mouseRect = this.getMousePosition(scene);
+		this.hoverCollector = hoverCollector;
 		if(null != committedTrackSnapshot) {
 			this.drawObjects(graphics, camera, committedTrackSnapshot.getTrackObjects(), false);
 		}
@@ -75,12 +86,19 @@ public class TrackObjectStream extends RenderingStreamAdapter {
 		int width = (int) camera.world2pix(30.0);
 		int height = (int) camera.world2pix(3.0);
 
-		if(transparency) {
+		Rectangle2D r2d = new Rectangle2D.Float((float) x - width / 2, (float) y - height / 2, (float) width, (float)height);
+		
+		if(graphics.hit(this.mouseRect, r2d, false)) {
+			graphics.setColor(PLATFORM_HOVER_COLOR);
+			this.hoverCollector.registerHoveredItem(object.type, object.id, object.number);
+		} else if(transparency) {
 			graphics.setColor(PLATFORM_EDITABLE_COLOR);
 		} else {
 			graphics.setColor(PLATFORM_COLOR);
-		}		
-		graphics.fillRect(x - width / 2, y - height / 2, width, height);
+		}
+		
+		graphics.draw(r2d);
+		graphics.fill(r2d);
 		
 		if(camera.getMpp() < 0.50) {
 			graphics.setColor(PLATFORM_NAME_COLOR);

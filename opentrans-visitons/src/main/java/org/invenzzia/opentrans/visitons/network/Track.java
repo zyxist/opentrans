@@ -174,6 +174,7 @@ public class Track {
 			this.trackObjects = new LinkedList<>();
 		}
 		this.trackObjects.add(trackObject);
+		trackObject.setTrack(this);
 	}
 	
 	/**

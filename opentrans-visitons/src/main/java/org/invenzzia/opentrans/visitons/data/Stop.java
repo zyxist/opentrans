@@ -27,6 +27,8 @@ import org.invenzzia.helium.data.interfaces.IMemento;
 import org.invenzzia.helium.data.interfaces.IRecord;
 import org.invenzzia.opentrans.visitons.Project;
 import org.invenzzia.opentrans.visitons.data.Platform.PlatformRecord;
+import org.invenzzia.opentrans.visitons.geometry.Point;
+import org.invenzzia.opentrans.visitons.network.objects.TrackObject;
 
 class StopBase implements IIdentifiable {
 	/**
@@ -179,6 +181,28 @@ public final class Stop extends StopBase implements IMemento<Project> {
 		StopRecord record = (StopRecord) memento;
 		record.exportData(this, domainModel);
 		this.id = record.getId();
+	}
+
+	/**
+	 * Calculates the approximate position of the stop, using the locations of all the platforms.
+	 * 
+	 * @return Approximate position of stop.
+	 */
+	public Point findApproximatePosition() {
+		if(this.hasPlatforms()) {
+			double sumX = 0.0;
+			double sumY = 0.0;
+			for(Platform platform: this.platforms.values()) {
+				TrackObject to = platform.getTrackObject();
+				Point pt = to.getTrack().getPointCharacteristics(to.getPosition());
+				sumX += pt.x();
+				sumY += pt.y();
+			}
+			int size = this.platforms.size();
+			return new Point(sumX / size, sumY / size);
+		} else {
+			throw new IllegalStateException("This stop has no platforms to perform such calculations!");
+		}
 	}
 	
 	/**

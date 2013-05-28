@@ -129,6 +129,7 @@ public final class Renderer {
 	private void createFontRepository() {
 		this.fontRepository = new FontRepository();
 		this.fontRepository.addFont("platform-name", "Verdana", 3, true);
+		this.fontRepository.addFont("stop-name", "Tahoma", 6, true);
 	}
 	
 	/**

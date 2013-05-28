@@ -20,6 +20,7 @@ package org.invenzzia.opentrans.visitons.network.objects;
 import com.google.common.base.Preconditions;
 import org.invenzzia.helium.data.interfaces.IIdentifiable;
 import org.invenzzia.helium.data.interfaces.INumberable;
+import org.invenzzia.opentrans.visitons.network.Track;
 
 
 class TrackObjectBase {
@@ -64,6 +65,10 @@ public class TrackObject<T extends ITrackObject> extends TrackObjectBase {
 	 * The actual object.
 	 */
 	private T object;
+	/**
+	 * Track that owns it.
+	 */
+	private Track track;
 	
 	public void setObject(T object) {
 		this.object = Preconditions.checkNotNull(object);
@@ -71,6 +76,14 @@ public class TrackObject<T extends ITrackObject> extends TrackObjectBase {
 	
 	public T getObject() {
 		return this.object;
+	}
+	
+	public void setTrack(Track track) {
+		this.track = track;
+	}
+	
+	public Track getTrack() {
+		return this.track;
 	}
 
 	public static class TrackObjectRecord extends TrackObjectBase {

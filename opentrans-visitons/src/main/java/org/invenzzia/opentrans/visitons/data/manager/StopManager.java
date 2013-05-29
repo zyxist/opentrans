@@ -27,7 +27,9 @@ import org.invenzzia.helium.data.AbstractDataManager;
 import org.invenzzia.helium.data.interfaces.IManagerMemento;
 import org.invenzzia.helium.exception.ModelException;
 import org.invenzzia.opentrans.visitons.Project;
+import org.invenzzia.opentrans.visitons.data.Platform;
 import org.invenzzia.opentrans.visitons.data.Stop;
+import org.invenzzia.opentrans.visitons.network.Track;
 
 /**
  * Description here.
@@ -80,11 +82,17 @@ public class StopManager extends AbstractDataManager<Stop> implements IManagerMe
 			this.stops.add(item);
 		}
 	}
-	
+
 	@Override
 	protected void afterRemove(Stop item) {
 		this.stops.remove(item);
 		this.stopNames.remove(item.getName());
+
+		// We must also detach all the platforms from the tracks!
+		for(Platform platform: item.getPlatforms()) {
+			Track track = platform.getTrackObject().getTrack();
+			track.removeTrackObject(platform);
+		}
 	}
 	
 	@Override

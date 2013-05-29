@@ -45,7 +45,6 @@ public class StopLabelStream extends RenderingStreamAdapter {
 				int width = graphics.getFontMetrics().stringWidth(info.label);
 				int height = graphics.getFontMetrics().getHeight();
 				width += 4;
-				height += 4;
 				
 				int x = camera.world2pixX(info.x);
 				int y = camera.world2pixY(info.y - 15.0);

@@ -17,6 +17,8 @@
 
 package org.invenzzia.opentrans.visitons.render.scene;
 
+import com.google.common.base.Preconditions;
+import org.invenzzia.opentrans.visitons.geometry.Characteristics;
 import org.invenzzia.opentrans.visitons.network.TrackRecord;
 import org.invenzzia.opentrans.visitons.network.objects.TrackObject.TrackObjectRecord;
 
@@ -34,5 +36,17 @@ public class EditableTrackObjectSnapshot extends AbstractTrackObjectSnapshot<Tra
 	 */
 	public void addTrackObject(TrackRecord track, TrackObjectRecord object) {
 		this.addTrackObjectInt(object, track.getPointCharacteristics(object.getPosition()));
+	}
+	
+	/**
+	 * This method allows adding a track object to render without the need to import the
+	 * whole track record. However, the track object must have the location characteristics imported.
+	 * 
+	 * @param characteristics
+	 * @param object 
+	 */
+	public void addTrackObject(TrackObjectRecord object) {
+		Preconditions.checkNotNull(object.getLocation());
+		this.addTrackObjectInt(object, object.getLocation());
 	}
 }

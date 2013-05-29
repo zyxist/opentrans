@@ -165,7 +165,7 @@ public class Track {
 	
 	/**
 	 * Surprise! This method is the part of the public API, because track objects are added directly
-	 * to the real tracks.
+	 * to the real tracks. The method also attaches the track itself to the track object.
 	 * 
 	 * @param trackObject 
 	 */

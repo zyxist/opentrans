@@ -19,7 +19,12 @@ package org.invenzzia.opentrans.visitons.network.objects;
 
 import com.google.common.base.Preconditions;
 import org.invenzzia.helium.data.interfaces.IIdentifiable;
+import org.invenzzia.helium.data.interfaces.IMemento;
 import org.invenzzia.helium.data.interfaces.INumberable;
+import org.invenzzia.helium.data.interfaces.IRecord;
+import org.invenzzia.helium.data.utils.MementoUtils;
+import org.invenzzia.opentrans.visitons.Project;
+import org.invenzzia.opentrans.visitons.geometry.Characteristics;
 import org.invenzzia.opentrans.visitons.network.Track;
 
 
@@ -60,7 +65,7 @@ class TrackObjectBase {
  * 
  * @author Tomasz Jędrzejewski
  */
-public class TrackObject<T extends ITrackObject> extends TrackObjectBase {
+public class TrackObject<T extends ITrackObject> extends TrackObjectBase implements IMemento<Project> {
 	/**
 	 * The actual object.
 	 */
@@ -86,7 +91,20 @@ public class TrackObject<T extends ITrackObject> extends TrackObjectBase {
 		return this.track;
 	}
 
-	public static class TrackObjectRecord extends TrackObjectBase {
+	@Override
+	public Object getMemento(Project domainModel) {
+		TrackObjectRecord record = new TrackObjectRecord();
+		record.importData(this);
+		return record;
+	}
+
+	@Override
+	public void restoreMemento(Object object, Project domainModel) {
+		TrackObjectRecord record = MementoUtils.checkMemento(object, TrackObjectRecord.class, TrackObject.class);
+		record.exportData(this, domainModel);
+	}
+
+	public static class TrackObjectRecord extends TrackObjectBase implements IRecord<TrackObject, Project> {
 		/**
 		 * Type of the track object.
 		 */
@@ -103,6 +121,14 @@ public class TrackObject<T extends ITrackObject> extends TrackObjectBase {
 		 * Optional track object name.
 		 */
 		private String name;
+		/**
+		 * ID of the track, where this object is bound.
+		 */
+		private long trackId;
+		/**
+		 * Location of the track object.
+		 */
+		private Characteristics location;
 		
 		public void setObject(int type, long id) {
 			this.type = type;
@@ -131,10 +157,43 @@ public class TrackObject<T extends ITrackObject> extends TrackObjectBase {
 			return this.name;
 		}
 		
+		public Characteristics getLocation() {
+			return this.location;
+		}
+		
 		/**
-		 * Imports the data from the original track object.
+		 * Location information must be imported on-demand.
+		 * 
+		 * @param trackObject 
 		 */
-		public void importFrom(TrackObject original) {
+		public void importLocation(TrackObject trackObject) {
+			this.location = trackObject.track.getPointCharacteristics(trackObject.getPosition());
+		}
+		
+		/**
+		 * Returns the Id of the track, where this track object is attached.
+		 * 
+		 * @return Track ID.
+		 */
+		public long getTrackId() {
+			return this.trackId;
+		}
+
+		@Override
+		public void exportData(TrackObject original, Project domainModel) {
+			Track previousTrack = original.getTrack();
+			previousTrack.removeTrackObject(original.getObject());
+			original.setPosition(this.getPosition());
+			Track newTrack = domainModel.getWorld().findTrack(this.trackId);
+			newTrack.addTrackObject(original);
+		}
+
+		@Override
+		public void importData(TrackObject original, Project domainModel) {
+			this.importData(original);
+		}
+		
+		public void importData(TrackObject original) {
 			this.setOrientation(original.getOrientation());
 			this.setPosition(original.getPosition());
 			
@@ -142,7 +201,7 @@ public class TrackObject<T extends ITrackObject> extends TrackObjectBase {
 			if(backedObject instanceof INamedTrackObject) {
 				this.name = ((INamedTrackObject)backedObject).getTrackObjectName();
 			}
-			
+			this.trackId = original.getTrack().getId();
 			this.setObject(
 				backedObject.getType(),
 				backedObject instanceof IIdentifiable ? ((IIdentifiable) backedObject).getId() : IIdentifiable.NEUTRAL_ID,

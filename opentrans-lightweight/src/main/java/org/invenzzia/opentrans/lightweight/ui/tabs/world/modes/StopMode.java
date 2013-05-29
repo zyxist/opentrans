@@ -35,10 +35,14 @@ import org.invenzzia.opentrans.visitons.data.Platform.PlatformRecord;
 import org.invenzzia.opentrans.visitons.data.Stop;
 import org.invenzzia.opentrans.visitons.data.Stop.StopRecord;
 import org.invenzzia.opentrans.visitons.editing.network.AddPlatformCmd;
+import org.invenzzia.opentrans.visitons.editing.network.MovePlatformCmd;
+import org.invenzzia.opentrans.visitons.network.NetworkConst;
 import org.invenzzia.opentrans.visitons.network.Track;
 import org.invenzzia.opentrans.visitons.network.TrackRecord;
 import org.invenzzia.opentrans.visitons.network.World;
+import org.invenzzia.opentrans.visitons.network.objects.TrackObject.TrackObjectRecord;
 import org.invenzzia.opentrans.visitons.render.scene.HoveredItemSnapshot;
+import org.invenzzia.opentrans.visitons.render.scene.SelectedTrackObjectSnapshot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,6 +53,11 @@ import org.slf4j.LoggerFactory;
  */
 public class StopMode extends AbstractEditMode {
 	private final Logger logger = LoggerFactory.getLogger(StopMode.class);
+	
+	private static final String DEFAULT_STATUS_TEXT = "Select a stop from the navigator and click on a track to place a stop platform. Click on an existin platform to select it.";
+	private static final String PLATFORM_SELECTED_STATUS_TEXT = "Click on a track to move the selected platform. Right-click anywhere to cancel the selection.";
+	private static final String SELECT_FROM_NAVIGATOR = "Please select a stop from the navigator first!";
+	
 	@Inject
 	private NavigatorController navigatorController;
 	@Inject
@@ -61,6 +70,10 @@ public class StopMode extends AbstractEditMode {
 	 * The API for edit modes.
 	 */
 	private IEditModeAPI api;
+	/**
+	 * For the purpose of platform moving, we must remember a selected platform.
+	 */
+	private PlatformRecord selectedPlatform;
 
 	@Override
 	protected void handleCommandExecutionError(CommandExecutionException exception) {
@@ -72,7 +85,7 @@ public class StopMode extends AbstractEditMode {
 		logger.info("StopMode enabled.");
 		this.api = api;
 		this.navigatorController.setModel(new StopNavigatorModel());
-		this.api.setStatusMessage("Manage platforms placed on tracks. To add a new platform, first select a stop in the navigator.");
+		this.api.setStatusMessage(DEFAULT_STATUS_TEXT);
 	
 		this.api.setPopup(PopupBuilder.create()
 			.action(this.centerAction)
@@ -96,41 +109,83 @@ public class StopMode extends AbstractEditMode {
 	@InModelThread(asynchronous = false)
 	public PlatformRecord getPlatformRecord(Project project, long stopId, int number) {
 		Stop stop = project.getStopManager().findById(stopId);
-		
+
 		StopRecord stopRecord = new StopRecord();
 		stopRecord.importData(stop, project);		
-		return stopRecord.getPlatform(number);
+		PlatformRecord record = stopRecord.getPlatform(number);
+
+		return record;
 	}
 	
 	@Override
 	public void leftActionPerformed(double worldX, double worldY, boolean altDown, boolean ctrlDown) {
 		HoveredItemSnapshot snapshot = sceneManager.getResource(HoveredItemSnapshot.class, HoveredItemSnapshot.class);
-		if(null != snapshot && snapshot.getType() == HoveredItemSnapshot.TYPE_TRACK) {
-			TrackRecord tr = this.getTrackRecord(this.getWorld(), snapshot.getId());
-			
-			Object object = this.navigatorController.getSelectedObject();
-			if(null != object) {
-				Preconditions.checkState(object instanceof StopRecord, "The navigator displays wrong object types: "+object.getClass().getCanonicalName()+"; StopRecord expected.");
-				StopRecord stop = (StopRecord) object;
-
-				try {
-					this.history.execute(new AddPlatformCmd(tr, snapshot.getPosition(), stop));
-				} catch(CommandExecutionException exception) {
-					this.dialogBuilder.showError("Error while adding a platform", exception);
-				}
-			} else {
-				this.api.setStatusMessage("Please select a stop from the navigator first!");
-			}			
+		if(null != snapshot) {
+			switch(snapshot.getType()) {
+				case HoveredItemSnapshot.TYPE_TRACK:
+					if(null == this.selectedPlatform) {
+						this.placeNewPlatform(snapshot);
+					} else {
+						this.movePlatform(snapshot);
+					}
+					break;
+				case HoveredItemSnapshot.TYPE_PLATFORM:
+					this.selectPlatform(snapshot);
+					break;
+			}
 		}
+			
+		
 	}
 	
 	@Override
 	public void rightActionPerformed(double worldX, double worldY, boolean altDown, boolean ctrlDown) {
-		HoveredItemSnapshot snapshot = sceneManager.getResource(HoveredItemSnapshot.class, HoveredItemSnapshot.class);
-		if(null != snapshot && snapshot.getType() == HoveredItemSnapshot.TYPE_PLATFORM) {
-			PlatformRecord record = this.getPlatformRecord(this.projectHolder.getCurrentProject(), snapshot.getId(), snapshot.getNumber());
-			this.renamePlatformAction.setPlatformRecord(record);
-			this.api.showPopup();
+		if(null == this.selectedPlatform) {
+			HoveredItemSnapshot snapshot = sceneManager.getResource(HoveredItemSnapshot.class, HoveredItemSnapshot.class);
+			if(null != snapshot && snapshot.getType() == HoveredItemSnapshot.TYPE_PLATFORM) {
+				PlatformRecord record = this.getPlatformRecord(this.projectHolder.getCurrentProject(), snapshot.getId(), snapshot.getNumber());
+				this.renamePlatformAction.setPlatformRecord(record);
+				this.api.showPopup();
+			}
+		} else {
+			this.sceneManager.updateResource(SelectedTrackObjectSnapshot.class, null);
+			this.selectedPlatform = null;
+			this.api.setStatusMessage(DEFAULT_STATUS_TEXT);
 		}
+	}
+
+	private void placeNewPlatform(HoveredItemSnapshot snapshot) {
+		TrackRecord tr = this.getTrackRecord(this.getWorld(), snapshot.getId());
+
+		Object object = this.navigatorController.getSelectedObject();
+		if(null != object) {
+			Preconditions.checkState(object instanceof StopRecord, "The navigator displays wrong object types: "+object.getClass().getCanonicalName()+"; StopRecord expected.");
+			StopRecord stop = (StopRecord) object;
+
+			try {
+				this.history.execute(new AddPlatformCmd(tr, snapshot.getPosition(), stop));
+			} catch(CommandExecutionException exception) {
+				this.dialogBuilder.showError("Error while adding a platform", exception);
+			}
+		} else {
+			this.api.setStatusMessage(SELECT_FROM_NAVIGATOR);
+		}
+	}
+
+	private void movePlatform(HoveredItemSnapshot snapshot) {
+		TrackRecord trackRecord = this.getTrackRecord(this.projectHolder.getCurrentProject().getWorld(), snapshot.getId());
+		try {
+			this.history.execute(new MovePlatformCmd(this.selectedPlatform, snapshot.getPosition(), trackRecord));
+		} catch(CommandExecutionException exception) {
+			this.dialogBuilder.showError("Error while adding a platform", exception);
+		}
+	}
+
+	private void selectPlatform(HoveredItemSnapshot snapshot) {
+		this.selectedPlatform = this.getPlatformRecord(this.projectHolder.getCurrentProject(), snapshot.getId(), snapshot.getNumber());
+		this.sceneManager.updateResource(SelectedTrackObjectSnapshot.class,
+			new SelectedTrackObjectSnapshot(NetworkConst.TRACK_OBJECT_PLATFORM, this.selectedPlatform.getId(), this.selectedPlatform.getNumber())
+		);
+		this.api.setStatusMessage(PLATFORM_SELECTED_STATUS_TEXT);
 	}
 }

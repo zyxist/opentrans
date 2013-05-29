@@ -111,7 +111,7 @@ public class TrackRecord implements ILightMemento {
 			this.trackObjects = new ArrayList<>(localList.size());
 			for(TrackObject to: localList) {
 				TrackObjectRecord record = new TrackObjectRecord();
-				record.importFrom(to);
+				record.importData(to);
 				this.trackObjects.add(record);
 			}
 		}

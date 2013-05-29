@@ -123,6 +123,15 @@ public final class Stop extends StopBase implements IMemento<Project> {
 	}
 	
 	/**
+	 * Internal API for restoring the previously deleted platform.
+	 * 
+	 * @param platform The platform to restore.
+	 */
+	void restorePlatform(Platform platform) {
+		this.platforms.put(platform.getNumber(), platform);
+	}
+	
+	/**
 	 * Returns <strong>true</strong>, if there is any platform assigned to this stop.
 	 * 
 	 * @return 

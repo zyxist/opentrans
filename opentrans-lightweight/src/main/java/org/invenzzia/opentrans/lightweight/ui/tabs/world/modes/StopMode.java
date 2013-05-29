@@ -36,6 +36,7 @@ import org.invenzzia.opentrans.visitons.data.Stop;
 import org.invenzzia.opentrans.visitons.data.Stop.StopRecord;
 import org.invenzzia.opentrans.visitons.editing.network.AddPlatformCmd;
 import org.invenzzia.opentrans.visitons.editing.network.MovePlatformCmd;
+import org.invenzzia.opentrans.visitons.editing.network.RemovePlatformCmd;
 import org.invenzzia.opentrans.visitons.network.NetworkConst;
 import org.invenzzia.opentrans.visitons.network.Track;
 import org.invenzzia.opentrans.visitons.network.TrackRecord;
@@ -151,6 +152,20 @@ public class StopMode extends AbstractEditMode {
 			this.sceneManager.updateResource(SelectedTrackObjectSnapshot.class, null);
 			this.selectedPlatform = null;
 			this.api.setStatusMessage(DEFAULT_STATUS_TEXT);
+		}
+	}
+	
+	@Override
+	public void deletePressed(double worldX, double worldY) {
+		if(null != this.selectedPlatform) {
+			try {
+				this.history.execute(new RemovePlatformCmd(this.selectedPlatform));
+				this.selectedPlatform = null;
+				this.sceneManager.updateResource(SelectedTrackObjectSnapshot.class, null);
+				this.api.setStatusMessage(DEFAULT_STATUS_TEXT);
+			} catch(CommandExecutionException exception) {
+				this.dialogBuilder.showError("Error while removing a platform", exception);
+			}
 		}
 	}
 

@@ -182,7 +182,9 @@ public class TrackObject<T extends ITrackObject> extends TrackObjectBase impleme
 		@Override
 		public void exportData(TrackObject original, Project domainModel) {
 			Track previousTrack = original.getTrack();
-			previousTrack.removeTrackObject(original.getObject());
+			if(null != previousTrack) {
+				previousTrack.removeTrackObject(original.getObject());
+			}
 			original.setPosition(this.getPosition());
 			Track newTrack = domainModel.getWorld().findTrack(this.trackId);
 			newTrack.addTrackObject(original);

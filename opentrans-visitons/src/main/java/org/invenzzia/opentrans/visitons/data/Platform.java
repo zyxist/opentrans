@@ -85,6 +85,18 @@ public class Platform extends PlatformBase implements INamedTrackObject, IIdenti
 		this.trackObject.setObject(this);
 	}
 	
+	/**
+	 * Used for restoring the previously deleted platform.
+	 */
+	public Platform(final Stop stop, final PlatformRecord record, TrackObject<Platform> trackObject) {
+		this.stop = Preconditions.checkNotNull(stop);
+		Preconditions.checkArgument(stop.getId() == record.getId());
+		record.exportData(this);
+		this.stop.restorePlatform(this);
+		this.trackObject = Preconditions.checkNotNull(trackObject);
+		this.trackObject.setObject(this);
+	}
+	
 	public Stop getStop() {
 		return this.stop;
 	}

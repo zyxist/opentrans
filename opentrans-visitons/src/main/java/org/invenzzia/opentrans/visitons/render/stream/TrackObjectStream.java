@@ -30,6 +30,7 @@ import org.invenzzia.opentrans.visitons.render.RenderingStreamAdapter;
 import org.invenzzia.opentrans.visitons.render.scene.AbstractTrackObjectSnapshot.RenderableTrackObject;
 import org.invenzzia.opentrans.visitons.render.scene.CommittedTrackObjectSnapshot;
 import org.invenzzia.opentrans.visitons.render.scene.EditableTrackObjectSnapshot;
+import org.invenzzia.opentrans.visitons.render.scene.HoveredItemSnapshot;
 import org.invenzzia.opentrans.visitons.render.scene.MouseSnapshot;
 
 /**
@@ -90,7 +91,7 @@ public class TrackObjectStream extends RenderingStreamAdapter {
 		
 		if(graphics.hit(this.mouseRect, r2d, false)) {
 			graphics.setColor(PLATFORM_HOVER_COLOR);
-			this.hoverCollector.registerHoveredItem(object.type, object.id, object.number);
+			this.hoverCollector.registerHoveredItem(object.type + HoveredItemSnapshot.TYPE_TRACK_OBJECT_DELTA, object.id, object.number);
 		} else if(transparency) {
 			graphics.setColor(PLATFORM_EDITABLE_COLOR);
 		} else {

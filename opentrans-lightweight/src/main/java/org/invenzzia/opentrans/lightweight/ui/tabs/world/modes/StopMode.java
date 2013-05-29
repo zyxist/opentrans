@@ -19,6 +19,7 @@ package org.invenzzia.opentrans.lightweight.ui.tabs.world.modes;
 
 import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import org.invenzzia.helium.exception.CommandExecutionException;
 import org.invenzzia.opentrans.lightweight.annotations.InModelThread;
 import org.invenzzia.opentrans.lightweight.model.navigator.StopNavigatorModel;
@@ -26,6 +27,12 @@ import org.invenzzia.opentrans.lightweight.ui.IDialogBuilder;
 import org.invenzzia.opentrans.lightweight.ui.navigator.NavigatorController;
 import org.invenzzia.opentrans.lightweight.ui.tabs.world.AbstractEditMode;
 import org.invenzzia.opentrans.lightweight.ui.tabs.world.IEditModeAPI;
+import org.invenzzia.opentrans.lightweight.ui.tabs.world.PopupBuilder;
+import org.invenzzia.opentrans.lightweight.ui.tabs.world.popups.CenterAction;
+import org.invenzzia.opentrans.lightweight.ui.tabs.world.popups.RenamePlatformAction;
+import org.invenzzia.opentrans.visitons.Project;
+import org.invenzzia.opentrans.visitons.data.Platform.PlatformRecord;
+import org.invenzzia.opentrans.visitons.data.Stop;
 import org.invenzzia.opentrans.visitons.data.Stop.StopRecord;
 import org.invenzzia.opentrans.visitons.editing.network.AddPlatformCmd;
 import org.invenzzia.opentrans.visitons.network.Track;
@@ -46,6 +53,10 @@ public class StopMode extends AbstractEditMode {
 	private NavigatorController navigatorController;
 	@Inject
 	private IDialogBuilder dialogBuilder;
+	@Inject
+	private Provider<CenterAction> centerAction;
+	@Inject
+	private RenamePlatformAction renamePlatformAction;
 	/**
 	 * The API for edit modes.
 	 */
@@ -62,6 +73,12 @@ public class StopMode extends AbstractEditMode {
 		this.api = api;
 		this.navigatorController.setModel(new StopNavigatorModel());
 		this.api.setStatusMessage("Manage platforms placed on tracks. To add a new platform, first select a stop in the navigator.");
+	
+		this.api.setPopup(PopupBuilder.create()
+			.action(this.centerAction)
+			.sep()
+			.action(this.renamePlatformAction)
+		);
 	}
 
 	@Override
@@ -74,6 +91,15 @@ public class StopMode extends AbstractEditMode {
 	public TrackRecord getTrackRecord(World world, long id) {
 		Track track = world.findTrack(id);
 		return new TrackRecord(track);
+	}
+	
+	@InModelThread(asynchronous = false)
+	public PlatformRecord getPlatformRecord(Project project, long stopId, int number) {
+		Stop stop = project.getStopManager().findById(stopId);
+		
+		StopRecord stopRecord = new StopRecord();
+		stopRecord.importData(stop, project);		
+		return stopRecord.getPlatform(number);
 	}
 	
 	@Override
@@ -95,6 +121,16 @@ public class StopMode extends AbstractEditMode {
 			} else {
 				this.api.setStatusMessage("Please select a stop from the navigator first!");
 			}			
+		}
+	}
+	
+	@Override
+	public void rightActionPerformed(double worldX, double worldY, boolean altDown, boolean ctrlDown) {
+		HoveredItemSnapshot snapshot = sceneManager.getResource(HoveredItemSnapshot.class, HoveredItemSnapshot.class);
+		if(null != snapshot && snapshot.getType() == HoveredItemSnapshot.TYPE_PLATFORM) {
+			PlatformRecord record = this.getPlatformRecord(this.projectHolder.getCurrentProject(), snapshot.getId(), snapshot.getNumber());
+			this.renamePlatformAction.setPlatformRecord(record);
+			this.api.showPopup();
 		}
 	}
 }

@@ -18,6 +18,7 @@
 package org.invenzzia.opentrans.lightweight.ui.tabs.world;
 
 import java.awt.Cursor;
+import org.invenzzia.opentrans.visitons.editing.ICommand;
 import org.invenzzia.opentrans.visitons.network.WorldRecord;
 
 /**

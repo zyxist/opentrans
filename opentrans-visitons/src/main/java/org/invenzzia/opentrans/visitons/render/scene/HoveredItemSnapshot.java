@@ -27,6 +27,9 @@ public class HoveredItemSnapshot {
 	public static final byte TYPE_TRACK = 1;
 	public static final byte TYPE_VERTEX = 2;
 	
+	public static final int TYPE_TRACK_OBJECT_DELTA = 30;
+	public static final int TYPE_PLATFORM = 32;	// delta + track object type number.
+	
 	private final int type;
 	private final long id;
 	private final int number;
@@ -51,6 +54,13 @@ public class HoveredItemSnapshot {
 	 */
 	public long getId() {
 		return this.id;
+	}
+	
+	/**
+	 * @return Domain model secondary number of the hovered element (optional)
+	 */
+	public int getNumber() {
+		return this.number;
 	}
 	
 	/**

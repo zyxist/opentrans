@@ -17,6 +17,7 @@
 
 package org.invenzzia.opentrans.visitons.data;
 
+import com.google.common.collect.ImmutableList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -240,6 +241,56 @@ public final class Stop extends StopBase implements IMemento<Project> {
 				record.importData(platform);
 				this.platforms.add(record);
 			}
+		}
+		
+		/**
+		 * Returns <strong>true</strong>, if there is any platform assigned to this stop.
+		 * 
+		 * @return 
+		 */
+		public boolean hasPlatforms() {
+			return !this.platforms.isEmpty();
+		}
+
+		/**
+		 * Returns the immutable collection of all platforms in this stop.
+		 * 
+		 * @return Immutable collection of platforms.
+		 */
+		public Collection<PlatformRecord> getPlatforms() {
+			return ImmutableList.copyOf(this.platforms);
+		}
+		
+		/**
+		 * Returns the platform with the specified number, or throws an exception, if such
+		 * a platform does not exist.
+		 * 
+		 * @throws IllegalArgumentException If the platform with the given number does not exist.
+		 * @param number Platform number
+		 * @return Platform
+		 */
+		public PlatformRecord getPlatform(int number) {
+			for(PlatformRecord record: this.platforms) {
+				if(record.getNumber() == number) {
+					return record;
+				}
+			}
+			throw new IllegalArgumentException("Unknown platform: #"+number);
+		}
+
+		/**
+		 * Returns <strong>true</strong>, if the platform with the given number exists.
+		 * 
+		 * @param number Platform number.
+		 * @return True, if the platform exists.
+		 */
+		public boolean hasPlatform(int number) {
+			for(PlatformRecord record: this.platforms) {
+				if(record.getNumber() == number) {
+					return true;
+				}
+			}
+			return false;
 		}
 	}
 }

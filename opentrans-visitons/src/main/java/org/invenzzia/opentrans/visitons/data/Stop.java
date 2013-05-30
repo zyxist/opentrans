@@ -17,6 +17,7 @@
 
 package org.invenzzia.opentrans.visitons.data;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -25,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import org.invenzzia.helium.data.interfaces.IIdentifiable;
 import org.invenzzia.helium.data.interfaces.IMemento;
+import org.invenzzia.helium.data.interfaces.INumberable;
 import org.invenzzia.helium.data.interfaces.IRecord;
 import org.invenzzia.opentrans.visitons.Project;
 import org.invenzzia.opentrans.visitons.data.Platform.PlatformRecord;
@@ -90,7 +92,7 @@ public final class Stop extends StopBase implements IMemento<Project> {
 	/**
 	 * Enumeration for platforms.
 	 */
-	private int nextPlatformId;
+	private int nextPlatformId = INumberable.INCREMENTATION_START;
 	
 	public Stop() {
 		this.platforms = new LinkedHashMap<>();
@@ -175,6 +177,17 @@ public final class Stop extends StopBase implements IMemento<Project> {
 		return this.platforms.containsKey(number);
 	}
 	
+	/**
+	 * Removes the specified platform.
+	 * 
+	 * @param platform 
+	 */
+	public void removePlatform(Platform platform) {
+		Preconditions.checkNotNull(platform, "The platform is NULL.");
+		Platform isThis = this.platforms.get(platform.getNumber());
+		Preconditions.checkState(isThis.getNumber() == platform.getNumber(), "Invalid contract for Platform!");
+		this.platforms.remove(platform.getNumber());
+	}
 
 	@Override
 	public Object getMemento(Project domainModel) {

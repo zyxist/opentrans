@@ -24,7 +24,7 @@ package org.invenzzia.opentrans.visitons.geometry;
  */
 public class Geometry {
 	private static final double PI_2 = Math.PI * 2.0;
-	static final double EPSILON = 1.0E-10;
+	public static final double EPSILON = 1.0E-10;
 	
 	private Geometry() {
 	}

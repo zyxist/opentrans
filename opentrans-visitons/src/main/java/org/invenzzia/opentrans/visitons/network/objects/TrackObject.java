@@ -186,6 +186,7 @@ public class TrackObject<T extends ITrackObject> extends TrackObjectBase impleme
 				previousTrack.removeTrackObject(original.getObject());
 			}
 			original.setPosition(this.getPosition());
+			original.setOrientation(this.getOrientation());
 			Track newTrack = domainModel.getWorld().findTrack(this.trackId);
 			newTrack.addTrackObject(original);
 		}

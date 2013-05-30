@@ -146,6 +146,9 @@ public class Platform extends PlatformBase implements INamedTrackObject, IIdenti
 		}
 
 		public void exportData(Platform original) {
+			if(original.getNumber() == INumberable.NEUTRAL_ID) {
+				original.setNumber(this.getNumber());
+			}
 			original.setName(this.getName());
 		}
 

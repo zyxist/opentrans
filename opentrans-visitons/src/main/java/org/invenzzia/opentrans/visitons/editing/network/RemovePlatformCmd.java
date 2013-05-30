@@ -50,7 +50,9 @@ public class RemovePlatformCmd implements ICommand, ICommandDetails {
 
 	@Override
 	public void execute(Project project, EventBus eventBus) throws Exception {
-		Platform platform = this.findPlatform(project);
+		Stop stop = project.getStopManager().findById(this.platformRecord.getStop().getId());
+		Platform platform = stop.getPlatform(this.platformRecord.getNumber());
+		stop.removePlatform(platform);
 		TrackObject to = platform.getTrackObject();
 		this.memento = to.getMemento(project);
 		to.getTrack().removeTrackObject(platform);
@@ -68,7 +70,9 @@ public class RemovePlatformCmd implements ICommand, ICommandDetails {
 
 	@Override
 	public void redo(Project project, EventBus eventBus) {
-		Platform platform = this.findPlatform(project);
+		Stop stop = project.getStopManager().findById(this.platformRecord.getStop().getId());
+		Platform platform = stop.getPlatform(this.platformRecord.getNumber());
+		stop.removePlatform(platform);
 		TrackObject to = platform.getTrackObject();
 		to.getTrack().removeTrackObject(platform);
 		eventBus.post(new WorldSegmentUsageChangedEvent(new WorldRecord(project.getWorld())));

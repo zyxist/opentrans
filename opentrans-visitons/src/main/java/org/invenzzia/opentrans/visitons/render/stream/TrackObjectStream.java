@@ -24,6 +24,7 @@ import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
 import java.util.List;
 import java.util.Map;
+import org.invenzzia.opentrans.visitons.geometry.Geometry;
 import org.invenzzia.opentrans.visitons.network.NetworkConst;
 import org.invenzzia.opentrans.visitons.render.CameraModelSnapshot;
 import org.invenzzia.opentrans.visitons.render.HoverCollector;
@@ -87,8 +88,18 @@ public class TrackObjectStream extends RenderingStreamAdapter {
 		int x = camera.world2pixX(object.x);
 		int y = camera.world2pixY(object.y);
 		
-		graphics.rotate(object.tangent, x, y);
-		graphics.translate(0, -dist);
+		double angle = (object.orientation == 1 ? Geometry.normalizeAngle(object.tangent + Math.PI) : object.tangent);
+		double translation = -dist;
+		if(Geometry.inSecondQuarter(angle)) {
+			angle -= Math.PI;
+			translation = dist + camera.world2pix(0.3);
+		}
+		if(Geometry.inThirdQuarter(angle)) {
+			angle += Math.PI;
+			translation = dist + camera.world2pix(0.3);
+		}
+		graphics.rotate(angle, x, y);
+		graphics.translate(0, translation);
 		
 		int width = (int) camera.world2pix(30.0);
 		int height = (int) camera.world2pix(3.0);
@@ -121,7 +132,7 @@ public class TrackObjectStream extends RenderingStreamAdapter {
 			graphics.drawString(object.name, x - textWidth / 2, y + textHeight / 4);
 		}
 		
-		graphics.translate(0, dist);
-		graphics.rotate(-object.tangent, x, y);
+		graphics.translate(0, -translation);
+		graphics.rotate(-angle, x, y);
 	}
 }

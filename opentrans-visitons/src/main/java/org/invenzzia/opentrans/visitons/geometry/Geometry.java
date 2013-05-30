@@ -24,6 +24,7 @@ package org.invenzzia.opentrans.visitons.geometry;
  */
 public class Geometry {
 	private static final double PI_2 = Math.PI * 2.0;
+	private static final double HALF_PI = Math.PI / 2.0;
 	public static final double EPSILON = 1.0E-10;
 	
 	private Geometry() {
@@ -31,6 +32,22 @@ public class Geometry {
 	
 	public static boolean isZero(double value) {
 		return Math.abs(value) < EPSILON;
+	}
+	
+	public static boolean inFirstQuarter(double angle) {
+		return angle >= 0.0 && angle < HALF_PI;
+	}
+	
+	public static boolean inSecondQuarter(double angle) {
+		return angle >= HALF_PI && angle < Math.PI;
+	}
+	
+	public static boolean inThirdQuarter(double angle) {
+		return angle >= -(PI_2) && angle < -(HALF_PI);
+	}
+	
+	public static boolean inFourthQuarter(double angle) {
+		return angle >= -(Math.PI + HALF_PI) && angle < 0.0;
 	}
 	
 	/**

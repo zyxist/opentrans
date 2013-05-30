@@ -20,29 +20,22 @@ package org.invenzzia.opentrans.lightweight.ui.tabs.world.popups;
 import org.invenzzia.helium.exception.CommandExecutionException;
 import org.invenzzia.opentrans.lightweight.annotations.PopupAction;
 import org.invenzzia.opentrans.lightweight.ui.tabs.world.IEditModeAPI;
-import org.invenzzia.opentrans.lightweight.ui.tabs.world.IPopupAction;
-import org.invenzzia.opentrans.visitons.data.Platform.PlatformRecord;
-import org.invenzzia.opentrans.visitons.editing.network.RenamePlatformCmd;
+import org.invenzzia.opentrans.visitons.data.Platform;
+import org.invenzzia.opentrans.visitons.editing.network.ReorientPlatformCmd;
 
 /**
- * The action allows renaming the platform.
+ * Popup menu action for changing the orientation of a platform.
  * 
  * @author Tomasz Jędrzejewski
  */
-@PopupAction(text = "Rename platform")
-public class RenamePlatformAction extends AbstractPlatformAction implements IPopupAction {
+@PopupAction(text = "Change orientation")
+public class ReorientPlatformAction extends AbstractPlatformAction {
 	@Override
-	protected void doExecute(IEditModeAPI api, PlatformRecord record) {
-		PlatformRenameDialog dialog = this.dialogBuilder.createModalDialog(PlatformRenameDialog.class);
-		dialog.setModel(record);
-		dialog.setVisible(true);
-		if(dialog.isConfirmed()) {
-			try {
-				this.history.execute(new RenamePlatformCmd(dialog.getPlatformName(), record));
-			} catch(CommandExecutionException exception) {
-				this.dialogBuilder.showError("Cannot rename", exception);
-			}
+	protected void doExecute(IEditModeAPI api, Platform.PlatformRecord record) {
+		try {
+			this.history.execute(new ReorientPlatformCmd(record));
+		} catch(CommandExecutionException exception) {
+			this.dialogBuilder.showError("Cannot reorient", exception);
 		}
-		dialog.dispose();
 	}
 }

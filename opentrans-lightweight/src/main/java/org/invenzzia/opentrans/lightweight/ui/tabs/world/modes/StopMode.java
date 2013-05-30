@@ -18,6 +18,8 @@
 package org.invenzzia.opentrans.lightweight.ui.tabs.world.modes;
 
 import com.google.common.base.Preconditions;
+import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import org.invenzzia.helium.exception.CommandExecutionException;
@@ -29,7 +31,9 @@ import org.invenzzia.opentrans.lightweight.ui.tabs.world.AbstractEditMode;
 import org.invenzzia.opentrans.lightweight.ui.tabs.world.IEditModeAPI;
 import org.invenzzia.opentrans.lightweight.ui.tabs.world.PopupBuilder;
 import org.invenzzia.opentrans.lightweight.ui.tabs.world.popups.CenterAction;
+import org.invenzzia.opentrans.lightweight.ui.tabs.world.popups.RemovePlatformAction;
 import org.invenzzia.opentrans.lightweight.ui.tabs.world.popups.RenamePlatformAction;
+import org.invenzzia.opentrans.lightweight.ui.tabs.world.popups.ReorientPlatformAction;
 import org.invenzzia.opentrans.visitons.Project;
 import org.invenzzia.opentrans.visitons.data.Platform.PlatformRecord;
 import org.invenzzia.opentrans.visitons.data.Stop;
@@ -37,11 +41,11 @@ import org.invenzzia.opentrans.visitons.data.Stop.StopRecord;
 import org.invenzzia.opentrans.visitons.editing.network.AddPlatformCmd;
 import org.invenzzia.opentrans.visitons.editing.network.MovePlatformCmd;
 import org.invenzzia.opentrans.visitons.editing.network.RemovePlatformCmd;
+import org.invenzzia.opentrans.visitons.events.PlatformRemovedEvent;
 import org.invenzzia.opentrans.visitons.network.NetworkConst;
 import org.invenzzia.opentrans.visitons.network.Track;
 import org.invenzzia.opentrans.visitons.network.TrackRecord;
 import org.invenzzia.opentrans.visitons.network.World;
-import org.invenzzia.opentrans.visitons.network.objects.TrackObject.TrackObjectRecord;
 import org.invenzzia.opentrans.visitons.render.scene.HoveredItemSnapshot;
 import org.invenzzia.opentrans.visitons.render.scene.SelectedTrackObjectSnapshot;
 import org.slf4j.Logger;
@@ -55,7 +59,7 @@ import org.slf4j.LoggerFactory;
 public class StopMode extends AbstractEditMode {
 	private final Logger logger = LoggerFactory.getLogger(StopMode.class);
 	
-	private static final String DEFAULT_STATUS_TEXT = "Select a stop from the navigator and click on a track to place a stop platform. Click on an existin platform to select it.";
+	private static final String DEFAULT_STATUS_TEXT = "Select a stop from the navigator and click on a track to place a stop platform. Click on an existing platform to select it.";
 	private static final String PLATFORM_SELECTED_STATUS_TEXT = "Click on a track to move the selected platform. Right-click anywhere to cancel the selection.";
 	private static final String SELECT_FROM_NAVIGATOR = "Please select a stop from the navigator first!";
 	
@@ -67,6 +71,12 @@ public class StopMode extends AbstractEditMode {
 	private Provider<CenterAction> centerAction;
 	@Inject
 	private RenamePlatformAction renamePlatformAction;
+	@Inject
+	private ReorientPlatformAction reorientPlatformAction;
+	@Inject
+	private RemovePlatformAction removePlatformAction;
+	@Inject
+	private EventBus eventBus;
 	/**
 	 * The API for edit modes.
 	 */
@@ -87,17 +97,21 @@ public class StopMode extends AbstractEditMode {
 		this.api = api;
 		this.navigatorController.setModel(new StopNavigatorModel());
 		this.api.setStatusMessage(DEFAULT_STATUS_TEXT);
+		this.eventBus.register(this);
 	
 		this.api.setPopup(PopupBuilder.create()
 			.action(this.centerAction)
 			.sep()
 			.action(this.renamePlatformAction)
+			.action(this.reorientPlatformAction)
+			.action(this.removePlatformAction)
 		);
 	}
 
 	@Override
 	public void modeDisabled() {
 		this.navigatorController.setModel(null);
+		this.eventBus.unregister(this);
 		logger.info("StopMode disabled.");
 	}
 	
@@ -135,8 +149,6 @@ public class StopMode extends AbstractEditMode {
 					break;
 			}
 		}
-			
-		
 	}
 	
 	@Override
@@ -146,6 +158,8 @@ public class StopMode extends AbstractEditMode {
 			if(null != snapshot && snapshot.getType() == HoveredItemSnapshot.TYPE_PLATFORM) {
 				PlatformRecord record = this.getPlatformRecord(this.projectHolder.getCurrentProject(), snapshot.getId(), snapshot.getNumber());
 				this.renamePlatformAction.setPlatformRecord(record);
+				this.reorientPlatformAction.setPlatformRecord(record);
+				this.removePlatformAction.setPlatformRecord(record);
 				this.api.showPopup();
 			}
 		} else {
@@ -160,9 +174,6 @@ public class StopMode extends AbstractEditMode {
 		if(null != this.selectedPlatform) {
 			try {
 				this.history.execute(new RemovePlatformCmd(this.selectedPlatform));
-				this.selectedPlatform = null;
-				this.sceneManager.updateResource(SelectedTrackObjectSnapshot.class, null);
-				this.api.setStatusMessage(DEFAULT_STATUS_TEXT);
 			} catch(CommandExecutionException exception) {
 				this.dialogBuilder.showError("Error while removing a platform", exception);
 			}
@@ -202,5 +213,19 @@ public class StopMode extends AbstractEditMode {
 			new SelectedTrackObjectSnapshot(NetworkConst.TRACK_OBJECT_PLATFORM, this.selectedPlatform.getId(), this.selectedPlatform.getNumber())
 		);
 		this.api.setStatusMessage(PLATFORM_SELECTED_STATUS_TEXT);
+	}
+	
+	/**
+	 * Listen for such an event to see if we do not have to remove the platform selection.
+	 * 
+	 * @param event 
+	 */
+	@Subscribe
+	public void notifyPlatformRemoved(PlatformRemovedEvent event) {
+		if(null != this.selectedPlatform && event.matches(selectedPlatform)) {
+			this.selectedPlatform = null;
+			this.sceneManager.updateResource(SelectedTrackObjectSnapshot.class, null);
+			this.api.setStatusMessage(DEFAULT_STATUS_TEXT);	
+		}
 	}
 }

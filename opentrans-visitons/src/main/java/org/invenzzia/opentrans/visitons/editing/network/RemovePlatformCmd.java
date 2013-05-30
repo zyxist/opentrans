@@ -25,6 +25,7 @@ import org.invenzzia.opentrans.visitons.data.Platform;
 import org.invenzzia.opentrans.visitons.data.Platform.PlatformRecord;
 import org.invenzzia.opentrans.visitons.data.Stop;
 import org.invenzzia.opentrans.visitons.editing.ICommand;
+import org.invenzzia.opentrans.visitons.events.PlatformRemovedEvent;
 import org.invenzzia.opentrans.visitons.events.WorldSegmentUsageChangedEvent;
 import org.invenzzia.opentrans.visitons.network.WorldRecord;
 import org.invenzzia.opentrans.visitons.network.objects.TrackObject;
@@ -56,6 +57,7 @@ public class RemovePlatformCmd implements ICommand, ICommandDetails {
 		TrackObject to = platform.getTrackObject();
 		this.memento = to.getMemento(project);
 		to.getTrack().removeTrackObject(platform);
+		eventBus.post(new PlatformRemovedEvent(platform));
 		eventBus.post(new WorldSegmentUsageChangedEvent(new WorldRecord(project.getWorld())));
 	}
 
@@ -75,6 +77,7 @@ public class RemovePlatformCmd implements ICommand, ICommandDetails {
 		stop.removePlatform(platform);
 		TrackObject to = platform.getTrackObject();
 		to.getTrack().removeTrackObject(platform);
+		eventBus.post(new PlatformRemovedEvent(platform));
 		eventBus.post(new WorldSegmentUsageChangedEvent(new WorldRecord(project.getWorld())));
 	}
 	

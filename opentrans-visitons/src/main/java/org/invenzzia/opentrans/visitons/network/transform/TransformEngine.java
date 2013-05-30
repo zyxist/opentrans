@@ -269,6 +269,7 @@ public class TransformEngine {
 			} else {
 				this.prepareCurveMetadata(v1.x(), v1.y(), mx, my, c1x, c1y, v1Loc, metadata);
 			}
+			metadata[v1Loc + 3] = diff;
 			// The second arc...
 			tan = v2.tangentFor(tr);
 			towards = LineOps.getTangent(v2.x(), v2.y(), mx, my);
@@ -279,6 +280,7 @@ public class TransformEngine {
 			} else {
 				this.prepareCurveMetadata(v2.x(), v2.y(), mx, my, c2x, c2y, v2Loc, metadata);
 			}
+			metadata[v2Loc + 3] = diff;
 			v1.setTangentFor(tr, tv1);
 			v2.setTangentFor(tr, tv2);
 			tr.setMetadata(metadata);
@@ -380,6 +382,7 @@ public class TransformEngine {
 			v3.setPosition(x1, y1);
 			straightTrack.setMetadata(new double[] { v3.x(), v3.y(), v4.x(), v4.y() });
 			this.findCurveDirection(curvedTrack, x2, y2);
+			
 			return true;
 		}
 
@@ -431,7 +434,7 @@ public class TransformEngine {
 			buf[from] = x3 - radius;
 			buf[from+1] = y3 - radius;
 			buf[from+2] = 2 * radius;
-			buf[from+3] = 2 * radius;
+			buf[from+3] = 0.0;	// filled later
 			buf[from+4] = angle1;
 			buf[from+5] = diff;
 			buf[from+6] = x3;
@@ -485,16 +488,26 @@ public class TransformEngine {
 			double tan = v1.tangentFor(tr);
 			double towards = LineOps.getTangent(v1.x(), v1.y(), v2.x(), v2.y());
 			double diff = Math.atan2(Math.sin(towards-tan), Math.cos(towards-tan));
-			
+			double metadata[];
 			if(diff > 0.0) {
-				tr.setMetadata(this.prepareCurveMetadata(v2.x(), v2.y(), v1.x(), v1.y(), cx, cy, 0, null));
+				metadata = this.prepareCurveMetadata(v2.x(), v2.y(), v1.x(), v1.y(), cx, cy, 0, null);
 				tan = LineOps.getTangent(cx, cy, v2.x(), v2.y());
 				v2.setTangentFor(tr, Geometry.normalizeAngle(tan - Math.PI / 2.0));
 			} else {
-				tr.setMetadata(this.prepareCurveMetadata(v1.x(), v1.y(), v2.x(), v2.y(), cx, cy, 0, null));
+				metadata = this.prepareCurveMetadata(v1.x(), v1.y(), v2.x(), v2.y(), cx, cy, 0, null);
 				tan = LineOps.getTangent(cx, cy, v2.x(), v2.y());
 				v2.setTangentFor(tr, Geometry.normalizeAngle(tan + Math.PI / 2.0));
 			}
+			metadata[8] = tr.getFirstVertex().x();
+			metadata[9] = tr.getFirstVertex().y();
+			metadata[10] = tr.getSecondVertex().x();
+			metadata[11] = tr.getSecondVertex().y();
+			tan = tr.getFirstVertex().tangentFor(tr);
+			towards = LineOps.getTangent(metadata[8], metadata[9], metadata[10], metadata[11]);
+			metadata[3] = Math.atan2(Math.sin(towards-tan), Math.cos(towards-tan));
+			
+			tr.setMetadata(metadata);
+			
 			v1.setTangentFor(tr, Geometry.normalizeAngle(v1.oppositeTangentFor(tr) + Math.PI));
 		}
 		
@@ -512,16 +525,26 @@ public class TransformEngine {
 			double tan = v1.tangentFor(tr);
 			double towards = LineOps.getTangent(v1.x(), v1.y(), v2.x(), v2.y());
 			double diff = Math.atan2(Math.sin(towards-tan), Math.cos(towards-tan));
-			
+			double metadata[];
+
 			if(diff > 0.0) {
-				tr.setMetadata(this.prepareCurveMetadata(v2.x(), v2.y(), v1.x(), v1.y(), cx, cy, 0, null));
+				metadata = this.prepareCurveMetadata(v2.x(), v2.y(), v1.x(), v1.y(), cx, cy, 0, null);
 				tan = LineOps.getTangent(cx, cy, v2.x(), v2.y());
 				v2.setTangentFor(tr, Geometry.normalizeAngle(tan - Math.PI / 2.0));
 			} else {
-				tr.setMetadata(this.prepareCurveMetadata(v1.x(), v1.y(), v2.x(), v2.y(), cx, cy, 0, null));
+				metadata = this.prepareCurveMetadata(v1.x(), v1.y(), v2.x(), v2.y(), cx, cy, 0, null);
 				tan = LineOps.getTangent(cx, cy, v2.x(), v2.y());
 				v2.setTangentFor(tr, Geometry.normalizeAngle(tan + Math.PI / 2.0));
 			}
+			metadata[8] = tr.getFirstVertex().x();
+			metadata[9] = tr.getFirstVertex().y();
+			metadata[10] = tr.getSecondVertex().x();
+			metadata[11] = tr.getSecondVertex().y();
+			tan = tr.getFirstVertex().tangentFor(tr);
+			towards = LineOps.getTangent(metadata[8], metadata[9], metadata[10], metadata[11]);
+			metadata[3] = Math.atan2(Math.sin(towards-tan), Math.cos(towards-tan));
+
+			tr.setMetadata(metadata);
 			v1.setTangentFor(tr, Geometry.normalizeAngle(v1.oppositeTangentFor(tr) + Math.PI));
 		}
 	}

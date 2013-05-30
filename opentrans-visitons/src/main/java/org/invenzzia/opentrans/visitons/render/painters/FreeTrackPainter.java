@@ -71,20 +71,20 @@ public class FreeTrackPainter implements ITrackPainter {
 
 	@Override
 	public void refreshData(CameraModelSnapshot camera) {
+		double wh = (double) camera.world2pix(this.coordinates[2]);
 		this.firstArc = new Arc2D.Double(
 			(double) camera.world2pixX(this.coordinates[0] + this.dx),
 			(double) camera.world2pixY(this.coordinates[1] + this.dy),
-			(double) camera.world2pix(this.coordinates[2]),
-			(double) camera.world2pix(this.coordinates[3]),
+			wh, wh,
 			Math.toDegrees(this.coordinates[4]),
 			Math.toDegrees(this.coordinates[5]),
 			Arc2D.OPEN
 		);
+		wh = (double) camera.world2pix(this.coordinates[10]);
 		this.secondArc = new Arc2D.Double(
 			(double) camera.world2pixX(this.coordinates[8] + this.dx),
 			(double) camera.world2pixY(this.coordinates[9] + this.dy),
-			(double) camera.world2pix(this.coordinates[10]),
-			(double) camera.world2pix(this.coordinates[11]),
+			wh, wh,
 			Math.toDegrees(this.coordinates[12]),
 			Math.toDegrees(this.coordinates[13]),
 			Arc2D.OPEN
@@ -100,7 +100,7 @@ public class FreeTrackPainter implements ITrackPainter {
 	}
 
 	@Override
-	public double computePosition(MouseSnapshot snapshot) {
+	public double computePosition(MouseSnapshot snapshot, CameraModelSnapshot camera) {
 		return 0.5;
 	}
 }

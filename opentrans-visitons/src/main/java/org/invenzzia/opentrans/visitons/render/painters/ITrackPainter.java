@@ -45,9 +45,10 @@ public interface ITrackPainter {
 	 * clicked.
 	 * 
 	 * @param snapshot Information about the mouse position.
+	 * @param camera If you want to convert some units.
 	 * @return Position above the line.
 	 */
-	public double computePosition(MouseSnapshot snapshot);
+	public double computePosition(MouseSnapshot snapshot, CameraModelSnapshot camera);
 	/**
 	 * Draws the given track on the screen.
 	 * 

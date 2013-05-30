@@ -87,7 +87,7 @@ public class StraightTrackPainter implements ITrackPainter {
 	}
 
 	@Override
-	public double computePosition(MouseSnapshot snapshot) {
+	public double computePosition(MouseSnapshot snapshot, CameraModelSnapshot camera) {
 		double cursorDist = LineOps.distance(this.line.getX1(), this.line.getY1(), snapshot.x(), snapshot.y());
 		double lineLength = LineOps.distance(this.line.getX1(), this.line.getY1(), this.line.getX2(), this.line.getY2());
 		

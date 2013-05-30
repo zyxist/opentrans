@@ -20,6 +20,8 @@ package org.invenzzia.opentrans.visitons.render.painters;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.geom.Arc2D;
+import org.invenzzia.opentrans.visitons.geometry.Geometry;
+import org.invenzzia.opentrans.visitons.geometry.LineOps;
 import org.invenzzia.opentrans.visitons.render.CameraModelSnapshot;
 import org.invenzzia.opentrans.visitons.render.scene.MouseSnapshot;
 
@@ -75,11 +77,11 @@ public class CurvedTrackPainter implements ITrackPainter {
 
 	@Override
 	public void refreshData(CameraModelSnapshot camera) {
+		double wh = (double) camera.world2pix(this.coordinates[2]);
 		this.arc = new Arc2D.Double(
 			(double) camera.world2pixX(this.coordinates[0] + this.dx),
 			(double) camera.world2pixY(this.coordinates[1] + this.dy),
-			(double) camera.world2pix(this.coordinates[2]),
-			(double) camera.world2pix(this.coordinates[3]),
+			wh, wh,
 			Math.toDegrees(this.coordinates[4]),
 			Math.toDegrees(this.coordinates[5]),
 			Arc2D.OPEN
@@ -95,7 +97,26 @@ public class CurvedTrackPainter implements ITrackPainter {
 	}
 
 	@Override
-	public double computePosition(MouseSnapshot snapshot) {
-		return 0.5;
+	public double computePosition(MouseSnapshot snapshot, CameraModelSnapshot camera) {
+		double px = camera.pix2worldX(snapshot.x());
+		double py = camera.pix2worldY(snapshot.y());
+		
+		double cx = this.coordinates[6] + this.dx;
+		double cy = this.coordinates[7] + this.dy;
+		double a1 = Geometry.normalizeAngle(-this.coordinates[4]);
+		double a3 = LineOps.getTangent(cx, cy, px, py);
+		double t;
+		if(a3 > a1) {
+			a3 -= Math.PI * 2;
+		}
+		t = Math.abs(a3 - a1);
+	
+		t = ((this.coordinates[3] < 0.0 ? this.coordinates[5] - t : t) / this.coordinates[5]);
+		if(t < 0.0) {
+			return 0.0;
+		} else if(t > 1.0) {
+			return 1.0;
+		}
+		return t;
 	}
 }

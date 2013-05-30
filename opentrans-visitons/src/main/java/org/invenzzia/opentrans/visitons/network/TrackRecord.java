@@ -26,6 +26,7 @@ import org.invenzzia.helium.data.interfaces.IIdentifiable;
 import org.invenzzia.helium.data.interfaces.ILightMemento;
 import org.invenzzia.opentrans.visitons.geometry.ArcOps;
 import org.invenzzia.opentrans.visitons.geometry.Characteristics;
+import org.invenzzia.opentrans.visitons.geometry.Geometry;
 import org.invenzzia.opentrans.visitons.geometry.LineOps;
 import org.invenzzia.opentrans.visitons.network.objects.TrackObject;
 import org.invenzzia.opentrans.visitons.network.objects.TrackObject.TrackObjectRecord;
@@ -280,6 +281,7 @@ public class TrackRecord implements ILightMemento {
 	 * @return Point coordinates and the tangent.
 	 */
 	public Characteristics getPointCharacteristics(double t) {
+		double k, a, b;
 		switch(this.type) {
 			case NetworkConst.TRACK_STRAIGHT:
 				return new Characteristics(
@@ -288,6 +290,13 @@ public class TrackRecord implements ILightMemento {
 					this.v1.tangentFor(this)
 				);
 			case NetworkConst.TRACK_CURVED:
+				a = LineOps.getTangent(this.metadata[6], this.metadata[7], this.metadata[8], this.metadata[9]);
+				k = t * this.metadata[5] + (this.metadata[3] > 0.0 ? a : -a);
+				return new Characteristics(
+					Math.cos(k) * (this.metadata[2] / 2.0) + this.metadata[6],
+					Math.sin(k) * (this.metadata[2] / 2.0) + this.metadata[7],
+					Geometry.normalizeAngle(k + Math.PI / 2.0)
+				);
 			case NetworkConst.TRACK_FREE:
 		}
 		throw new UnsupportedOperationException("Not supported yet.");
@@ -334,12 +343,20 @@ public class TrackRecord implements ILightMemento {
 				metadata[9] += dy;
 				metadata[14] += dx;
 				metadata[15] += dy;
-				// Do not add break here.
+				metadata[0] += dx;
+				metadata[1] += dy;
+				metadata[6] += dx;
+				metadata[7] += dy;
+				break;
 			case NetworkConst.TRACK_CURVED:
 				metadata[0] += dx;
 				metadata[1] += dy;
 				metadata[6] += dx;
 				metadata[7] += dy;
+				metadata[8] += dx;
+				metadata[9] += dy;
+				metadata[10] += dx;
+				metadata[11] += dy;
 				break;
 		}
 	}

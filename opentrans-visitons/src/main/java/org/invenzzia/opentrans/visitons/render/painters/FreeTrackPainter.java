@@ -20,6 +20,7 @@ package org.invenzzia.opentrans.visitons.render.painters;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.geom.Arc2D;
+import org.invenzzia.opentrans.visitons.geometry.ArcOps;
 import org.invenzzia.opentrans.visitons.render.CameraModelSnapshot;
 import org.invenzzia.opentrans.visitons.render.scene.MouseSnapshot;
 
@@ -41,6 +42,12 @@ public class FreeTrackPainter implements ITrackPainter {
 	private double dx, dy;
 	private Arc2D.Double firstArc;
 	private Arc2D.Double secondArc;
+	/**
+	 * If we make a mouse hit, we must know, which arc we have hit to, to calculate the
+	 * proper position. This is a bit ugly, because now our calculatePosition() will work
+	 * only if we have checked the hit earlier.
+	 */
+	private boolean hitSecond;
 	
 	public FreeTrackPainter(long id, double metadata[], double dx, double dy) {
 		this.id = id;
@@ -94,13 +101,43 @@ public class FreeTrackPainter implements ITrackPainter {
 	@Override
 	public boolean hits(Graphics2D graphics, Rectangle rect) {
 		if(null != rect && null != this.firstArc) {
-			return graphics.hit(rect, this.firstArc, true) || graphics.hit(rect, this.secondArc, true);
+			return graphics.hit(rect, this.firstArc, true) || (this.hitSecond = graphics.hit(rect, this.secondArc, true));
 		}
 		return false;
 	}
 
 	@Override
 	public double computePosition(MouseSnapshot snapshot, CameraModelSnapshot camera) {
-		return 0.5;
+		double px = camera.pix2worldX(snapshot.x());
+		double py = camera.pix2worldY(snapshot.y());
+		if(this.hitSecond) {
+			double cx = this.coordinates[14] + this.dx;
+			double cy = this.coordinates[15] + this.dy;
+			double t = ArcOps.coord2Param(cx, cy,
+				this.coordinates[18] + this.dx, this.coordinates[19] + this.dy,
+				this.coordinates[11], px, py
+			);
+			t = (t / this.coordinates[13]);
+			if(t < 0.0) {
+				return 0.5;
+			} else if(t > 1.0) {
+				return 1.0;
+			}
+			return (t / 2.0) + 0.5;
+		} else {
+			double cx = this.coordinates[6] + this.dx;
+			double cy = this.coordinates[7] + this.dy;
+			double t = ArcOps.coord2Param(cx, cy,
+				this.coordinates[16] + this.dx, this.coordinates[17] + this.dy,
+				this.coordinates[3], px, py
+			);
+			t = (t / this.coordinates[5]);
+			if(t < 0.0) {
+				return 0.0;
+			} else if(t > 1.0) {
+				return 0.5;
+			}
+			return t / 2.0;
+		}
 	}
 }

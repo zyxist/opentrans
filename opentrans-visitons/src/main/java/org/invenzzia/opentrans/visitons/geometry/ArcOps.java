@@ -143,13 +143,61 @@ public class ArcOps {
 	}
 
 	/**
-	 * Calculates the center of the arc.
-	 * 
-	 * @param inputData Array of the input data:
-	 * @param idx Starting index to write out the result in the output data.
-	 * @param outputData Output data array.
+	 * The parametric equation of a directed arc. To calculate it, we must know the starting
+	 * point, the direction of arc, and the centre of it. px and py are the point, for whose
+	 * we want to calculate the distance from this point, which can be used to get the <tt>t in [0.0, 1.0]</tt>
+	 * parameter.
 	 */
-	public static void arcCenter(double inputData[], int idx, double outputData[]) {
-		
+	public static double coord2Param(double cx, double cy, double ax, double ay, double tangent, double px, double py) {
+		double a1 = LineOps.getTangent(cx, cy, ax, ay);
+		boolean differentSigns = Math.signum(a1) != Math.signum(tangent);
+		double a3 = LineOps.getTangent(cx, cy, px, py);
+		boolean grows;
+		if(differentSigns) {
+			grows = Geometry.inSecondQuarter(a1) || Geometry.inFourthQuarter(a1);
+		} else {
+			grows = Geometry.inFirstQuarter(a1) || Geometry.inThirdQuarter(a1);
+		}
+		if(grows) {
+			if(a3 < a1) {
+				a3 += Geometry.PI_2;
+			}
+			return a3 - a1;
+		} else {
+			if(a3 > a1) {
+				a3 -= Geometry.PI_2;
+			}
+			return a1 - a3;
+		}
+	}
+	
+	/**
+	 * The parametric equation of a directed arc. We give the parameter <tt>t in [0.0, 1.0]</tt> and we
+	 * get the actual angle of the point in relation to the starting point of the arc.
+	 * 
+	 * @param t
+	 * @param cx Center point of arc: X
+	 * @param cy Center point of arc: Y
+	 * @param ax Starting point of arc: X
+	 * @param ay Starting point of arc: Y
+	 * @param tangent Direction of the arc
+	 * @param length Length of the arc in radians
+	 * @return Actual angle of the point given by <tt>t</tt> parameter. 
+	 */
+	public static double param2Angle(double t, double cx, double cy, double ax, double ay, double tangent, double length) {
+		double a = LineOps.getTangent(cx, cy, ax, ay);
+		boolean differentSigns = Math.signum(a) != Math.signum(tangent);
+		boolean grows;
+		if(differentSigns) {
+			grows = Geometry.inSecondQuarter(a) || Geometry.inFourthQuarter(a);
+		} else {
+			grows = Geometry.inFirstQuarter(a) || Geometry.inThirdQuarter(a);
+		}
+		double k = t * length;
+		if(grows) {
+			return a + k;
+		} else {
+			return a - k;
+		}
 	}
 }

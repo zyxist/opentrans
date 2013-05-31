@@ -290,26 +290,30 @@ public class TrackRecord implements ILightMemento {
 					this.v1.tangentFor(this)
 				);
 			case NetworkConst.TRACK_CURVED:
-				a = LineOps.getTangent(this.metadata[6], this.metadata[7], this.v1.x(), this.v1.y());
-				boolean differentSigns = Math.signum(a) != Math.signum(this.metadata[3]);
-				boolean grows;
-				if(differentSigns) {
-					grows = Geometry.inSecondQuarter(a) || Geometry.inFourthQuarter(a);
-				} else {
-					grows = Geometry.inFirstQuarter(a) || Geometry.inThirdQuarter(a);
-				}
-				k = t * this.metadata[5];
-				if(grows) {
-					k = a + k;
-				} else {
-					k = a - k;
-				}
+				k = ArcOps.param2Angle(t, this.metadata[6], this.metadata[7], this.v1.x(), this.v1.y(), this.metadata[3], this.metadata[5]);
 				return new Characteristics(
 					Math.cos(k) * (this.metadata[2] / 2.0) + this.metadata[6],
 					Math.sin(k) * (this.metadata[2] / 2.0) + this.metadata[7],
 					Geometry.normalizeAngle(k + Math.PI / 2.0)
 				);
 			case NetworkConst.TRACK_FREE:
+				if(t < 0.5) {
+					t *= 2.0;
+					k = ArcOps.param2Angle(t, this.metadata[6], this.metadata[7], this.v1.x(), this.v1.y(), this.metadata[3], this.metadata[5]);
+					return new Characteristics(
+						Math.cos(k) * (this.metadata[2] / 2.0) + this.metadata[6],
+						Math.sin(k) * (this.metadata[2] / 2.0) + this.metadata[7],
+						Geometry.normalizeAngle(k + Math.PI / 2.0)
+					);
+				} else {
+					t = (t - 0.5) * 2.0;
+					k = ArcOps.param2Angle(t, this.metadata[14], this.metadata[15], this.metadata[18], this.metadata[19], this.metadata[11], this.metadata[13]);
+					return new Characteristics(
+						Math.cos(k) * (this.metadata[10] / 2.0) + this.metadata[14],
+						Math.sin(k) * (this.metadata[10] / 2.0) + this.metadata[15],
+						Geometry.normalizeAngle(k + Math.PI / 2.0)
+					);
+				}
 		}
 		throw new UnsupportedOperationException("Not supported yet.");
 	}
@@ -359,6 +363,10 @@ public class TrackRecord implements ILightMemento {
 				metadata[1] += dy;
 				metadata[6] += dx;
 				metadata[7] += dy;
+				metadata[16] += dx;
+				metadata[17] += dy;
+				metadata[18] += dx;
+				metadata[19] += dy;
 				break;
 			case NetworkConst.TRACK_CURVED:
 				metadata[0] += dx;

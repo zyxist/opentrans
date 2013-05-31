@@ -24,6 +24,7 @@ import com.google.common.collect.ImmutableList;
 import java.util.LinkedList;
 import java.util.List;
 import org.invenzzia.helium.data.interfaces.IIdentifiable;
+import org.invenzzia.opentrans.visitons.geometry.ArcOps;
 import org.invenzzia.opentrans.visitons.geometry.Characteristics;
 import org.invenzzia.opentrans.visitons.geometry.Geometry;
 import org.invenzzia.opentrans.visitons.geometry.LineOps;
@@ -239,26 +240,30 @@ public class Track {
 					this.v1.tangentFor(this)
 				);
 			case NetworkConst.TRACK_CURVED:
-				a = LineOps.getTangent(this.metadata[6] + ax, this.metadata[7] + ay, ax, ay);
-				boolean differentSigns = Math.signum(a) != Math.signum(this.metadata[3]);
-				boolean grows;
-				if(differentSigns) {
-					grows = Geometry.inSecondQuarter(a) || Geometry.inFourthQuarter(a);
-				} else {
-					grows = Geometry.inFirstQuarter(a) || Geometry.inThirdQuarter(a);
-				}
-				k = t * this.metadata[5];
-				if(grows) {
-					k = a + k;
-				} else {
-					k = a - k;
-				}
+				k = ArcOps.param2Angle(t, this.metadata[6] + ax, this.metadata[7] + ay, ax, ay, this.metadata[3], this.metadata[5]);
 				return new Characteristics(
 					Math.cos(k) * (this.metadata[2] / 2.0) + this.metadata[6] + ax,
 					Math.sin(k) * (this.metadata[2] / 2.0) + this.metadata[7] + ay,
 					Geometry.normalizeAngle(k + Math.PI / 2.0)
 				);
 			case NetworkConst.TRACK_FREE:
+				if(t < 0.5) {
+					t *= 2.0;
+					k = ArcOps.param2Angle(t, this.metadata[6] + ax, this.metadata[7] + ay, ax, ay, this.metadata[3], this.metadata[5]);
+					return new Characteristics(
+						Math.cos(k) * (this.metadata[2] / 2.0) + this.metadata[6] + ax,
+						Math.sin(k) * (this.metadata[2] / 2.0) + this.metadata[7] + ay,
+						Geometry.normalizeAngle(k + Math.PI / 2.0)
+					);
+				} else {
+					t = (t - 0.5) * 2.0;
+					k = ArcOps.param2Angle(t, this.metadata[14] + ax, this.metadata[15] + ay, this.metadata[18] + ax, this.metadata[19] + ay, this.metadata[11], this.metadata[13]);
+					return new Characteristics(
+						Math.cos(k) * (this.metadata[10] / 2.0) + this.metadata[14] + ax,
+						Math.sin(k) * (this.metadata[10] / 2.0) + this.metadata[15] + ay,
+						Geometry.normalizeAngle(k + Math.PI / 2.0)
+					);
+				}
 		}
 		throw new UnsupportedOperationException("Not supported yet.");
 	}
@@ -308,6 +313,10 @@ public class Track {
 					metadata[1] -= dy;
 					metadata[6] -= dx;
 					metadata[7] -= dy;
+					metadata[16] -= dx;
+					metadata[17] -= dy;
+					metadata[18] -= dx;
+					metadata[19] -= dy;
 					break;
 				case NetworkConst.TRACK_CURVED:
 					metadata[0] -= dx;

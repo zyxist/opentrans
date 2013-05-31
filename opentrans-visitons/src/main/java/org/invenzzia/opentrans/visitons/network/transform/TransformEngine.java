@@ -185,7 +185,7 @@ public class TransformEngine {
 			// Here we should write the results of our calculation: center points of both circles and the middle point.
 			double c1x, c1y, c2x, c2y, mx, my;
 			
-			double metadata[] = new double[16];
+			double metadata[] = new double[20];
 			if(LineOps.areParallel(tv1, tv2)) {
 				// If the lines are parallel, we need a special handling.
 				double buf[] = new double[22];
@@ -266,10 +266,17 @@ public class TransformEngine {
 			double diff = Math.atan2(Math.sin(towards-tan), Math.cos(towards-tan));
 			if(diff > 0.0) {
 				this.prepareCurveMetadata(mx, my, v1.x(), v1.y(), c1x, c1y, v1Loc, metadata);
+				if(v1Loc == 8) {
+					tan = LineOps.getTangent(c1x, c1y, mx, my);
+					metadata[11] = Geometry.normalizeAngle(tan - Math.PI / 2.0);
+				}
 			} else {
 				this.prepareCurveMetadata(v1.x(), v1.y(), mx, my, c1x, c1y, v1Loc, metadata);
+				if(v1Loc == 8) {
+					tan = LineOps.getTangent(c1x, c1y, mx, my);
+					metadata[11] = Geometry.normalizeAngle(tan + Math.PI / 2.0);
+				}
 			}
-			metadata[v1Loc + 3] = diff;
 			// The second arc...
 			tan = v2.tangentFor(tr);
 			towards = LineOps.getTangent(v2.x(), v2.y(), mx, my);
@@ -277,12 +284,26 @@ public class TransformEngine {
 			
 			if(diff > 0.0) {
 				this.prepareCurveMetadata(mx, my, v2.x(), v2.y(), c2x, c2y, v2Loc, metadata);
+				if(v2Loc == 8) {
+					tan = LineOps.getTangent(c2x, c2y, mx, my);
+					metadata[11] = Geometry.normalizeAngle(tan - Math.PI / 2.0);
+				}
 			} else {
 				this.prepareCurveMetadata(v2.x(), v2.y(), mx, my, c2x, c2y, v2Loc, metadata);
+				if(v2Loc == 8) {
+					tan = LineOps.getTangent(c2x, c2y, mx, my);
+					metadata[11] = Geometry.normalizeAngle(tan + Math.PI / 2.0);
+				}
 			}
-			metadata[v2Loc + 3] = diff;
 			v1.setTangentFor(tr, tv1);
 			v2.setTangentFor(tr, tv2);
+			
+			metadata[3] = tr.getFirstVertex().tangentFor(tr);
+			metadata[16] = tr.getFirstVertex().x();
+			metadata[17] = tr.getFirstVertex().y();
+			metadata[18] = mx;
+			metadata[19] = my;
+			
 			tr.setMetadata(metadata);
 		}
 

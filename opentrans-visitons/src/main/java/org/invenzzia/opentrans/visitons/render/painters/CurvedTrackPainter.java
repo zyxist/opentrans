@@ -20,6 +20,7 @@ package org.invenzzia.opentrans.visitons.render.painters;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.geom.Arc2D;
+import org.invenzzia.opentrans.visitons.geometry.ArcOps;
 import org.invenzzia.opentrans.visitons.geometry.Geometry;
 import org.invenzzia.opentrans.visitons.geometry.LineOps;
 import org.invenzzia.opentrans.visitons.render.CameraModelSnapshot;
@@ -103,27 +104,10 @@ public class CurvedTrackPainter implements ITrackPainter {
 		
 		double cx = this.coordinates[6] + this.dx;
 		double cy = this.coordinates[7] + this.dy;
-		double a1 = LineOps.getTangent(cx, cy, this.coordinates[8] + this.dx, this.coordinates[9] + this.dy);
-		boolean differentSigns = Math.signum(a1) != Math.signum(this.coordinates[3]);
-		double a3 = LineOps.getTangent(cx, cy, px, py);
-		boolean grows;
-		if(differentSigns) {
-			grows = Geometry.inSecondQuarter(a1) || Geometry.inFourthQuarter(a1);
-		} else {
-			grows = Geometry.inFirstQuarter(a1) || Geometry.inThirdQuarter(a1);
-		}
-		double t;
-		if(grows) {
-			if(a3 < a1) {
-				a3 += Geometry.PI_2;
-			}
-			t = a3 - a1;
-		} else {
-			if(a3 > a1) {
-				a3 -= Geometry.PI_2;
-			}
-			t = a1 - a3;
-		}	
+		double t = ArcOps.coord2Param(cx, cy,
+			this.coordinates[8] + this.dx, this.coordinates[9] + this.dy,
+			this.coordinates[3], px, py
+		);
 		t = (t / this.coordinates[5]);
 		if(t < 0.0) {
 			return 0.0;

@@ -65,10 +65,10 @@ public class BindVertices extends AbstractOperation {
 				TrackRecord tr = new TrackRecord();
 				tr.setType(NetworkConst.TRACK_CURVED);
 				tr.setVertices(input.v1, input.v2);
-				input.v1.addTrack(tr);
-				input.v2.addTrack(tr);
+				input.v1().addTrack(tr);
+				input.v2().addTrack(tr);
 				api.getUnitOfWork().addTrack(tr);
-				api.matchStraightTrackAndCurve(tr, adjustedStraightTrack, input.v1, input.v2);
+				api.matchStraightTrackAndCurve(tr, adjustedStraightTrack, input.v1, input.v2());
 			}
 		};
 	}

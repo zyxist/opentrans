@@ -17,8 +17,8 @@
 
 package org.invenzzia.opentrans.visitons.render.scene;
 
+import org.invenzzia.opentrans.visitons.network.IVertexRecord;
 import org.invenzzia.opentrans.visitons.network.TrackRecord;
-import org.invenzzia.opentrans.visitons.network.VertexRecord;
 
 /**
  * We can send this thing to force ignoring certain elements when looking for
@@ -35,7 +35,7 @@ public final class IgnoreHoverSnapshot {
 		this.vertexId = vertexId;
 	}
 	
-	public IgnoreHoverSnapshot(TrackRecord tr, VertexRecord vr) {
+	public IgnoreHoverSnapshot(TrackRecord tr, IVertexRecord vr) {
 		this.trackId = (null != tr ? tr.getId() : 0);
 		this.vertexId = (null != vr ? vr.getId() : 0);
 	}

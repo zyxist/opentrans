@@ -19,6 +19,7 @@ package org.invenzzia.opentrans.visitons.network.transform.ops;
 
 import com.google.common.base.Preconditions;
 import org.invenzzia.opentrans.visitons.geometry.LineOps;
+import org.invenzzia.opentrans.visitons.network.IVertexRecord;
 import org.invenzzia.opentrans.visitons.network.NetworkConst;
 import org.invenzzia.opentrans.visitons.network.TrackRecord;
 import org.invenzzia.opentrans.visitons.network.VertexRecord;
@@ -44,7 +45,7 @@ public class MoveVertex extends AbstractOperation {
 	 * @param mode Editing mode
 	 * @return True, if the operation succeeded.
 	 */
-	public boolean move(VertexRecord vr, double x, double y, byte mode) {
+	public boolean move(IVertexRecord vr, double x, double y, byte mode) {
 		if(!this.getAPI().getWorld().isWithinWorld(x, y)) {
 			// Don't run the machinery, if we are outside the world.
 			return false;
@@ -117,16 +118,16 @@ public class MoveVertex extends AbstractOperation {
 		return new IOperationCase() {
 			@Override
 			public void execute(TransformInput input, ITransformAPI api) {
-				VertexRecord opposite = input.t1.getOppositeVertex(input.v1);
+				VertexRecord opposite = (VertexRecord) input.t1.getOppositeVertex(input.v1);
 				
 				if(opposite.hasAllTracks()) {
 					double buf[] = new double[8];
 					LineOps.toGeneral(opposite.x(), opposite.y(), input.v1.x(), input.v1.y(), 0, buf);
 					LineOps.toOrthogonal(0, 3, buf, input.a1, input.a2);
 					LineOps.intersection(0, 3, 6, buf);
-					input.v1.setPosition(buf[6], buf[7]);
+					input.v1().setPosition(buf[6], buf[7]);
 				} else {
-					input.v1.setPosition(input.a1, input.a2);
+					input.v1().setPosition(input.a1, input.a2);
 				}
 				api.calculateStraightLine(input.t1);
 			}
@@ -138,12 +139,12 @@ public class MoveVertex extends AbstractOperation {
 			@Override
 			public void execute(TransformInput input, ITransformAPI api) {
 				TrackRecord previousTrack = input.t1.getPreviousTrack();
-				input.v1.setPosition(input.a1, input.a2);
+				input.v1().setPosition(input.a1, input.a2);
 				if(null == previousTrack) {
 					api.calculateStraightLine(input.t1);
 				} else if(previousTrack.getType() == NetworkConst.TRACK_CURVED) {
-					VertexRecord connecting = input.t1.getOppositeVertex(input.v1);
-					api.curveFollowsStraightTrack(input.v1, connecting, previousTrack.getOppositeVertex(connecting));
+					VertexRecord connecting = (VertexRecord) input.t1.getOppositeVertex(input.v1);
+					api.curveFollowsStraightTrack(input.v1(), connecting, (VertexRecord) previousTrack.getOppositeVertex(connecting));
 				} else if(previousTrack.getType() == NetworkConst.TRACK_FREE) {
 					api.calculateStraightLine(input.t1);
 					api.calculateFreeCurve(previousTrack);
@@ -156,8 +157,8 @@ public class MoveVertex extends AbstractOperation {
 		return new IOperationCase() {
 			@Override
 			public void execute(TransformInput input, ITransformAPI api) {
-				input.v1.setPosition(input.a1, input.a2);
-				api.curveFollowsPoint(input.t1, input.v1);
+				input.v1().setPosition(input.a1, input.a2);
+				api.curveFollowsPoint(input.t1, input.v1());
 			}
 		};
 	}
@@ -166,7 +167,7 @@ public class MoveVertex extends AbstractOperation {
 		return new IOperationCase() {
 			@Override
 			public void execute(TransformInput input, ITransformAPI api) {
-				input.v1.setPosition(input.a1, input.a2);
+				input.v1().setPosition(input.a1, input.a2);
 				api.calculateFreeCurve(input.t1);
 			}
 		};
@@ -182,8 +183,8 @@ public class MoveVertex extends AbstractOperation {
 			@Override
 			public void execute(TransformInput input, ITransformAPI api) {
 				TrackRecord closerStraightTrack = input.t1;
-				TrackRecord furtherStraightTrack = input.t2.getOppositeVertex(input.v1).getOppositeTrack(input.t2);
-				VertexRecord clStVert2 = closerStraightTrack.getOppositeVertex(input.v1);
+				TrackRecord furtherStraightTrack = ((VertexRecord) input.t2.getOppositeVertex(input.v1)).getOppositeTrack(input.t2);
+				VertexRecord clStVert2 = (VertexRecord) closerStraightTrack.getOppositeVertex(input.v1);
 				
 				double buf[] = new double[8];
 				double mov = LineOps.vectorLengtheningDistance(clStVert2.x(), clStVert2.y(), input.v1.x(), input.v1.y(), input.a1, input.a2, 0, buf);
@@ -192,18 +193,18 @@ public class MoveVertex extends AbstractOperation {
 					if(furtherStraightTrack.computeLength() + mov < 0.0 || closerStraightTrack.computeLength() + mov < 0.0) {
 						return;
 					}
-					VertexRecord ftStVert2 = furtherStraightTrack.getOppositeVertex(input.v2);
+					VertexRecord ftStVert2 = (VertexRecord) furtherStraightTrack.getOppositeVertex(input.v2);
 					LineOps.lenghtenVector(ftStVert2.x(), ftStVert2.y(), input.v2.x(), input.v2.y(), mov, 0, buf);
 
 					if(!api.getWorld().isWithinWorld(buf[0], buf[1]) || !api.getWorld().isWithinWorld(buf[6], buf[7])) {
 						return;
 					}
-					input.v2.setPosition(buf[0], buf[1]);
-					input.v1.setPosition(buf[6], buf[7]);
+					input.v2().setPosition(buf[0], buf[1]);
+					input.v1().setPosition(buf[6], buf[7]);
 
 					api.calculateStraightLine(furtherStraightTrack);
 					api.calculateStraightLine(closerStraightTrack);
-					api.matchStraightTrackAndCurve(input.t2, furtherStraightTrack, input.v1, input.t2.getOppositeVertex(input.v1));
+					api.matchStraightTrackAndCurve(input.t2, furtherStraightTrack, input.v1, (VertexRecord) input.t2.getOppositeVertex(input.v1));
 				} else {
 					// Oops, you're not straight. But don't worry. This is also supposed to work.
 				}
@@ -219,11 +220,11 @@ public class MoveVertex extends AbstractOperation {
 			@Override
 			public void execute(TransformInput input, ITransformAPI api) {
 				double buf[] = new double[8];
-				VertexRecord opposite = input.t1.getOppositeVertex(input.v1);
+				VertexRecord opposite = (VertexRecord) input.t1.getOppositeVertex(input.v1);
 				LineOps.toGeneral(opposite.x(), opposite.y(), input.v1.x(), input.v1.y(), 0, buf);
 				LineOps.toOrthogonal(0, 3, buf, input.a1, input.a2);
 				LineOps.intersection(0, 3, 6, buf);
-				input.v1.setPosition(buf[6], buf[7]);
+				input.v1().setPosition(buf[6], buf[7]);
 				api.calculateStraightLine(input.t1);
 				api.calculateFreeCurve(input.t2);
 			}
@@ -235,7 +236,7 @@ public class MoveVertex extends AbstractOperation {
 		return new IOperationCase() {
 			@Override
 			public void execute(TransformInput input, ITransformAPI api) {
-				input.v1.setPosition(input.a1, input.a2);
+				input.v1().setPosition(input.a1, input.a2);
 				
 				TrackRecord curvedTrack = input.t2;
 				TrackRecord straightTrack = input.t1;
@@ -246,8 +247,8 @@ public class MoveVertex extends AbstractOperation {
 				if(null == afterStraightTrack) {
 					api.calculateStraightLine(straightTrack);
 				} else if(afterStraightTrack.getType() == NetworkConst.TRACK_CURVED) {
-					VertexRecord vr = straightTrack.getOppositeVertex(input.v1);
-					api.curveFollowsStraightTrack(input.v1, vr, afterStraightTrack.getOppositeVertex(vr));
+					VertexRecord vr = (VertexRecord) straightTrack.getOppositeVertex(input.v1);
+					api.curveFollowsStraightTrack(input.v1(), vr, (VertexRecord) afterStraightTrack.getOppositeVertex(vr));
 				} else if(afterStraightTrack.getType() == NetworkConst.TRACK_FREE) {
 					api.calculateStraightLine(straightTrack);
 					api.calculateFreeCurve(afterStraightTrack);
@@ -258,11 +259,11 @@ public class MoveVertex extends AbstractOperation {
 					api.calculateFreeCurve(curvedTrack);
 				} else {
 					if(null == afterCurvedTrack) {
-						api.curveFollowsPoint(curvedTrack, input.v2);
+						api.curveFollowsPoint(curvedTrack, input.v2());
 					} else if(afterCurvedTrack.getType() == NetworkConst.TRACK_STRAIGHT) {
-						api.matchStraightTrackAndCurve(curvedTrack, afterCurvedTrack, input.v1, curvedTrack.getOppositeVertex(input.v1));
+						api.matchStraightTrackAndCurve(curvedTrack, afterCurvedTrack, input.v1, (VertexRecord) curvedTrack.getOppositeVertex(input.v1));
 					} else if(afterCurvedTrack.getType() == NetworkConst.TRACK_FREE) {
-						api.curveFollowsPoint(curvedTrack, input.v2);
+						api.curveFollowsPoint(curvedTrack, input.v2());
 						api.calculateFreeCurve(afterCurvedTrack);
 					}
 				}
@@ -277,10 +278,10 @@ public class MoveVertex extends AbstractOperation {
 				Preconditions.checkState(input.t2.getType() == NetworkConst.TRACK_FREE,
 					"Invalid state on map: curve-curve vertex detected (#"+input.v1.getId()+")"
 				);
-				input.v1.setPosition(input.a1, input.a2);
+				input.v1().setPosition(input.a1, input.a2);
 				
 				if(input.t1.getType() == NetworkConst.TRACK_CURVED) {
-					api.curveFollowsPoint(input.t1, input.v1);
+					api.curveFollowsPoint(input.t1, input.v1());
 				} else {
 					api.calculateFreeCurve(input.t1);
 				}

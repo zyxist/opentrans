@@ -30,6 +30,7 @@ import org.invenzzia.opentrans.lightweight.ui.tabs.world.PopupBuilder;
 import org.invenzzia.opentrans.lightweight.ui.tabs.world.popups.CenterAction;
 import org.invenzzia.opentrans.lightweight.ui.tabs.world.popups.ClearBitmapAction;
 import org.invenzzia.opentrans.lightweight.ui.tabs.world.popups.SelectBitmapAction;
+import org.invenzzia.opentrans.visitons.network.IVertexRecord;
 import org.invenzzia.opentrans.visitons.network.NetworkConst;
 import org.invenzzia.opentrans.visitons.network.Track;
 import org.invenzzia.opentrans.visitons.network.TrackRecord;
@@ -68,7 +69,7 @@ public class SelectionMode extends AbstractEditMode {
 	 * We keep selected vertices separately to distinguish them from vertices imported due
 	 * to the transformation requirements.
 	 */
-	private Set<VertexRecord> selectedVertices;
+	private Set<IVertexRecord> selectedVertices;
 	/**
 	 * We keep the selected tracks separately to distinguish them from tracks imported
 	 * due to the transformation requirements.
@@ -113,7 +114,7 @@ public class SelectionMode extends AbstractEditMode {
 	}
 	
 	@InModelThread(asynchronous = false)
-	public VertexRecord importVertex(long vertexId) {
+	public IVertexRecord importVertex(long vertexId) {
 		return this.currentUnit.importVertex(this.getWorld(), vertexId);
 	}
 	
@@ -167,7 +168,7 @@ public class SelectionMode extends AbstractEditMode {
 		int selectedTracksNum = this.selectedTracks.size();
 		this.api.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		if(selectedVerticesNum == 1 && selectedTracksNum == 0) {
-			VertexRecord vertexRecord = this.selectedVertices.iterator().next();
+			IVertexRecord vertexRecord = this.selectedVertices.iterator().next();
 			this.dragInitialPosX = worldX;
 			this.dragInitialPosY = worldY;
 			this.selectionMode = DRAG_VERTEX;
@@ -232,7 +233,7 @@ public class SelectionMode extends AbstractEditMode {
 			this.resetState();
 		} else if(this.selectedVertices.size() > 0) {
 			this.recordImporter.importAllMissingNeighbors(this.currentUnit, this.selectedVertices);
-			for(VertexRecord vr: this.selectedVertices) {
+			for(IVertexRecord vr: this.selectedVertices) {
 				this.currentUnit.removeVertex(vr);
 			}
 			this.applyChanges("Delete vertices");

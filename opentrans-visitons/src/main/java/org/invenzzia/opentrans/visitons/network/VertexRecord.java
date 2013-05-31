@@ -260,6 +260,7 @@ public class VertexRecord implements IVertexRecord, ILightMemento {
 	 * @param tangent
 	 * @return Fluent interface.
 	 */
+	@Override
 	public VertexRecord setTangentFor(TrackRecord tr, double tangent) {
 		if(tr == this.firstTrack) {
 			this.t1 = tangent;
@@ -342,6 +343,7 @@ public class VertexRecord implements IVertexRecord, ILightMemento {
 	 * 
 	 * @return First track record.
 	 */
+	@Override
 	public TrackRecord getFirstTrack() {
 		return this.firstTrack;
 	}
@@ -354,6 +356,7 @@ public class VertexRecord implements IVertexRecord, ILightMemento {
 	 * 
 	 * @return Second track record.
 	 */
+	@Override
 	public TrackRecord getSecondTrack() {
 		return this.secondTrack;
 	}
@@ -374,6 +377,7 @@ public class VertexRecord implements IVertexRecord, ILightMemento {
 	 * 
 	 * @return ID of the first track, which is unimported from the world model.
 	 */
+	@Override
 	public long getFirstTrackId() {
 		return this.firstTrackId;
 	}
@@ -383,6 +387,7 @@ public class VertexRecord implements IVertexRecord, ILightMemento {
 	 * 
 	 * @return ID of the second track, which is unimported from the world model.
 	 */
+	@Override
 	public long getSecondTrackId() {
 		return this.secondTrackId;
 	}
@@ -392,6 +397,7 @@ public class VertexRecord implements IVertexRecord, ILightMemento {
 	 * 
 	 * @return ID of the first track.
 	 */
+	@Override
 	public long getFirstTrackActualId() {
 		return (null != this.firstTrack ? this.firstTrack.getId() : this.firstTrackId);
 	}
@@ -401,10 +407,12 @@ public class VertexRecord implements IVertexRecord, ILightMemento {
 	 * 
 	 * @return ID of the second track.
 	 */
+	@Override
 	public long getSecondTrackActualId() {
 		return (null != this.secondTrack ? this.secondTrack.getId() : this.secondTrackId);
 	}
 	
+	@Override
 	public void removeTrack(TrackRecord tr) {
 		if(this.firstTrack == tr) {
 			this.firstTrack = null;
@@ -439,7 +447,7 @@ public class VertexRecord implements IVertexRecord, ILightMemento {
 	 * @param v Opposite vertex.
 	 * @return Track that connect this vertex with the specified vertex.
 	 */
-	public TrackRecord getTrackTo(VertexRecord v) {
+	public TrackRecord getTrackTo(IVertexRecord v) {
 		if(null != this.firstTrack && this.firstTrack.hasVertex(v)) {
 			return this.firstTrack;
 		} else if(null != this.secondTrack && this.secondTrack.hasVertex(v)) {
@@ -454,6 +462,7 @@ public class VertexRecord implements IVertexRecord, ILightMemento {
 	 * 
 	 * @param tr 
 	 */
+	@Override
 	public void replaceReferenceWithRecord(TrackRecord tr) {
 		if(this.firstTrackId == tr.getId()) {
 			this.firstTrack = tr;

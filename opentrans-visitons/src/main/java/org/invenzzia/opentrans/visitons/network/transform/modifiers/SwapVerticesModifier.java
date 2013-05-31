@@ -17,7 +17,7 @@
 
 package org.invenzzia.opentrans.visitons.network.transform.modifiers;
 
-import org.invenzzia.opentrans.visitons.network.VertexRecord;
+import org.invenzzia.opentrans.visitons.network.IVertexRecord;
 import org.invenzzia.opentrans.visitons.network.transform.TransformInput;
 
 /**
@@ -28,7 +28,7 @@ import org.invenzzia.opentrans.visitons.network.transform.TransformInput;
 public class SwapVerticesModifier implements IModifier {
 	@Override
 	public void modify(TransformInput input) {
-		VertexRecord tmp = input.v1;
+		IVertexRecord tmp = input.v1;
 		input.v1 = input.v2;
 		input.v2 = tmp;
 	}

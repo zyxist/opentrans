@@ -69,6 +69,11 @@ public class Vertex implements IVertex {
 		this.id = id;
 	}
 	
+	@Override
+	public IVertexRecord createRecord() {
+		return new VertexRecord(this);
+	}
+	
 	/**
 	 * Injects new coordinates - the method fails, if none are set. The method exists primarily
 	 * for the debugging/testing purposes and should not be used.
@@ -126,10 +131,12 @@ public class Vertex implements IVertex {
 		}
 	}
 	
+	@Override
 	public Track getFirstTrack() {
 		return this.firstTrack;
 	}
 	
+	@Override
 	public Track getSecondTrack() {
 		return this.secondTrack;
 	}
@@ -162,7 +169,8 @@ public class Vertex implements IVertex {
 	 * 
 	 * @param track 
 	 */
-	void removeTrack(Track track) {
+	@Override
+	public void removeTrack(Track track) {
 		if(this.firstTrack == track) {
 			this.firstTrack = null;
 		} else if(this.secondTrack == track) {
@@ -207,7 +215,8 @@ public class Vertex implements IVertex {
 	 * @param world
 	 * @param trackMapping 
 	 */
-	public void importConnections(VertexRecord vr, World world, BiMap<Long, Long> trackMapping) {
+	@Override
+	public void importConnections(IVertexRecord vr, World world, BiMap<Long, Long> trackMapping) {
 		long id1 = vr.getFirstTrackActualId();
 		long id2 = vr.getSecondTrackActualId();
 		if(id1 < IIdentifiable.NEUTRAL_ID) {

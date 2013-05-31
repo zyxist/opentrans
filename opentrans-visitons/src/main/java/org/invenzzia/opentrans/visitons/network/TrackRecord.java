@@ -51,11 +51,11 @@ public class TrackRecord implements ILightMemento {
 	/**
 	 * First vertex this track is connected to.
 	 */
-	private VertexRecord v1 = null;
+	private IVertexRecord v1 = null;
 	/**
 	 * Second vertex this track is connected to.
 	 */
-	private VertexRecord v2 = null;
+	private IVertexRecord v2 = null;
 	/**
 	 * The length of this track in world units (metres).
 	 */
@@ -168,7 +168,7 @@ public class TrackRecord implements ILightMemento {
 	 * @param v1
 	 * @param v2 
 	 */
-	public void setVertices(VertexRecord firstVertex, VertexRecord secondVertex) {
+	public void setVertices(IVertexRecord firstVertex, IVertexRecord secondVertex) {
 		Preconditions.checkNotNull(firstVertex);
 		Preconditions.checkNotNull(secondVertex);
 		this.v1 = firstVertex;
@@ -185,15 +185,15 @@ public class TrackRecord implements ILightMemento {
 		}
 	}
 	
-	public VertexRecord getFirstVertex() {
+	public IVertexRecord getFirstVertex() {
 		return this.v1;
 	}
 	
-	public VertexRecord getSecondVertex() {
+	public IVertexRecord getSecondVertex() {
 		return this.v2;
 	}
 	
-	public VertexRecord getOppositeVertex(VertexRecord tested) {
+	public IVertexRecord getOppositeVertex(IVertexRecord tested) {
 		if(this.v1 == tested) {
 			return this.v2;
 		} else {
@@ -206,12 +206,14 @@ public class TrackRecord implements ILightMemento {
 			if(this.v2.hasOneTrack()) {
 				return null;
 			}
-			return this.v2.getOppositeTrack(this);
+			// If we are here, this can't be a junction.
+			return ((VertexRecord)this.v2).getOppositeTrack(this);
 		} else {
 			if(this.v1.hasOneTrack()) {
 				return null;
 			}
-			return this.v1.getOppositeTrack(this);
+			// If we are here, this can't be a junction.
+			return ((VertexRecord)this.v1).getOppositeTrack(this);
 		}
 	}
 	
@@ -221,7 +223,7 @@ public class TrackRecord implements ILightMemento {
 	 * @param firstTrack
 	 * @return Vertex that connects us with the specified track.
 	 */
-	public VertexRecord getVertexTo(TrackRecord firstTrack) {
+	public IVertexRecord getVertexTo(TrackRecord firstTrack) {
 		Preconditions.checkNotNull(firstTrack);
 		if(firstTrack.hasVertex(this.v1)) {
 			return this.v1;
@@ -247,14 +249,15 @@ public class TrackRecord implements ILightMemento {
 	 * @return Previous track or NULL, if this is a lone track.
 	 */
 	public TrackRecord getPreviousTrack() {
-		VertexRecord checked = this.v1.hasOneTrack() ? this.v2 : this.v1;
+		IVertexRecord checked = this.v1.hasOneTrack() ? this.v2 : this.v1;
 		if(checked.hasOneTrack()) {
 			return null;
 		}
-		return checked.getOppositeTrack(this);
+		// If we are here, this can't be a junction.
+		return ((VertexRecord)checked).getOppositeTrack(this);
 	}
 	
-	public void replaceVertex(VertexRecord oldVertex, VertexRecord newVertex) {
+	public void replaceVertex(IVertexRecord oldVertex, IVertexRecord newVertex) {
 		if(this.v1 == oldVertex) {
 			this.v1 = newVertex;
 		} else if(this.v2 == oldVertex) {
@@ -270,7 +273,7 @@ public class TrackRecord implements ILightMemento {
 	 * @param vr Vertex to check.
 	 * @return True, if it belongs to this track.
 	 */
-	public boolean hasVertex(VertexRecord vr) {
+	public boolean hasVertex(IVertexRecord vr) {
 		return this.v1 == vr || this.v2 == vr;
 	}
 	
@@ -421,7 +424,7 @@ public class TrackRecord implements ILightMemento {
 	 * Replaces the tracks with places.
 	 */
 	public void replaceVertices() {
-		VertexRecord tmp = this.v1;
+		IVertexRecord tmp = this.v1;
 		this.v1 = this.v2;
 		this.v2 = tmp;
 	}

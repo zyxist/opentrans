@@ -18,6 +18,7 @@
 package org.invenzzia.opentrans.visitons.network.transform.conditions;
 
 import org.invenzzia.opentrans.visitons.network.TrackRecord;
+import org.invenzzia.opentrans.visitons.network.VertexRecord;
 
 /**
  * Checks if a given track is surrounded by other tracks with certain
@@ -34,8 +35,12 @@ public class SurroundedByCondition implements ICondition<TrackRecord> {
 
 	@Override
 	public boolean matches(TrackRecord input) {
-		TrackRecord firstTrack = (input.getFirstVertex().hasAllTracks() ? input.getFirstVertex().getOppositeTrack(input) : null);
-		TrackRecord secondTrack = (input.getSecondVertex().hasAllTracks() ? input.getSecondVertex().getOppositeTrack(input) : null);
+		if(!(input.getFirstVertex() instanceof VertexRecord) || !(input.getSecondVertex()instanceof VertexRecord)) {
+			return false;
+		}
+		
+		TrackRecord firstTrack = (input.getFirstVertex().hasAllTracks() ? ((VertexRecord)input.getFirstVertex()).getOppositeTrack(input) : null);
+		TrackRecord secondTrack = (input.getSecondVertex().hasAllTracks() ? ((VertexRecord)input.getSecondVertex()).getOppositeTrack(input) : null);
 		boolean firstCondition = (null == firstTrack ? true : this.condition.matches(firstTrack));
 		boolean secondCondition = (null == secondTrack ? true : this.condition.matches(secondTrack));
 		return firstCondition && secondCondition;

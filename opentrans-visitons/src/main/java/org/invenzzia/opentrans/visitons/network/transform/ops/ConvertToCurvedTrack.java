@@ -18,6 +18,7 @@
 package org.invenzzia.opentrans.visitons.network.transform.ops;
 
 import org.invenzzia.opentrans.visitons.geometry.LineOps;
+import org.invenzzia.opentrans.visitons.network.IVertexRecord;
 import org.invenzzia.opentrans.visitons.network.NetworkConst;
 import org.invenzzia.opentrans.visitons.network.TrackRecord;
 import org.invenzzia.opentrans.visitons.network.VertexRecord;
@@ -44,7 +45,7 @@ public class ConvertToCurvedTrack extends AbstractOperation {
 			track(and(
 				surroundedBy(withType(NetworkConst.TRACK_STRAIGHT)),
 				withType(NetworkConst.TRACK_FREE)
-			)), this.convertToCurved());
+			)), this.convertToCurvedNoJunctions());
 	}
 	
 	@Override
@@ -52,12 +53,12 @@ public class ConvertToCurvedTrack extends AbstractOperation {
 		api.getRecordImporter().importAllMissingNeighbors(api.getUnitOfWork(), input.t1.getFirstVertex(), input.t1.getSecondVertex());
 	}
 
-	private IOperationCase convertToCurved() {
+	private IOperationCase convertToCurvedNoJunctions() {
 		return new IOperationCase() {
 			@Override
 			public void execute(TransformInput input, ITransformAPI api) {
-				VertexRecord firstVertex = input.t1.getFirstVertex();
-				VertexRecord secondVertex = input.t1.getSecondVertex();
+				VertexRecord firstVertex = (VertexRecord) input.t1.getFirstVertex();
+				VertexRecord secondVertex = (VertexRecord) input.t1.getSecondVertex();
 				TrackRecord firstTrack = (firstVertex.hasAllTracks() ? firstVertex.getOppositeTrack(input.t1) : null);
 				TrackRecord secondTrack = (secondVertex.hasAllTracks() ? secondVertex.getOppositeTrack(input.t1) : null);
 				

@@ -17,6 +17,7 @@
 
 package org.invenzzia.opentrans.visitons.network;
 
+import com.google.common.collect.BiMap;
 import org.invenzzia.opentrans.visitons.utils.SegmentCoordinate;
 
 /**
@@ -37,6 +38,11 @@ public class Junction implements IVertex {
 		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
 	}
 
+	@Override
+	public IVertexRecord createRecord() {
+		return null;
+	}
+	
 	@Override
 	public SegmentCoordinate pos() {
 		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
@@ -69,6 +75,26 @@ public class Junction implements IVertex {
 
 	@Override
 	public Track getTrack() {
+		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+	}
+
+	@Override
+	public void removeTrack(Track track) {
+		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+	}
+
+	@Override
+	public Track getFirstTrack() {
+		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+	}
+
+	@Override
+	public Track getSecondTrack() {
+		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+	}
+
+	@Override
+	public void importConnections(IVertexRecord vr, World world, BiMap<Long, Long> trackMapping) {
 		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
 	}
 }

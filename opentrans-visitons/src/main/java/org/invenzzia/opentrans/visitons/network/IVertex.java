@@ -17,6 +17,7 @@
 
 package org.invenzzia.opentrans.visitons.network;
 
+import com.google.common.collect.BiMap;
 import org.invenzzia.helium.data.interfaces.IIdentifiable;
 import org.invenzzia.opentrans.visitons.utils.SegmentCoordinate;
 
@@ -65,4 +66,38 @@ public interface IVertex extends IIdentifiable {
 	 * If only one track is connected, the method returns it.
 	 */
 	public Track getTrack();
+	/**
+	 * Returns the first track bound to this vertex. The method may return
+	 * null, if the first slot is not occupied.
+	 * 
+	 * @return 
+	 */
+	public Track getFirstTrack();
+	/**
+	 * Returns the second track bound to this vertex. The method may return
+	 * null, if the second slot is not occupied.
+	 * 
+	 * @return 
+	 */
+	public Track getSecondTrack();
+	/**
+	 * Tracks must know, how to remove themselves from the vertex.
+	 * 
+	 * @param track 
+	 */
+	public void removeTrack(Track track);
+	/**
+	 * Creates an approriate vertex record.
+	 * 
+	 * @return New vertex record instance with the copied state of this vertex.
+	 */
+	public IVertexRecord createRecord();
+	/**
+	 * Imports the vertex data from the vertex record.
+	 * 
+	 * @param vr
+	 * @param world
+	 * @param trackMapping 
+	 */
+	public void importConnections(IVertexRecord vr, World world, BiMap<Long, Long> trackMapping);
 }

@@ -99,7 +99,7 @@ public class World {
 	/**
 	 * All the vertices managed by the project.
 	 */
-	private Map<Long, Vertex> vertices;
+	private Map<Long, IVertex> vertices;
 	/**
 	 * All the tracks managed by the project.
 	 */
@@ -417,7 +417,7 @@ public class World {
 	 * @param vertex The vertex to add.
 	 * @return Fluent interface.
 	 */
-	public World addVertex(Vertex vertex) {
+	public World addVertex(IVertex vertex) {
 		if(vertex.getId() == IIdentifiable.NEUTRAL_ID) {
 			vertex.setId(this.nextVertexId++);
 		}
@@ -431,7 +431,7 @@ public class World {
 	 * @param id Vertex ID.
 	 * @return Vertex.
 	 */
-	public Vertex findVertex(long id) {
+	public IVertex findVertex(long id) {
 		return this.vertices.get(id);
 	}
 
@@ -441,7 +441,7 @@ public class World {
 	 * @param vertex
 	 * @return Fluent interface.
 	 */
-	public World removeVertex(Vertex vertex) {
+	public World removeVertex(IVertex vertex) {
 		Preconditions.checkNotNull(vertex, "The vertex to remove cannot be empty!");
 		if(vertex.getFirstTrack() != null) {
 			this.removeTrack(vertex.getFirstTrack());
@@ -449,6 +449,7 @@ public class World {
 		if(vertex.getSecondTrack() != null) {
 			this.removeTrack(vertex.getSecondTrack());
 		}
+
 		this.vertices.remove(Long.valueOf(vertex.getId()));
 		vertex.pos().getSegment().removeVertex(vertex);
 		return this;
@@ -486,8 +487,8 @@ public class World {
 	 */
 	public World removeTrack(Track track) {
 		Preconditions.checkNotNull(track, "The specified track to remove must not be NULL!");
-		Vertex firstVertex = track.getFirstVertex();
-		Vertex secondVertex = track.getSecondVertex();
+		IVertex firstVertex = track.getFirstVertex();
+		IVertex secondVertex = track.getSecondVertex();
 		track.removeFromVertices();
 		
 		if(firstVertex.hasNoTracks()) {
@@ -581,7 +582,7 @@ public class World {
 			for(int y = whereStartsY; y <= whereEndsY; y++) {
 				Segment s = this.findSegment(x, y);
 				if(null != s) {
-					for(Vertex vertex: s.getVertices()) {
+					for(IVertex vertex: s.getVertices()) {
 						double ox = vertex.pos().getAbsoluteX();
 						double oy = vertex.pos().getAbsoluteY();
 						
@@ -593,7 +594,7 @@ public class World {
 						Track t1 = vertex.getFirstTrack();
 						Track t2 = vertex.getSecondTrack();
 						if(null != t1) {
-							Vertex opposite = t1.getOppositeVertex(vertex);
+							IVertex opposite = t1.getOppositeVertex(vertex);
 							ox = opposite.pos().getAbsoluteX();
 							oy = opposite.pos().getAbsoluteY();
 							if(x1 <= ox && ox <= x2 && y1 <= oy && oy <= y2) {
@@ -601,7 +602,7 @@ public class World {
 							}
 						}
 						if(null != t2) {
-							Vertex opposite = t2.getOppositeVertex(vertex);
+							IVertex opposite = t2.getOppositeVertex(vertex);
 							ox = opposite.pos().getAbsoluteX();
 							oy = opposite.pos().getAbsoluteY();
 							if(x1 <= ox && ox <= x2 && y1 <= oy && oy <= y2) {
@@ -651,7 +652,7 @@ public class World {
 		int j = 0;
 		Set<Track> visibleTracks = new HashSet<>();
 		for(Segment segment: visibleSegments) {
-			for(Vertex vertex: segment.getVertices()) {
+			for(IVertex vertex: segment.getVertices()) {
 				ids[j++] = vertex.getId();
 				points[i++] = vertex.pos().getAbsoluteX();
 				points[i++] = vertex.pos().getAbsoluteY();

@@ -99,7 +99,7 @@ public class NetworkUnitOfWorkTest {
 		
 		Assert.assertEquals(0, uw.getVertexNum());
 		Assert.assertEquals(0, uw.getTrackNum());
-		VertexRecord record = uw.importVertex(world, 2);
+		VertexRecord record = (VertexRecord) uw.importVertex(world, 2);
 		Assert.assertEquals(1, uw.getVertexNum());
 		Assert.assertEquals(0, uw.getTrackNum());
 		
@@ -119,11 +119,11 @@ public class NetworkUnitOfWorkTest {
 		
 		Assert.assertEquals(0, uw.getVertexNum());
 		Assert.assertEquals(0, uw.getTrackNum());
-		VertexRecord record = uw.importVertex(world, 2);
+		VertexRecord record = (VertexRecord) uw.importVertex(world, 2);
 		Assert.assertEquals(1, uw.getVertexNum());
 		Assert.assertEquals(0, uw.getTrackNum());
 		
-		VertexRecord record2 = uw.importVertex(world, 3);
+		VertexRecord record2 = (VertexRecord) uw.importVertex(world, 3);
 		Assert.assertEquals(2, uw.getVertexNum());
 		Assert.assertEquals(1, uw.getTrackNum());
 		Assert.assertEquals(3, record2.getId());
@@ -146,8 +146,8 @@ public class NetworkUnitOfWorkTest {
 		World world = this.buildWorldMock();
 		
 		TrackRecord tr = uw.importTrack(world, 2);
-		VertexRecord vr2 = uw.findVertex(2);
-		VertexRecord vr3 = uw.findVertex(3);
+		VertexRecord vr2 = (VertexRecord) uw.findVertex(2);
+		VertexRecord vr3 = (VertexRecord) uw.findVertex(3);
 		
 		Assert.assertEquals(2, uw.getVertexNum());
 		Assert.assertEquals(1, uw.getTrackNum());
@@ -173,10 +173,10 @@ public class NetworkUnitOfWorkTest {
 		NetworkUnitOfWork uw = new NetworkUnitOfWork();
 		World world = this.buildWorldMock();
 		
-		VertexRecord vr3a = uw.importVertex(world, 3);
+		VertexRecord vr3a = (VertexRecord) uw.importVertex(world, 3);
 		TrackRecord tr = uw.importTrack(world, 2);
-		VertexRecord vr2 = uw.findVertex(2);
-		VertexRecord vr3 = uw.findVertex(3);
+		VertexRecord vr2 = (VertexRecord) uw.findVertex(2);
+		VertexRecord vr3 = (VertexRecord) uw.findVertex(3);
 		
 		Assert.assertSame(vr3a, vr3);
 		Assert.assertEquals(2, uw.getVertexNum());

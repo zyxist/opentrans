@@ -25,6 +25,7 @@ import org.invenzzia.opentrans.visitons.bindings.ActualImporter;
 import org.invenzzia.opentrans.visitons.geometry.ArcOps;
 import org.invenzzia.opentrans.visitons.geometry.Geometry;
 import org.invenzzia.opentrans.visitons.geometry.LineOps;
+import org.invenzzia.opentrans.visitons.network.IVertexRecord;
 import org.invenzzia.opentrans.visitons.network.NetworkConst;
 import org.invenzzia.opentrans.visitons.network.TrackRecord;
 import org.invenzzia.opentrans.visitons.network.VertexRecord;
@@ -141,8 +142,8 @@ public class TransformEngine {
 
 		@Override
 		public void calculateStraightLine(TrackRecord tr) {
-			VertexRecord v1 = tr.getFirstVertex();
-			VertexRecord v2 = tr.getSecondVertex();
+			IVertexRecord v1 = tr.getFirstVertex();
+			IVertexRecord v2 = tr.getSecondVertex();
 			double tangent = LineOps.getTangent(v1.x(), v1.y(), v2.x(), v2.y());
 			v1.setTangentFor(tr, tangent);
 			v2.setTangentFor(tr, Geometry.normalizeAngle(tangent + Math.PI));
@@ -151,8 +152,8 @@ public class TransformEngine {
 
 		@Override
 		public void calculateCurve(TrackRecord tr) {
-			VertexRecord v1 = tr.getFirstVertex();
-			VertexRecord v2 = tr.getSecondVertex();
+			IVertexRecord v1 = tr.getFirstVertex();
+			IVertexRecord v2 = tr.getSecondVertex();
 			
 			double buf[] = new double[3];
 			this.prepareCurveFreeMovement(v2, v1.x(), v1.y(), 0, buf);
@@ -162,12 +163,12 @@ public class TransformEngine {
 		@Override
 		public void calculateFreeCurve(TrackRecord tr) {
 			Preconditions.checkArgument(tr.getType() == NetworkConst.TRACK_FREE, "Invalid track type: TRACK_FREE expected.");
-			VertexRecord v1 = tr.getFirstVertex();
-			VertexRecord v2 = tr.getSecondVertex();
+			IVertexRecord v1 = tr.getFirstVertex();
+			IVertexRecord v2 = tr.getSecondVertex();
 			int v1Loc = 0;
 			int v2Loc = 8;
 			if(v1.hasOneTrack()) {
-				VertexRecord tmp = v2;
+				IVertexRecord tmp = v2;
 				v2 = v1;
 				v1 = tmp;
 				v1Loc = 8;
@@ -336,7 +337,7 @@ public class TransformEngine {
 		public void curveFollowsPoint(TrackRecord curvedTrack, VertexRecord boundVertex) {
 			// If bound vertex does not have one track, be sure that you know what you are doing.
 			// This state is necessary for handling curve-free connections.
-			VertexRecord v2 = curvedTrack.getOppositeVertex(boundVertex);
+			IVertexRecord v2 = curvedTrack.getOppositeVertex(boundVertex);
 			Preconditions.checkState(v2.hasAllTracks());
 			
 			double buf[] = new double[3];
@@ -347,9 +348,9 @@ public class TransformEngine {
 		// hint: v1 - stationary
 		// v3 - can be adjusted
 		@Override
-		public boolean matchStraightTrackAndCurve(TrackRecord curvedTrack, TrackRecord straightTrack, VertexRecord v1, VertexRecord v3) {
+		public boolean matchStraightTrackAndCurve(TrackRecord curvedTrack, TrackRecord straightTrack, IVertexRecord v1, VertexRecord v3) {
 			Preconditions.checkArgument(straightTrack.hasVertex(v3) && curvedTrack.hasVertex(v3) && curvedTrack.hasVertex(v1), "Conditions not satisfied.");
-			VertexRecord v4 = straightTrack.getOppositeVertex(v3);
+			IVertexRecord v4 = straightTrack.getOppositeVertex(v3);
 
 			double buf[] = new double[12];
 			// First line: Dx + Ey + F = 0
@@ -474,7 +475,7 @@ public class TransformEngine {
 		 * @param to
 		 * @param buf 
 		 */
-		private void prepareCurveFreeMovement(VertexRecord v1, double x2, double y2, int to, double buf[]) {
+		private void prepareCurveFreeMovement(IVertexRecord v1, double x2, double y2, int to, double buf[]) {
 			double tmp[] = new double[5];
 			LineOps.toGeneral(v1.x(), v1.y(), v1.tangent(), 0, tmp);
 			LineOps.toOrthogonal(0, tmp, v1.x(), v1.y());
@@ -498,10 +499,10 @@ public class TransformEngine {
 		 * @return Direction: negative if tracks are replaced.
 		 */
 		private void findCurveDirection(TrackRecord tr, double cx, double cy) {
-			VertexRecord v1 = tr.getFirstVertex();
-			VertexRecord v2 = tr.getSecondVertex();
+			IVertexRecord v1 = tr.getFirstVertex();
+			IVertexRecord v2 = tr.getSecondVertex();
 			if(v1.hasOneTrack()) {
-				VertexRecord tmp = v2;
+				IVertexRecord tmp = v2;
 				v2 = v1;
 				v1 = tmp;
 			}
@@ -540,7 +541,7 @@ public class TransformEngine {
 		 * @return Direction: negative if tracks are replaced.
 		 */
 		private void findCurveDirection(TrackRecord tr, VertexRecord v2, double cx, double cy) {
-			VertexRecord v1 = tr.getOppositeVertex(v2);
+			IVertexRecord v1 = tr.getOppositeVertex(v2);
 			double tan = v1.tangentFor(tr);
 			double towards = LineOps.getTangent(v1.x(), v1.y(), v2.x(), v2.y());
 			double diff = Math.atan2(Math.sin(towards-tan), Math.cos(towards-tan));

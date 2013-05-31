@@ -20,8 +20,10 @@ package org.invenzzia.opentrans.visitons.network.transform.ops;
 import com.google.common.base.Preconditions;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import org.invenzzia.opentrans.visitons.network.IVertexRecord;
 import org.invenzzia.opentrans.visitons.network.NetworkConst;
 import org.invenzzia.opentrans.visitons.network.TrackRecord;
+import org.invenzzia.opentrans.visitons.network.Vertex;
 import org.invenzzia.opentrans.visitons.network.VertexRecord;
 import org.invenzzia.opentrans.visitons.network.transform.ITransformAPI;
 
@@ -52,8 +54,12 @@ public class MoveGroup implements IOperation {
 		Set<Object> updatedElements = new LinkedHashSet<>();
 		for(TrackRecord tr: tracks) {
 			tr.moveMetadataPointsByDelta(dx, dy);
-			this.updatePosition(tr.getFirstVertex(), tr, dx, dy, updatedElements, tracks);
-			this.updatePosition(tr.getSecondVertex(), tr, dx, dy, updatedElements, tracks);
+			if(tr.getFirstVertex() instanceof Vertex) {
+				this.updatePosition((VertexRecord) tr.getFirstVertex(), tr, dx, dy, updatedElements, tracks);
+			}
+			if(tr.getSecondVertex() instanceof Vertex) {
+				this.updatePosition((VertexRecord) tr.getSecondVertex(), tr, dx, dy, updatedElements, tracks);
+			}
 		}
 
 		return true;

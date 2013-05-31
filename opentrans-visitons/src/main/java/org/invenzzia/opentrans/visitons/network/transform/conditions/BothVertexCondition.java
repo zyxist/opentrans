@@ -18,7 +18,7 @@
 package org.invenzzia.opentrans.visitons.network.transform.conditions;
 
 import com.google.common.base.Preconditions;
-import org.invenzzia.opentrans.visitons.network.VertexRecord;
+import org.invenzzia.opentrans.visitons.network.IVertexRecord;
 import org.invenzzia.opentrans.visitons.network.transform.TransformInput;
 
 /**
@@ -27,9 +27,9 @@ import org.invenzzia.opentrans.visitons.network.transform.TransformInput;
  * @author Tomasz Jędrzejewski
  */
 public class BothVertexCondition implements ICondition<TransformInput> {
-	private final ICondition<VertexRecord> condition;
+	private final ICondition<IVertexRecord> condition;
 	
-	public BothVertexCondition(ICondition<VertexRecord> condition) {
+	public BothVertexCondition(ICondition<IVertexRecord> condition) {
 		this.condition = Preconditions.checkNotNull(condition);
 	}
 

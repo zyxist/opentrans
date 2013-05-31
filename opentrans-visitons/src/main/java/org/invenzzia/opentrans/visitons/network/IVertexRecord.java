@@ -85,6 +85,15 @@ public interface IVertexRecord extends IIdentifiable {
 	 */
 	public boolean areTangentsOK();
 	/**
+	 * Sets the tangent for the specified track. Before applying this method, the
+	 * user must ensure that the operation won't break the tangent condition.
+	 * 
+	 * @param tr
+	 * @param tangent
+	 * @return Fluent interface.
+	 */
+	public VertexRecord setTangentFor(TrackRecord tr, double tangent);
+	/**
 	 * @return True, if there are two tracks connected to this vertex.
 	 */
 	public boolean hasAllTracks();
@@ -100,4 +109,65 @@ public interface IVertexRecord extends IIdentifiable {
 	 * If only one track is connected, the method returns it.
 	 */
 	public TrackRecord getTrack();
+	/**
+	 * Returns the track record connected to this vertex. Note that the track may not be imported
+	 * from the world model. In this case, this method would return <strong>null</strong>, but the
+	 * ID of the connected track could be obtained with {@link #getFirstTrackId()}. To extract the ID
+	 * of the connected track regardless of the storage method, use {@link #getFirstTrackActualId()}.
+	 * 
+	 * @return First track record.
+	 */
+	public TrackRecord getFirstTrack();
+	/**
+	 * Returns the track record connected to this vertex. Note that the track may not be imported
+	 * from the world model. In this case, this method would return <strong>null</strong>, but the
+	 * ID of the connected track could be obtained with {@link #getSecondTrackId()}. To extract the ID
+	 * of the connected track regardless of the storage method, use {@link #getSecondTrackActualId()}.
+	 * 
+	 * @return Second track record.
+	 */
+	public TrackRecord getSecondTrack();
+	/**
+	 * Returns the unimported track ID. See note to {@link #getFirstTrack()}.
+	 * 
+	 * @return ID of the first track, which is unimported from the world model.
+	 */
+	public long getFirstTrackId();
+	/**
+	 * Returns the unimported track ID. See note to {@link #getSecondTrack()}.
+	 * 
+	 * @return ID of the second track, which is unimported from the world model.
+	 */
+	public long getSecondTrackId();
+	/**
+	 * Returns the track ID regardless of the storage method. See note to {@link #getFirstTrack()}.
+	 * 
+	 * @return ID of the first track.
+	 */
+	public long getFirstTrackActualId();
+	/**
+	 * Returns the track ID regardless of the storage method. See note to {@link #getSecondTrack()}.
+	 * 
+	 * @return ID of the second track.
+	 */
+	public long getSecondTrackActualId();
+	/**
+	 * Returns true, if there are some unimported tracks connected to this vertex.
+	 * 
+	 * @return 
+	 */
+	public boolean hasUnimportedTracks();
+	/**
+	 * Tracks must know, how to remove themselves from the vertex.
+	 * 
+	 * @param track 
+	 */
+	public void removeTrack(TrackRecord track);
+	/**
+	 * This method is used while importing the track. It replaces the ID-based reference
+	 * with the newly imported track.
+	 * 
+	 * @param tr 
+	 */
+	public void replaceReferenceWithRecord(TrackRecord tr);
 }

@@ -21,6 +21,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import java.util.Collection;
 import org.invenzzia.helium.data.interfaces.IIdentifiable;
+import org.invenzzia.opentrans.visitons.network.IVertexRecord;
 import org.invenzzia.opentrans.visitons.network.VertexRecord;
 import org.invenzzia.opentrans.visitons.network.World;
 
@@ -34,9 +35,9 @@ public class DefaultRecordImporter implements IRecordImporter {
 	private Provider<World> worldProvider;
 	
 	@Override
-	public void importAllMissingNeighbors(NetworkUnitOfWork populatedUnit, Collection<VertexRecord> vertices) {
+	public void importAllMissingNeighbors(NetworkUnitOfWork populatedUnit, Collection<IVertexRecord> vertices) {
 		World world = this.worldProvider.get();
-		for(VertexRecord rec: vertices) {
+		for(IVertexRecord rec: vertices) {
 			if(null != rec) {
 				this.processSingleRecord(populatedUnit, world, rec);
 			}
@@ -44,16 +45,16 @@ public class DefaultRecordImporter implements IRecordImporter {
 	}
 	
 	@Override
-	public void importAllMissingNeighbors(NetworkUnitOfWork populatedUnit, VertexRecord ... vertices) {
+	public void importAllMissingNeighbors(NetworkUnitOfWork populatedUnit, IVertexRecord ... vertices) {
 		World world = this.worldProvider.get();
-		for(VertexRecord rec: vertices) {
+		for(IVertexRecord rec: vertices) {
 			if(null != rec) {
 				this.processSingleRecord(populatedUnit, world, rec);
 			}
 		}
 	}
 	
-	private void processSingleRecord(NetworkUnitOfWork populatedUnit, World world, VertexRecord rec) {
+	private void processSingleRecord(NetworkUnitOfWork populatedUnit, World world, IVertexRecord rec) {
 		if(rec.getFirstTrack() == null && rec.getFirstTrackId() != IIdentifiable.NEUTRAL_ID) {
 			populatedUnit.importTrack(world, rec.getFirstTrackId());
 		}
@@ -63,19 +64,19 @@ public class DefaultRecordImporter implements IRecordImporter {
 	}
 
 	@Override
-	public void importMissingNeighboursSmarter(NetworkUnitOfWork populatedUnit, VertexRecord rootVertex) {
+	public void importMissingNeighboursSmarter(NetworkUnitOfWork populatedUnit, IVertexRecord rootVertex) {
 		World world = this.worldProvider.get();
 		this.processSingleRecord(populatedUnit, world, rootVertex);
 		
 		// Oh, it turns out that this 'smartness' does not have to be so smart. I like simplicity.
 		if(null != rootVertex.getFirstTrack()) {
-			VertexRecord lev1a = rootVertex.getFirstTrack().getOppositeVertex(rootVertex);
+			IVertexRecord lev1a = rootVertex.getFirstTrack().getOppositeVertex(rootVertex);
 			if(lev1a.hasAllTracks()) {
 				this.processSingleRecord(populatedUnit, world, lev1a);
 			}
 		}
 		if(null != rootVertex.getSecondTrack()) {
-			VertexRecord lev1b = rootVertex.getSecondTrack().getOppositeVertex(rootVertex);
+			IVertexRecord lev1b = rootVertex.getSecondTrack().getOppositeVertex(rootVertex);
 			if(lev1b.hasAllTracks()) {
 				this.processSingleRecord(populatedUnit, world, lev1b);
 			}

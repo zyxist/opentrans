@@ -27,6 +27,8 @@ import org.invenzzia.helium.history.ICommandDetails;
 import org.invenzzia.opentrans.visitons.Project;
 import org.invenzzia.opentrans.visitons.editing.ICommand;
 import org.invenzzia.opentrans.visitons.events.WorldSegmentUsageChangedEvent;
+import org.invenzzia.opentrans.visitons.network.IVertex;
+import org.invenzzia.opentrans.visitons.network.IVertexRecord;
 import org.invenzzia.opentrans.visitons.network.Track;
 import org.invenzzia.opentrans.visitons.network.TrackRecord;
 import org.invenzzia.opentrans.visitons.network.Vertex;
@@ -128,9 +130,9 @@ public class NetworkLayoutChangeCmd implements ICommand, ICommandDetails {
 	 */
 	private NetworkUnitOfWork buildMemento(World world, NetworkUnitOfWork sourceUnit) {
 		NetworkUnitOfWork memento = new NetworkUnitOfWork();
-		Iterator<VertexRecord> vri = this.uw.overVertices();
+		Iterator<IVertexRecord> vri = this.uw.overVertices();
 		while(vri.hasNext()) {
-			VertexRecord vr = vri.next();
+			IVertexRecord vr = vri.next();
 			if(vr.isPersisted()) {
 				memento.importVertex(world, vr.getId());
 			}
@@ -173,9 +175,9 @@ public class NetworkLayoutChangeCmd implements ICommand, ICommandDetails {
 	 */
 	private void applyUnit(Project project, EventBus eventBus, NetworkUnitOfWork unit) {
 		World dieWelt = project.getWorld(); // Deutschland ist ein schones Land :)
-		Iterator<VertexRecord> vri = unit.overVertices();
+		Iterator<IVertexRecord> vri = unit.overVertices();
 		while(vri.hasNext()) {
-			VertexRecord vr = vri.next();
+			IVertexRecord vr = vri.next();
 			this.importVertex(vr, project);
 		}
 		Iterator<TrackRecord> tri = unit.overTracks();
@@ -185,7 +187,7 @@ public class NetworkLayoutChangeCmd implements ICommand, ICommandDetails {
 		}
 		vri = unit.overVertices();
 		while(vri.hasNext()) {
-			VertexRecord vr = vri.next();
+			IVertexRecord vr = vri.next();
 			this.importVertexConnections(vr, dieWelt);
 		}
 		
@@ -202,7 +204,7 @@ public class NetworkLayoutChangeCmd implements ICommand, ICommandDetails {
 			}
 		}
 		for(Long removedVertexId: unit.getRemovedVertices()) {
-			Vertex v = dieWelt.findVertex(removedVertexId);
+			IVertex v = dieWelt.findVertex(removedVertexId);
 			if(null != v) {
 				dieWelt.removeVertex(v);
 			}
@@ -216,12 +218,19 @@ public class NetworkLayoutChangeCmd implements ICommand, ICommandDetails {
 	 * @param vr 
 	 * @param project
 	 */
-	private void importVertex(VertexRecord vr, Project project) {
+	private void importVertex(IVertexRecord vr, Project project) {
 		if(vr.getId() < IIdentifiable.NEUTRAL_ID) {
 			// New vertex
 			Long tempId = vr.getId();
-			Vertex vertex = new Vertex();
-			vertex.importFrom(vr, project.getWorld());
+			IVertex vertex;
+			if(vr instanceof VertexRecord) {
+				Vertex theVertex = new Vertex();
+				theVertex.importFrom((VertexRecord)vr, project.getWorld());
+				vertex = theVertex;
+			} else {
+				throw new UnsupportedOperationException("Junctions not supported yet.");
+			}
+
 			
 			if(this.vertexMapping.containsKey(tempId)) {
 				vertex.setId(this.vertexMapping.get(tempId));
@@ -232,14 +241,19 @@ public class NetworkLayoutChangeCmd implements ICommand, ICommandDetails {
 			}
 		} else {
 			// Existing vertex
-			Vertex vertex = project.getWorld().findVertex(vr.getId());
-			if(null == vertex) {
-				vertex = new Vertex();
-				vertex.importFrom(vr, project.getWorld());
-				vertex.setId(vr.getId());
-				project.getWorld().addVertex(vertex);
+			IVertex vertex = project.getWorld().findVertex(vr.getId());
+			if(vr instanceof VertexRecord) {
+				Vertex theVertex = (Vertex) vertex;
+				if(null == theVertex) {
+					theVertex = new Vertex();
+					theVertex.importFrom((VertexRecord)vr, project.getWorld());
+					theVertex.setId(vr.getId());
+					project.getWorld().addVertex(theVertex);
+				} else {
+					theVertex.importFrom((VertexRecord)vr, project.getWorld());
+				}
 			} else {
-				vertex.importFrom(vr, project.getWorld());
+				throw new UnsupportedOperationException("Junctions not implemented yet.");
 			}
 		}
 	}
@@ -268,8 +282,8 @@ public class NetworkLayoutChangeCmd implements ICommand, ICommandDetails {
 		}
 	}
 
-	private void importVertexConnections(VertexRecord vr, World world) {
-		Vertex vertex;
+	private void importVertexConnections(IVertexRecord vr, World world) {
+		IVertex vertex;
 		if(vr.getId() < IIdentifiable.NEUTRAL_ID) {
 			vertex = world.findVertex(this.vertexMapping.get(vr.getId()));
 		} else {

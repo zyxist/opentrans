@@ -26,6 +26,7 @@ import org.invenzzia.opentrans.visitons.Project;
 import org.invenzzia.opentrans.visitons.bindings.ActualImporter;
 import org.invenzzia.opentrans.visitons.editing.ICommand;
 import org.invenzzia.opentrans.visitons.editing.network.NetworkLayoutChangeCmd;
+import org.invenzzia.opentrans.visitons.network.IVertexRecord;
 import org.invenzzia.opentrans.visitons.network.TrackRecord;
 import org.invenzzia.opentrans.visitons.network.VertexRecord;
 import org.invenzzia.opentrans.visitons.network.World;
@@ -153,7 +154,7 @@ public abstract class AbstractTrackModeAPI {
 	 * @param tr
 	 * @param vr 
 	 */
-	protected void addForIgnoring(TrackRecord tr, VertexRecord vr) {
+	protected void addForIgnoring(TrackRecord tr, IVertexRecord vr) {
 		this.sceneManager.updateResource(IgnoreHoverSnapshot.class, new IgnoreHoverSnapshot(tr, vr));
 	}
 	

@@ -17,9 +17,9 @@
 
 package org.invenzzia.opentrans.visitons.network.transform.conditions;
 
+import org.invenzzia.opentrans.visitons.network.IVertexRecord;
 import org.invenzzia.opentrans.visitons.network.TrackRecord;
 import org.invenzzia.opentrans.visitons.network.VertexRecord;
-import org.invenzzia.opentrans.visitons.network.transform.TransformInput;
 
 /**
  * Helper class for spawning condition objects in DSL-like manner.
@@ -94,15 +94,15 @@ public class Conditions {
 		return new OpenTrackCondition();
 	}
 	
-	public static SingleVertexCondition vertex(ICondition<VertexRecord> condition) {
+	public static SingleVertexCondition vertex(ICondition<IVertexRecord> condition) {
 		return new SingleVertexCondition(condition, 1);
 	}
 	
-	public static SingleVertexCondition secondVertex(ICondition<VertexRecord> condition) {
+	public static SingleVertexCondition secondVertex(ICondition<IVertexRecord> condition) {
 		return new SingleVertexCondition(condition, 2);
 	}
 	
-	public static BothVertexCondition bothVertices(ICondition<VertexRecord> condition) {
+	public static BothVertexCondition bothVertices(ICondition<IVertexRecord> condition) {
 		return new BothVertexCondition(condition);
 	}
 	

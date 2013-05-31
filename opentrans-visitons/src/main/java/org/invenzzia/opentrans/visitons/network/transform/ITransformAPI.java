@@ -17,6 +17,7 @@
 
 package org.invenzzia.opentrans.visitons.network.transform;
 
+import org.invenzzia.opentrans.visitons.network.IVertexRecord;
 import org.invenzzia.opentrans.visitons.network.TrackRecord;
 import org.invenzzia.opentrans.visitons.network.VertexRecord;
 import org.invenzzia.opentrans.visitons.network.WorldRecord;
@@ -93,7 +94,7 @@ public interface ITransformAPI {
 	 * @param v1 First vertex: connected just to a curve.
 	 * @param v2 Second vertex: between curved and straight track.
 	 */
-	public boolean matchStraightTrackAndCurve(TrackRecord curvedTrack, TrackRecord straightTrack, VertexRecord v1, VertexRecord v2);
+	public boolean matchStraightTrackAndCurve(TrackRecord curvedTrack, TrackRecord straightTrack, IVertexRecord v1, VertexRecord v2);
 	/**
 	 * Sometimes we have a free position, and we want to cast it to some tangent, in order to apply
 	 * the new positions of the vertex.

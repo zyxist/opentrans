@@ -60,7 +60,7 @@ public class SnapTrackToTrack extends AbstractOperation {
 		return new IOperationCase() {
 			@Override
 			public void execute(TransformInput input, ITransformAPI api) {
-				VertexRecord newVertex = api.getUnitOfWork().connectVertices(input.v1, input.v2);
+				VertexRecord newVertex = api.getUnitOfWork().connectVertices(input.v1(), input.v2());
 				TrackRecord curvedTrack = newVertex.getOppositeTrack(input.t1);
 				api.matchStraightTrackAndCurve(curvedTrack, input.t1, curvedTrack.getOppositeVertex(newVertex), newVertex);
 			}

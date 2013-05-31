@@ -53,15 +53,15 @@ public class ConvertToStraightTrack extends AbstractOperation {
 		return new IOperationCase() {
 			@Override
 			public void execute(TransformInput input, ITransformAPI api) {
-				TrackRecord firstTrack = (input.t1.getFirstVertex().hasAllTracks() ? input.t1.getFirstVertex().getOppositeTrack(input.t1) : null);
-				TrackRecord secondTrack = (input.t1.getSecondVertex().hasAllTracks() ? input.t1.getSecondVertex().getOppositeTrack(input.t1) : null);
+				TrackRecord firstTrack = (input.t1.getFirstVertex().hasAllTracks() ? ((VertexRecord)input.t1.getFirstVertex()).getOppositeTrack(input.t1) : null);
+				TrackRecord secondTrack = (input.t1.getSecondVertex().hasAllTracks() ? ((VertexRecord)input.t1.getSecondVertex()).getOppositeTrack(input.t1) : null);
 				
 				StateReverter reverter = new StateReverter();
 				reverter.remember(firstTrack);
 				reverter.remember(secondTrack);
 				reverter.remember(input.t1);
-				reverter.remember(input.t1.getFirstVertex());
-				reverter.remember(input.t1.getSecondVertex());
+				reverter.remember((VertexRecord)input.t1.getFirstVertex());
+				reverter.remember((VertexRecord)input.t1.getSecondVertex());
 				
 				input.t1.setType(NetworkConst.TRACK_STRAIGHT);
 				api.calculateStraightLine(input.t1);
@@ -71,9 +71,9 @@ public class ConvertToStraightTrack extends AbstractOperation {
 					if(firstTrack.getType() == NetworkConst.TRACK_FREE) {
 						api.calculateFreeCurve(firstTrack);
 					} else {
-						VertexRecord vr = input.t1.getVertexTo(firstTrack);
-						VertexRecord stv = input.t1.getOppositeVertex(vr);
-						VertexRecord cuv = firstTrack.getOppositeVertex(vr);
+						VertexRecord vr = (VertexRecord)input.t1.getVertexTo(firstTrack);
+						VertexRecord stv = (VertexRecord)input.t1.getOppositeVertex(vr);
+						VertexRecord cuv = (VertexRecord)firstTrack.getOppositeVertex(vr);
 						api.curveFollowsStraightTrack(stv, vr, cuv);
 					}
 				}
@@ -81,9 +81,9 @@ public class ConvertToStraightTrack extends AbstractOperation {
 					if(secondTrack.getType() == NetworkConst.TRACK_FREE) {
 						api.calculateFreeCurve(secondTrack);
 					} else {
-						VertexRecord vr = input.t1.getVertexTo(secondTrack);
-						VertexRecord stv = input.t1.getOppositeVertex(vr);
-						VertexRecord cuv = secondTrack.getOppositeVertex(vr);
+						VertexRecord vr = (VertexRecord)input.t1.getVertexTo(secondTrack);
+						VertexRecord stv = (VertexRecord)input.t1.getOppositeVertex(vr);
+						VertexRecord cuv = (VertexRecord)secondTrack.getOppositeVertex(vr);
 						api.curveFollowsStraightTrack(stv, vr, cuv);
 					}
 				}

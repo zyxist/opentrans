@@ -120,7 +120,7 @@ public class ExtendTrack extends AbstractOperation {
 		TrackRecord tr = new TrackRecord();
 		tr.setVertices(newVertex, input.v1);	
 		newVertex.addTrack(tr);
-		input.v1.addTrack(tr);
+		input.v1().addTrack(tr);
 		
 		input.v1.setTangentFor(tr, openTangent);
 		newVertex.setTangentFor(tr, Geometry.normalizeAngle(openTangent + Math.PI));

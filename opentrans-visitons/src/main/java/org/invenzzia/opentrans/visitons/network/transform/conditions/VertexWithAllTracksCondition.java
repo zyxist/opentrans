@@ -17,16 +17,16 @@
 
 package org.invenzzia.opentrans.visitons.network.transform.conditions;
 
-import org.invenzzia.opentrans.visitons.network.VertexRecord;
+import org.invenzzia.opentrans.visitons.network.IVertexRecord;
 
 /**
  * Checks if the vertex has both track slots occupied.
  * 
  * @author Tomasz Jędrzejewski
  */
-public class VertexWithAllTracksCondition implements ICondition<VertexRecord> {
+public class VertexWithAllTracksCondition implements ICondition<IVertexRecord> {
 	@Override
-	public boolean matches(VertexRecord input) {
+	public boolean matches(IVertexRecord input) {
 		return input.hasAllTracks();
 	}
 }

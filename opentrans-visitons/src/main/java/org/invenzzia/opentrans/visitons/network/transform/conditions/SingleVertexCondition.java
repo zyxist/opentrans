@@ -18,7 +18,7 @@
 package org.invenzzia.opentrans.visitons.network.transform.conditions;
 
 import com.google.common.base.Preconditions;
-import org.invenzzia.opentrans.visitons.network.VertexRecord;
+import org.invenzzia.opentrans.visitons.network.IVertexRecord;
 import org.invenzzia.opentrans.visitons.network.transform.TransformInput;
 
 /**
@@ -27,10 +27,10 @@ import org.invenzzia.opentrans.visitons.network.transform.TransformInput;
  * @author Tomasz Jędrzejewski
  */
 public class SingleVertexCondition implements ICondition<TransformInput> {
-	private final ICondition<VertexRecord> condition;
+	private final ICondition<IVertexRecord> condition;
 	private final int which;
 	
-	public SingleVertexCondition(ICondition<VertexRecord> condition, int which) {
+	public SingleVertexCondition(ICondition<IVertexRecord> condition, int which) {
 		this.condition = Preconditions.checkNotNull(condition);
 		this.which = which;
 	}

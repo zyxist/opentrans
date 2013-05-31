@@ -21,7 +21,7 @@ import com.google.inject.Inject;
 import java.util.Collection;
 import org.invenzzia.opentrans.lightweight.annotations.InModelThread;
 import org.invenzzia.opentrans.visitons.bindings.DefaultImporter;
-import org.invenzzia.opentrans.visitons.network.VertexRecord;
+import org.invenzzia.opentrans.visitons.network.IVertexRecord;
 import org.invenzzia.opentrans.visitons.network.transform.IRecordImporter;
 import org.invenzzia.opentrans.visitons.network.transform.NetworkUnitOfWork;
 
@@ -38,23 +38,23 @@ public class ConcurrentRecordImporter implements IRecordImporter {
 
 	@Override
 	@InModelThread(asynchronous = false)
-	public void importAllMissingNeighbors(NetworkUnitOfWork populatedUnit, VertexRecord... vertices) {
+	public void importAllMissingNeighbors(NetworkUnitOfWork populatedUnit, IVertexRecord... vertices) {
 		this.defaultImporter.importAllMissingNeighbors(populatedUnit, vertices);
 	}
 
 	@Override
 	@InModelThread(asynchronous = false)
-	public void importAllMissingNeighbors(NetworkUnitOfWork populatedUnit, Collection<VertexRecord> vertices) {
+	public void importAllMissingNeighbors(NetworkUnitOfWork populatedUnit, Collection<IVertexRecord> vertices) {
 		this.defaultImporter.importAllMissingNeighbors(populatedUnit, vertices);
 	}
 
 	@Override
-	public void importMissingNeighboursSmarter(NetworkUnitOfWork populatedUnit, VertexRecord rootVertex) {
+	public void importMissingNeighboursSmarter(NetworkUnitOfWork populatedUnit, IVertexRecord rootVertex) {
 		this.delegateImporting(populatedUnit, rootVertex);
 	}
 	
 	@InModelThread(asynchronous = false)
-	private void delegateImporting(NetworkUnitOfWork populatedUnit, VertexRecord rootVertex) {
+	private void delegateImporting(NetworkUnitOfWork populatedUnit, IVertexRecord rootVertex) {
 		this.defaultImporter.importMissingNeighboursSmarter(populatedUnit, rootVertex);
 	}
 }

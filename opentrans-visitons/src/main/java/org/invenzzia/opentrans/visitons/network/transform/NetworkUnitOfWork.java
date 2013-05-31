@@ -25,13 +25,14 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import org.invenzzia.helium.data.interfaces.IIdentifiable;
+import org.invenzzia.opentrans.visitons.network.IVertex;
+import org.invenzzia.opentrans.visitons.network.IVertexRecord;
 import org.invenzzia.opentrans.visitons.network.NetworkConst;
 import org.invenzzia.opentrans.visitons.network.Track;
 import org.invenzzia.opentrans.visitons.network.TrackRecord;
 import org.invenzzia.opentrans.visitons.network.Vertex;
 import org.invenzzia.opentrans.visitons.network.VertexRecord;
 import org.invenzzia.opentrans.visitons.network.World;
-import org.invenzzia.opentrans.visitons.network.objects.TrackObject;
 import org.invenzzia.opentrans.visitons.network.objects.TrackObject.TrackObjectRecord;
 import org.invenzzia.opentrans.visitons.render.SceneManager;
 import org.invenzzia.opentrans.visitons.render.painters.CurvedTrackPainter;
@@ -56,7 +57,7 @@ public class NetworkUnitOfWork {
 	/**
 	 * List of vertices modified or added in this session.
 	 */
-	private Map<Long, VertexRecord> vertices;
+	private Map<Long, IVertexRecord> vertices;
 	/**
 	 * Removed existing tracks - to be deleted from the world model.
 	 */
@@ -141,7 +142,7 @@ public class NetworkUnitOfWork {
 	 * @param vertex
 	 * @return Fluent interface.
 	 */
-	public NetworkUnitOfWork addVertex(VertexRecord vertex) {
+	public NetworkUnitOfWork addVertex(IVertexRecord vertex) {
 		if(vertex.getId() == IIdentifiable.NEUTRAL_ID) {
 			vertex.setId(this.nextVertexId--);
 		}
@@ -155,7 +156,7 @@ public class NetworkUnitOfWork {
 	 * @param id Vertex ID to find.
 	 * @return Vertex record with this ID or null.
 	 */
-	public VertexRecord findVertex(long id) {
+	public IVertexRecord findVertex(long id) {
 		return this.vertices.get(id);
 	}
 	
@@ -177,12 +178,12 @@ public class NetworkUnitOfWork {
 	 * @param vertex Source vertex.
 	 * @return Importex or existing track record.
 	 */
-	public VertexRecord importVertex(World world, Vertex vertex) {
-		VertexRecord record = this.vertices.get(Long.valueOf(vertex.getId()));
+	public IVertexRecord importVertex(World world, IVertex vertex) {
+		IVertexRecord record = this.vertices.get(Long.valueOf(vertex.getId()));
 		if(null != record) {
 			return record;
 		}
-		record = new VertexRecord(vertex);
+		record = vertex.createRecord();
 		this.vertices.put(Long.valueOf(vertex.getId()), record);
 		this.commonVertexImport(world, vertex, record);
 		return record;
@@ -197,13 +198,13 @@ public class NetworkUnitOfWork {
 	 * @param vertexId
 	 * @return Importex or existing track record.
 	 */
-	public VertexRecord importVertex(World world, long vertexId) {
-		VertexRecord record = this.vertices.get(Long.valueOf(vertexId));
+	public IVertexRecord importVertex(World world, long vertexId) {
+		IVertexRecord record = this.vertices.get(Long.valueOf(vertexId));
 		if(null != record) {
 			return record;
 		}
-		Vertex vertex = world.findVertex(vertexId);
-		record = new VertexRecord(vertex);
+		IVertex vertex = world.findVertex(vertexId);
+		record = vertex.createRecord();
 		this.vertices.put(Long.valueOf(vertex.getId()), record);
 		this.commonVertexImport(world, vertex, record);
 		
@@ -217,10 +218,10 @@ public class NetworkUnitOfWork {
 	 * @param vertex
 	 * @param record 
 	 */
-	private void commonVertexImport(World world, Vertex vertex, VertexRecord record) {
+	private void commonVertexImport(World world, IVertex vertex, IVertexRecord record) {
 		if(null != vertex.getFirstTrack()) {
-			Vertex another = vertex.getFirstTrack().getOppositeVertex(vertex);
-			VertexRecord anotherRecord = this.vertices.get(Long.valueOf(another.getId()));
+			IVertex another = vertex.getFirstTrack().getOppositeVertex(vertex);
+			IVertexRecord anotherRecord = this.vertices.get(Long.valueOf(another.getId()));
 			if(null != anotherRecord) {
 				TrackRecord tr = this.importTrack(world, vertex.getFirstTrack().getId());
 				record.replaceReferenceWithRecord(tr);
@@ -228,8 +229,8 @@ public class NetworkUnitOfWork {
 			}
 		}
 		if(null != vertex.getSecondTrack()) {
-			Vertex another = vertex.getSecondTrack().getOppositeVertex(vertex);
-			VertexRecord anotherRecord = this.vertices.get(Long.valueOf(another.getId()));
+			IVertex another = vertex.getSecondTrack().getOppositeVertex(vertex);
+			IVertexRecord anotherRecord = this.vertices.get(Long.valueOf(another.getId()));
 			if(null != anotherRecord) {
 				TrackRecord tr = this.importTrack(world, vertex.getSecondTrack().getId());
 				record.replaceReferenceWithRecord(tr);
@@ -253,7 +254,7 @@ public class NetworkUnitOfWork {
 			return record;
 		}
 		Track track = world.findTrack(trackId);
-		VertexRecord v1, v2;
+		IVertexRecord v1, v2;
 		record = new TrackRecord(track);
 		this.tracks.put(trackId, record);
 		record.setVertices(
@@ -283,7 +284,7 @@ public class NetworkUnitOfWork {
 		if(null != record) {
 			return record;
 		}
-		VertexRecord v1, v2;
+		IVertexRecord v1, v2;
 		record = new TrackRecord(track);
 		this.tracks.put(track.getId(), record);
 		record.setVertices(
@@ -309,8 +310,8 @@ public class NetworkUnitOfWork {
 	 */
 	public void removeTrack(TrackRecord track) {
 		Preconditions.checkNotNull(track, "The specified track to remove is NULL.");
-		VertexRecord firstVertex = track.getFirstVertex();
-		VertexRecord secondVertex = track.getSecondVertex();
+		IVertexRecord firstVertex = track.getFirstVertex();
+		IVertexRecord secondVertex = track.getSecondVertex();
 		firstVertex.removeTrack(track);
 		secondVertex.removeTrack(track);
 		if(firstVertex.hasNoTracks()) {
@@ -333,7 +334,7 @@ public class NetworkUnitOfWork {
 	 * 
 	 * @param vertex 
 	 */
-	public void removeVertex(VertexRecord vertex) {
+	public void removeVertex(IVertexRecord vertex) {
 		Preconditions.checkNotNull(vertex, "The specified vertex to remove is NULL.");
 		Preconditions.checkArgument(!vertex.hasUnimportedTracks(), "The vertex to remove must not have unimported tracks!");
 		if(vertex.getFirstTrack() != null) {
@@ -402,7 +403,7 @@ public class NetworkUnitOfWork {
 		return this.tracks.values().iterator();
 	}
 	
-	public Iterator<VertexRecord> overVertices() {
+	public Iterator<IVertexRecord> overVertices() {
 		return this.vertices.values().iterator();
 	}
 	
@@ -465,7 +466,7 @@ public class NetworkUnitOfWork {
 		//double tangents2[] = new double[this.vertices.size()];
 		// /DEBUG
 		
-		for(VertexRecord rec: this.vertices.values()) {
+		for(IVertexRecord rec: this.vertices.values()) {
 			points[i++] = rec.x();
 			points[i++] = rec.y();
 			ids[j] = rec.getId();

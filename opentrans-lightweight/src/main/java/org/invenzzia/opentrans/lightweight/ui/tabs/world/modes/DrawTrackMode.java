@@ -26,6 +26,8 @@ import org.invenzzia.opentrans.lightweight.ui.tabs.world.AbstractEditState;
 import org.invenzzia.opentrans.lightweight.ui.tabs.world.AbstractStateMachineEditMode;
 import org.invenzzia.opentrans.lightweight.ui.tabs.world.IEditModeAPI;
 import org.invenzzia.opentrans.visitons.Project;
+import org.invenzzia.opentrans.visitons.network.IVertex;
+import org.invenzzia.opentrans.visitons.network.IVertexRecord;
 import org.invenzzia.opentrans.visitons.network.NetworkConst;
 import org.invenzzia.opentrans.visitons.network.TrackRecord;
 import org.invenzzia.opentrans.visitons.network.Vertex;
@@ -97,36 +99,37 @@ public class DrawTrackMode extends AbstractStateMachineEditMode {
 	
 	@InModelThread(asynchronous = false)
 	public boolean importFreeVertex(final Project project, long vertexId) {
-		Vertex vertex = project.getWorld().findVertex(vertexId);
+		IVertex vertex = project.getWorld().findVertex(vertexId);
 		if(vertex.hasAllTracks()) {
 			return false;
 		}
 		if(!this.hasUnitOfWork()) {
 			this.createUnitOfWork();
 		}
-		this.boundVertex = currentUnit.importVertex(project.getWorld(), vertex);		
+		// This is always true - the previous condition will cut off junctions.
+		this.boundVertex = (VertexRecord) currentUnit.importVertex(project.getWorld(), vertex);		
 		return true;
 	}
 	
 	@InModelThread(asynchronous = false)
 	public VertexRecord importSingleVertex(final World world, long vertexId) {
 		if(vertexId < IIdentifiable.NEUTRAL_ID) {
-			VertexRecord vr = currentUnit.findVertex(vertexId);
+			IVertexRecord vr = currentUnit.findVertex(vertexId);
 			if(vr.hasAllTracks()) {
 				return null;
 			}
-			return vr;
+			return (VertexRecord) vr;
 		}
-		Vertex vertex = world.findVertex(vertexId);
+		IVertex vertex = world.findVertex(vertexId);
 		if(vertex.hasAllTracks()) {
 			return null;
 		}
 		if(!this.hasUnitOfWork()) {
 			this.createUnitOfWork();
 		}
-		VertexRecord vr = currentUnit.importVertex(world, vertex);
+		IVertexRecord vr = currentUnit.importVertex(world, vertex);
 		currentUnit.importTrack(world, vertex.getTrack());
-		return vr;
+		return (VertexRecord) vr;
 	}
 
 	@Override

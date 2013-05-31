@@ -56,7 +56,7 @@ public final class Segment {
 	/**
 	 * Vertices within this segment.
 	 */
-	private Set<Vertex> vertices = new LinkedHashSet<>();
+	private Set<IVertex> vertices = new LinkedHashSet<>();
 	
 	public Segment() {
 	}
@@ -122,7 +122,7 @@ public final class Segment {
 	 * @param vertex
 	 * @return Fluent interface.
 	 */
-	void addVertex(Vertex vertex) {
+	void addVertex(IVertex vertex) {
 		Preconditions.checkNotNull(vertex, "Attempt to add an empty vertex to the segment.");
 		this.vertices.add(vertex);
 	}
@@ -132,7 +132,7 @@ public final class Segment {
 	 * 
 	 * @param vertex 
 	 */
-	void removeVertex(Vertex vertex) {
+	void removeVertex(IVertex vertex) {
 		Preconditions.checkNotNull(vertex, "Attempt to add an empty vertex to the segment.");
 		this.vertices.remove(vertex);
 	}
@@ -149,7 +149,7 @@ public final class Segment {
 	/**
 	 * @return Iterable for the vertices within this segment.
 	 */
-	Iterable<Vertex> getVertices() {
+	Iterable<IVertex> getVertices() {
 		return this.vertices;
 	}
 }

@@ -49,11 +49,11 @@ public class Track {
 	/**
 	 * First connected vertex.
 	 */
-	private Vertex v1;
+	private IVertex v1;
 	/**
 	 * Second connected vertex.
 	 */
-	private Vertex v2;
+	private IVertex v2;
 	/**
 	 * Track length in world units (metres).
 	 */
@@ -104,11 +104,11 @@ public class Track {
 		return this.metadata;
 	}
 	
-	public Vertex getFirstVertex() {
+	public IVertex getFirstVertex() {
 		return this.v1;
 	}
 	
-	public Vertex getSecondVertex() {
+	public IVertex getSecondVertex() {
 		return this.v2;
 	}
 	
@@ -136,7 +136,7 @@ public class Track {
 	 * @param tested The vertex we know.
 	 * @return The vertex opposite to it.
 	 */
-	public Vertex getOppositeVertex(Vertex tested) {
+	public IVertex getOppositeVertex(IVertex tested) {
 		if(this.v1 == tested) {
 			return this.v2;
 		} else {
@@ -152,7 +152,7 @@ public class Track {
 	 * @param v2 
 	 */
 	@Deprecated
-	public void setVertices(Vertex v1, Vertex v2) {
+	public void setVertices(IVertex v1, IVertex v2) {
 		this.v1 = Preconditions.checkNotNull(v1);
 		this.v2 = Preconditions.checkNotNull(v2);
 	}
@@ -335,7 +335,7 @@ public class Track {
 		
 		this.length = tr.getLength();
 	}
-	
+
 	/**
 	 * Imports the connections to the vertices.
 	 * 

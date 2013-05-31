@@ -22,6 +22,7 @@ import org.invenzzia.opentrans.lightweight.annotations.InModelThread;
 import org.invenzzia.opentrans.lightweight.ui.tabs.world.AbstractEditMode;
 import org.invenzzia.opentrans.lightweight.ui.tabs.world.IEditModeAPI;
 import org.invenzzia.opentrans.visitons.Project;
+import org.invenzzia.opentrans.visitons.network.IVertex;
 import org.invenzzia.opentrans.visitons.network.Vertex;
 import org.invenzzia.opentrans.visitons.network.VertexRecord;
 import org.invenzzia.opentrans.visitons.network.transform.ops.BindVertices;
@@ -67,14 +68,14 @@ public class ConnectTracksMode extends AbstractEditMode {
 	
 	@InModelThread(asynchronous = false)
 	public VertexRecord importFreeVertex(final Project project, long vertexId) {
-		Vertex vertex = project.getWorld().findVertex(vertexId);
+		IVertex vertex = project.getWorld().findVertex(vertexId);
 		if(vertex.hasAllTracks()) {
 			return null;
 		}
 		if(null == this.currentUnit) {
 			this.createUnitOfWork();
 		}
-		return this.currentUnit.importVertex(project.getWorld(), vertex);
+		return (VertexRecord) this.currentUnit.importVertex(project.getWorld(), vertex);
 	}
 	
 	private void resetState() {

@@ -17,6 +17,8 @@
 
 package org.invenzzia.opentrans.visitons.network.transform;
 
+import org.invenzzia.opentrans.visitons.network.IVertexRecord;
+import org.invenzzia.opentrans.visitons.network.JunctionRecord;
 import org.invenzzia.opentrans.visitons.network.TrackRecord;
 import org.invenzzia.opentrans.visitons.network.VertexRecord;
 
@@ -28,13 +30,13 @@ import org.invenzzia.opentrans.visitons.network.VertexRecord;
 public class TransformInput {
 	public TrackRecord t1;
 	public TrackRecord t2;
-	public VertexRecord v1;
-	public VertexRecord v2;
+	public IVertexRecord v1;
+	public IVertexRecord v2;
 	public final double a1;
 	public final double a2;
 	public final byte mode;
 	
-	public TransformInput(TrackRecord t1, TrackRecord t2, VertexRecord v1, VertexRecord v2, double a1, double a2, byte mode) {
+	public TransformInput(TrackRecord t1, TrackRecord t2, IVertexRecord v1, IVertexRecord v2, double a1, double a2, byte mode) {
 		this.t1 = t1;
 		this.t2 = t2;
 		this.v1 = v1;
@@ -44,7 +46,7 @@ public class TransformInput {
 		this.mode = mode;
 	}
 	
-	public TransformInput(TrackRecord t1, TrackRecord t2, VertexRecord v1, VertexRecord v2, byte mode) {
+	public TransformInput(TrackRecord t1, TrackRecord t2, IVertexRecord v1, IVertexRecord v2, byte mode) {
 		this.t1 = t1;
 		this.t2 = t2;
 		this.v1 = v1;
@@ -54,7 +56,7 @@ public class TransformInput {
 		this.mode = mode;
 	}
 	
-	public TransformInput(TrackRecord t1, TrackRecord t2, VertexRecord v1, VertexRecord v2) {
+	public TransformInput(TrackRecord t1, TrackRecord t2, IVertexRecord v1, IVertexRecord v2) {
 		this.t1 = t1;
 		this.t2 = t2;
 		this.v1 = v1;
@@ -62,5 +64,41 @@ public class TransformInput {
 		this.a1 = Double.NaN;
 		this.a2 = Double.NaN;
 		this.mode = 0;
+	}
+	
+	/**
+	 * Syntactic sugar for operations which are known to operate on free vertex records.
+	 * 
+	 * @return 
+	 */
+	public VertexRecord v1() {
+		return (VertexRecord) this.v1;
+	}
+	
+	/**
+	 * Syntactic sugar for operations which are known to operate on free vertex records.
+	 * 
+	 * @return 
+	 */
+	public VertexRecord v2() {
+		return (VertexRecord) this.v2;
+	}
+	
+	/**
+	 * Syntactic sugar for operations which are known to operate on junction vertex records.
+	 * 
+	 * @return 
+	 */
+	public JunctionRecord j1() {
+		return (JunctionRecord) this.v1;
+	}
+	
+	/**
+	 * Syntactic sugar for operations which are known to operate on junction vertex records.
+	 * 
+	 * @return 
+	 */
+	public JunctionRecord j2() {
+		return (JunctionRecord) this.v2;
 	}
 }

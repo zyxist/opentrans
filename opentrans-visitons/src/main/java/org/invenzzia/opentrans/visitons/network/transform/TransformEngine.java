@@ -502,9 +502,7 @@ public class TransformEngine {
 			metadata[9] = tr.getFirstVertex().y();
 			metadata[10] = tr.getSecondVertex().x();
 			metadata[11] = tr.getSecondVertex().y();
-			tan = tr.getFirstVertex().tangentFor(tr);
-			towards = LineOps.getTangent(metadata[8], metadata[9], metadata[10], metadata[11]);
-			metadata[3] = Math.atan2(Math.sin(towards-tan), Math.cos(towards-tan));
+			metadata[3] = tr.getFirstVertex().tangentFor(tr);
 			
 			tr.setMetadata(metadata);
 			
@@ -540,9 +538,7 @@ public class TransformEngine {
 			metadata[9] = tr.getFirstVertex().y();
 			metadata[10] = tr.getSecondVertex().x();
 			metadata[11] = tr.getSecondVertex().y();
-			tan = tr.getFirstVertex().tangentFor(tr);
-			towards = LineOps.getTangent(metadata[8], metadata[9], metadata[10], metadata[11]);
-			metadata[3] = Math.atan2(Math.sin(towards-tan), Math.cos(towards-tan));
+			metadata[3] = tr.getFirstVertex().tangentFor(tr);
 
 			tr.setMetadata(metadata);
 			v1.setTangentFor(tr, Geometry.normalizeAngle(v1.oppositeTangentFor(tr) + Math.PI));

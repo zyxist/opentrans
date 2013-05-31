@@ -103,20 +103,46 @@ public class CurvedTrackPainter implements ITrackPainter {
 		
 		double cx = this.coordinates[6] + this.dx;
 		double cy = this.coordinates[7] + this.dy;
-		double a1 = Geometry.normalizeAngle(-this.coordinates[4]);
+		double a1 = LineOps.getTangent(cx, cy, this.coordinates[8] + this.dx, this.coordinates[9] + this.dy);
+		boolean differentSigns = Math.signum(a1) != Math.signum(this.coordinates[3]);
 		double a3 = LineOps.getTangent(cx, cy, px, py);
-		double t;
-		if(a3 > a1) {
-			a3 -= Math.PI * 2;
+		boolean grows;
+		if(differentSigns) {
+			grows = Geometry.inSecondQuarter(a1) || Geometry.inFourthQuarter(a1);
+		} else {
+			grows = Geometry.inFirstQuarter(a1) || Geometry.inThirdQuarter(a1);
 		}
-		t = Math.abs(a3 - a1);
-	
-		t = ((this.coordinates[3] < 0.0 ? this.coordinates[5] - t : t) / this.coordinates[5]);
+		double t;
+		if(grows) {
+			if(a3 < a1) {
+				a3 += Geometry.PI_2;
+			}
+			t = a3 - a1;
+		} else {
+			if(a3 > a1) {
+				a3 -= Geometry.PI_2;
+			}
+			t = a1 - a3;
+		}	
+		t = (t / this.coordinates[5]);
 		if(t < 0.0) {
 			return 0.0;
 		} else if(t > 1.0) {
 			return 1.0;
 		}
 		return t;
+	}
+	
+	public double[] _gm() {
+		return this.coordinates;
+	}
+	
+	public double _gx() {
+		return this.dx;
+		
+	}
+	
+	public double _gy() {
+		return this.dy;
 	}
 }

@@ -239,8 +239,20 @@ public class Track {
 					this.v1.tangentFor(this)
 				);
 			case NetworkConst.TRACK_CURVED:
-				a = LineOps.getTangent(this.metadata[6], this.metadata[7], this.metadata[8], this.metadata[9]);
-				k = t * this.metadata[5] + (this.metadata[3] > 0.0 ? a : -a);
+				a = LineOps.getTangent(this.metadata[6] + ax, this.metadata[7] + ay, ax, ay);
+				boolean differentSigns = Math.signum(a) != Math.signum(this.metadata[3]);
+				boolean grows;
+				if(differentSigns) {
+					grows = Geometry.inSecondQuarter(a) || Geometry.inFourthQuarter(a);
+				} else {
+					grows = Geometry.inFirstQuarter(a) || Geometry.inThirdQuarter(a);
+				}
+				k = t * this.metadata[5];
+				if(grows) {
+					k = a + k;
+				} else {
+					k = a - k;
+				}
 				return new Characteristics(
 					Math.cos(k) * (this.metadata[2] / 2.0) + this.metadata[6] + ax,
 					Math.sin(k) * (this.metadata[2] / 2.0) + this.metadata[7] + ay,

@@ -24,9 +24,13 @@ import java.awt.Rectangle;
 import java.awt.Stroke;
 import java.util.Map;
 import org.invenzzia.helium.data.interfaces.IIdentifiable;
+import org.invenzzia.opentrans.visitons.geometry.Characteristics;
+import org.invenzzia.opentrans.visitons.geometry.Geometry;
+import org.invenzzia.opentrans.visitons.geometry.LineOps;
 import org.invenzzia.opentrans.visitons.render.CameraModelSnapshot;
 import org.invenzzia.opentrans.visitons.render.HoverCollector;
 import org.invenzzia.opentrans.visitons.render.RenderingStreamAdapter;
+import org.invenzzia.opentrans.visitons.render.painters.CurvedTrackPainter;
 import org.invenzzia.opentrans.visitons.render.painters.ITrackPainter;
 import org.invenzzia.opentrans.visitons.render.scene.AbstractTrackSnapshot;
 import org.invenzzia.opentrans.visitons.render.scene.CommittedTrackSnapshot;
@@ -127,6 +131,7 @@ public class TrackStream extends RenderingStreamAdapter {
 				double t = painter.computePosition(mouse, camera);
 				hoverCollector.registerPosition(t);
 				
+				graphics.setColor(Color.RED);
 				graphics.drawString("POS: "+t, mouse.x() + 30, mouse.y() + 30);
 			}
 			painter.draw(camera, graphics, true);

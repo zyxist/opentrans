@@ -34,7 +34,7 @@ import org.invenzzia.opentrans.visitons.utils.SegmentCoordinate;
  * 
  * @author Tomasz Jędrzejewski
  */
-public class VertexRecord implements ILightMemento {
+public class VertexRecord implements IVertexRecord, ILightMemento {
 	/**
 	 * The unique ID of the vertex. Allows proper mapping to the actual vertices. 
 	 */
@@ -107,6 +107,7 @@ public class VertexRecord implements ILightMemento {
 	 * 
 	 * @return Vertex ID.
 	 */
+	@Override
 	public long getId() {
 		return this.id;
 	}
@@ -117,6 +118,7 @@ public class VertexRecord implements ILightMemento {
 	 * 
 	 * @param id Vertex ID
 	 */
+	@Override
 	public void setId(long id) {
 		if(IIdentifiable.NEUTRAL_ID != this.id) {
 			throw new IllegalStateException("The vertex record ID cannot be changed.");
@@ -130,14 +132,17 @@ public class VertexRecord implements ILightMemento {
 	 * 
 	 * @return True, if this vertex is persisted.
 	 */
+	@Override
 	public boolean isPersisted() {
 		return this.id > IIdentifiable.NEUTRAL_ID;
 	}
 	
+	@Override
 	public double x() {
 		return this.x;
 	}
 	
+	@Override
 	public double y() {
 		return this.y;
 	}
@@ -160,6 +165,7 @@ public class VertexRecord implements ILightMemento {
 	 * 
 	 * @return Tangent in this point.
 	 */
+	@Override
 	public double tangent() {
 		return this.t1;
 	}
@@ -178,6 +184,7 @@ public class VertexRecord implements ILightMemento {
 	 * @param tr Track record.
 	 * @return Tangent for this track.
 	 */
+	@Override
 	public double tangentFor(TrackRecord tr) {
 		if(tr == this.firstTrack) {
 			return this.t1;
@@ -194,6 +201,7 @@ public class VertexRecord implements ILightMemento {
 	 * @param tr
 	 * @return 
 	 */
+	@Override
 	public double oppositeTangentFor(TrackRecord tr) {
 		if(tr == this.firstTrack) {
 			return this.t2;
@@ -210,6 +218,7 @@ public class VertexRecord implements ILightMemento {
 	 * 
 	 * @return The opposite tangent to the one already set.
 	 */
+	@Override
 	public double getOpenTangent() {
 		Preconditions.checkState(this.hasOneTrack(), "This method can be used only for one-track vertices.");
 		if(null != this.firstTrack || this.firstTrackId != IIdentifiable.NEUTRAL_ID) {
@@ -270,6 +279,7 @@ public class VertexRecord implements ILightMemento {
 	 * @param tangent
 	 * @return True, if change is possible and won't break anything.
 	 */
+	@Override
 	public boolean areTangentsOK() {
 		if(!this.hasAllTracks()) {
 			return true;
@@ -277,16 +287,19 @@ public class VertexRecord implements ILightMemento {
 		return Geometry.isZero(this.t1 - Geometry.normalizeAngle(this.t2 + Math.PI));
 	}
 	
+	@Override
 	public boolean hasAllTracks() {
 		return (this.firstTrack != null || this.firstTrackId != IIdentifiable.NEUTRAL_ID) &&
 			(this.secondTrack != null || this.secondTrackId != IIdentifiable.NEUTRAL_ID);
 	}
 	
+	@Override
 	public boolean hasOneTrack() {
 		return (this.firstTrack != null || this.firstTrackId != IIdentifiable.NEUTRAL_ID) ^
 			(this.secondTrack != null || this.secondTrackId != IIdentifiable.NEUTRAL_ID);
 	}
 	
+	@Override
 	public boolean hasNoTracks() {
 		return (this.firstTrack == null && this.firstTrackId == IIdentifiable.NEUTRAL_ID) &&
 			(this.secondTrack == null && this.secondTrackId == IIdentifiable.NEUTRAL_ID);
@@ -348,6 +361,7 @@ public class VertexRecord implements ILightMemento {
 	/**
 	 * If only one track is connected, the method returns it.
 	 */
+	@Override
 	public TrackRecord getTrack() {
 		if(this.firstTrack == null) {
 			return this.secondTrack;

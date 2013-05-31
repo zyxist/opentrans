@@ -23,11 +23,12 @@ import org.invenzzia.helium.data.interfaces.IIdentifiable;
 import org.invenzzia.opentrans.visitons.utils.SegmentCoordinate;
 
 /**
- * Description here.
+ * This is the default implementation of 'free' vertex, which can be
+ * put anywhere.
  * 
  * @author Tomasz Jędrzejewski
  */
-public class Vertex implements IIdentifiable {
+public class Vertex implements IVertex {
 	/**
 	 * Unique numerical identifier of this vertex.
 	 */
@@ -84,6 +85,7 @@ public class Vertex implements IIdentifiable {
 	 * 
 	 * @return 
 	 */
+	@Override
 	public SegmentCoordinate pos() {
 		return this.position;
 	}
@@ -94,6 +96,7 @@ public class Vertex implements IIdentifiable {
 	 * 
 	 * @return Tangent in this point.
 	 */
+	@Override
 	public double tangent() {
 		return this.t1;
 	}
@@ -112,6 +115,7 @@ public class Vertex implements IIdentifiable {
 	 * @param tr Track.
 	 * @return Tangent for this track.
 	 */
+	@Override
 	public double tangentFor(Track tr) {
 		if(tr == this.firstTrack) {
 			return this.t1;
@@ -130,21 +134,22 @@ public class Vertex implements IIdentifiable {
 		return this.secondTrack;
 	}
 	
+	@Override
 	public boolean hasAllTracks() {
 		return (this.firstTrack != null) &&	(this.secondTrack != null);
 	}
 	
+	@Override
 	public boolean hasOneTrack() {
 		return (this.firstTrack != null) ^ (this.secondTrack != null);
 	}
 	
+	@Override
 	public boolean hasNoTracks() {
 		return (this.firstTrack == null) &&	(this.secondTrack == null);
 	}
 	
-	/**
-	 * If only one track is connected, the method returns it.
-	 */
+	@Override
 	public Track getTrack() {
 		if(this.firstTrack == null) {
 			return this.secondTrack;

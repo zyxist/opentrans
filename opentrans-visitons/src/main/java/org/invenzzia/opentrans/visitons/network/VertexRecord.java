@@ -34,7 +34,7 @@ import org.invenzzia.opentrans.visitons.utils.SegmentCoordinate;
  * 
  * @author Tomasz Jędrzejewski
  */
-public class VertexRecord implements IVertexRecord, ILightMemento {
+public class VertexRecord implements IVertexRecord {
 	/**
 	 * The unique ID of the vertex. Allows proper mapping to the actual vertices. 
 	 */

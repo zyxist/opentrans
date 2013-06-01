@@ -309,7 +309,7 @@ public class TransformEngine {
 		}
 
 		@Override
-		public void curveFollowsStraightTrack(VertexRecord v1, VertexRecord v2, VertexRecord v3) {
+		public void curveFollowsStraightTrack(IVertexRecord v1, VertexRecord v2, IVertexRecord v3) {
 			double buf[] = new double[12];
 			TrackRecord curve = v2.getTrackTo(v3);
 			TrackRecord straight = v2.getTrackTo(v1);

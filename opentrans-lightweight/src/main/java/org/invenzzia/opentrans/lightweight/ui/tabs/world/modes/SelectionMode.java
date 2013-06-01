@@ -34,7 +34,6 @@ import org.invenzzia.opentrans.visitons.network.IVertexRecord;
 import org.invenzzia.opentrans.visitons.network.NetworkConst;
 import org.invenzzia.opentrans.visitons.network.Track;
 import org.invenzzia.opentrans.visitons.network.TrackRecord;
-import org.invenzzia.opentrans.visitons.network.VertexRecord;
 import org.invenzzia.opentrans.visitons.network.World;
 import org.invenzzia.opentrans.visitons.network.transform.ops.MoveGroup;
 import org.invenzzia.opentrans.visitons.network.transform.ops.MoveVertex;

@@ -76,7 +76,7 @@ public interface ITransformAPI {
 	 * @param v2 Adjusted vertex connecting the curve and the straight line.
 	 * @param v3 Stationary point that begins the curve.
 	 */
-	public void curveFollowsStraightTrack(VertexRecord v1, VertexRecord v2, VertexRecord v3);
+	public void curveFollowsStraightTrack(IVertexRecord v1, VertexRecord v2, IVertexRecord v3);
 	/**
 	 * In this transformation we assume that the bound vertex is connected just to the curved
 	 * track. We find the centre of the arc and the proper direction, so that the curve leads

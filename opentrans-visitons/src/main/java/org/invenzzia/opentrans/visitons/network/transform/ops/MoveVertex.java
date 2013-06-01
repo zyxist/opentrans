@@ -17,276 +17,231 @@
 
 package org.invenzzia.opentrans.visitons.network.transform.ops;
 
-import com.google.common.base.Preconditions;
+import org.invenzzia.helium.data.StateReverter;
 import org.invenzzia.opentrans.visitons.geometry.LineOps;
 import org.invenzzia.opentrans.visitons.network.IVertexRecord;
+import org.invenzzia.opentrans.visitons.network.JunctionRecord;
 import org.invenzzia.opentrans.visitons.network.NetworkConst;
 import org.invenzzia.opentrans.visitons.network.TrackRecord;
 import org.invenzzia.opentrans.visitons.network.VertexRecord;
 import org.invenzzia.opentrans.visitons.network.transform.ITransformAPI;
-import org.invenzzia.opentrans.visitons.network.transform.TransformInput;
-
-import static org.invenzzia.opentrans.visitons.network.transform.conditions.Conditions.*;
-import static org.invenzzia.opentrans.visitons.network.transform.modifiers.Modifiers.*;
 
 /**
  * This operation allows moving a single vertex across the world.
  * 
  * @author Tomasz Jędrzejewski
  */
-public class MoveVertex extends AbstractOperation {
-
+public class MoveVertex implements IOperation {
+	private ITransformAPI api;
 	/**
-	 * Moves the given vertex to the new position, if possible.
+	 * New position (temporary)
+	 */
+	private double x;
+	/**
+	 * New position (temporary)
+	 */
+	private double y;
+	/**
+	 * If something goes wrong.
+	 */
+	private StateReverter reverter;
+	/**
+	 * If some propagation method sets this method to 'true', the whole operation is reverted.
+	 */
+	private boolean revert = false;
+	
+	@Override
+	public void setTransformAPI(ITransformAPI api) {
+		this.api = api;
+	}
+	
+	/**
+	 * Moves the vertex to the new position.
 	 * 
-	 * @param vr Vertex being moved.
-	 * @param x New position of this vertex.
-	 * @param y New position of this vertex.
-	 * @param mode Editing mode
-	 * @return True, if the operation succeeded.
+	 * @param vr
+	 * @param x
+	 * @param y
+	 * @param mode
+	 * @return 
 	 */
 	public boolean move(IVertexRecord vr, double x, double y, byte mode) {
-		if(!this.getAPI().getWorld().isWithinWorld(x, y)) {
-			// Don't run the machinery, if we are outside the world.
+		this.x = x;
+		this.y = y;
+		this.revert = false;
+		this.reverter = new StateReverter();
+		api.getRecordImporter().importMissingNeighboursSmarter(api.getUnitOfWork(), vr);
+		if(vr instanceof JunctionRecord) {
+			if(!this.findPositionAlongMaster((JunctionRecord) vr)) {
+				return false;
+			}
+			this.propagate(vr, ((JunctionRecord) vr).getSlaveTrack(), mode);
+		} else {
+			if(mode == NetworkConst.MODE_DEFAULT) {
+				if(!this.findPositionAlongStraight((VertexRecord) vr)) {
+					return false;
+				}
+			}
+			this.applyPosition((VertexRecord)vr, this.x, this.y);
+			TrackRecord ft = vr.getFirstTrack();
+			TrackRecord st = vr.getSecondTrack();
+			if(null != ft && ft.getType() == NetworkConst.TRACK_FREE) {
+				TrackRecord tmp = ft;
+				ft = st;
+				st = tmp;
+			}
+			if(null != ft) {
+				this.propagate(vr, ft, mode);
+			}
+			if(null != st) {
+				this.propagate(vr, st, mode);
+			}
+		}
+		if(this.revert) {
+			this.reverter.restore();
 			return false;
 		}
-		
-		return this.evaluateCases(new TransformInput(null, null, vr, null, x, y, mode));
+		return true;
 	}
-	
-	@Override
-	protected void importData(TransformInput input, ITransformAPI api) {
-		api.getRecordImporter().importMissingNeighboursSmarter(api.getUnitOfWork(), input.v1);
-		if(input.v1.hasOneTrack()) {
-			input.t1 = input.v1.getTrack();
-		} else {
-			input.t1 = input.v1.getFirstTrack();
-			input.t2 = input.v1.getSecondTrack();
+
+	/**
+	 * This method is used to find the new position of the junction vertex on
+	 * a master track.
+	 * 
+	 * @param junctionRecord
+	 * @return 
+	 */
+	private boolean findPositionAlongMaster(JunctionRecord junctionRecord) {
+		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+	}
+
+	/**
+	 * For straight lines, we move along them by default.
+	 * 
+	 * @param vr
+	 * @return 
+	 */
+	private boolean findPositionAlongStraight(VertexRecord vr) {
+		TrackRecord straight = null;
+		if(null != vr.getFirstTrack()) {
+			if(vr.getFirstTrack().getType() == NetworkConst.TRACK_STRAIGHT) {
+				straight = vr.getFirstTrack();
+			}
+		}
+		if(null != vr.getSecondTrack()) {
+			if(vr.getSecondTrack().getType() == NetworkConst.TRACK_STRAIGHT) {
+				straight = vr.getSecondTrack();
+			}
+		}
+		if(null != straight) {
+			if(straight.getOppositeVertex(vr).hasAllTracks()) {
+				double buf[] = new double[8];
+				IVertexRecord v1 = straight.getFirstVertex();
+				IVertexRecord v2 = straight.getSecondVertex();
+				LineOps.toGeneral(v1.x(), v1.y(), v2.x(), v2.y(), 0, buf);
+				LineOps.toOrthogonal(0, 3, buf, this.x, this.y);
+				LineOps.intersection(0, 3, 6, buf);
+
+				this.x = buf[6];
+				this.y = buf[7];
+			}
+		}
+		if(!this.api.getWorld().isWithinWorld(this.x, this.y)) {
+			return false;
+		}
+		return true;		
+	}
+
+	private void applyPosition(VertexRecord vr, double x, double y) {
+		vr.setPosition(x, y);
+	}
+
+	/**
+	 * Propagate the position change to the next track. If there is a need,
+	 * the recursion can go even deeper to process all the tracks that must
+	 * be adjusted to the new position of this vertex.
+	 * 
+	 * @param vr
+	 * @param track
+	 * @param mode 
+	 */
+	private void propagate(IVertexRecord vr, TrackRecord track, byte mode) {
+		switch(track.getType()) {
+			case NetworkConst.TRACK_STRAIGHT:
+				this.propagateStraightTrack(vr, track, mode);
+				break;
+			case NetworkConst.TRACK_CURVED:
+				this.propagateCurvedTrack(vr, track, mode);
+				break;
+			case NetworkConst.TRACK_FREE:
+				this.propagateFreeTrack(vr, track, mode);
+				break;
 		}
 	}
-	
-	@Override
-	protected void configure() {
-		this.initialModifier(all(makeStraightTrackFirst(), getOppositeVertexForSecondTrack()));
-		this.register(
-			and(vertex(hasOneTrack()), track(withType(NetworkConst.TRACK_STRAIGHT)), withMode(NetworkConst.MODE_DEFAULT)),
-			this.extendStraightTrackAlongTangent()
-		);
-		this.register(
-			and(vertex(hasOneTrack()), track(withType(NetworkConst.TRACK_STRAIGHT)), not(withMode(NetworkConst.MODE_DEFAULT))),
-			this.openStraightTrackFreeMovement()
-		);
-		this.register(
-			and(vertex(hasOneTrack()), track(withType(NetworkConst.TRACK_CURVED))),
-			this.moveOpenCurvedTrack()
-		);
-		this.register(
-			and(vertex(hasOneTrack()), track(withType(NetworkConst.TRACK_FREE))),
-			this.moveOpenFreeTrack()
-		);
-		this.register(
-			// The case, where we are moving a vertex that connects curve-free or free-free pairs.
-			track(withoutType(NetworkConst.TRACK_STRAIGHT)),
-			makeCurvedTrackFirst(),
-			this.moveVertexWithoutStraightTrack()
-		);
-		this.register(
-			and(
-				// we should have another straight or free track on the opposite side of the curve
-				secondTrack(and(withType(NetworkConst.TRACK_CURVED), not(isOpen()))),
-				withMode(NetworkConst.MODE_DEFAULT)
-			),
-			this.moveExtendCurve()
-		);
-		this.register(
-			and(
-				secondVertex(hasAllTracks()),
-				secondTrack(withType(NetworkConst.TRACK_FREE)),
-				withMode(NetworkConst.MODE_DEFAULT)
-			),
-			this.moveLenghtenStraightTrackConnectedToFreeCurve()
-		);
-		this.register(
-			and(
-				not(withMode(NetworkConst.MODE_DEFAULT))
-			),
-			this.moveVertexMostComplexCase()
-		);
-	}
 
-	private IOperationCase extendStraightTrackAlongTangent() {
-		return new IOperationCase() {
-			@Override
-			public void execute(TransformInput input, ITransformAPI api) {
-				VertexRecord opposite = (VertexRecord) input.t1.getOppositeVertex(input.v1);
-				
-				if(opposite.hasAllTracks()) {
-					double buf[] = new double[8];
-					LineOps.toGeneral(opposite.x(), opposite.y(), input.v1.x(), input.v1.y(), 0, buf);
-					LineOps.toOrthogonal(0, 3, buf, input.a1, input.a2);
-					LineOps.intersection(0, 3, 6, buf);
-					input.v1().setPosition(buf[6], buf[7]);
-				} else {
-					input.v1().setPosition(input.a1, input.a2);
-				}
-				api.calculateStraightLine(input.t1);
+	private void propagateStraightTrack(IVertexRecord vr, TrackRecord track, byte mode) {
+		IVertexRecord opposite = track.getOppositeVertex(vr);
+		if(opposite instanceof JunctionRecord) {
+			JunctionRecord jr = (JunctionRecord) opposite;
+			this.revert = true;
+		} else {
+			VertexRecord or = (VertexRecord) opposite;
+			this.reverter.remember(or);
+			this.reverter.remember(track);
+			if(mode == NetworkConst.MODE_DEFAULT || opposite.hasOneTrack()) {
+				this.api.calculateStraightLine(track);
+				return;
 			}
-		};
+			TrackRecord nextTrack = or.getOppositeTrack(track);
+			if(nextTrack.getType() == NetworkConst.TRACK_CURVED) {
+				this.reverter.remember(nextTrack);
+				this.reverter.remember(nextTrack.getOppositeVertex(or));
+				this.api.curveFollowsStraightTrack(vr, or, nextTrack.getOppositeVertex(or));
+			} else {
+				this.propagate(or, nextTrack, mode);
+			}
+		}
 	}
 
-	private IOperationCase openStraightTrackFreeMovement() {
-		return new IOperationCase() {
-			@Override
-			public void execute(TransformInput input, ITransformAPI api) {
-				TrackRecord previousTrack = input.t1.getPreviousTrack();
-				input.v1().setPosition(input.a1, input.a2);
-				if(null == previousTrack) {
-					api.calculateStraightLine(input.t1);
-				} else if(previousTrack.getType() == NetworkConst.TRACK_CURVED) {
-					VertexRecord connecting = (VertexRecord) input.t1.getOppositeVertex(input.v1);
-					api.curveFollowsStraightTrack(input.v1(), connecting, (VertexRecord) previousTrack.getOppositeVertex(connecting));
-				} else if(previousTrack.getType() == NetworkConst.TRACK_FREE) {
-					api.calculateStraightLine(input.t1);
-					api.calculateFreeCurve(previousTrack);
+	private void propagateCurvedTrack(IVertexRecord vr, TrackRecord track, byte mode) {
+		IVertexRecord opposite = track.getOppositeVertex(vr);
+		if(opposite instanceof JunctionRecord) {
+			JunctionRecord jr = (JunctionRecord) opposite;
+			this.revert = true;
+		} else {		
+			VertexRecord or = (VertexRecord) opposite;
+			this.reverter.remember(or);
+			this.reverter.remember(track);
+
+			if(vr.hasOneTrack()) {
+				this.api.curveFollowsPoint(track, (VertexRecord) vr);
+				return;
+			}
+			if(vr instanceof VertexRecord) {
+				VertexRecord vrc = (VertexRecord) vr;
+				TrackRecord previous = vrc.getOppositeTrack(track);
+				if(previous.getType() == NetworkConst.TRACK_FREE) {
+					this.api.curveFollowsPoint(track, (VertexRecord) vr);
+					return;
 				}
 			}
-		};
+			
+			if(opposite.hasOneTrack()) {
+				this.api.curveFollowsPoint(track, or);
+				return;
+			}
+			TrackRecord nextTrack = or.getOppositeTrack(track);
+			if(nextTrack.getType() == NetworkConst.TRACK_STRAIGHT) {
+				this.reverter.remember(nextTrack);
+				this.reverter.remember(nextTrack.getOppositeVertex(or));
+				this.api.matchStraightTrackAndCurve(track, nextTrack, vr, or);
+			} else {
+				this.api.curveFollowsPoint(track, or);
+				this.propagate(or, nextTrack, mode);
+			}
+		}
 	}
 
-	private IOperationCase moveOpenCurvedTrack() {
-		return new IOperationCase() {
-			@Override
-			public void execute(TransformInput input, ITransformAPI api) {
-				input.v1().setPosition(input.a1, input.a2);
-				api.curveFollowsPoint(input.t1, input.v1());
-			}
-		};
-	}
-
-	private IOperationCase moveOpenFreeTrack() {
-		return new IOperationCase() {
-			@Override
-			public void execute(TransformInput input, ITransformAPI api) {
-				input.v1().setPosition(input.a1, input.a2);
-				api.calculateFreeCurve(input.t1);
-			}
-		};
-	}
-
-	/**
-	 * First case of moving the internal vertex: a lenghtening a straight track, which affects the straight
-	 * track on the opposite side of the curve. Both tracks are lenghtened by the same distance, changing the
-	 * curve radius. The curve centre moves along a imaginary straight line.
-	 */
-	private IOperationCase moveExtendCurve() {
-		return new IOperationCase() {
-			@Override
-			public void execute(TransformInput input, ITransformAPI api) {
-				TrackRecord closerStraightTrack = input.t1;
-				TrackRecord furtherStraightTrack = ((VertexRecord) input.t2.getOppositeVertex(input.v1)).getOppositeTrack(input.t2);
-				VertexRecord clStVert2 = (VertexRecord) closerStraightTrack.getOppositeVertex(input.v1);
-				
-				double buf[] = new double[8];
-				double mov = LineOps.vectorLengtheningDistance(clStVert2.x(), clStVert2.y(), input.v1.x(), input.v1.y(), input.a1, input.a2, 0, buf);
-
-				if(furtherStraightTrack.getType() == NetworkConst.TRACK_STRAIGHT) {
-					if(furtherStraightTrack.computeLength() + mov < 0.0 || closerStraightTrack.computeLength() + mov < 0.0) {
-						return;
-					}
-					VertexRecord ftStVert2 = (VertexRecord) furtherStraightTrack.getOppositeVertex(input.v2);
-					LineOps.lenghtenVector(ftStVert2.x(), ftStVert2.y(), input.v2.x(), input.v2.y(), mov, 0, buf);
-
-					if(!api.getWorld().isWithinWorld(buf[0], buf[1]) || !api.getWorld().isWithinWorld(buf[6], buf[7])) {
-						return;
-					}
-					input.v2().setPosition(buf[0], buf[1]);
-					input.v1().setPosition(buf[6], buf[7]);
-
-					api.calculateStraightLine(furtherStraightTrack);
-					api.calculateStraightLine(closerStraightTrack);
-					api.matchStraightTrackAndCurve(input.t2, furtherStraightTrack, input.v1, (VertexRecord) input.t2.getOppositeVertex(input.v1));
-				} else {
-					// Oops, you're not straight. But don't worry. This is also supposed to work.
-				}
-			}
-		};
-	}
-
-	/**
-	 * Alternative case of the method above: when the curved track is a free (double curve).
-	 */
-	private IOperationCase moveLenghtenStraightTrackConnectedToFreeCurve() {
-		return new IOperationCase() {
-			@Override
-			public void execute(TransformInput input, ITransformAPI api) {
-				double buf[] = new double[8];
-				VertexRecord opposite = (VertexRecord) input.t1.getOppositeVertex(input.v1);
-				LineOps.toGeneral(opposite.x(), opposite.y(), input.v1.x(), input.v1.y(), 0, buf);
-				LineOps.toOrthogonal(0, 3, buf, input.a1, input.a2);
-				LineOps.intersection(0, 3, 6, buf);
-				input.v1().setPosition(buf[6], buf[7]);
-				api.calculateStraightLine(input.t1);
-				api.calculateFreeCurve(input.t2);
-			}
-		};
-	
-	}
-
-	private IOperationCase moveVertexMostComplexCase() {
-		return new IOperationCase() {
-			@Override
-			public void execute(TransformInput input, ITransformAPI api) {
-				input.v1().setPosition(input.a1, input.a2);
-				
-				TrackRecord curvedTrack = input.t2;
-				TrackRecord straightTrack = input.t1;
-				TrackRecord afterCurvedTrack = curvedTrack.getOppositeTrack(straightTrack);
-				TrackRecord afterStraightTrack = straightTrack.getOppositeTrack(curvedTrack);
-
-				// Considering the part towards the straight track.
-				if(null == afterStraightTrack) {
-					api.calculateStraightLine(straightTrack);
-				} else if(afterStraightTrack.getType() == NetworkConst.TRACK_CURVED) {
-					VertexRecord vr = (VertexRecord) straightTrack.getOppositeVertex(input.v1);
-					api.curveFollowsStraightTrack(input.v1(), vr, (VertexRecord) afterStraightTrack.getOppositeVertex(vr));
-				} else if(afterStraightTrack.getType() == NetworkConst.TRACK_FREE) {
-					api.calculateStraightLine(straightTrack);
-					api.calculateFreeCurve(afterStraightTrack);
-				}
-				
-				// Considering the part towards the curved track.
-				if(curvedTrack.getType() == NetworkConst.TRACK_FREE) {
-					api.calculateFreeCurve(curvedTrack);
-				} else {
-					if(null == afterCurvedTrack) {
-						api.curveFollowsPoint(curvedTrack, input.v2());
-					} else if(afterCurvedTrack.getType() == NetworkConst.TRACK_STRAIGHT) {
-						api.matchStraightTrackAndCurve(curvedTrack, afterCurvedTrack, input.v1, (VertexRecord) curvedTrack.getOppositeVertex(input.v1));
-					} else if(afterCurvedTrack.getType() == NetworkConst.TRACK_FREE) {
-						api.curveFollowsPoint(curvedTrack, input.v2());
-						api.calculateFreeCurve(afterCurvedTrack);
-					}
-				}
-			}
-		};
-	}
-
-	private IOperationCase moveVertexWithoutStraightTrack() {
-		return new IOperationCase() {
-			@Override
-			public void execute(TransformInput input, ITransformAPI api) {
-				Preconditions.checkState(input.t2.getType() == NetworkConst.TRACK_FREE,
-					"Invalid state on map: curve-curve vertex detected (#"+input.v1.getId()+")"
-				);
-				input.v1().setPosition(input.a1, input.a2);
-				
-				if(input.t1.getType() == NetworkConst.TRACK_CURVED) {
-					api.curveFollowsPoint(input.t1, input.v1());
-				} else {
-					api.calculateFreeCurve(input.t1);
-				}
-				api.calculateFreeCurve(input.t2);
-			}
-		};
+	private void propagateFreeTrack(IVertexRecord vr, TrackRecord track, byte mode) {
+		this.api.calculateFreeCurve(track);
 	}
 }

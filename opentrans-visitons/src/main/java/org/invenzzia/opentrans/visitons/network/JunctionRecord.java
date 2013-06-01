@@ -144,5 +144,19 @@ public class JunctionRecord implements IVertexRecord {
 	public boolean hasUnimportedTracks() {
 		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
 	}
+	
+	public TrackRecord getSlaveTrack() {
+		return null;
+	}
+
+	@Override
+	public Object getMemento() {
+		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+	}
+
+	@Override
+	public void restoreMemento(Object memento) {
+		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+	}
 
 }

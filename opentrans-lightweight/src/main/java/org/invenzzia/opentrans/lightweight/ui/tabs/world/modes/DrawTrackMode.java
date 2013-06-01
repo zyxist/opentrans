@@ -30,7 +30,6 @@ import org.invenzzia.opentrans.visitons.network.IVertex;
 import org.invenzzia.opentrans.visitons.network.IVertexRecord;
 import org.invenzzia.opentrans.visitons.network.NetworkConst;
 import org.invenzzia.opentrans.visitons.network.TrackRecord;
-import org.invenzzia.opentrans.visitons.network.Vertex;
 import org.invenzzia.opentrans.visitons.network.VertexRecord;
 import org.invenzzia.opentrans.visitons.network.World;
 import org.invenzzia.opentrans.visitons.network.transform.ops.CreateNewTrack;

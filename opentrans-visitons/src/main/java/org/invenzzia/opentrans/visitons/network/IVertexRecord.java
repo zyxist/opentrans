@@ -18,6 +18,7 @@
 package org.invenzzia.opentrans.visitons.network;
 
 import org.invenzzia.helium.data.interfaces.IIdentifiable;
+import org.invenzzia.helium.data.interfaces.ILightMemento;
 
 /**
  * Common interface for junctions and vertices. Allows treating them as
@@ -33,7 +34,7 @@ import org.invenzzia.helium.data.interfaces.IIdentifiable;
  * 
  * @author Tomasz Jędrzejewski
  */
-public interface IVertexRecord extends IIdentifiable {
+public interface IVertexRecord extends IIdentifiable, ILightMemento {
 	/**
 	 * Returns <strong>true</strong>, if this vertex has a destination ID, not temporary one. It means
 	 * that we need to update an existing vertex, not create a new one.

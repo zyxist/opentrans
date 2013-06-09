@@ -17,146 +17,238 @@
 
 package org.invenzzia.opentrans.visitons.network;
 
+import com.google.common.base.Preconditions;
+import org.invenzzia.helium.data.interfaces.IIdentifiable;
+import org.invenzzia.opentrans.visitons.geometry.Characteristics;
+import org.invenzzia.opentrans.visitons.geometry.Geometry;
+import org.invenzzia.opentrans.visitons.network.transform.NetworkUnitOfWork;
+
 /**
  * Working copy of the {@link Junction}. Transformations are performed on the
  * records, which are later synchronized to the actual model.
  * 
  * @author Tomasz Jędrzejewski
  */
-public class JunctionRecord implements IVertexRecord {
+public class JunctionRecord extends AbstractVertexRecord {
+	/**
+	 * The master track that determines the position of the junction
+	 */
+	private TrackRecord masterTrack;
+	/**
+	 * Position on the master track.
+	 */
+	private double position;
+	/**
+	 * The track connected to the junction.
+	 */
+	private TrackRecord slaveTrack;
+	/**
+	 * If the slave track is not imported, we keep here its ID.
+	 */
+	private long slaveTrackId;
+	/**
+	 * Tangent in the junction towards the slave track.
+	 */
+	private double tangent;
 	
-	@Override
-	public long getId() {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+	/**
+	 * Creates a new junction record that is bound to the given track.
+	 * 
+	 * @param trackRecord 
+	 */
+	public JunctionRecord(TrackRecord trackRecord) {
+		this.masterTrack = trackRecord;
+		this.position = 0.0;
+		Characteristics c = trackRecord.getPointCharacteristics(0.0);
+		this.x = c.x();
+		this.y = c.y();
 	}
-
-	@Override
-	public void setId(long id) {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-	}
-
-	@Override
-	public boolean isPersisted() {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-	}
-
-	@Override
-	public double x() {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-	}
-
-	@Override
-	public double y() {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+	
+	public JunctionRecord(Junction junction, NetworkUnitOfWork unit) {
+		this.setId(junction.getId());
+		
+		this.masterTrack = unit.findTrack(junction.getMasterTrack().getId());
+		this.slaveTrackId = junction.getSlaveTrack().getId();
+		
+		this.position = junction.position();
+		this.tangent = junction.tangent();
+		
+		Characteristics c = this.masterTrack.getPointCharacteristics(this.position);
+		this.x = c.x();
+		this.y = c.y();
 	}
 
 	@Override
 	public double tangent() {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+		return this.tangent;
 	}
 
 	@Override
 	public double tangentFor(TrackRecord tr) {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+		return this.tangent;
 	}
 
 	@Override
 	public double oppositeTangentFor(TrackRecord tr) {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+		return Geometry.normalizeAngle(this.tangent + Math.PI);
 	}
 
 	@Override
 	public double getOpenTangent() {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+		return Geometry.normalizeAngle(this.tangent + Math.PI);
 	}
 
 	@Override
 	public boolean areTangentsOK() {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+		return true;
 	}
 
 	@Override
 	public boolean hasAllTracks() {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+		return false;
 	}
 
 	@Override
 	public boolean hasOneTrack() {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+		return (this.slaveTrack != null) || (this.slaveTrackId != IIdentifiable.NEUTRAL_ID);
 	}
 
 	@Override
 	public boolean hasNoTracks() {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+		return (this.slaveTrack == null) && (this.slaveTrackId == IIdentifiable.NEUTRAL_ID);
 	}
 
 	@Override
 	public TrackRecord getTrack() {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+		return this.slaveTrack;
 	}
 
 	@Override
 	public TrackRecord getFirstTrack() {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+		return this.slaveTrack;
 	}
 
 	@Override
 	public TrackRecord getSecondTrack() {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-	}
-
-	@Override
-	public long getFirstTrackId() {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-	}
-
-	@Override
-	public long getSecondTrackId() {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-	}
-
-	@Override
-	public long getFirstTrackActualId() {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-	}
-
-	@Override
-	public long getSecondTrackActualId() {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-	}
-
-	@Override
-	public void replaceReferenceWithRecord(TrackRecord tr) {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-	}
-
-	@Override
-	public void removeTrack(TrackRecord track) {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-	}
-
-	@Override
-	public VertexRecord setTangentFor(TrackRecord tr, double tangent) {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-	}
-
-	@Override
-	public boolean hasUnimportedTracks() {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-	}
-	
-	public TrackRecord getSlaveTrack() {
 		return null;
 	}
 
 	@Override
+	public long getFirstTrackId() {
+		return this.slaveTrackId;
+	}
+
+	@Override
+	public long getSecondTrackId() {
+		return IIdentifiable.NEUTRAL_ID;
+	}
+
+	@Override
+	public long getFirstTrackActualId() {
+		if(null != this.slaveTrack) {
+			return this.slaveTrack.getId();
+		}
+		return this.slaveTrackId;
+	}
+
+	@Override
+	public long getSecondTrackActualId() {
+		return IIdentifiable.NEUTRAL_ID;
+	}
+
+	@Override
+	public void replaceReferenceWithRecord(TrackRecord tr) {
+		if(tr.getId() == this.slaveTrackId) {
+			this.slaveTrack = tr;
+			this.slaveTrackId = IIdentifiable.NEUTRAL_ID;
+		}
+	}
+
+	@Override
+	public void removeTrack(TrackRecord track) {
+		if(track == this.slaveTrack || track.getId() == this.slaveTrackId) {
+			this.slaveTrack = null;
+			this.slaveTrackId = IIdentifiable.NEUTRAL_ID;
+		}
+	}
+
+	@Override
+	public JunctionRecord setTangentFor(TrackRecord tr, double tangent) {
+		if(tr == this.slaveTrack) {
+			this.tangent = tangent;
+		}
+		return this;
+	}
+	
+	public void setSlaveTrack(TrackRecord tr) {
+		this.slaveTrack = tr;
+	}
+	
+	/**
+	 * Sets the position on the master track.
+	 * 
+	 * @param t 
+	 */
+	public void setPosition(double t) {
+		Preconditions.checkArgument(t >= 0.0 && t <= 1.0, "position outside the range");
+		Preconditions.checkState(this.masterTrack != null, "Please set the master track first!");
+		this.position = t;
+
+		Characteristics c = this.masterTrack.getPointCharacteristics(t);
+		this.x = c.x();
+		this.y = c.y();
+		this.tangent = c.tangent();
+	}
+	
+	public double position() {
+		return this.position;
+	}
+
+	@Override
+	public boolean hasUnimportedTracks() {
+		return this.slaveTrackId != IIdentifiable.NEUTRAL_ID;
+	}
+	
+	public TrackRecord getSlaveTrack() {
+		return this.slaveTrack;
+	}
+	
+	public TrackRecord getMasterTrack() {
+		return this.masterTrack;
+	}
+
+	@Override
 	public Object getMemento() {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+		return new JunctionRecordLightMemento(this.x, this.y, this.position, this.tangent);
 	}
 
 	@Override
 	public void restoreMemento(Object memento) {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+		JunctionRecordLightMemento casted = (JunctionRecordLightMemento) memento;
+		this.x = casted.x;
+		this.y = casted.y;
+		this.position = casted.position;
+		this.tangent = casted.tangent;
 	}
+}
 
+/**
+ * These light mementos are used by transformation to remember the initial geometry
+ * state before applying the transformations. If we encounter that we have broken
+ * anything, we can restore the original state and send cancellation.
+ * 
+ * @author Tomasz Jędrzejewski
+ */
+class JunctionRecordLightMemento {
+	public final double x;
+	public final double y;
+	public final double position;
+	public final double tangent;
+	
+	public JunctionRecordLightMemento(double x, double y, double position, double tangent) {
+		this.x = x;
+		this.y = y;
+		this.position = position;
+		this.tangent = tangent;
+	}
 }

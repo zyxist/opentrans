@@ -93,7 +93,7 @@ public interface IVertexRecord extends IIdentifiable, ILightMemento {
 	 * @param tangent
 	 * @return Fluent interface.
 	 */
-	public VertexRecord setTangentFor(TrackRecord tr, double tangent);
+	public IVertexRecord setTangentFor(TrackRecord tr, double tangent);
 	/**
 	 * @return True, if there are two tracks connected to this vertex.
 	 */

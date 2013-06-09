@@ -27,6 +27,7 @@ import java.util.Set;
 import org.invenzzia.helium.data.interfaces.IIdentifiable;
 import org.invenzzia.opentrans.visitons.network.IVertex;
 import org.invenzzia.opentrans.visitons.network.IVertexRecord;
+import org.invenzzia.opentrans.visitons.network.Junction;
 import org.invenzzia.opentrans.visitons.network.NetworkConst;
 import org.invenzzia.opentrans.visitons.network.Track;
 import org.invenzzia.opentrans.visitons.network.TrackRecord;
@@ -183,7 +184,10 @@ public class NetworkUnitOfWork {
 		if(null != record) {
 			return record;
 		}
-		record = vertex.createRecord();
+		if(vertex instanceof Junction) {
+			this.importTrack(world, ((Junction) vertex).getMasterTrack());
+		}
+		record = vertex.createRecord(this);
 		this.vertices.put(Long.valueOf(vertex.getId()), record);
 		this.commonVertexImport(world, vertex, record);
 		return record;
@@ -204,7 +208,12 @@ public class NetworkUnitOfWork {
 			return record;
 		}
 		IVertex vertex = world.findVertex(vertexId);
-		record = vertex.createRecord();
+		
+		if(vertex instanceof Junction) {
+			this.importTrack(world, ((Junction) vertex).getMasterTrack());
+		}
+		
+		record = vertex.createRecord(this);
 		this.vertices.put(Long.valueOf(vertex.getId()), record);
 		this.commonVertexImport(world, vertex, record);
 		

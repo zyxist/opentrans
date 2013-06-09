@@ -95,6 +95,8 @@ public interface ITransformAPI {
 	 * @param v2 Second vertex: between curved and straight track.
 	 */
 	public boolean matchStraightTrackAndCurve(TrackRecord curvedTrack, TrackRecord straightTrack, IVertexRecord v1, VertexRecord v2);
+	
+	public boolean vertexAlongStraightTrack(TrackRecord curvedTrack, IVertexRecord moved);
 	/**
 	 * Sometimes we have a free position, and we want to cast it to some tangent, in order to apply
 	 * the new positions of the vertex.

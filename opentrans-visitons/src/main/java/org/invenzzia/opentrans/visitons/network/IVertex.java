@@ -19,6 +19,7 @@ package org.invenzzia.opentrans.visitons.network;
 
 import com.google.common.collect.BiMap;
 import org.invenzzia.helium.data.interfaces.IIdentifiable;
+import org.invenzzia.opentrans.visitons.network.transform.NetworkUnitOfWork;
 import org.invenzzia.opentrans.visitons.utils.SegmentCoordinate;
 
 /**
@@ -91,7 +92,7 @@ public interface IVertex extends IIdentifiable {
 	 * 
 	 * @return New vertex record instance with the copied state of this vertex.
 	 */
-	public IVertexRecord createRecord();
+	public IVertexRecord createRecord(NetworkUnitOfWork unit);
 	/**
 	 * Imports the vertex data from the vertex record.
 	 * 

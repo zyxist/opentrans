@@ -28,6 +28,7 @@ import org.invenzzia.opentrans.visitons.network.transform.ops.BindVertices;
 import org.invenzzia.opentrans.visitons.network.transform.ops.ConvertToCurvedTrack;
 import org.invenzzia.opentrans.visitons.network.transform.ops.ConvertToFreeTrack;
 import org.invenzzia.opentrans.visitons.network.transform.ops.ConvertToStraightTrack;
+import org.invenzzia.opentrans.visitons.network.transform.ops.CreateNewJunction;
 import org.invenzzia.opentrans.visitons.network.transform.ops.CreateNewTrack;
 import org.invenzzia.opentrans.visitons.network.transform.ops.ExtendTrack;
 import org.invenzzia.opentrans.visitons.network.transform.ops.MoveGroup;
@@ -69,6 +70,7 @@ public class VisitonsModule extends AbstractModule {
 		
 		VisitonsExtensions.bindTransformOperations(this.binder(),
 			CreateNewTrack.class,
+			CreateNewJunction.class,
 			ExtendTrack.class,
 			MoveVertex.class,
 			MoveGroup.class,

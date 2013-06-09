@@ -70,7 +70,7 @@ public class DefaultRecordImporter implements IRecordImporter {
 		
 		// Oh, it turns out that this 'smartness' does not have to be so smart. I like simplicity.
 		if(null != rootVertex.getFirstTrack()) {
-			IVertexRecord lev1a = rootVertex.getFirstTrack().getOppositeVertex(rootVertex);
+			IVertexRecord lev1a = rootVertex.getFirstTrack().getOppositeVertex(rootVertex);		
 			if(lev1a.hasAllTracks()) {
 				this.processSingleRecord(populatedUnit, world, lev1a);
 			}

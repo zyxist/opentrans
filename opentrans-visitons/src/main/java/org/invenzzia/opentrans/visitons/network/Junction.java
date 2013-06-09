@@ -18,7 +18,8 @@
 package org.invenzzia.opentrans.visitons.network;
 
 import com.google.common.collect.BiMap;
-import org.invenzzia.opentrans.visitons.utils.SegmentCoordinate;
+import org.invenzzia.helium.data.interfaces.IIdentifiable;
+import org.invenzzia.opentrans.visitons.network.transform.NetworkUnitOfWork;
 
 /**
  * Junction is a special type of vertex that has exactly one track connected,
@@ -27,74 +28,117 @@ import org.invenzzia.opentrans.visitons.utils.SegmentCoordinate;
  * 
  * @author Tomasz Jędrzejewski
  */
-public class Junction implements IVertex {
-	@Override
-	public long getId() {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-	}
-
-	@Override
-	public void setId(long id) {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-	}
-
-	@Override
-	public IVertexRecord createRecord() {
-		return null;
-	}
+public class Junction extends AbstractVertex {
+	/**
+	 * The track that determines the position of the junction.
+	 */
+	private Track masterTrack;
+	/**
+	 * The track connected to the junction.
+	 */
+	private Track slaveTrack;
+	/**
+	 * Position on the master track.
+	 */
+	private double position;
+	/**
+	 * Tangent in the junction towards the slave track.
+	 */
+	private double tangent;
 	
 	@Override
-	public SegmentCoordinate pos() {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+	public IVertexRecord createRecord(NetworkUnitOfWork unit) {
+		return new JunctionRecord(this, unit);
 	}
 
 	@Override
 	public double tangent() {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+		return this.tangent;
 	}
 
 	@Override
 	public double tangentFor(Track tr) {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+		return this.tangent;
 	}
 
 	@Override
 	public boolean hasAllTracks() {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+		return false;
 	}
 
 	@Override
 	public boolean hasOneTrack() {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+		return this.slaveTrack != null;
 	}
 
 	@Override
 	public boolean hasNoTracks() {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+		return this.slaveTrack == null;
 	}
 
 	@Override
 	public Track getTrack() {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+		return this.slaveTrack;
 	}
 
 	@Override
 	public void removeTrack(Track track) {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+		if(track == this.slaveTrack) {
+			this.slaveTrack = null;
+		}
 	}
 
 	@Override
 	public Track getFirstTrack() {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+		return this.slaveTrack;
 	}
 
 	@Override
 	public Track getSecondTrack() {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+		return this.slaveTrack;
+	}
+	
+	public Track getMasterTrack() {
+		return this.masterTrack;
+	}
+	
+	public Track getSlaveTrack() {
+		return this.slaveTrack;
 	}
 
+	public double position() {
+		return this.position;
+	}
+
+	/**
+	 * Imports the vertex data from the junction record.
+	 * 
+	 * @param jr Junction record.
+	 * @param world World.
+	 */
+	public void importFrom(JunctionRecord jr, World world) {
+		if(null != this.pos) {
+			this.pos.getSegment().removeVertex(this);
+		}
+		this.pos = world.findPosition(jr.x, jr.y);
+		this.pos.getSegment().addVertex(this);
+		this.position = jr.position();
+		this.tangent = jr.tangent();
+	}
+	
 	@Override
 	public void importConnections(IVertexRecord vr, World world, BiMap<Long, Long> trackMapping) {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+		JunctionRecord jr = (JunctionRecord) vr;
+		long idMaster = jr.getMasterTrack().getId();
+		long idSlave = jr.getFirstTrackActualId();
+		
+		if(idMaster < IIdentifiable.NEUTRAL_ID) {
+			idMaster = trackMapping.get(idMaster);
+		}
+		if(idSlave < IIdentifiable.NEUTRAL_ID) {
+			idSlave = trackMapping.get(idSlave);
+		}
+		this.masterTrack = world.findTrack(idMaster);
+		this.slaveTrack = world.findTrack(idSlave);		
 	}
 }

@@ -20,6 +20,7 @@ package org.invenzzia.opentrans.visitons.network;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.BiMap;
 import org.invenzzia.helium.data.interfaces.IIdentifiable;
+import org.invenzzia.opentrans.visitons.network.transform.NetworkUnitOfWork;
 import org.invenzzia.opentrans.visitons.utils.SegmentCoordinate;
 
 /**
@@ -28,15 +29,7 @@ import org.invenzzia.opentrans.visitons.utils.SegmentCoordinate;
  * 
  * @author Tomasz Jędrzejewski
  */
-public class Vertex implements IVertex {
-	/**
-	 * Unique numerical identifier of this vertex.
-	 */
-	private long id = IIdentifiable.NEUTRAL_ID;
-	/**
-	 * Where the vertex is located?
-	 */
-	private SegmentCoordinate position;
+public class Vertex extends AbstractVertex {
 	/**
 	 * The first connected track.
 	 */
@@ -57,20 +50,7 @@ public class Vertex implements IVertex {
 	private double t2;
 	
 	@Override
-	public long getId() {
-		return this.id;
-	}
-	
-	@Override
-	public void setId(long id) {
-		if(IIdentifiable.NEUTRAL_ID != this.id) {
-			throw new IllegalStateException("Cannot change the ID of the vertex.");
-		}
-		this.id = id;
-	}
-	
-	@Override
-	public IVertexRecord createRecord() {
+	public IVertexRecord createRecord(NetworkUnitOfWork unit) {
 		return new VertexRecord(this);
 	}
 	
@@ -81,18 +61,8 @@ public class Vertex implements IVertex {
 	 * @param coordinate 
 	 */
 	public void setPos(SegmentCoordinate pos) {
-		Preconditions.checkState(this.position == null, "The position is already set.");
-		this.position = pos;
-	}
-	
-	/**
-	 * Returns the information about the position of this vertex on the world.
-	 * 
-	 * @return 
-	 */
-	@Override
-	public SegmentCoordinate pos() {
-		return this.position;
+		Preconditions.checkState(this.pos == null, "The position is already set.");
+		this.pos = pos;
 	}
 	
 	/**
@@ -198,11 +168,11 @@ public class Vertex implements IVertex {
 	 * @param world Helper world object. We need some assistance from it.
 	 */
 	public void importFrom(VertexRecord vr, World world) {
-		if(null != this.position) {
-			this.position.getSegment().removeVertex(this);
+		if(null != this.pos) {
+			this.pos.getSegment().removeVertex(this);
 		}
-		this.position = world.findPosition(vr.x(), vr.y());
-		this.position.getSegment().addVertex(this);
+		this.pos = world.findPosition(vr.x(), vr.y());
+		this.pos.getSegment().addVertex(this);
 		
 		this.t1 = vr.firstTangent();
 		this.t2 = vr.secondTangent();

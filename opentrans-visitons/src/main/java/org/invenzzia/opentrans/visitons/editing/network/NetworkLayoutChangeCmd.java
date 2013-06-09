@@ -29,6 +29,8 @@ import org.invenzzia.opentrans.visitons.editing.ICommand;
 import org.invenzzia.opentrans.visitons.events.WorldSegmentUsageChangedEvent;
 import org.invenzzia.opentrans.visitons.network.IVertex;
 import org.invenzzia.opentrans.visitons.network.IVertexRecord;
+import org.invenzzia.opentrans.visitons.network.Junction;
+import org.invenzzia.opentrans.visitons.network.JunctionRecord;
 import org.invenzzia.opentrans.visitons.network.Track;
 import org.invenzzia.opentrans.visitons.network.TrackRecord;
 import org.invenzzia.opentrans.visitons.network.Vertex;
@@ -228,9 +230,10 @@ public class NetworkLayoutChangeCmd implements ICommand, ICommandDetails {
 				theVertex.importFrom((VertexRecord)vr, project.getWorld());
 				vertex = theVertex;
 			} else {
-				throw new UnsupportedOperationException("Junctions not supported yet.");
+				Junction theJunction = new Junction();
+				theJunction.importFrom((JunctionRecord)vr, project.getWorld());
+				vertex = theJunction;
 			}
-
 			
 			if(this.vertexMapping.containsKey(tempId)) {
 				vertex.setId(this.vertexMapping.get(tempId));
@@ -253,7 +256,15 @@ public class NetworkLayoutChangeCmd implements ICommand, ICommandDetails {
 					theVertex.importFrom((VertexRecord)vr, project.getWorld());
 				}
 			} else {
-				throw new UnsupportedOperationException("Junctions not implemented yet.");
+				Junction theJunction = (Junction) vertex;
+				if(null == theJunction) {
+					theJunction = new Junction();
+					theJunction.importFrom((JunctionRecord) vr, project.getWorld());
+					theJunction.setId(vr.getId());
+					project.getWorld().addVertex(theJunction);
+				} else {
+					theJunction.importFrom((JunctionRecord) vr, project.getWorld());
+				}
 			}
 		}
 	}
@@ -300,5 +311,9 @@ public class NetworkLayoutChangeCmd implements ICommand, ICommandDetails {
 			track = world.findTrack(tr.getId());
 		}
 		track.importConnections(tr, world, this.vertexMapping);
+		
+		for(JunctionRecord junction: tr.getJunctions()) {
+			
+		}
 	}
 }

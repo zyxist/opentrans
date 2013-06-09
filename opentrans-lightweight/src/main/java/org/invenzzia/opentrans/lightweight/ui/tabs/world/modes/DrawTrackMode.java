@@ -32,6 +32,7 @@ import org.invenzzia.opentrans.visitons.network.NetworkConst;
 import org.invenzzia.opentrans.visitons.network.TrackRecord;
 import org.invenzzia.opentrans.visitons.network.VertexRecord;
 import org.invenzzia.opentrans.visitons.network.World;
+import org.invenzzia.opentrans.visitons.network.transform.ops.CreateNewJunction;
 import org.invenzzia.opentrans.visitons.network.transform.ops.CreateNewTrack;
 import org.invenzzia.opentrans.visitons.network.transform.ops.ExtendTrack;
 import org.invenzzia.opentrans.visitons.network.transform.ops.MoveVertex;
@@ -57,6 +58,10 @@ public class DrawTrackMode extends AbstractStateMachineEditMode {
 	 * Single instance of one of the states.
 	 */
 	private final NewDrawingStartsDrawTrackState STATE_NEW_TRACK = new NewDrawingStartsDrawTrackState();
+	/**
+	 * Single instance of one of the states.
+	 */
+	private final JunctionDrawTrackState STATE_JUNCTION = new JunctionDrawTrackState();
 	/**
 	 * Single instance of one of the states.
 	 */
@@ -173,6 +178,8 @@ public class DrawTrackMode extends AbstractStateMachineEditMode {
 				setState(STATE_NEW_TRACK);
 			} else if(snapshot.getType() == HoveredItemSnapshot.TYPE_VERTEX) {
 				setState(STATE_CONTINUE_TRACK);
+			} else if(snapshot.getType() == HoveredItemSnapshot.TYPE_TRACK) {
+				setState(STATE_JUNCTION);
 			} else {
 				return;
 			}
@@ -209,6 +216,47 @@ public class DrawTrackMode extends AbstractStateMachineEditMode {
 				boundVertex = transformEngine.op(CreateNewTrack.class).create(this.x, this.y, worldX, worldY);
 				if(null == boundVertex) {
 					logger.debug("STATE_NEW_TRACK: not able to create.");
+					setState(STATE_CURSOR_FREE);
+					resetState();
+				} else {
+					addForIgnoring(boundVertex.getTrack(), boundVertex);
+					setState(STATE_DRAWING);
+				}
+			} finally {
+				this.started = false;
+			}
+		}
+	}
+	
+	class JunctionDrawTrackState extends AbstractEditState {
+		private boolean started = false;
+		private TrackRecord masterTrack;
+		private double position;
+		
+		@Override
+		public boolean captureMotionEvents() {
+			return this.started;
+		}
+		
+		@Override
+		public void leftActionPerformed(double worldX, double worldY, boolean altDown, boolean ctrlDown) {
+			if(!hasUnitOfWork()) {
+				logger.debug("STATE_JUNCTION: creating the unit of work.");
+				createUnitOfWork();
+			}
+			HoveredItemSnapshot snapshot = getHoveredItemSnapshot();
+			this.masterTrack = currentUnit.importTrack(getWorld(), snapshot.getId());
+			this.position = snapshot.getPosition();
+			this.started = true;
+		}
+		
+		@Override
+		public void mouseMoves(double worldX, double worldY, boolean altDown, boolean ctrlDown) {
+			try {
+				logger.debug("STATE_JUNCTION: creating the bound vertex.");
+				boundVertex = transformEngine.op(CreateNewJunction.class).create(this.masterTrack, this.position, worldX, worldY);
+				if(null == boundVertex) {
+					logger.debug("STATE_JUNCTION: not able to create.");
 					setState(STATE_CURSOR_FREE);
 					resetState();
 				} else {

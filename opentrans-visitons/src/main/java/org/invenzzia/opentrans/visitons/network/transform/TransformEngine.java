@@ -26,6 +26,7 @@ import org.invenzzia.opentrans.visitons.geometry.ArcOps;
 import org.invenzzia.opentrans.visitons.geometry.Geometry;
 import org.invenzzia.opentrans.visitons.geometry.LineOps;
 import org.invenzzia.opentrans.visitons.network.IVertexRecord;
+import org.invenzzia.opentrans.visitons.network.JunctionRecord;
 import org.invenzzia.opentrans.visitons.network.NetworkConst;
 import org.invenzzia.opentrans.visitons.network.TrackRecord;
 import org.invenzzia.opentrans.visitons.network.VertexRecord;
@@ -338,7 +339,7 @@ public class TransformEngine {
 			// If bound vertex does not have one track, be sure that you know what you are doing.
 			// This state is necessary for handling curve-free connections.
 			IVertexRecord v2 = curvedTrack.getOppositeVertex(boundVertex);
-			Preconditions.checkState(v2.hasAllTracks());
+			Preconditions.checkState(v2.hasAllTracks() || v2 instanceof JunctionRecord);
 			
 			double buf[] = new double[3];
 			this.prepareCurveFreeMovement(v2, boundVertex.x(), boundVertex.y(), 0, buf);
@@ -405,6 +406,50 @@ public class TransformEngine {
 			straightTrack.setMetadata(new double[] { v3.x(), v3.y(), v4.x(), v4.y() });
 			this.findCurveDirection(curvedTrack, x2, y2);
 			
+			return true;
+		}
+		
+		public boolean vertexAlongStraightTrack(TrackRecord curvedTrack, IVertexRecord moved) {
+			IVertexRecord v1 = curvedTrack.getOppositeVertex(moved);
+			double buf[] = new double[16];
+			// First line: Dx + Ey + F = 0
+			LineOps.toGeneral(moved.x(), moved.y(), moved.tangent(), 0, buf);
+			// Second line - we only need the orthogonal: A2x + B2y + C2 = 0
+			LineOps.toGeneral(v1.x(), v1.y(), v1.tangent(), 3, buf);
+
+			// Their angle bisector: Mx + Ny + P = 0
+			double p = Math.sqrt(Math.pow(buf[0], 2) + Math.pow(buf[1], 2));
+			double q = Math.sqrt(Math.pow(buf[3], 2) + Math.pow(buf[4], 2));
+			buf[6] = (buf[0] * q + buf[3] * p);
+			buf[7] = (buf[1] * q + buf[4] * p);
+			buf[8] = (buf[2] * q + buf[5] * p);
+
+			if(Math.signum(buf[6] * v1.x() + buf[7] * v1.y() + buf[8]) == Math.signum(buf[6] * moved.x() + buf[7] * moved.y() + buf[8])) {
+				buf[6] = (buf[0] * q - buf[3] * p);
+				buf[7] = (buf[1] * q - buf[4] * p);
+				buf[8] = (buf[2] * q - buf[5] * p);
+			}
+			LineOps.toOrthogonal(3, buf, v1.x(), v1.y());
+			LineOps.intersection(3, 6, 9, buf);
+			LineOps.toOrthogonal(0, 11, buf, buf[9], buf[10]);
+			LineOps.intersection(0, 11, 14, buf);
+			if(!world.isWithinWorld(buf[14], buf[15])) {
+				return false;
+			}
+			
+			if(moved instanceof JunctionRecord) {
+				JunctionRecord jr = (JunctionRecord) moved;
+				double t = jr.getMasterTrack().toParameter(buf[14], buf[15]);
+				if(t < 0.0 || t > 1.0) {
+					return false;
+				}
+				jr.setPosition(t);
+				this.findCurveDirection(curvedTrack, buf[9], buf[10]);
+			} else {
+				VertexRecord vr = (VertexRecord) moved;
+				vr.setPosition(buf[14], buf[15]);
+				this.findCurveDirection(curvedTrack, buf[9], buf[10]);
+			}
 			return true;
 		}
 

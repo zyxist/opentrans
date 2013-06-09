@@ -68,6 +68,10 @@ public class TrackRecord implements ILightMemento {
 	 * Records of all the track objects on this track.
 	 */
 	private List<TrackObjectRecord> trackObjects;
+	/**
+	 * All junctions on this track.
+	 */
+	private List<JunctionRecord> junctions;
 	
 	/**
 	 * Creates a new, empty instance of track.
@@ -321,6 +325,14 @@ public class TrackRecord implements ILightMemento {
 		throw new UnsupportedOperationException("Not supported yet.");
 	}
 	
+	public double toParameter(double x, double y) {
+		double cursorDist = LineOps.distance(this.v1.x(), this.v1.y(), x, y);
+		double lineLength = LineOps.distance(this.v1.x(), this.v1.y(),this.v2.x(), this.v2.y());
+		
+		double result = cursorDist / lineLength;
+		return result;
+	}
+	
 	/**
 	 * Sets the track geometry metadata. The exact array structure and size depend on the track
 	 * type.
@@ -461,6 +473,44 @@ public class TrackRecord implements ILightMemento {
 	 */
 	public boolean hasTrackObjects() {
 		return this.trackObjects != null;
+	}
+	
+	/**
+	 * Adds a new junction to the track.
+	 * 
+	 * @param junction 
+	 */
+	public void addJunction(JunctionRecord junction) {
+		Preconditions.checkNotNull(junction);
+		if(null == this.junctions) {
+			this.junctions = new LinkedList<>();
+		}
+		this.junctions.add(junction);
+	}
+	
+	public void removeJunction(JunctionRecord junction) {
+		if(null != this.junctions) {
+			this.junctions.remove(junction);
+			if(junctions.isEmpty()) {
+				this.junctions = null;
+			}
+		}
+	}
+	
+	public boolean hasJunctions() {
+		return this.junctions != null;
+	}
+	
+	/**
+	 * Returns an immutable list of junctions.
+	 * 
+	 * @return 
+	 */
+	public List<JunctionRecord> getJunctions() {
+		if(null == this.junctions) {
+			return ImmutableList.of();
+		}
+		return ImmutableList.copyOf(this.junctions);
 	}
 }
 

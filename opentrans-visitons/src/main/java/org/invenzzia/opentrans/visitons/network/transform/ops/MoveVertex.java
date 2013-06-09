@@ -207,6 +207,8 @@ public class MoveVertex implements IOperation {
 		IVertexRecord opposite = track.getOppositeVertex(vr);
 		if(opposite instanceof JunctionRecord) {
 			JunctionRecord jr = (JunctionRecord) opposite;
+			this.reverter.remember(jr);
+			this.reverter.remember(track);
 			if(vr.hasOneTrack()) {
 				this.api.curveFollowsPoint(track, (VertexRecord) vr);
 			} else {
@@ -218,7 +220,6 @@ public class MoveVertex implements IOperation {
 						break;
 				}
 			}
-			this.revert = true;
 		} else {		
 			VertexRecord or = (VertexRecord) opposite;
 			this.reverter.remember(or);

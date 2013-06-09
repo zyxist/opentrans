@@ -197,6 +197,7 @@ public class MoveVertex implements IOperation {
 				this.reverter.remember(nextTrack.getOppositeVertex(or));
 				this.api.curveFollowsStraightTrack(vr, or, nextTrack.getOppositeVertex(or));
 			} else {
+				this.api.calculateStraightLine(track);
 				this.propagate(or, nextTrack, mode);
 			}
 		}

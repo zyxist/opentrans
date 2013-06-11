@@ -48,6 +48,8 @@ public class FixtureProjectFactory implements IProjectFactory {
 			
 			VehicleType vt = new VehicleType();
 			vt.setName("NGT6");
+			vt.setNumberOfSegments(3);
+			vt.setLength(27.0);
 			vt.getMeanOfTransport().set(mot);
 			
 			project.getVehicleTypeManager().addItem(vt);

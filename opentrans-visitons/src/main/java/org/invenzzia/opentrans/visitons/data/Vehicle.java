@@ -22,9 +22,14 @@ import org.invenzzia.helium.data.interfaces.IIdentifiable;
 import org.invenzzia.helium.data.interfaces.IMemento;
 import org.invenzzia.helium.data.interfaces.IRecord;
 import org.invenzzia.opentrans.visitons.Project;
+import org.invenzzia.opentrans.visitons.geometry.Characteristics;
+import org.invenzzia.opentrans.visitons.network.IVertex;
 import org.invenzzia.opentrans.visitons.network.NetworkConst;
+import org.invenzzia.opentrans.visitons.network.Track;
+import org.invenzzia.opentrans.visitons.network.Vertex;
 import org.invenzzia.opentrans.visitons.network.objects.INamedTrackObject;
 import org.invenzzia.opentrans.visitons.network.objects.TrackObject;
+import org.invenzzia.opentrans.visitons.network.objects.TrackObject.TrackObjectRecord;
 
 
 /**
@@ -77,6 +82,8 @@ class VehicleBase implements IIdentifiable {
 	public String toString() {
 		return this.name;
 	}
+	
+	
 }
 
 /**
@@ -183,6 +190,77 @@ public class Vehicle extends VehicleBase implements IMemento<Project>, INamedTra
 	public int getType() {
 		return NetworkConst.TRACK_OBJECT_VEHICLE;
 	}
+	
+	/**
+	 * For the accurate drawing of a vehicle, we must compute the 'knots': places, where the
+	 * segments join. The method returns an array with X,Y coordinates of all the knots in
+	 * the proper orientation along tracks.
+	 * 
+	 * @return 
+	 */
+	public double[] computeKnots() {
+		VehicleType vt = this.getVehicleType().get();
+		int segments = vt.getNumberOfSegments();
+		double knots[] = new double[segments * 2 + 2];
+		
+		Characteristics c = this.trackObject.getTrack().getPointCharacteristics(this.trackObject.getPosition());
+		knots[0] = c.x();
+		knots[1] = c.y();
+		
+		int idx = 2;
+		int orientation = this.trackObject.getOrientation();
+		
+		Track tr = this.trackObject.getTrack();
+		double tl = tr.getLength();
+		double pos = this.trackObject.getPosition() * tl;
+		double delta = (vt.getLength() / (double)segments);
+		for(int i = 0; i < segments; i++) {
+			if(orientation == 0) {
+				pos -= delta;
+				if(delta < 0.0) {
+					double diff = delta - pos;
+					IVertex v = tr.getFirstVertex();
+					if(v instanceof Vertex) {
+						Vertex vv = (Vertex) v;
+						tr = vv.getOppositeTrack(tr);
+						tl = tr.getLength();
+						if(tr.getFirstVertex() == vv) {
+							orientation = 1;
+							pos = diff;
+						} else {
+							orientation = 0;
+							pos = tl - diff;
+						}
+					}
+				}
+			} else {
+				pos += delta;
+				if(delta >= tl) {
+					double diff = delta - tl;
+					IVertex v = tr.getFirstVertex();
+					if(v instanceof Vertex) {
+						Vertex vv = (Vertex) v;
+						tr = vv.getOppositeTrack(tr);
+						tl = tr.getLength();
+						if(tr.getFirstVertex() == vv) {
+							orientation = 1;
+							pos = diff;
+						} else {
+							orientation = 0;
+							pos = tl - diff;
+						}
+					}
+				}
+			}
+			double p = pos / tl;
+			c = tr.getPointCharacteristics(p);
+			knots[idx++] = c.x();
+			knots[idx++] = c.y();
+		}
+		return knots;
+	}
+	
+	
 	
 	public static final class VehicleRecord extends VehicleBase implements IRecord<Vehicle, Project> {
 		/**

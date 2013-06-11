@@ -135,6 +135,23 @@ public class Vertex extends AbstractVertex {
 	}
 	
 	/**
+	 * Returns the opposite track connected to the vertex. The method throws an exception,
+	 * if no opposite track is found.
+	 * 
+	 * @throws IllegalStateException If no opposite track exists.
+	 * @param tested Tested track
+	 * @return Opposite track to the tested track in this vertex.
+	 */
+	public Track getOppositeTrack(Track tested) {
+		if(this.firstTrack == tested) {
+			return this.secondTrack;
+		} else if(this.secondTrack == tested) {
+			return this.firstTrack;
+		}
+		throw new IllegalStateException("No opposite track to '"+tested.getId()+"' in vertex '"+this.getId()+"'");
+	}
+	
+	/**
 	 * Removes the track from the vertex. This method shall be used only by the {@link World} instances.
 	 * 
 	 * @param track 

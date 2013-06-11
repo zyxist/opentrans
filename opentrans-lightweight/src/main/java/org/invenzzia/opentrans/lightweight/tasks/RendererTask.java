@@ -27,6 +27,7 @@ import org.invenzzia.opentrans.visitons.render.stream.SelectionStream;
 import org.invenzzia.opentrans.visitons.render.stream.StopLabelStream;
 import org.invenzzia.opentrans.visitons.render.stream.TrackObjectStream;
 import org.invenzzia.opentrans.visitons.render.stream.TrackStream;
+import org.invenzzia.opentrans.visitons.render.stream.VehicleStream;
 
 /**
  * This must be refactored some day to use multibindings. It's a bit shame
@@ -51,6 +52,8 @@ public class RendererTask implements ITask {
 	private SelectionStream selectionStream;
 	@Inject
 	private TrackObjectStream trackObjectStream;
+	@Inject
+	private VehicleStream vehicleStream;
 
 	@Override
 	public void startup() throws TaskException {
@@ -61,6 +64,7 @@ public class RendererTask implements ITask {
 		this.renderer.addRenderingStream(this.stopLabelStream);
 		this.renderer.addRenderingStream(this.selectionStream);
 		this.renderer.addRenderingStream(this.debugStream);
+		this.renderer.addRenderingStream(this.vehicleStream);
 	}
 
 	@Override

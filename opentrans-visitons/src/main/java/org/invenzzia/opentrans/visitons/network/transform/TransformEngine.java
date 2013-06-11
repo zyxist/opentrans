@@ -149,6 +149,7 @@ public class TransformEngine {
 			v1.setTangentFor(tr, tangent);
 			v2.setTangentFor(tr, Geometry.normalizeAngle(tangent + Math.PI));
 			tr.setMetadata(new double[] { v1.x(), v1.y(), v2.x(), v2.y() } );
+			tr.computeLength();
 		}
 
 		@Override
@@ -159,6 +160,7 @@ public class TransformEngine {
 			double buf[] = new double[3];
 			this.prepareCurveFreeMovement(v2, v1.x(), v1.y(), 0, buf);
 			this.findCurveDirection(tr, buf[0], buf[1]);
+			tr.computeLength();
 		}
 
 		@Override
@@ -306,6 +308,7 @@ public class TransformEngine {
 			metadata[18] = mx;
 			metadata[19] = my;
 			
+			tr.computeLength();
 			tr.setMetadata(metadata);
 		}
 
@@ -332,6 +335,8 @@ public class TransformEngine {
 			this.calculateStraightLine(straight);
 			this.prepareCurveFreeMovement(v3, v2.x(), v2.y(), 0, buf);
 			this.findCurveDirection(curve, buf[0], buf[1]);
+			straight.computeLength();
+			curve.computeLength();
 		}
 
 		@Override
@@ -344,6 +349,7 @@ public class TransformEngine {
 			double buf[] = new double[3];
 			this.prepareCurveFreeMovement(v2, boundVertex.x(), boundVertex.y(), 0, buf);
 			this.findCurveDirection(curvedTrack, boundVertex, buf[0], buf[1]);
+			curvedTrack.computeLength();
 		}
 
 		// hint: v1 - stationary
@@ -405,7 +411,8 @@ public class TransformEngine {
 			v3.setPosition(x1, y1);
 			straightTrack.setMetadata(new double[] { v3.x(), v3.y(), v4.x(), v4.y() });
 			this.findCurveDirection(curvedTrack, x2, y2);
-			
+			straightTrack.computeLength();
+			curvedTrack.computeLength();
 			return true;
 		}
 		
@@ -451,6 +458,7 @@ public class TransformEngine {
 				vr.setPosition(buf[14], buf[15]);
 				this.findCurveDirection(curvedTrack, buf[9], buf[10]);
 			}
+			curvedTrack.computeLength();
 			return true;
 		}
 

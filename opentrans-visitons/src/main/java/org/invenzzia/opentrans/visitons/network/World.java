@@ -32,6 +32,7 @@ import javax.imageio.ImageIO;
 import org.invenzzia.helium.data.interfaces.IIdentifiable;
 import org.invenzzia.opentrans.visitons.data.Platform;
 import org.invenzzia.opentrans.visitons.data.Stop;
+import org.invenzzia.opentrans.visitons.data.Vehicle;
 import org.invenzzia.opentrans.visitons.exception.WorldException;
 import org.invenzzia.opentrans.visitons.network.objects.TrackObject;
 import org.invenzzia.opentrans.visitons.render.AbstractCameraModelFoundation;
@@ -42,6 +43,7 @@ import org.invenzzia.opentrans.visitons.render.painters.StraightTrackPainter;
 import org.invenzzia.opentrans.visitons.render.scene.CommittedTrackObjectSnapshot;
 import org.invenzzia.opentrans.visitons.render.scene.CommittedTrackSnapshot;
 import org.invenzzia.opentrans.visitons.render.scene.StopSnapshot;
+import org.invenzzia.opentrans.visitons.render.scene.VehicleSnapshot;
 import org.invenzzia.opentrans.visitons.render.scene.VisibleSegmentSnapshot;
 import org.invenzzia.opentrans.visitons.render.scene.VisibleSegmentSnapshot.SegmentInfo;
 import org.invenzzia.opentrans.visitons.utils.SegmentCoordinate;
@@ -666,6 +668,7 @@ public class World {
 		}
 		CommittedTrackSnapshot snap = new CommittedTrackSnapshot(visibleTracks.size());
 		CommittedTrackObjectSnapshot trackObjectSnap = null;
+		VehicleSnapshot vehicleSnapshot = null;
 		Set<Stop> stops = new HashSet<>();
 		snap.setVertexArray(points, ids);
 		i = 0;
@@ -690,10 +693,17 @@ public class World {
 					trackObjectSnap = new CommittedTrackObjectSnapshot();
 				}
 				for(TrackObject to: track.getTrackObjects()) {
-					if(to.getObject() instanceof Platform) {
-						stops.add(((Platform)to.getObject()).getStop());
+					if(to.getObject() instanceof Vehicle) {
+						if(null == vehicleSnapshot) {
+							vehicleSnapshot = new VehicleSnapshot();
+						}
+						vehicleSnapshot.addVehicle((Vehicle)to.getObject());
+					} else {
+						if(to.getObject() instanceof Platform) {
+							stops.add(((Platform)to.getObject()).getStop());
+						}
+						trackObjectSnap.addTrackObject(track, to);
 					}
-					trackObjectSnap.addTrackObject(track, to);
 				}
 			}
 		}
@@ -704,6 +714,7 @@ public class World {
 			sm.batchUpdateResource(VisibleSegmentSnapshot.class, vss);
 			sm.batchUpdateResource(CommittedTrackSnapshot.class, snap);
 			sm.batchUpdateResource(CommittedTrackObjectSnapshot.class, trackObjectSnap);
+			sm.batchUpdateResource(VehicleSnapshot.class, vehicleSnapshot);
 			if(stops.size() > 0) {
 				sm.batchUpdateResource(StopSnapshot.class, new StopSnapshot().addStops(stops));
 			} else {

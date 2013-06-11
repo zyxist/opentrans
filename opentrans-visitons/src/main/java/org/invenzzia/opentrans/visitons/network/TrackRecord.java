@@ -405,11 +405,11 @@ public class TrackRecord implements ILightMemento {
 	public double computeLength() {
 		switch(this.type) {
 			case NetworkConst.TRACK_STRAIGHT:
-				return LineOps.lineLength(this.v1.x(), this.v1.y(), this.v2.x(), this.v2.y());
+				return this.length = LineOps.lineLength(this.v1.x(), this.v1.y(), this.v2.x(), this.v2.y());
 			case NetworkConst.TRACK_CURVED:
-				return ArcOps.arcLength(this.metadata[5], LineOps.distance(this.v1.x(), this.v1.y(), this.metadata[6], this.metadata[7]));
+				return this.length = ArcOps.arcLength(this.metadata[5], LineOps.distance(this.v1.x(), this.v1.y(), this.metadata[6], this.metadata[7]));
 			case NetworkConst.TRACK_FREE:
-				return
+				return this.length = 
 					ArcOps.arcLength(this.metadata[5], LineOps.distance(this.v1.x(), this.v1.y(), this.metadata[6], this.metadata[7]))
 					+ ArcOps.arcLength(this.metadata[17], LineOps.distance(this.v1.x(), this.v1.y(), this.metadata[18], this.metadata[19]));
 		}

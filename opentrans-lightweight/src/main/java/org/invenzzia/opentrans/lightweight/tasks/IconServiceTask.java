@@ -51,6 +51,7 @@ public class IconServiceTask implements ITask {
 		this.iconService.preloadIcon("convert-to-curve", currentLoader.getResource("org/invenzzia/opentrans/gui/icons/medium/convert-to-curved-track.png"));
 		this.iconService.preloadIcon("convert-to-free", currentLoader.getResource("org/invenzzia/opentrans/gui/icons/medium/convert-to-free-track.png"));
 		this.iconService.preloadIcon("stops", currentLoader.getResource("org/invenzzia/opentrans/gui/icons/medium/stops.png"));
+		this.iconService.preloadIcon("vehicles", currentLoader.getResource("org/invenzzia/opentrans/gui/icons/medium/vehicles.png"));
 		
 		// Small utility icons
 		this.iconService.preloadIcon("ui-close-small", currentLoader.getResource("org/invenzzia/opentrans/gui/icons/small/ui-close.png"));

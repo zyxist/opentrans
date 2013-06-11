@@ -29,7 +29,10 @@ import org.invenzzia.helium.history.History;
 import org.invenzzia.helium.history.IHistoryStrategy;
 import org.invenzzia.opentrans.lightweight.annotations.InModelThread;
 import org.invenzzia.opentrans.lightweight.annotations.InSwingThread;
+import org.invenzzia.opentrans.lightweight.app.FixtureProjectFactory;
+import org.invenzzia.opentrans.lightweight.app.IProjectFactory;
 import org.invenzzia.opentrans.lightweight.app.VisitonsHistoryStrategy;
+import org.invenzzia.opentrans.lightweight.binding.NewProject;
 import org.invenzzia.opentrans.lightweight.controllers.*;
 import org.invenzzia.opentrans.lightweight.interceptor.ModelThreadInterceptor;
 import org.invenzzia.opentrans.lightweight.interceptor.SwingThreadInterceptor;
@@ -57,6 +60,7 @@ import org.invenzzia.opentrans.lightweight.ui.tabs.world.modes.ConvertToFreeMode
 import org.invenzzia.opentrans.lightweight.ui.tabs.world.modes.DrawTrackMode;
 import org.invenzzia.opentrans.lightweight.ui.tabs.world.modes.SelectionMode;
 import org.invenzzia.opentrans.lightweight.ui.tabs.world.modes.StopMode;
+import org.invenzzia.opentrans.lightweight.ui.tabs.world.modes.VehicleMode;
 import org.invenzzia.opentrans.lightweight.ui.tabs.world.popups.*;
 import org.invenzzia.opentrans.lightweight.ui.toolbars.ToolbarManager;
 import org.invenzzia.opentrans.lightweight.ui.workspace.DesktopManager;
@@ -154,13 +158,17 @@ public class OpentransModule extends AbstractModule {
 			ConvertToStraightMode.class,
 			ConvertToCurveMode.class,
 			ConvertToFreeMode.class,
-			StopMode.class
+			StopMode.class,
+			VehicleMode.class
 		);
 		OpentransExtensions.bindPopupActions(this.binder(),
 			CenterAction.class,
 			SelectBitmapAction.class,
 			ClearBitmapAction.class
 		);
+		
+		// Project factories
+		this.bind(IProjectFactory.class).annotatedWith(NewProject.class).to(FixtureProjectFactory.class).in(Singleton.class);
 
 		// Bind visitons items
 		this.bind(World.class).toProvider(WorldProvider.class);

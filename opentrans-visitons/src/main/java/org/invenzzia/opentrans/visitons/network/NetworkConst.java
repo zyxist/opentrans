@@ -66,6 +66,10 @@ public class NetworkConst {
 	 * The type value for the 'platform' track objects.
 	 */
 	public static final int TRACK_OBJECT_PLATFORM = 2;
+	/**
+	 * The type value for the 'vehicle' track object.
+	 */
+	public static final int TRACK_OBJECT_VEHICLE = 3;
 
 	private NetworkConst() {
 	}

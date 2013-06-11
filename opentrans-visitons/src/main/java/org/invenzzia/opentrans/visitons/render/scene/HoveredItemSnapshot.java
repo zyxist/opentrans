@@ -29,6 +29,7 @@ public class HoveredItemSnapshot {
 	
 	public static final int TYPE_TRACK_OBJECT_DELTA = 30;
 	public static final int TYPE_PLATFORM = 32;	// delta + track object type number.
+	public static final int TYPE_VEHICLE = 33;
 	
 	private final int type;
 	private final long id;

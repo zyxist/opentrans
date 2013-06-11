@@ -20,8 +20,9 @@ package org.invenzzia.opentrans.lightweight.tasks;
 import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
 import org.invenzzia.opentrans.lightweight.Application;
+import org.invenzzia.opentrans.lightweight.app.IProjectFactory;
 import org.invenzzia.opentrans.lightweight.exception.TaskException;
-import org.invenzzia.opentrans.lightweight.app.ProjectFactory;
+import org.invenzzia.opentrans.lightweight.binding.NewProject;
 
 /**
  * Description here.
@@ -30,7 +31,8 @@ import org.invenzzia.opentrans.lightweight.app.ProjectFactory;
  */
 public class ProjectTask implements ITask {
 	@Inject
-	private ProjectFactory projectFactory;
+	@NewProject
+	private IProjectFactory projectFactory;
 	@Inject
 	private EventBus eventBus;
 	@Inject
@@ -39,9 +41,10 @@ public class ProjectTask implements ITask {
 	@Override
 	public void startup() throws TaskException {
 		if(this.application.getStartupMode() == Application.STARTUP_EMPTY_PROJECT) {
-			application.setCurrentProject(this.projectFactory.createEmptyProject());
+			application.setCurrentProject(this.projectFactory.createProject());
 		} else {
-			application.setCurrentProject(this.projectFactory.openExistingProject(application.getProjectPath()));
+			application.setCurrentProject(this.projectFactory.createProject());
+		//	application.setCurrentProject(this.projectFactory.openExistingProject(application.getProjectPath()));
 		}
 	}
 

@@ -22,6 +22,9 @@ import org.invenzzia.helium.data.interfaces.IIdentifiable;
 import org.invenzzia.helium.data.interfaces.IMemento;
 import org.invenzzia.helium.data.interfaces.IRecord;
 import org.invenzzia.opentrans.visitons.Project;
+import org.invenzzia.opentrans.visitons.network.NetworkConst;
+import org.invenzzia.opentrans.visitons.network.objects.INamedTrackObject;
+import org.invenzzia.opentrans.visitons.network.objects.TrackObject;
 
 
 /**
@@ -36,6 +39,8 @@ class VehicleBase implements IIdentifiable {
 	 * Name of this vehicle.
 	 */
 	private String name;
+	
+	private double speed;
 
 	@Override
 	public long getId() {
@@ -79,7 +84,7 @@ class VehicleBase implements IIdentifiable {
  * 
  * @author zyxist
  */
-public class Vehicle extends VehicleBase implements IMemento<Project> {
+public class Vehicle extends VehicleBase implements IMemento<Project>, INamedTrackObject {
 	/**
 	 * The vehicle type that describes the attributes of this vehicle.
 	 */
@@ -88,6 +93,10 @@ public class Vehicle extends VehicleBase implements IMemento<Project> {
 	 * New name that should be set after formal verification.
 	 */
 	private String newName = null;
+	/**
+	 * Describes the position of the vehicle on the track.
+	 */
+	private TrackObject<Vehicle> trackObject;
 	
 	/**
 	 * Returns the reference to the parent vehicle type.
@@ -147,6 +156,32 @@ public class Vehicle extends VehicleBase implements IMemento<Project> {
 		VehicleRecord record = (VehicleRecord) memento;
 		record.exportData(this, domainModel);
 		this.id = record.id;
+	}
+	
+	public void setTrackObject(TrackObject<Vehicle> trackObject) {
+		if(null != this.trackObject) {
+			this.trackObject.setObject(null);
+			this.trackObject.getTrack().removeTrackObject(this);
+		}
+		this.trackObject = trackObject;
+		if(null != this.trackObject) {
+			this.trackObject.setObject(this);
+		}
+	}
+
+	@Override
+	public String getTrackObjectName() {
+		return this.getName();
+	}
+
+	@Override
+	public TrackObject getTrackObject() {
+		return this.trackObject;
+	}
+
+	@Override
+	public int getType() {
+		return NetworkConst.TRACK_OBJECT_VEHICLE;
 	}
 	
 	public static final class VehicleRecord extends VehicleBase implements IRecord<Vehicle, Project> {

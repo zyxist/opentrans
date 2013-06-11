@@ -409,6 +409,7 @@ public class TransformEngine {
 			return true;
 		}
 		
+		@Override
 		public boolean vertexAlongStraightTrack(TrackRecord curvedTrack, IVertexRecord moved) {
 			IVertexRecord v1 = curvedTrack.getOppositeVertex(moved);
 			double buf[] = new double[16];

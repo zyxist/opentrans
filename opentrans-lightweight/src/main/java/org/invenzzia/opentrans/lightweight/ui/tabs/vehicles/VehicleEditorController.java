@@ -18,6 +18,7 @@
 package org.invenzzia.opentrans.lightweight.ui.tabs.vehicles;
 
 import com.google.inject.Inject;
+import org.invenzzia.helium.data.interfaces.IIdentifiable;
 import org.invenzzia.opentrans.lightweight.annotations.Action;
 import org.invenzzia.opentrans.lightweight.annotations.FormField;
 import org.invenzzia.opentrans.lightweight.controllers.IActionScanner;
@@ -137,7 +138,9 @@ public class VehicleEditorController {
 	public void installModel() {
 		if(null != this.model && this.formScanner.isDiscovered()) {
 			this.formScanner.setString("name", this.model.getName());
-			this.formScanner.setObject("vehicleType", this.vehicleTypeSelectionModel.findById(this.model.getVehicleTypeId()));
+			if(this.model.getVehicleTypeId() != IIdentifiable.NEUTRAL_ID) {
+				this.formScanner.setObject("vehicleType", this.vehicleTypeSelectionModel.findById(this.model.getVehicleTypeId()));
+			}
 		}
 	}
 }

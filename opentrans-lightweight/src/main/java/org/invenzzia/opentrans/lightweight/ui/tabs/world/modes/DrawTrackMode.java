@@ -28,6 +28,7 @@ import org.invenzzia.opentrans.lightweight.ui.tabs.world.IEditModeAPI;
 import org.invenzzia.opentrans.visitons.Project;
 import org.invenzzia.opentrans.visitons.network.IVertex;
 import org.invenzzia.opentrans.visitons.network.IVertexRecord;
+import org.invenzzia.opentrans.visitons.network.JunctionRecord;
 import org.invenzzia.opentrans.visitons.network.NetworkConst;
 import org.invenzzia.opentrans.visitons.network.TrackRecord;
 import org.invenzzia.opentrans.visitons.network.VertexRecord;
@@ -36,6 +37,7 @@ import org.invenzzia.opentrans.visitons.network.transform.ops.CreateNewJunction;
 import org.invenzzia.opentrans.visitons.network.transform.ops.CreateNewTrack;
 import org.invenzzia.opentrans.visitons.network.transform.ops.ExtendTrack;
 import org.invenzzia.opentrans.visitons.network.transform.ops.MoveVertex;
+import org.invenzzia.opentrans.visitons.network.transform.ops.ReverseJunction;
 import org.invenzzia.opentrans.visitons.network.transform.ops.SnapTrackToTrack;
 import org.invenzzia.opentrans.visitons.render.scene.HoveredItemSnapshot;
 import org.slf4j.Logger;
@@ -383,6 +385,16 @@ public class DrawTrackMode extends AbstractStateMachineEditMode {
 			} finally {
 				setState(STATE_CURSOR_FREE);
 				resetState();
+			}
+		}
+		
+		@Override
+		public void rPressed(double worldX, double worldY) {
+			if(null != boundVertex) {
+				TrackRecord tr = boundVertex.getTrack();
+				if(tr.getOppositeVertex(boundVertex) instanceof JunctionRecord) {
+					transformEngine.op(ReverseJunction.class).reverse((JunctionRecord)tr.getOppositeVertex(boundVertex));
+				}
 			}
 		}
 	}

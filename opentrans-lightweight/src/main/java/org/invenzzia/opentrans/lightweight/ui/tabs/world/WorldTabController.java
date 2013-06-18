@@ -290,8 +290,13 @@ public class WorldTabController implements AdjustmentListener, IZoomListener, IW
 	class KeyboardListener extends KeyAdapter {
 		@Override
 		public void keyReleased(KeyEvent e) {
-			if(e.getKeyCode() == KeyEvent.VK_DELETE) {
-				currentEditMode.deletePressed(0.0, 0.0);
+			switch(e.getKeyCode()) {
+				case KeyEvent.VK_DELETE:
+					currentEditMode.deletePressed(0.0, 0.0);
+					break;
+				case KeyEvent.VK_R:
+					currentEditMode.rPressed(0.0, 0.0);
+					break;
 			}
 		}
 	}

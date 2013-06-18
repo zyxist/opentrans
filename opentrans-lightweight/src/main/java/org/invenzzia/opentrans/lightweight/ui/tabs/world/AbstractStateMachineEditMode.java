@@ -100,4 +100,9 @@ public abstract  class AbstractStateMachineEditMode extends AbstractTrackModeAPI
 	public void deletePressed(double worldX, double worldY) {
 		this.currentState.deletePressed(worldX, worldY);
 	}
+	
+	@Override
+	public void rPressed(double worldX, double worldY) {
+		this.currentState.rPressed(worldX, worldY);
+	}
 }

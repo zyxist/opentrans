@@ -111,4 +111,11 @@ public interface IEditState {
 	 * @param worldY Currently always 0
 	 */
 	public void deletePressed(double worldX, double worldY);
+	/**
+	 * The user has clicked 'R' key on the keyboard.
+	 * 
+	 * @param worldX
+	 * @param worldY 
+	 */
+	public void rPressed(double worldX, double worldY);
 }

@@ -60,4 +60,8 @@ public abstract class AbstractEditState implements IEditState {
 	@Override
 	public void deletePressed(double worldX, double worldY) {
 	}
+	
+	@Override
+	public void rPressed(double worldX, double worldY) {
+	}
 }

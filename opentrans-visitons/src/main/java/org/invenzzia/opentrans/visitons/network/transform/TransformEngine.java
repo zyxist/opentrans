@@ -307,9 +307,8 @@ public class TransformEngine {
 			metadata[17] = tr.getFirstVertex().y();
 			metadata[18] = mx;
 			metadata[19] = my;
-			
-			tr.computeLength();
 			tr.setMetadata(metadata);
+			tr.computeLength();
 		}
 
 		@Override

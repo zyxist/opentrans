@@ -22,7 +22,9 @@ import com.google.inject.Provider;
 import java.util.Collection;
 import org.invenzzia.helium.data.interfaces.IIdentifiable;
 import org.invenzzia.opentrans.visitons.network.IVertexRecord;
-import org.invenzzia.opentrans.visitons.network.VertexRecord;
+import org.invenzzia.opentrans.visitons.network.JunctionRecord;
+import org.invenzzia.opentrans.visitons.network.NetworkConst;
+import org.invenzzia.opentrans.visitons.network.TrackRecord;
 import org.invenzzia.opentrans.visitons.network.World;
 
 /**
@@ -56,10 +58,12 @@ public class DefaultRecordImporter implements IRecordImporter {
 	
 	private void processSingleRecord(NetworkUnitOfWork populatedUnit, World world, IVertexRecord rec) {
 		if(rec.getFirstTrack() == null && rec.getFirstTrackId() != IIdentifiable.NEUTRAL_ID) {
-			populatedUnit.importTrack(world, rec.getFirstTrackId());
+			TrackRecord tr = populatedUnit.importTrack(world, rec.getFirstTrackId());
+			this.importJunctions(populatedUnit, world, tr);
 		}
 		if(rec.getSecondTrack() == null && rec.getSecondTrackId()!= IIdentifiable.NEUTRAL_ID) {
-			populatedUnit.importTrack(world, rec.getSecondTrackId());
+			TrackRecord tr = populatedUnit.importTrack(world, rec.getSecondTrackId());
+			this.importJunctions(populatedUnit, world, tr);
 		}
 	}
 
@@ -79,6 +83,16 @@ public class DefaultRecordImporter implements IRecordImporter {
 			IVertexRecord lev1b = rootVertex.getSecondTrack().getOppositeVertex(rootVertex);
 			if(lev1b.hasAllTracks()) {
 				this.processSingleRecord(populatedUnit, world, lev1b);
+			}
+		}
+	}
+	
+	private void importJunctions(NetworkUnitOfWork populatedUnit, World world, TrackRecord tr) {
+		for(JunctionRecord jr: tr.getJunctions()) {
+			this.processSingleRecord(populatedUnit, world, jr);
+			IVertexRecord opposite = jr.getSlaveTrack().getOppositeVertex(jr);
+			if(jr.getSlaveTrack().getType() != NetworkConst.TRACK_FREE && !(opposite instanceof JunctionRecord)) {
+				this.processSingleRecord(populatedUnit, world, opposite);
 			}
 		}
 	}

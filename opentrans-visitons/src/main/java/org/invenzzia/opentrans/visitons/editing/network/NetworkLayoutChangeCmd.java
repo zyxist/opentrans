@@ -211,6 +211,17 @@ public class NetworkLayoutChangeCmd implements ICommand, ICommandDetails {
 				dieWelt.removeVertex(v);
 			}
 		}
+		tri = unit.overTracks();
+		while(tri.hasNext()) {
+			TrackRecord tr = tri.next();
+			long id = tr.getId();
+			if(this.trackMapping.containsKey(id)) {
+				id = this.trackMapping.get(id);
+			}
+			Track track = dieWelt.findTrack(id);
+			track.importJunctions(tr.getJunctions(), this.vertexMapping, dieWelt);
+		}
+		
 		eventBus.post(new WorldSegmentUsageChangedEvent(new WorldRecord(dieWelt)));
 	}
 

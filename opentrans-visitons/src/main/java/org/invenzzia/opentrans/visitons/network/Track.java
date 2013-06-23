@@ -21,6 +21,7 @@ package org.invenzzia.opentrans.visitons.network;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.ImmutableList;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import org.invenzzia.helium.data.interfaces.IIdentifiable;
@@ -66,6 +67,10 @@ public class Track {
 	 * Various stationary objects put on the track.
 	 */
 	private List<TrackObject> trackObjects;
+	/**
+	 * Junctions on this track.
+	 */
+	private List<Junction> junctions = ImmutableList.of();
 	
 	/**
 	 * @return Unique track ID.
@@ -222,6 +227,46 @@ public class Track {
 		}
 	}
 	
+	/**
+	 * Returns true, if the track has any junctions.
+	 */
+	public boolean hasJunctions() {
+		return null != this.junctions;
+	}
+
+	/**
+	 * Imports the junctions from the given list of records.
+	 * 
+	 * @param records List of junction records.
+	 * @param world World instance used for finding the actual entity.
+	 */
+	public void importJunctions(List<JunctionRecord> records, BiMap<Long, Long> vertexMapping, World world) {
+		if(records.isEmpty()) {
+			this.junctions = ImmutableList.of();
+		}
+		Junction juncs[] = new Junction[records.size()];
+		int i = 0;
+		for(JunctionRecord jr: records) {
+			long theId = jr.getId();
+			if(vertexMapping.containsKey(theId)) {
+				theId = vertexMapping.get(theId);
+			}
+			IVertex vertex = world.findVertex(theId);
+			if(!(vertex instanceof Junction)) {
+				throw new IllegalStateException("The vertex #"+theId+" was expected to be a junction.");
+			}
+			juncs[i++] = (Junction) vertex;
+		}
+		this.junctions = ImmutableList.copyOf(juncs);
+	}
+
+	/**
+	 * @return Immutable collection of junctions. 
+	 */
+	public List<Junction> getJunctions() {
+		return this.junctions;
+	}
+
 	/**
 	 * Converts the position from range <tt>[0.0, 1.0]</tt> to the point-tangent information.
 	 * 

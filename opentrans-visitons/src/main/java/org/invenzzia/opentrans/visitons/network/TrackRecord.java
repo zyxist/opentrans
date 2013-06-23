@@ -30,6 +30,7 @@ import org.invenzzia.opentrans.visitons.geometry.Geometry;
 import org.invenzzia.opentrans.visitons.geometry.LineOps;
 import org.invenzzia.opentrans.visitons.network.objects.TrackObject;
 import org.invenzzia.opentrans.visitons.network.objects.TrackObject.TrackObjectRecord;
+import org.invenzzia.opentrans.visitons.network.transform.NetworkUnitOfWork;
 
 /**
  * Track record can be used by the GUI thread to represent the currently edited
@@ -119,6 +120,23 @@ public class TrackRecord implements ILightMemento {
 				record.importData(to);
 				this.trackObjects.add(record);
 			}
+		}
+	}
+	
+	/**
+	 * Additional method for importing junctions into the unit of work and putting them
+	 * on the track record.
+	 * 
+	 * @param unit
+	 * @param track 
+	 */
+	public void importJunctions(NetworkUnitOfWork unit, World world, Track track) {
+		for(Junction junction: track.getJunctions()) {
+			JunctionRecord jr = (JunctionRecord) unit.importVertex(world, junction);
+			if(null == this.junctions) {
+				this.junctions = new LinkedList<>();
+			}
+			this.junctions.add(jr);
 		}
 	}
 	

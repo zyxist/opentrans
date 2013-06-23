@@ -71,7 +71,7 @@ public class MoveVertex implements IOperation {
 		this.reverter = new StateReverter();
 		api.getRecordImporter().importMissingNeighboursSmarter(api.getUnitOfWork(), vr);
 		if(vr instanceof JunctionRecord) {
-			if(!this.findPositionAlongMaster((JunctionRecord) vr)) {
+			if(!this.findPositionAlongMaster((JunctionRecord) vr, mode)) {
 				return false;
 			}
 			this.propagate(vr, ((JunctionRecord) vr).getSlaveTrack(), mode);
@@ -110,8 +110,21 @@ public class MoveVertex implements IOperation {
 	 * @param junctionRecord
 	 * @return 
 	 */
-	private boolean findPositionAlongMaster(JunctionRecord junctionRecord) {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+	private boolean findPositionAlongMaster(JunctionRecord junctionRecord, byte mode) {
+		TrackRecord slaveTrack = junctionRecord.getSlaveTrack();
+		switch(slaveTrack.getType()) {
+			case NetworkConst.TRACK_STRAIGHT:
+				return false;
+			case NetworkConst.TRACK_CURVED:
+				this.api.vertexAlongStraightTrack(slaveTrack, junctionRecord);
+				this.propagateJunctions(slaveTrack, mode);
+				break;
+			case NetworkConst.TRACK_FREE:
+				this.api.calculateFreeCurve(slaveTrack);
+				this.propagateJunctions(slaveTrack, mode);
+				break;
+		}
+		return false;
 	}
 
 	/**
@@ -189,15 +202,19 @@ public class MoveVertex implements IOperation {
 			this.reverter.remember(track);
 			if(mode == NetworkConst.MODE_DEFAULT || opposite.hasOneTrack()) {
 				this.api.calculateStraightLine(track);
+				this.propagateJunctions(track, mode);
 				return;
 			}
 			TrackRecord nextTrack = or.getOppositeTrack(track);
 			if(nextTrack.getType() == NetworkConst.TRACK_CURVED) {
 				this.reverter.remember(nextTrack);
 				this.reverter.remember(nextTrack.getOppositeVertex(or));
+				this.propagateJunctions(track, mode);
+				this.propagateJunctions(nextTrack, mode);
 				this.api.curveFollowsStraightTrack(vr, or, nextTrack.getOppositeVertex(or));
 			} else {
 				this.api.calculateStraightLine(track);
+				this.propagateJunctions(track, mode);
 				this.propagate(or, nextTrack, mode);
 			}
 		}
@@ -226,7 +243,12 @@ public class MoveVertex implements IOperation {
 			this.reverter.remember(track);
 
 			if(vr.hasOneTrack()) {
-				this.api.curveFollowsPoint(track, (VertexRecord) vr);
+				if(vr instanceof JunctionRecord) {
+					this.findPositionAlongMaster((JunctionRecord) vr, mode);
+				} else {
+					this.api.curveFollowsPoint(track, (VertexRecord) vr);
+				}
+				this.propagateJunctions(track, mode);
 				return;
 			}
 			if(vr instanceof VertexRecord) {
@@ -234,6 +256,7 @@ public class MoveVertex implements IOperation {
 				TrackRecord previous = vrc.getOppositeTrack(track);
 				if(previous.getType() == NetworkConst.TRACK_FREE) {
 					this.api.curveFollowsPoint(track, (VertexRecord) vr);
+					this.propagateJunctions(track, mode);
 					return;
 				}
 			}
@@ -247,8 +270,11 @@ public class MoveVertex implements IOperation {
 				this.reverter.remember(nextTrack);
 				this.reverter.remember(nextTrack.getOppositeVertex(or));
 				this.api.matchStraightTrackAndCurve(track, nextTrack, vr, or);
+				this.propagateJunctions(track, mode);
+				this.propagateJunctions(nextTrack, mode);
 			} else {
 				this.api.curveFollowsPoint(track, or);
+				this.propagateJunctions(track, mode);
 				this.propagate(or, nextTrack, mode);
 			}
 		}
@@ -256,5 +282,18 @@ public class MoveVertex implements IOperation {
 
 	private void propagateFreeTrack(IVertexRecord vr, TrackRecord track, byte mode) {
 		this.api.calculateFreeCurve(track);
+		this.propagateJunctions(track, mode);
+	}
+	
+	/**
+	 * Recursive propagation that recalculates the tracks for every junction.
+	 * 
+	 * @param track Track to scan for junctions.
+	 * @param mode 
+	 */
+	private void propagateJunctions(TrackRecord track, byte mode) {
+		for(JunctionRecord jr: track.getJunctions()) {
+			this.propagate(jr, jr.getSlaveTrack(), mode);
+		}
 	}
 }

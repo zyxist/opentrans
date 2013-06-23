@@ -270,6 +270,7 @@ public class NetworkUnitOfWork {
 			v1 = this.importVertex(world, track.getFirstVertex()),
 			v2 = this.importVertex(world, track.getSecondVertex())
 		);
+		record.importJunctions(this, world, track);
 		
 		// Both of the vertices might have been imported earlier. We must update their references to the
 		// actual links.
@@ -300,6 +301,7 @@ public class NetworkUnitOfWork {
 			v1 = this.importVertex(world, track.getFirstVertex()),
 			v2 = this.importVertex(world, track.getSecondVertex())
 		);
+		record.importJunctions(this, world, track);
 		
 		// Both of the vertices might have been imported earlier. We must update their references to the
 		// actual links.
